@@ -3,7 +3,7 @@
 
 Ants is set of highly available microservices architecture based on [Ant](https://github.com/henrylee2cn/ant) and [Teleport](https://github.com/henrylee2cn/teleport) framework.
 
-[简体中文](https://github.com/henrylee2cn/ants/blob/master/README_ZH.md)
+[简体中文](https://github.com/xiaoenai/ants/blob/master/README_ZH.md)
 
 
 ## Install
