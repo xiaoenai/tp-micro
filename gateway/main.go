@@ -17,20 +17,35 @@
 package main
 
 import (
+	"github.com/henrylee2cn/ant/discovery"
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/client"
 	"github.com/xiaoenai/ants/gateway/http"
 	"github.com/xiaoenai/ants/gateway/tcp"
 )
 
 func main() {
-	client.Init(cfg.InnerClient)
+	etcdClient, err := discovery.NewEtcdClient([]string{"http://127.0.0.1:2379"}, "", "")
+	if err != nil {
+		tp.Fatalf("%v", err)
+	}
+	client.Init(
+		cfg.InnerClient,
+		socket.NewFastProtoFunc,
+		discovery.NewLinkerFromEtcd(etcdClient),
+	)
 
 	if cfg.EnableOuterHttp {
 		go http.Serve(cfg.OuterHttpServer)
 	}
 
 	if cfg.EnableOuterTcp {
-		go tcp.Serve(cfg.OuterTcpServer)
+		go tcp.Serve(
+			cfg.OuterTcpServer,
+			socket.NewFastProtoFunc,
+			discovery.ServicePluginFromEtcd(":9090", etcdClient),
+		)
 	}
 
 	select {}
