@@ -1,6 +1,6 @@
 // Gateway for TCP and HTTP services.
 //
-// Copyright 2018 HenryLee. All Rights Reserved.
+// Copyright 2018 github.com/xiaoenai. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,5 +17,21 @@
 package main
 
 import (
-	"github.com/valyala/fasthttp"
+	"github.com/xiaoenai/ants/gateway/client"
+	"github.com/xiaoenai/ants/gateway/http"
+	"github.com/xiaoenai/ants/gateway/tcp"
 )
+
+func main() {
+	client.Init(cfg.InnerClient)
+
+	if cfg.EnableOuterHttp {
+		go http.Serve(cfg.OuterHttpServer)
+	}
+
+	if cfg.EnableOuterTcp {
+		go tcp.Serve(cfg.OuterTcpServer)
+	}
+
+	select {}
+}
