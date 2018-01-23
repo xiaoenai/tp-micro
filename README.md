@@ -92,6 +92,7 @@ func main() {
 		ant.Fatalf("%v", rerr)
 	}
 	ant.Infof("test binding error: ok: %v", rerr)
+}
 ```
 
 [More](https://github.com/henrylee2cn/ant/tree/master/samples)
