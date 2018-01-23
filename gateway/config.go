@@ -17,7 +17,6 @@ package main
 import (
 	"net"
 	"strconv"
-	"time"
 
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/cfgo"
@@ -42,6 +41,10 @@ type Config struct {
 // Reload load or reload config
 func (c *Config) Reload(bind cfgo.BindFunc) error {
 	err := bind()
+	if err != nil {
+		return err
+	}
+	err = c.InnerClient.Check()
 	if err != nil {
 		return err
 	}
@@ -80,8 +83,8 @@ var cfg = &Config{
 		CountTime:       true,
 	},
 	InnerClient: ant.CliConfig{
-		Failover:  3,
-		Heartbeat: time.Second * 60,
+		Failover:        3,
+		HeartbeatSecond: 60,
 	},
 	EtcdUrls: []string{"http://127.0.0.1:2379"},
 	Redis:    *redis.NewConfig(),
