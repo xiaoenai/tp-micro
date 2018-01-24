@@ -16,7 +16,8 @@ install:
   - go get github.com/go-playground/overalls
   - go get github.com/mattn/goveralls
   - go get github.com/smartystreets/goconvey
-  - go get -u github.com/xiaoenai/ants
+  - go get -u github.com/xiaoenai/ants/...
+  - mkdir -p $GOPATH/src/github.com/xiaoenai
   - cd $GOPATH/src/github.com/xiaoenai/ants
 
 script:
