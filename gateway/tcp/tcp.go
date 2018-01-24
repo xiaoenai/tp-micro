@@ -5,6 +5,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
+	"github.com/xiaoenai/ants/gateway/auth"
 	"github.com/xiaoenai/ants/gateway/client"
 )
 
@@ -21,9 +22,19 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, etcdPlugin tp.Plugi
 	srv.Listen(protoFunc)
 }
 
-func verifyAuthInfo(authInfo string, sess plugin.AuthSession) *tp.Rerror {
-	tp.Debugf("verify-auth: id: %s, info: %s", sess.Id(), authInfo)
-	// TODO some business code
+func verifyAuthInfo(accessToken string, sess plugin.AuthSession) *tp.Rerror {
+	tp.Debugf("verify-auth: id: %s, info: %s", sess.Id(), accessToken)
+	token, rerr := auth.Verify(accessToken)
+	if rerr != nil {
+		return rerr
+	}
+
+	// manage session
+
+	if len(token.Id) > 0 {
+		sess.SetId(token.Id)
+	}
 	// ...
+
 	return nil
 }
