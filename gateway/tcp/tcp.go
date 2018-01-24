@@ -30,11 +30,11 @@ func verifyAuthInfo(accessToken string, sess plugin.AuthSession) *tp.Rerror {
 	}
 
 	// manage session
+	// TODO
 
 	if len(token.Id) > 0 {
 		sess.SetId(token.Id)
 	}
-	// ...
 
 	return nil
 }
