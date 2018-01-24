@@ -23,7 +23,7 @@ install:
 script:
     - overalls -project=github.com/xiaoenai/ants -covermode=count -ignore='.git,_vendor'
     - goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
-    - go test -race -coverprofile=coverage.txt -covermode=atomic
+    - go test ./gateway -race -coverprofile=coverage.txt -covermode=atomic
     - go test ./...
 
 after_success:
