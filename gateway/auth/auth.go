@@ -9,6 +9,7 @@ type AccessToken struct {
 	Id string
 }
 
+// String returns the access token string.
 func (a *AccessToken) String() string {
 	// TODO
 
