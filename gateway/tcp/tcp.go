@@ -38,3 +38,11 @@ func verifyAuthInfo(accessToken string, sess plugin.AuthSession) *tp.Rerror {
 
 	return nil
 }
+
+type logoffPlugin struct{}
+
+func (l *logoffPlugin) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
+	logoffAgent(1024, sess)
+	log.Tracef("[-CONN] ip: %s, id: %s", sess.RemoteIp(), sess.Id())
+	return nil
+}
