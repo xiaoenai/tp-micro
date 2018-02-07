@@ -26,7 +26,7 @@ import (
 )
 
 func main() {
-	etcdClient, err := discovery.NewEtcdClient([]string{"http://127.0.0.1:2379"}, "", "")
+	etcdClient, err := discovery.NewEtcdClient(cfg.Etcd)
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
@@ -44,7 +44,7 @@ func main() {
 		go tcp.Serve(
 			cfg.OuterTcpServer,
 			socket.NewFastProtoFunc,
-			discovery.ServicePluginFromEtcd(":9090", etcdClient),
+			discovery.ServicePluginFromEtcd(cfg.innerAddr, etcdClient),
 		)
 	}
 

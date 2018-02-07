@@ -19,7 +19,9 @@ import (
 	"strconv"
 
 	"github.com/henrylee2cn/ant"
+	"github.com/henrylee2cn/ant/discovery"
 	"github.com/henrylee2cn/cfgo"
+	"github.com/henrylee2cn/goutil"
 	"github.com/xiaoenai/ants/gateway/http"
 	"github.com/xiaoenai/redis"
 )
@@ -32,10 +34,11 @@ type Config struct {
 	OuterTcpServer  ant.SrvConfig           `yaml:"outer_tpc_server"`
 	InnerServer     ant.SrvConfig           `yaml:"inner_server"`
 	InnerClient     ant.CliConfig           `yaml:"inner_client"`
-	EtcdUrls        []string                `yaml:"etcd_urls"`
+	Etcd            discovery.EtcdConfig    `yaml:"etcd"`
 	Redis           redis.Config            `yaml:"redis"`
 	outerPort       int
 	innerPort       int
+	innerAddr       string
 }
 
 // Reload load or reload config
@@ -53,6 +56,11 @@ func (c *Config) Reload(bind cfgo.BindFunc) error {
 		return err
 	}
 	c.innerPort, err = getPort(c.InnerServer.ListenAddress)
+	innerIp, err := goutil.IntranetIP()
+	if err != nil {
+		return err
+	}
+	c.innerAddr = net.JoinHostPort(innerIp, strconv.Itoa(c.innerPort))
 	return err
 }
 
@@ -86,8 +94,10 @@ var cfg = &Config{
 		Failover:        3,
 		HeartbeatSecond: 60,
 	},
-	EtcdUrls: []string{"http://127.0.0.1:2379"},
-	Redis:    *redis.NewConfig(),
+	Etcd: discovery.EtcdConfig{
+		Endpoints: []string{"http://127.0.0.1:2379"},
+	},
+	Redis: *redis.NewConfig(),
 }
 
 func init() {
