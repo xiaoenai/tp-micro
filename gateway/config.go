@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package gateway
 
 import (
 	"net"
 	"strconv"
 
 	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/cfgo"
-	"github.com/xiaoenai/ants/gateway/http"
+	"github.com/henrylee2cn/ant/discovery"
+	"github.com/henrylee2cn/goutil"
+	"github.com/xiaoenai/ants/gateway/logic/http"
 	"github.com/xiaoenai/redis"
 )
 
@@ -32,19 +33,47 @@ type Config struct {
 	OuterTcpServer  ant.SrvConfig           `yaml:"outer_tpc_server"`
 	InnerServer     ant.SrvConfig           `yaml:"inner_server"`
 	InnerClient     ant.CliConfig           `yaml:"inner_client"`
-	EtcdUrls        []string                `yaml:"etcd_urls"`
+	Etcd            discovery.EtcdConfig    `yaml:"etcd"`
 	Redis           redis.Config            `yaml:"redis"`
 	outerPort       int
 	innerPort       int
+	innerAddr       string
 }
 
-// Reload load or reload config
-func (c *Config) Reload(bind cfgo.BindFunc) error {
-	err := bind()
-	if err != nil {
-		return err
+// NewConfig creates a default config.
+func NewConfig() *Config {
+	return &Config{
+		EnableOuterHttp: true,
+		EnableOuterTcp:  true,
+		OuterHttpServer: http.OuterHttpSrvConfig{
+			ListenAddress: "0.0.0.0:5000",
+		},
+		OuterTcpServer: ant.SrvConfig{
+			ListenAddress:   "0.0.0.0:5020",
+			EnableHeartbeat: true,
+			PrintBody:       true,
+			CountTime:       true,
+		},
+		InnerServer: ant.SrvConfig{
+			ListenAddress:   "0.0.0.0:5030",
+			EnableHeartbeat: true,
+			PrintBody:       true,
+			CountTime:       true,
+		},
+		InnerClient: ant.CliConfig{
+			Failover:        3,
+			HeartbeatSecond: 60,
+		},
+		Etcd: discovery.EtcdConfig{
+			Endpoints: []string{"http://127.0.0.1:2379"},
+		},
+		Redis: *redis.NewConfig(),
 	}
-	err = c.InnerClient.Check()
+}
+
+// check the config
+func (c *Config) check() error {
+	err := c.InnerClient.Check()
 	if err != nil {
 		return err
 	}
@@ -53,6 +82,11 @@ func (c *Config) Reload(bind cfgo.BindFunc) error {
 		return err
 	}
 	c.innerPort, err = getPort(c.InnerServer.ListenAddress)
+	innerIp, err := goutil.IntranetIP()
+	if err != nil {
+		return err
+	}
+	c.innerAddr = net.JoinHostPort(innerIp, strconv.Itoa(c.innerPort))
 	return err
 }
 
@@ -62,34 +96,4 @@ func getPort(addr string) (int, error) {
 		return 0, err
 	}
 	return strconv.Atoi(port)
-}
-
-var cfg = &Config{
-	EnableOuterHttp: true,
-	EnableOuterTcp:  true,
-	OuterHttpServer: http.OuterHttpSrvConfig{
-		ListenAddress: "0.0.0.0:5000",
-	},
-	OuterTcpServer: ant.SrvConfig{
-		ListenAddress:   "0.0.0.0:5020",
-		EnableHeartbeat: true,
-		PrintBody:       true,
-		CountTime:       true,
-	},
-	InnerServer: ant.SrvConfig{
-		ListenAddress:   "0.0.0.0:5030",
-		EnableHeartbeat: true,
-		PrintBody:       true,
-		CountTime:       true,
-	},
-	InnerClient: ant.CliConfig{
-		Failover:        3,
-		HeartbeatSecond: 60,
-	},
-	EtcdUrls: []string{"http://127.0.0.1:2379"},
-	Redis:    *redis.NewConfig(),
-}
-
-func init() {
-	cfgo.MustReg("gateway", cfg)
 }

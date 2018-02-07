@@ -1,4 +1,4 @@
-// Gateway for TCP and HTTP services.
+// Package gateway is the main program for TCP and HTTP services.
 //
 // Copyright 2018 github.com/xiaoenai. All Rights Reserved.
 //
@@ -14,22 +14,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package main
+package gateway
 
 import (
 	"github.com/henrylee2cn/ant/discovery"
-	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
-	"github.com/xiaoenai/ants/gateway/client"
-	"github.com/xiaoenai/ants/gateway/http"
-	"github.com/xiaoenai/ants/gateway/tcp"
+	"github.com/xiaoenai/ants/gateway/logic"
+	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/logic/http"
+	"github.com/xiaoenai/ants/gateway/logic/tcp"
+	"github.com/xiaoenai/ants/gateway/types"
 )
 
-func main() {
-	etcdClient, err := discovery.NewEtcdClient([]string{"http://127.0.0.1:2379"}, "", "")
+// Run the gateway main program.
+func Run(cfg *Config, biz *types.Business) error {
+	// config
+	err := cfg.check()
 	if err != nil {
-		tp.Fatalf("%v", err)
+		return err
 	}
+
+	// etcd
+	etcdClient, err := discovery.NewEtcdClient(cfg.Etcd)
+	if err != nil {
+		return err
+	}
+
+	// business
+	logic.SetBusiness(biz)
+
+	// client
 	client.Init(
 		cfg.InnerClient,
 		socket.NewFastProtoFunc,
@@ -44,7 +58,7 @@ func main() {
 		go tcp.Serve(
 			cfg.OuterTcpServer,
 			socket.NewFastProtoFunc,
-			discovery.ServicePluginFromEtcd(":9090", etcdClient),
+			discovery.ServicePluginFromEtcd(cfg.innerAddr, etcdClient),
 		)
 	}
 
