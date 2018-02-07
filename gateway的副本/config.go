@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gateway
+package main
 
 import (
 	"net"
@@ -20,8 +20,9 @@ import (
 
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery"
+	"github.com/henrylee2cn/cfgo"
 	"github.com/henrylee2cn/goutil"
-	"github.com/xiaoenai/ants/gateway/logic/http"
+	"github.com/xiaoenai/ants/gateway/http"
 	"github.com/xiaoenai/redis"
 )
 
@@ -40,40 +41,13 @@ type Config struct {
 	innerAddr       string
 }
 
-// NewConfig creates a default config.
-func NewConfig() *Config {
-	return &Config{
-		EnableOuterHttp: true,
-		EnableOuterTcp:  true,
-		OuterHttpServer: http.OuterHttpSrvConfig{
-			ListenAddress: "0.0.0.0:5000",
-		},
-		OuterTcpServer: ant.SrvConfig{
-			ListenAddress:   "0.0.0.0:5020",
-			EnableHeartbeat: true,
-			PrintBody:       true,
-			CountTime:       true,
-		},
-		InnerServer: ant.SrvConfig{
-			ListenAddress:   "0.0.0.0:5030",
-			EnableHeartbeat: true,
-			PrintBody:       true,
-			CountTime:       true,
-		},
-		InnerClient: ant.CliConfig{
-			Failover:        3,
-			HeartbeatSecond: 60,
-		},
-		Etcd: discovery.EtcdConfig{
-			Endpoints: []string{"http://127.0.0.1:2379"},
-		},
-		Redis: *redis.NewConfig(),
+// Reload load or reload config
+func (c *Config) Reload(bind cfgo.BindFunc) error {
+	err := bind()
+	if err != nil {
+		return err
 	}
-}
-
-// check the config
-func (c *Config) check() error {
-	err := c.InnerClient.Check()
+	err = c.InnerClient.Check()
 	if err != nil {
 		return err
 	}
@@ -96,4 +70,36 @@ func getPort(addr string) (int, error) {
 		return 0, err
 	}
 	return strconv.Atoi(port)
+}
+
+var cfg = &Config{
+	EnableOuterHttp: true,
+	EnableOuterTcp:  true,
+	OuterHttpServer: http.OuterHttpSrvConfig{
+		ListenAddress: "0.0.0.0:5000",
+	},
+	OuterTcpServer: ant.SrvConfig{
+		ListenAddress:   "0.0.0.0:5020",
+		EnableHeartbeat: true,
+		PrintBody:       true,
+		CountTime:       true,
+	},
+	InnerServer: ant.SrvConfig{
+		ListenAddress:   "0.0.0.0:5030",
+		EnableHeartbeat: true,
+		PrintBody:       true,
+		CountTime:       true,
+	},
+	InnerClient: ant.CliConfig{
+		Failover:        3,
+		HeartbeatSecond: 60,
+	},
+	Etcd: discovery.EtcdConfig{
+		Endpoints: []string{"http://127.0.0.1:2379"},
+	},
+	Redis: *redis.NewConfig(),
+}
+
+func init() {
+	cfgo.MustReg("gateway", cfg)
 }
