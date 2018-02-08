@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tcp
+package client
 
 import (
 	"github.com/henrylee2cn/ant"
@@ -20,7 +20,6 @@ import (
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic"
-	"github.com/xiaoenai/ants/gateway/logic/client"
 )
 
 // proxyClient the client for proxy.
@@ -28,7 +27,12 @@ type proxyClient struct {
 	*ant.Client
 }
 
-var caller plugin.Caller = &proxyClient{client.Client()}
+var caller = &proxyClient{cli}
+
+// ProxyClient returns the common proxy client.
+func ProxyClient() plugin.Caller {
+	return caller
+}
 
 func (p *proxyClient) Pull(uri string, args interface{}, reply interface{}, setting ...socket.PacketSetting) tp.PullCmd {
 	rerr := logic.ProxyHooks().BeforePull(uri, args, reply, setting...)
