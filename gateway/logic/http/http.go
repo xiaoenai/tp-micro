@@ -81,8 +81,9 @@ func handler(ctx *fasthttp.RequestCtx) {
 
 	var bodyBytes = ctx.Request.Body()
 	var reply []byte
+	var uri = goutil.BytesToString(ctx.Path())
 
-	pullcmd := client.ProxyClient().Pull(goutil.BytesToString(ctx.RequestURI()), bodyBytes, &reply, settings...)
+	pullcmd := client.ProxyClient().Pull(uri, bodyBytes, &reply, settings...)
 
 	// fail
 	if rerr := pullcmd.Rerror(); rerr != nil {
