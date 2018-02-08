@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package http
+package short
 
 import (
 	"bytes"
 
 	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/teleport/codec"
+	"github.com/xiaoenai/ants/gateway/types"
 )
 
 var bodyCodecMapping = map[string]byte{
@@ -44,4 +45,13 @@ func GetBodyCodec(contentTypeBytes []byte) byte {
 		return codec.ID_STRING
 	}
 	return codecId
+}
+
+var accessTokenGetter = func(args types.RequestArgs) string {
+	return args.Query("access_token")
+}
+
+// SetAccessTokenGetter sets the function to get access token.
+func SetAccessTokenGetter(fn func(args types.RequestArgs) string) {
+	accessTokenGetter = fn
 }

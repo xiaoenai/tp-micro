@@ -18,8 +18,10 @@ package types
 type Business struct {
 	// AccessTokenMgr access token manager
 	AccessTokenMgr
-	// ConnHooks TCP connecting event hooks
-	ConnHooks
+	// LongConnHooks TCP socket connecting event hooks
+	LongConnHooks
+	// ShortConnHooks HTTP connecting event hooks
+	ShortConnHooks
 	// ProxyHooks proxy hooks
 	ProxyHooks
 }

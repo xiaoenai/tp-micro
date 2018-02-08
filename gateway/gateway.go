@@ -21,8 +21,8 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
-	"github.com/xiaoenai/ants/gateway/logic/http"
-	"github.com/xiaoenai/ants/gateway/logic/tcp"
+	"github.com/xiaoenai/ants/gateway/logic/long"
+	"github.com/xiaoenai/ants/gateway/logic/short"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
@@ -58,12 +58,12 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 
 	// HTTP server
 	if cfg.EnableOuterHttp {
-		go http.Serve(cfg.OuterHttpServer)
+		go short.Serve(cfg.OuterHttpServer)
 	}
 
-	// TCP server
+	// TCP socket server
 	if cfg.EnableOuterTcp {
-		go tcp.Serve(
+		go long.Serve(
 			cfg.OuterTcpServer,
 			protoFunc,
 			discovery.ServicePluginFromEtcd(cfg.innerAddr, etcdClient),
@@ -73,7 +73,12 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 	select {}
 }
 
-// RegBodyCodec registers a mapping of content type to body coder.
-func RegBodyCodec(contentType string, codecId byte) {
-	http.RegBodyCodec(contentType, codecId)
+// RegBodyCodecForShort registers a mapping of content type to body coder (for http).
+func RegBodyCodecForShort(contentType string, codecId byte) {
+	short.RegBodyCodec(contentType, codecId)
+}
+
+// SetAccessTokenGetterForShort sets the function to get access token (for http).
+func SetAccessTokenGetterForShort(fn func(args types.RequestArgs) string) {
+	short.SetAccessTokenGetter(fn)
 }
