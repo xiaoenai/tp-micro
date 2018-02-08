@@ -19,6 +19,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
+	"github.com/xiaoenai/ants/gateway/logic/client"
 )
 
 var srv *ant.Server
@@ -30,7 +31,7 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, etcdPlugin tp.Plugi
 		etcdPlugin,
 		plugin.VerifyAuth(connTabPlugin.logon),
 		connTabPlugin,
-		plugin.Proxy(caller),
+		plugin.Proxy(client.ProxyClient()),
 	)
 	srv.Listen(protoFunc)
 }
