@@ -27,7 +27,7 @@ var bodyCodecMapping = map[string]byte{
 	"text/plain":             codec.ID_STRING,
 }
 
-// RegBodyCodec registers a mapping of content type to body coder
+// RegBodyCodec registers a mapping of content type to body coder.
 func RegBodyCodec(contentType string, codecId byte) {
 	bodyCodecMapping[contentType] = codecId
 }
