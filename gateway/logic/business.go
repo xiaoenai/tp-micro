@@ -30,9 +30,14 @@ func AccessTokenMgr() types.AccessTokenMgr {
 	return globalBusiness.AccessTokenMgr
 }
 
-// ConnHooks returns TCP connecting event hooks.
-func ConnHooks() types.ConnHooks {
-	return globalBusiness.ConnHooks
+// LongConnHooks returns TCP socket connecting event hooks.
+func LongConnHooks() types.LongConnHooks {
+	return globalBusiness.LongConnHooks
+}
+
+// ShortConnHooks returns HTTP connecting event hooks.
+func ShortConnHooks() types.ShortConnHooks {
+	return globalBusiness.ShortConnHooks
 }
 
 // ProxyHooks returns proxy hooks.

@@ -14,22 +14,11 @@
 
 package types
 
-import (
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
-	"github.com/henrylee2cn/teleport/socket"
-)
-
-// LongConnHooks TCP socket connecting event hooks
-type LongConnHooks interface {
-	// OnLogon is called when the client goes online.
-	OnLogon(AccessToken, plugin.AuthSession) *tp.Rerror
-	// OnLogoff is called when the client goes offline.
-	OnLogoff(tp.BaseSession) *tp.Rerror
-}
-
-// ShortConnHooks HTTP connecting event hooks
-type ShortConnHooks interface {
-	// OnRequest is called when the client requests.
-	OnRequest(AccessToken, RequestArgs) ([]socket.PacketSetting, *tp.Rerror)
+type RequestArgs interface {
+	// Query returns query arguments from request URI.
+	Query(key string) string
+	// Header returns header value for the given key.
+	Header(key string) string
+	// Cookie returns cookie for the given key.
+	Cookie(key string) string
 }

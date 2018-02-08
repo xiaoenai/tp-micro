@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tcp
+package long
 
 import (
 	tp "github.com/henrylee2cn/teleport"
@@ -41,10 +41,10 @@ func (c *connTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror 
 	if rerr != nil {
 		return rerr
 	}
-	return logic.ConnHooks().OnLogon(token, sess)
+	return logic.LongConnHooks().OnLogon(token, sess)
 }
 
 func (c *connTab) logoff(sess tp.BaseSession) *tp.Rerror {
 	tp.Tracef("[-CONN] ip: %s, id: %s", sess.RemoteIp(), sess.Id())
-	return logic.ConnHooks().OnLogoff(sess)
+	return logic.LongConnHooks().OnLogoff(sess)
 }

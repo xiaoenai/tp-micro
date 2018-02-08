@@ -21,13 +21,14 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
-	"github.com/xiaoenai/ants/gateway/logic/http"
-	"github.com/xiaoenai/ants/gateway/logic/tcp"
+	"github.com/xiaoenai/ants/gateway/logic/long"
+	"github.com/xiaoenai/ants/gateway/logic/short"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
 // Run the gateway main program.
-func Run(cfg *Config, biz *types.Business) error {
+// If protoFunc=nil, socket.NewFastProtoFunc is used by default.
+func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 	// config
 	err := cfg.check()
 	if err != nil {
@@ -43,24 +44,41 @@ func Run(cfg *Config, biz *types.Business) error {
 	// business
 	logic.SetBusiness(biz)
 
+	// protocol
+	if protoFunc == nil {
+		protoFunc = socket.NewFastProtoFunc
+	}
+
 	// client
 	client.Init(
 		cfg.InnerClient,
-		socket.NewFastProtoFunc,
+		protoFunc,
 		discovery.NewLinkerFromEtcd(etcdClient),
 	)
 
+	// HTTP server
 	if cfg.EnableOuterHttp {
-		go http.Serve(cfg.OuterHttpServer)
+		go short.Serve(cfg.OuterHttpServer)
 	}
 
+	// TCP socket server
 	if cfg.EnableOuterTcp {
-		go tcp.Serve(
+		go long.Serve(
 			cfg.OuterTcpServer,
-			socket.NewFastProtoFunc,
+			protoFunc,
 			discovery.ServicePluginFromEtcd(cfg.innerAddr, etcdClient),
 		)
 	}
 
 	select {}
+}
+
+// RegBodyCodecForShort registers a mapping of content type to body coder (for http).
+func RegBodyCodecForShort(contentType string, codecId byte) {
+	short.RegBodyCodec(contentType, codecId)
+}
+
+// SetAccessTokenGetterForShort sets the function to get access token (for http).
+func SetAccessTokenGetterForShort(fn func(args types.RequestArgs) string) {
+	short.SetAccessTokenGetter(fn)
 }

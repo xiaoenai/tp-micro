@@ -21,20 +21,20 @@ import (
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery"
 	"github.com/henrylee2cn/goutil"
-	"github.com/xiaoenai/ants/gateway/logic/http"
+	"github.com/xiaoenai/ants/gateway/logic/short"
 	"github.com/xiaoenai/redis"
 )
 
 // Config app config
 type Config struct {
-	EnableOuterHttp bool                    `yaml:"enable_outer_http"`
-	EnableOuterTcp  bool                    `yaml:"enable_outer_tcp"`
-	OuterHttpServer http.OuterHttpSrvConfig `yaml:"outer_http_server"`
-	OuterTcpServer  ant.SrvConfig           `yaml:"outer_tpc_server"`
-	InnerServer     ant.SrvConfig           `yaml:"inner_server"`
-	InnerClient     ant.CliConfig           `yaml:"inner_client"`
-	Etcd            discovery.EtcdConfig    `yaml:"etcd"`
-	Redis           redis.Config            `yaml:"redis"`
+	EnableOuterHttp bool                     `yaml:"enable_outer_http"`
+	EnableOuterTcp  bool                     `yaml:"enable_outer_tcp"`
+	OuterHttpServer short.OuterHttpSrvConfig `yaml:"outer_http_server"`
+	OuterTcpServer  ant.SrvConfig            `yaml:"outer_tpc_server"`
+	InnerServer     ant.SrvConfig            `yaml:"inner_server"`
+	InnerClient     ant.CliConfig            `yaml:"inner_client"`
+	Etcd            discovery.EtcdConfig     `yaml:"etcd"`
+	Redis           redis.Config             `yaml:"redis"`
 	outerPort       int
 	innerPort       int
 	innerAddr       string
@@ -45,7 +45,7 @@ func NewConfig() *Config {
 	return &Config{
 		EnableOuterHttp: true,
 		EnableOuterTcp:  true,
-		OuterHttpServer: http.OuterHttpSrvConfig{
+		OuterHttpServer: short.OuterHttpSrvConfig{
 			ListenAddress: "0.0.0.0:5000",
 		},
 		OuterTcpServer: ant.SrvConfig{

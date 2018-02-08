@@ -12,50 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package http
+package short
 
 import (
 	"bytes"
-	"crypto/tls"
-	"net/http"
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/valyala/fasthttp"
+	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
 )
 
-// OuterHttpSrvConfig config of HTTP server
-type OuterHttpSrvConfig struct {
-	ListenAddress string `yaml:"listen_address"`
-	TlsCertFile   string `yaml:"tls_cert_file"`
-	TlsKeyFile    string `yaml:"tls_key_file"`
-}
-
-// Serve starts HTTP gateway service.
-func Serve(srvCfg OuterHttpSrvConfig) {
-	var tlsConfig *tls.Config
-	var err error
-	if len(srvCfg.TlsCertFile) > 0 && len(srvCfg.TlsKeyFile) > 0 {
-		tlsConfig, err = tp.NewTlsConfigFromFile(srvCfg.TlsCertFile, srvCfg.TlsKeyFile)
-		if err != nil {
-			tp.Fatalf("%v", err)
-		}
-	}
-	ln, err := tp.NewInheritListener("tcp", srvCfg.ListenAddress, tlsConfig)
-	if err != nil {
-		tp.Fatalf("%v", err)
-	}
-	err = fasthttp.Serve(ln, handler)
-	if err != nil && err != http.ErrServerClosed {
-		tp.Fatalf("%v", err)
-	}
-}
-
 func handler(ctx *fasthttp.RequestCtx) {
+	(&requestHandler{ctx: ctx}).handle()
+}
+
+type requestHandler struct {
+	ctx       *fasthttp.RequestCtx
+	queryArgs *fasthttp.Args
+}
+
+func (r *requestHandler) handle() {
+	// verify access token
+	accessToken := accessTokenGetter(r)
+	token, rerr := logic.AccessTokenMgr().Verify(accessToken)
+	if rerr != nil {
+		r.replyError(rerr)
+		return
+	}
+	settings, rerr := logic.ShortConnHooks().OnRequest(token, r)
+	if rerr != nil {
+		r.replyError(rerr)
+		return
+	}
+
+	var ctx = r.ctx
 	var h = ctx.Request.Header
-	var settings = make([]socket.PacketSetting, 0, h.Len()+2)
 
 	// set header
 	h.VisitAll(func(key, value []byte) {
@@ -87,14 +81,7 @@ func handler(ctx *fasthttp.RequestCtx) {
 
 	// fail
 	if rerr := pullcmd.Rerror(); rerr != nil {
-		ctx.Response.Header.Set("Content-Type", "application/json")
-		b, _ := rerr.MarshalJSON()
-		msg := goutil.BytesToString(b)
-		if rerr.Code < 200 {
-			ctx.Error(msg, 500)
-		} else {
-			ctx.Error(msg, int(rerr.Code))
-		}
+		r.replyError(rerr)
 		return
 	}
 
@@ -104,4 +91,45 @@ func handler(ctx *fasthttp.RequestCtx) {
 	})
 	ctx.Response.Header.SetBytesV("Content-Type", contentType)
 	ctx.SetBody(reply)
+}
+
+func (r *requestHandler) replyError(rerr *tp.Rerror) {
+	r.ctx.Response.Header.Set("Content-Type", "application/json")
+	b, _ := rerr.MarshalJSON()
+	msg := goutil.BytesToString(b)
+	if rerr.Code < 200 {
+		r.ctx.Error(msg, 500)
+	} else {
+		r.ctx.Error(msg, int(rerr.Code))
+	}
+}
+
+// Query returns query arguments from request URI.
+func (r *requestHandler) Query(key string) string {
+	if r.queryArgs == nil {
+		r.queryArgs = r.ctx.QueryArgs()
+	}
+	v := r.queryArgs.Peek(key)
+	if len(v) == 0 {
+		return ""
+	}
+	return string(v)
+}
+
+// Header returns header value for the given key.
+func (r *requestHandler) Header(key string) string {
+	v := r.ctx.Request.Header.Peek(key)
+	if len(v) == 0 {
+		return ""
+	}
+	return string(v)
+}
+
+// Cookie returns cookie for the given key.
+func (r *requestHandler) Cookie(key string) string {
+	v := r.ctx.Request.Header.Cookie(key)
+	if len(v) == 0 {
+		return ""
+	}
+	return string(v)
 }
