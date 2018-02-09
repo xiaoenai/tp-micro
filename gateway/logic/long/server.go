@@ -32,6 +32,7 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, innerAddr string) {
 		plugin.VerifyAuth(connTabPlugin.logon),
 		connTabPlugin,
 		plugin.Proxy(client.ProxyClient()),
+		new(DNS),
 	)
 	srv.Listen(protoFunc)
 }
