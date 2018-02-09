@@ -53,7 +53,7 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 	client.Init(
 		cfg.InnerClient,
 		protoFunc,
-		discovery.NewLinkerFromEtcd(etcdClient),
+		etcdClient,
 	)
 
 	// HTTP server
@@ -66,7 +66,7 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 		go long.Serve(
 			cfg.OuterTcpServer,
 			protoFunc,
-			discovery.ServicePluginFromEtcd(cfg.innerAddr, etcdClient),
+			cfg.innerAddr,
 		)
 	}
 

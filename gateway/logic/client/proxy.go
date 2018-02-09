@@ -27,7 +27,7 @@ type proxyClient struct {
 	*ant.Client
 }
 
-var caller = &proxyClient{cli}
+var caller = &proxyClient{AntClient()}
 
 // ProxyClient returns the common proxy client.
 func ProxyClient() plugin.Caller {

@@ -16,7 +16,7 @@ package long
 
 import (
 	"github.com/henrylee2cn/ant"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/ant/discovery"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic/client"
@@ -25,10 +25,10 @@ import (
 var srv *ant.Server
 
 // Serve starts TCP gateway service.
-func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, etcdPlugin tp.Plugin) {
+func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, innerAddr string) {
 	srv = ant.NewServer(
 		srvCfg,
-		etcdPlugin,
+		discovery.ServicePluginFromEtcd(innerAddr, client.EtcdClient()),
 		plugin.VerifyAuth(connTabPlugin.logon),
 		connTabPlugin,
 		plugin.Proxy(client.ProxyClient()),
