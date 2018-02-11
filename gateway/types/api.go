@@ -13,3 +13,12 @@
 // limitations under the License.
 
 package types
+
+import (
+	"github.com/henrylee2cn/teleport/codec"
+)
+
+type (
+	// LongConnArgs args
+	LongConnArgs = codec.PbEmpty
+)

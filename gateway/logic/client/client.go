@@ -33,6 +33,7 @@ func Init(cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *discover
 		discovery.NewLinkerFromEtcd(etcdCli),
 	)
 	antCli.SetProtoFunc(protoFunc)
+	staticClients = newStaticClients(cliCfg, protoFunc)
 }
 
 // AntClient returns the common inner ant client.
