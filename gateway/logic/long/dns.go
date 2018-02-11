@@ -34,8 +34,10 @@ import (
 
 // DNS gateway ip:port list
 type DNS struct {
-	ips atomic.Value
-	mu  sync.Mutex
+	ips           atomic.Value
+	ipsLock       sync.Mutex
+	weightIps     map[string]*WeightIp
+	weightIpsLock sync.RWMutex
 }
 
 const servicePrefix = discovery.ServiceNamespace + "gateway"
@@ -66,29 +68,50 @@ func (d *DNS) PostListen() error {
 
 func (d *DNS) watchEtcd() {
 	var (
-		updateCh = make(chan struct{})
+		updateCh = make(chan int8)
 	)
 	go func() {
-		for range updateCh {
-			d.resetGatewayIps(false)
+		for flag := range updateCh {
+			switch flag {
+			case 1:
+				d.resetGatewayIps(false)
+			default:
+				d.weightIpsLock.RLock()
+				d.sortAndStoreIpsLocked()
+				d.weightIpsLock.RUnlock()
+			}
 		}
 	}()
+	const interval = time.Second * 30
 	var (
+		after   *time.Timer
 		now     = coarsetime.CeilingTimeNow()
 		last    = now
 		watcher = client.EtcdClient().Watch(context.Background(), servicePrefix, discovery.WithPrefix())
 	)
-	for wresp := range watcher {
-		for range wresp.Events {
-			now = coarsetime.CeilingTimeNow()
+	for {
+		after = time.NewTimer(interval)
+		select {
+		case wresp := <-watcher:
+			for range wresp.Events {
+				now = coarsetime.CeilingTimeNow()
+				if now.Sub(last) > time.Second*5 {
+					select {
+					case updateCh <- 1:
+						last = now
+					default:
+					}
+				}
+			}
+		case <-after.C:
 			if now.Sub(last) > time.Second*5 {
 				select {
-				case updateCh <- struct{}{}:
-					last = now
+				case updateCh <- 2:
 				default:
 				}
 			}
 		}
+		after.Stop()
 	}
 }
 
@@ -123,28 +146,38 @@ func (d *DNS) resetGatewayIps(goSort bool) {
 	if goSort {
 		go func() {
 			time.Sleep(1e9)
-			d.sortAndStoreIps(m)
+			d.weightIpsLock.Lock()
+			d.weightIps = m
+			d.sortAndStoreIpsLocked()
+			d.weightIpsLock.Unlock()
 		}()
 	} else {
-		d.sortAndStoreIps(m)
+		d.weightIpsLock.Lock()
+		d.weightIps = m
+		d.sortAndStoreIpsLocked()
+		d.weightIpsLock.Unlock()
 	}
 }
 
-func (d *DNS) sortAndStoreIps(weightIps map[string]*WeightIp) {
+func (d *DNS) sortAndStoreIpsLocked() {
+	cnt := len(d.weightIps)
+	if cnt == 0 {
+		return
+	}
 	var (
 		reply   *types.TotalLongConnReply
 		t       time.Time
-		sortIps = make(SortWeightIps, 0, len(weightIps))
+		sortIps = make(SortWeightIps, 0, cnt)
 		rerr    *tp.Rerror
 	)
-	for ip, w := range weightIps {
+	for ip, w := range d.weightIps {
 		t = time.Now()
 		reply, rerr = sdk.TotalLongConn(
 			w.innerAddr,
 			tp.WithBodyCodec(codec.ID_PROTOBUF),
 		)
 		if rerr != nil {
-			tp.Warnf("xtcp is not available: ip: %s, inner_addr: %s, error: %s", ip, w.innerAddr, rerr)
+			tp.Warnf("gateway is not available: ip: %s, inner_addr: %s, error: %s", ip, w.innerAddr, rerr)
 			continue
 		}
 		w.weight = -int64(reply.ConnTotal) - int64(time.Since(t)/time.Millisecond)
@@ -159,9 +192,9 @@ func (d *DNS) sortAndStoreIps(weightIps map[string]*WeightIp) {
 		}
 		ips = append(ips, w.ip)
 	}
-	d.mu.Lock()
+	d.ipsLock.Lock()
 	d.ips.Store(ips)
-	d.mu.Unlock()
+	d.ipsLock.Unlock()
 	b, _ := json.MarshalIndent(ips, "", "  ")
 	tp.Tracef("[UPDATE GATEWAYS] %s", b)
 }
