@@ -28,6 +28,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
 	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/sdk"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
@@ -138,7 +139,7 @@ func (d *DNS) sortAndStoreIps(weightIps map[string]*WeightIp) {
 	)
 	for ip, w := range weightIps {
 		t = time.Now()
-		reply, rerr = RemoteTotalLongConn(
+		reply, rerr = sdk.TotalLongConn(
 			w.innerAddr,
 			tp.WithBodyCodec(codec.ID_PROTOBUF),
 		)

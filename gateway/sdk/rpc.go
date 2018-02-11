@@ -13,3 +13,23 @@
 // limitations under the License.
 
 package sdk
+
+import (
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/socket"
+	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/types"
+)
+
+// Init initializes a common inner ant client.
+var Init = client.Init
+
+// TotalLongConn returns the long connections total of the remote server.
+func TotalLongConn(srvAddr string, setting ...socket.PacketSetting) (*types.TotalLongConnReply, *tp.Rerror) {
+	var reply = new(types.TotalLongConnReply)
+	rerr := client.StaticClient(srvAddr).Pull("/gateway/long_conn/total", nil, reply, setting...).Rerror()
+	if rerr != nil {
+		return nil, rerr
+	}
+	return reply, nil
+}
