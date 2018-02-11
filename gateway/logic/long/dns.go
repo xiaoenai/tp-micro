@@ -26,7 +26,9 @@ import (
 	"github.com/henrylee2cn/ant/discovery"
 	"github.com/henrylee2cn/goutil/coarsetime"
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/codec"
 	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/types"
 )
 
 // DNS gateway ip:port list
@@ -120,31 +122,31 @@ func (d *DNS) resetGatewayIps(goSort bool) {
 	if goSort {
 		go func() {
 			time.Sleep(1e9)
-			sortAndStoreIps(m)
+			d.sortAndStoreIps(m)
 		}()
 	} else {
-		sortAndStoreIps(m)
+		d.sortAndStoreIps(m)
 	}
 }
 
-func sortAndStoreIps(weightIps map[string]*WeightIp) {
+func (d *DNS) sortAndStoreIps(weightIps map[string]*WeightIp) {
 	var (
-		reply   *GetConnTotalV1Reply
+		reply   *types.TotalLongConnReply
 		t       time.Time
 		sortIps = make(SortWeightIps, 0, len(weightIps))
-		errs    *fort.Errors
+		rerr    *tp.Rerror
 	)
 	for ip, w := range weightIps {
 		t = time.Now()
-		reply, errs = sdk.GetConnTotalV1(
+		reply, rerr = RemoteTotalLongConn(
 			w.innerAddr,
-			common.CODEC_TYPE_PROTOBUF,
+			tp.WithBodyCodec(codec.ID_PROTOBUF),
 		)
-		if errs != nil {
-			tp.Warnf("xtcp is not available: ip: %s, inner_addr: %s, error: %s", ip, w.innerAddr, errs.Error())
+		if rerr != nil {
+			tp.Warnf("xtcp is not available: ip: %s, inner_addr: %s, error: %s", ip, w.innerAddr, rerr)
 			continue
 		}
-		w.weight = -reply.ConnTotal - int64(time.Since(t)/time.Millisecond)
+		w.weight = -int64(reply.ConnTotal) - int64(time.Since(t)/time.Millisecond)
 		sortIps = append(sortIps, w)
 	}
 	sort.Sort(sortIps)
@@ -156,18 +158,22 @@ func sortAndStoreIps(weightIps map[string]*WeightIp) {
 		}
 		ips = append(ips, w.ip)
 	}
-	mu.Lock()
+	d.mu.Lock()
 	d.ips.Store(ips)
-	mu.Unlock()
+	d.mu.Unlock()
 	b, _ := json.MarshalIndent(ips, "", "  ")
 	tp.Tracef("[UPDATE GATEWAYS] %s", b)
 }
 
-type WeightIp struct {
-	ip, innerAddr string
-	weight        int64
-}
-type SortWeightIps []*WeightIp
+type (
+	// SortWeightIps IP weight information list for sorting
+	SortWeightIps []*WeightIp
+	// WeightIp IP information with weight
+	WeightIp struct {
+		ip, innerAddr string
+		weight        int64
+	}
+)
 
 // Len is the number of elements in the collection.
 func (s SortWeightIps) Len() int {

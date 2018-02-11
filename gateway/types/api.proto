@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package types;
+
+message TotalLongConnReply {
+    int32  conn_total   = 1;
+}

@@ -34,5 +34,11 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, innerAddr string) {
 		plugin.Proxy(client.ProxyClient()),
 		new(DNS),
 	)
+
+	group := srv.SubRoute("/gateway")
+	{
+		group.RoutePull(new(longConn))
+	}
+
 	srv.Listen(protoFunc)
 }
