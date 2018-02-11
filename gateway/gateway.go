@@ -66,6 +66,7 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 		go long.Serve(
 			cfg.OuterTcpServer,
 			protoFunc,
+			cfg.outerAddr,
 			cfg.innerAddr,
 		)
 	}
