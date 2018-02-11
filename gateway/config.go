@@ -27,17 +27,16 @@ import (
 
 // Config app config
 type Config struct {
-	EnableOuterHttp bool                     `yaml:"enable_outer_http"`
-	EnableOuterTcp  bool                     `yaml:"enable_outer_tcp"`
-	OuterHttpServer short.OuterHttpSrvConfig `yaml:"outer_http_server"`
-	OuterTcpServer  ant.SrvConfig            `yaml:"outer_tpc_server"`
-	InnerServer     ant.SrvConfig            `yaml:"inner_server"`
-	InnerClient     ant.CliConfig            `yaml:"inner_client"`
-	Etcd            discovery.EtcdConfig     `yaml:"etcd"`
-	Redis           redis.Config             `yaml:"redis"`
-	outerPort       int
-	innerPort       int
-	innerAddr       string
+	EnableOuterHttp      bool                     `yaml:"enable_outer_http"`
+	EnableOuterTcp       bool                     `yaml:"enable_outer_tcp"`
+	OuterHttpServer      short.OuterHttpSrvConfig `yaml:"outer_http_server"`
+	OuterTcpServer       ant.SrvConfig            `yaml:"outer_tpc_server"`
+	InnerServer          ant.SrvConfig            `yaml:"inner_server"`
+	InnerClient          ant.CliConfig            `yaml:"inner_client"`
+	Etcd                 discovery.EtcdConfig     `yaml:"etcd"`
+	Redis                redis.Config             `yaml:"redis"`
+	outerPort, innerPort int
+	outerAddr, innerAddr string
 }
 
 // NewConfig creates a default config.

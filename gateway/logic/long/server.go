@@ -25,7 +25,7 @@ import (
 var srv *ant.Server
 
 // Serve starts TCP gateway service.
-func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, innerAddr string) {
+func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, outerAddr, innerAddr string) {
 	srv = ant.NewServer(
 		srvCfg,
 		discovery.ServicePluginFromEtcd(innerAddr, client.EtcdClient()),
@@ -34,6 +34,8 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, innerAddr string) {
 		plugin.Proxy(client.ProxyClient()),
 		new(DNS),
 	)
+
+	initDns(outerAddr, innerAddr)
 
 	group := srv.SubRoute("/gateway")
 	{
