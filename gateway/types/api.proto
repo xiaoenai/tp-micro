@@ -5,3 +5,10 @@ package types;
 message TotalLongConnReply {
     int32  conn_total   = 1;
 }
+
+message PushLongConnArgs {
+    string  uid        = 1;
+    string  uri        = 2;
+    bytes   body       = 3;
+    int32   body_codec = 4;
+}

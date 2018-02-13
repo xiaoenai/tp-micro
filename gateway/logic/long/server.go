@@ -17,12 +17,17 @@ package long
 import (
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery"
+	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
+	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
 )
 
-var srv *ant.Server
+var (
+	srv  *ant.Server
+	peer tp.Peer
+)
 
 // Serve starts TCP gateway service.
 func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, outerAddr, innerAddr string) {
@@ -33,6 +38,7 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, outerAddr, innerAdd
 		connTabPlugin,
 		plugin.Proxy(client.ProxyClient()),
 		new(DNS),
+		logic.PreWritePushPlugin(),
 	)
 
 	initDns(outerAddr, innerAddr)
@@ -41,6 +47,8 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, outerAddr, innerAdd
 	{
 		group.RoutePull(new(longConn))
 	}
+
+	peer = srv.Peer()
 
 	srv.Listen(protoFunc)
 }

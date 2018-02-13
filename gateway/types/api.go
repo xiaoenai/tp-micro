@@ -19,6 +19,11 @@ import (
 )
 
 type (
-	// LongConnArgs args
-	LongConnArgs = codec.PbEmpty
+	// TotalLongConnArgs args
+	TotalLongConnArgs = codec.PbEmpty
+)
+
+type (
+	// PushLongConnReply reply
+	PushLongConnReply = codec.PbEmpty
 )
