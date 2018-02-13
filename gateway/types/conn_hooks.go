@@ -26,6 +26,10 @@ type LongConnHooks interface {
 	OnLogon(AccessToken, plugin.AuthSession) *tp.Rerror
 	// OnLogoff is called when the client goes offline.
 	OnLogoff(tp.BaseSession) *tp.Rerror
+	// GetSession returns session from peer by uid.
+	GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror)
+	//PreWritePush is executed before writing PUSH packet.
+	PreWritePush(tp.WriteCtx) *tp.Rerror
 }
 
 // ShortConnHooks HTTP connecting event hooks

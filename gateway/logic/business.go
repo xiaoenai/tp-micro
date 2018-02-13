@@ -15,6 +15,7 @@
 package logic
 
 import (
+	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
@@ -43,4 +44,21 @@ func ShortConnHooks() types.ShortConnHooks {
 // ProxyHooks returns proxy hooks.
 func ProxyHooks() types.ProxyHooks {
 	return globalBusiness.ProxyHooks
+}
+
+type perPusher struct {
+	fn func(tp.WriteCtx) *tp.Rerror
+}
+
+func (p *perPusher) Name() string {
+	return "PUSH-LOGIC"
+}
+
+func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Rerror {
+	return p.fn(ctx)
+}
+
+// PreWritePushPlugin returns PreWritePushPlugin.
+func PreWritePushPlugin() tp.PreWritePushPlugin {
+	return &perPusher{fn: LongConnHooks().PreWritePush}
 }

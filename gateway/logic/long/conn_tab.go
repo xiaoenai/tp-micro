@@ -24,16 +24,8 @@ type connTab struct{}
 
 var (
 	connTabPlugin                         = new(connTab)
-	_             tp.PostDisconnectPlugin = new(connTab)
+	_             tp.PostDisconnectPlugin = connTabPlugin
 )
-
-func (c *connTab) Name() string {
-	return "connTab"
-}
-
-func (c *connTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
-	return c.logoff(sess)
-}
 
 func (c *connTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
 	tp.Debugf("verify-auth: id: %s, info: %s", sess.Id(), accessToken)
@@ -47,4 +39,12 @@ func (c *connTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror 
 func (c *connTab) logoff(sess tp.BaseSession) *tp.Rerror {
 	tp.Tracef("[-CONN] ip: %s, id: %s", sess.RemoteIp(), sess.Id())
 	return logic.LongConnHooks().OnLogoff(sess)
+}
+
+func (c *connTab) Name() string {
+	return "connTab"
+}
+
+func (c *connTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
+	return c.logoff(sess)
 }
