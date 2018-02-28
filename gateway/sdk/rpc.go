@@ -15,6 +15,8 @@
 package sdk
 
 import (
+	"github.com/henrylee2cn/ant"
+	"github.com/henrylee2cn/ant/discovery"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic/client"
@@ -22,12 +24,24 @@ import (
 )
 
 // Init initializes a common inner ant client.
-var Init = client.Init
+func Init(cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *discovery.EtcdClient) {
+	client.Init(cliCfg, protoFunc, etcdClient)
+}
 
-// TotalLongConn returns the long connections total of the remote server.
-func TotalLongConn(srvAddr string, setting ...socket.PacketSetting) (*types.TotalLongConnReply, *tp.Rerror) {
+// LongConnTotal returns the long connections total of the remote server.
+func LongConnTotal(srvAddr string, setting ...socket.PacketSetting) (*types.TotalLongConnReply, *tp.Rerror) {
 	var reply = new(types.TotalLongConnReply)
 	rerr := client.StaticClient(srvAddr).Pull("/gateway/long_conn/total", nil, reply, setting...).Rerror()
+	if rerr != nil {
+		return nil, rerr
+	}
+	return reply, nil
+}
+
+// LongConnPush pushs the message to the long connection's client user.
+func LongConnPush(srvAddr string, args *types.PushLongConnArgs, setting ...socket.PacketSetting) (*types.PushLongConnReply, *tp.Rerror) {
+	var reply = new(types.PushLongConnReply)
+	rerr := client.StaticClient(srvAddr).Pull("/gateway/long_conn/push", args, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
