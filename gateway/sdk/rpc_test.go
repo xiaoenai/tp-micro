@@ -21,7 +21,7 @@ func TestSdk(t *testing.T) {
 		socket.NewFastProtoFunc,
 		etcdClient,
 	)
-	reply, rerr := TotalLongConn()
+	reply, rerr := LongConnTotal()
 	if rerr != nil {
 		t.Logf("rerr: %v", rerr)
 	} else {
