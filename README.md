@@ -6,7 +6,7 @@ Ants is a highly available microservice platform based on [Ant](https://github.c
 [简体中文](https://github.com/xiaoenai/ants/blob/master/README_ZH.md)
 
 
-## Install
+## 1. Install
 
 
 ```
@@ -17,7 +17,54 @@ go version ≥ 1.7
 go get -u github.com/xiaoenai/ants/...
 ```
 
-## Demo of Ant
+## 2. Feature
+
+- Support auto service-discovery
+- Supports custom service linker
+- Support load balancing
+- Support NIO and connection pool
+- Support custom protocol
+- Support custom body codec
+- Support plug-in expansion
+- Support heartbeat mechanism
+- Detailed log information, support print input and output details
+- Support for setting slow operation alarm thresholds
+- Support for custom log
+- Support smooth shutdown and update
+- Support push handler
+- Support network list: `tcp`, `tcp4`, `tcp6`, `unix`, `unixpacket` and so on
+- Client support automatically redials after disconnection
+
+
+## 3. Project Structure
+
+(recommend)
+
+```
+├── README.md
+├── main.go
+├── api
+│   ├── handlers.gen.go
+│   ├── handlers.go
+│   ├── router.gen.go
+│   └── router.go
+├── logic
+│   └── xxx.go
+├── sdk
+│   ├── rpc.gen.go
+│   ├── rpc.gen_test.go
+│   ├── rpc.go
+│   └── rpc_test.go
+└── types
+    ├── types.gen.go
+    └── types.go
+```
+
+Desc:
+
+- add `.gen` suffix to the file name of the automatically generated file
+
+## 4. Demo of Ant
 
 - server
 
@@ -97,6 +144,6 @@ func main() {
 
 [More](https://github.com/henrylee2cn/ant/tree/master/samples)
 
-## License
+## 5. License
 
 Ants is under Apache v2 License. See the [LICENSE](https://github.com/xiaoenai/ants/raw/master/LICENSE) file for the full license text
