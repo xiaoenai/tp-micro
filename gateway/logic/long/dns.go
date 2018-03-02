@@ -264,7 +264,7 @@ func (d *DNS) sortAndStoreIpsLocked() {
 	)
 	for outerAddr, w := range d.weightIps {
 		t = time.Now()
-		reply, rerr = sdk.TotalLongConn(
+		reply, rerr = sdk.LongConnTotal(
 			w.innerAddr,
 			tp.WithBodyCodec(codec.ID_PROTOBUF),
 		)
