@@ -37,15 +37,20 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, outerAddr, innerAdd
 		plugin.VerifyAuth(connTabPlugin.logon),
 		connTabPlugin,
 		plugin.Proxy(client.ProxyClient()),
-		new(DNS),
+		new(Hosts),
 		logic.PreWritePushPlugin(),
 	)
 
-	initDns(outerAddr, innerAddr)
+	initHosts(outerAddr, innerAddr)
 
-	group := srv.SubRoute("/gateway")
+	verGroup := srv.SubRoute(logic.ApiVersion())
+
 	{
-		group.RoutePull(new(longConn))
+		verGroup.RoutePullFunc(GwHosts)
+		group := verGroup.SubRoute("/gw")
+		{
+			group.RoutePull(new(longConn))
+		}
 	}
 
 	peer = srv.Peer()

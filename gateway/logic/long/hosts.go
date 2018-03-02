@@ -33,8 +33,8 @@ import (
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
-// DNS gateway ip:port list
-type DNS struct {
+// Hosts gateway ip:port list
+type Hosts struct {
 	ips                  atomic.Value
 	ipsLock              sync.Mutex
 	weightIps            map[string]*WeightIp
@@ -51,13 +51,13 @@ const (
 )
 
 var (
-	dns                     = new(DNS)
-	_   tp.PostListenPlugin = dns
+	hosts                     = new(Hosts)
+	_     tp.PostListenPlugin = hosts
 )
 
-func initDns(outerAddr, innerAddr string) {
-	dns.outerAddr, dns.innerAddr = outerAddr, innerAddr
-	dns.serviceKey = servicePrefix + "@" + outerAddr + "@" + innerAddr
+func initHosts(outerAddr, innerAddr string) {
+	hosts.outerAddr, hosts.innerAddr = outerAddr, innerAddr
+	hosts.serviceKey = servicePrefix + "@" + outerAddr + "@" + innerAddr
 }
 
 func splitServiceKey(valueBytes []byte) (outerAddr, innerAddr string, ok bool) {
@@ -72,9 +72,9 @@ func splitServiceKey(valueBytes []byte) (outerAddr, innerAddr string, ok bool) {
 	return
 }
 
-// GatewayDNS returns the gateway ip list.
-func GatewayDNS() []string {
-	a, ok := dns.ips.Load().([]string)
+// gatewayList returns the gateway ip list.
+func gatewayList() []string {
+	a, ok := hosts.ips.Load().([]string)
 	if !ok {
 		return []string{}
 	}
@@ -82,12 +82,12 @@ func GatewayDNS() []string {
 }
 
 // Name returns the plugin name.
-func (d *DNS) Name() string {
-	return "gateway_dns"
+func (d *Hosts) Name() string {
+	return "gateway_hosts"
 }
 
-// PostListen starts the DNS program.
-func (d *DNS) PostListen() error {
+// PostListen starts the Hosts program.
+func (d *Hosts) PostListen() error {
 	ch, err := d.keepAlive()
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func (d *DNS) PostListen() error {
 	return nil
 }
 
-func (d *DNS) anywayKeepAlive() <-chan *discovery.LeaseKeepAliveResponse {
+func (d *Hosts) anywayKeepAlive() <-chan *discovery.LeaseKeepAliveResponse {
 	ch, err := d.keepAlive()
 	for err != nil {
 		time.Sleep(minLeaseTTL)
@@ -127,7 +127,7 @@ func (d *DNS) anywayKeepAlive() <-chan *discovery.LeaseKeepAliveResponse {
 	return ch
 }
 
-func (d *DNS) keepAlive() (<-chan *discovery.LeaseKeepAliveResponse, error) {
+func (d *Hosts) keepAlive() (<-chan *discovery.LeaseKeepAliveResponse, error) {
 	resp, err := client.EtcdClient().Grant(context.TODO(), minLeaseTTL)
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (d *DNS) keepAlive() (<-chan *discovery.LeaseKeepAliveResponse, error) {
 	return ch, err
 }
 
-func (d *DNS) revoke() {
+func (d *Hosts) revoke() {
 	_, err := client.EtcdClient().Revoke(context.TODO(), d.leaseid)
 	if err != nil {
 		tp.Errorf("%s: revoke service error: %s", d.Name(), err.Error())
@@ -160,7 +160,7 @@ func (d *DNS) revoke() {
 	}
 }
 
-func (d *DNS) watchEtcd() {
+func (d *Hosts) watchEtcd() {
 	const (
 		interval = time.Second * 20
 		wait     = time.Second * 5
@@ -208,7 +208,7 @@ func (d *DNS) watchEtcd() {
 	}
 }
 
-func (d *DNS) resetGatewayIps(goSort bool) {
+func (d *Hosts) resetGatewayIps(goSort bool) {
 	resp, err := client.EtcdClient().Get(
 		context.Background(),
 		servicePrefix,
@@ -251,7 +251,7 @@ func (d *DNS) resetGatewayIps(goSort bool) {
 	}
 }
 
-func (d *DNS) sortAndStoreIpsLocked() {
+func (d *Hosts) sortAndStoreIpsLocked() {
 	cnt := len(d.weightIps)
 	if cnt == 0 {
 		return
