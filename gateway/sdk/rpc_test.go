@@ -26,5 +26,5 @@ func TestSdk(t *testing.T) {
 	// 	t.Logf("rerr: %v", rerr)
 	// } else {
 	// 	t.Logf("long connections total: %d", reply.ConnTotal)
-	}
+	// }
 }
