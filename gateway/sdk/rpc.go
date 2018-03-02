@@ -15,6 +15,8 @@
 package sdk
 
 import (
+	"path"
+
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery"
 	tp "github.com/henrylee2cn/teleport"
@@ -23,15 +25,28 @@ import (
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
+var _apiVersion string
+
 // Init initializes a common inner ant client.
-func Init(cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *discovery.EtcdClient) {
+func Init(apiVersion string, cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *discovery.EtcdClient) {
 	client.Init(cliCfg, protoFunc, etcdClient)
+	_apiVersion = path.Join("/", apiVersion)
+}
+
+// GwHosts returns the gateway host list.
+func GwHosts(setting ...socket.PacketSetting) (*types.GwHosts, *tp.Rerror) {
+	var reply = new(types.GwHosts)
+	rerr := client.AntClient().Pull(_apiVersion+"/gw_hosts", nil, reply, setting...).Rerror()
+	if rerr != nil {
+		return nil, rerr
+	}
+	return reply, nil
 }
 
 // LongConnTotal returns the long connections total of the remote server.
 func LongConnTotal(srvAddr string, setting ...socket.PacketSetting) (*types.TotalLongConnReply, *tp.Rerror) {
 	var reply = new(types.TotalLongConnReply)
-	rerr := client.StaticClient(srvAddr).Pull("/gateway/long_conn/total", nil, reply, setting...).Rerror()
+	rerr := client.StaticClient(srvAddr).Pull(_apiVersion+"/gw/long_conn/total", nil, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -41,7 +56,7 @@ func LongConnTotal(srvAddr string, setting ...socket.PacketSetting) (*types.Tota
 // LongConnPush pushs the message to the long connection's client user.
 func LongConnPush(srvAddr string, args *types.PushLongConnArgs, setting ...socket.PacketSetting) (*types.PushLongConnReply, *tp.Rerror) {
 	var reply = new(types.PushLongConnReply)
-	rerr := client.StaticClient(srvAddr).Pull("/gateway/long_conn/push", args, reply, setting...).Rerror()
+	rerr := client.StaticClient(srvAddr).Pull("/gw/long_conn/push", args, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}

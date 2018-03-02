@@ -7,6 +7,13 @@ import (
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
+// GwHosts returns the gateway seriver hosts.
+func GwHosts(tp.PullCtx, *struct{}) (*types.GwHosts, *tp.Rerror) {
+	r := new(types.GwHosts)
+	r.Hosts = gatewayList()
+	return r, nil
+}
+
 // longConn long connection controller.
 type longConn struct {
 	tp.PullCtx

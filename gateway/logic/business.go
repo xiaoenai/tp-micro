@@ -26,6 +26,11 @@ func SetBusiness(biz *types.Business) {
 	globalBusiness = biz
 }
 
+// ApiVersion returns long connection API version.
+func ApiVersion() string {
+	return globalBusiness.ApiVersion
+}
+
 // AccessTokenMgr returns access token manager.
 func AccessTokenMgr() types.AccessTokenMgr {
 	return globalBusiness.AccessTokenMgr

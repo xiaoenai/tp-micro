@@ -12,3 +12,7 @@ message PushLongConnArgs {
     bytes   body       = 3;
     int32   body_codec = 4;
 }
+
+message GwHosts {
+    repeated string hosts = 1;
+}
