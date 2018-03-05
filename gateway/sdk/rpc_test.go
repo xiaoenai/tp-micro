@@ -8,7 +8,7 @@ import (
 
 // TestSdk test SDK.
 func TestSdk(t *testing.T) {
-	// etcdClient, err := discovery.NewEtcdClient(cfg.Etcd)
+	// etcdClient, err := etcd.EasyNew(cfg.Etcd)
 	// if err != nil {
 	// 	t.Fatalf("%v", err)
 	// }
