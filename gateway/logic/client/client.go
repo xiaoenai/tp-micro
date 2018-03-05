@@ -17,16 +17,17 @@ package client
 import (
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery"
+	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/teleport/socket"
 )
 
 var (
 	antCli  *ant.Client
-	etcdCli *discovery.EtcdClient
+	etcdCli *etcd.Client
 )
 
 // Init initializes a common inner ant client.
-func Init(cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *discovery.EtcdClient) {
+func Init(cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
 	etcdCli = etcdClient
 	antCli = ant.NewClient(
 		cliCfg,
@@ -42,6 +43,6 @@ func AntClient() *ant.Client {
 }
 
 // EtcdClient returns the common ETCD client.
-func EtcdClient() *discovery.EtcdClient {
+func EtcdClient() *etcd.Client {
 	return etcdCli
 }

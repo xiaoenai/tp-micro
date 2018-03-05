@@ -19,7 +19,7 @@ import (
 	"strconv"
 
 	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/ant/discovery"
+	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/goutil"
 	"github.com/xiaoenai/ants/gateway/logic/short"
 	"github.com/xiaoenai/redis"
@@ -33,7 +33,7 @@ type Config struct {
 	OuterTcpServer       ant.SrvConfig            `yaml:"outer_tpc_server"`
 	InnerServer          ant.SrvConfig            `yaml:"inner_server"`
 	InnerClient          ant.CliConfig            `yaml:"inner_client"`
-	Etcd                 discovery.EtcdConfig     `yaml:"etcd"`
+	Etcd                 etcd.EasyConfig          `yaml:"etcd"`
 	Redis                redis.Config             `yaml:"redis"`
 	outerPort, innerPort int
 	outerAddr, innerAddr string
@@ -63,7 +63,7 @@ func NewConfig() *Config {
 			Failover:        3,
 			HeartbeatSecond: 60,
 		},
-		Etcd: discovery.EtcdConfig{
+		Etcd: etcd.EasyConfig{
 			Endpoints: []string{"http://127.0.0.1:2379"},
 		},
 		Redis: *redis.NewConfig(),

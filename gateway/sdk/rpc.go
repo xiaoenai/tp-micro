@@ -18,7 +18,7 @@ import (
 	"path"
 
 	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/ant/discovery"
+	"github.com/henrylee2cn/ant/discovery/etcd"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic/client"
@@ -28,7 +28,7 @@ import (
 var _apiVersion string
 
 // Init initializes a common inner ant client.
-func Init(apiVersion string, cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *discovery.EtcdClient) {
+func Init(apiVersion string, cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
 	client.Init(cliCfg, protoFunc, etcdClient)
 	_apiVersion = path.Join("/", apiVersion)
 }

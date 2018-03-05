@@ -23,7 +23,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/henrylee2cn/ant/discovery"
+	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/goutil/coarsetime"
 	tp "github.com/henrylee2cn/teleport"
@@ -40,7 +40,7 @@ type Hosts struct {
 	weightIps            map[string]*WeightIp
 	weightIpsLock        sync.Mutex
 	serviceKey           string
-	leaseid              discovery.LeaseID
+	leaseid              etcd.LeaseID
 	outerAddr, innerAddr string
 }
 
@@ -118,7 +118,7 @@ func (d *Hosts) PostListen() error {
 	return nil
 }
 
-func (d *Hosts) anywayKeepAlive() <-chan *discovery.LeaseKeepAliveResponse {
+func (d *Hosts) anywayKeepAlive() <-chan *etcd.LeaseKeepAliveResponse {
 	ch, err := d.keepAlive()
 	for err != nil {
 		time.Sleep(minLeaseTTL)
@@ -127,7 +127,7 @@ func (d *Hosts) anywayKeepAlive() <-chan *discovery.LeaseKeepAliveResponse {
 	return ch
 }
 
-func (d *Hosts) keepAlive() (<-chan *discovery.LeaseKeepAliveResponse, error) {
+func (d *Hosts) keepAlive() (<-chan *etcd.LeaseKeepAliveResponse, error) {
 	resp, err := client.EtcdClient().Grant(context.TODO(), minLeaseTTL)
 	if err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func (d *Hosts) keepAlive() (<-chan *discovery.LeaseKeepAliveResponse, error) {
 		context.TODO(),
 		d.serviceKey,
 		"",
-		discovery.WithLease(resp.ID),
+		etcd.WithLease(resp.ID),
 	)
 	if err != nil {
 		return nil, err
@@ -190,7 +190,7 @@ func (d *Hosts) watchEtcd() {
 		watcher = client.EtcdClient().Watch(
 			context.Background(),
 			servicePrefix,
-			discovery.WithPrefix(),
+			etcd.WithPrefix(),
 		)
 	)
 
@@ -212,8 +212,8 @@ func (d *Hosts) resetGatewayIps(goSort bool) {
 	resp, err := client.EtcdClient().Get(
 		context.Background(),
 		servicePrefix,
-		discovery.WithPrefix(),
-		discovery.WithSort(discovery.SortByKey, discovery.SortDescend),
+		etcd.WithPrefix(),
+		etcd.WithSort(etcd.SortByKey, etcd.SortDescend),
 	)
 	if err != nil || resp.Kvs == nil || len(resp.Kvs) == 0 {
 		d.ips.Store([]string{})

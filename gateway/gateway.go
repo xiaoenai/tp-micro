@@ -17,7 +17,7 @@
 package gateway
 
 import (
-	"github.com/henrylee2cn/ant/discovery"
+	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
@@ -36,7 +36,7 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 	}
 
 	// etcd
-	etcdClient, err := discovery.NewEtcdClient(cfg.Etcd)
+	etcdClient, err := etcd.EasyNew(cfg.Etcd)
 	if err != nil {
 		return err
 	}
