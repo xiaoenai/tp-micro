@@ -2,9 +2,8 @@ package sdk
 
 import (
 	"testing"
-
-	"github.com/henrylee2cn/ant"
-	"github.com/xiaoenai/ants/gateway/types"
+	// "github.com/henrylee2cn/ant"
+	// "github.com/xiaoenai/ants/gateway/types"
 )
 
 // TestSdk test SDK.
