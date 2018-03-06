@@ -55,7 +55,7 @@ func (n *Nodes) add(service, version string, cfg Config) (err error) {
 		etcdMutex:   etcd.NewLocker(n.etcdSession, key),
 		Initialized: false,
 		Config:      cfg.String(),
-		doInitCh:    make(chan struct{}, 1),
+		doInitCh:    make(chan error, 1),
 	}
 	n.nodeMap[key] = node
 
@@ -89,8 +89,7 @@ func (n *Nodes) add(service, version string, cfg Config) (err error) {
 
 	ant.Warnf("Wait for the configuration in the ETCD to be set: %s", key)
 	go node.watch()
-	node.waitInit()
-	return nil
+	return node.waitInit()
 }
 
 // Node config node handler
@@ -101,18 +100,18 @@ type Node struct {
 	Config string `json:"config"`
 	// Is it initialized?
 	Initialized bool `json:"initialized"`
-	doInitCh    chan struct{}
+	doInitCh    chan error
 	etcdMutex   sync.Locker
 }
 
-func parseNode(data []byte) (*Node, error) {
-	var n = new(Node)
-	err := json.Unmarshal(data, n)
-	if err == nil {
-		n.doInitCh = make(chan struct{})
-	}
-	return n, err
-}
+// func parseNode(data []byte) (*Node, error) {
+// 	var n = new(Node)
+// 	err := json.Unmarshal(data, n)
+// 	if err == nil {
+// 		n.doInitCh = make(chan error, 1)
+// 	}
+// 	return n, err
+// }
 
 func (n *Node) bind(data []byte) error {
 	inited := n.Initialized
@@ -127,7 +126,7 @@ func (n *Node) bind(data []byte) error {
 		err = n.object.Load([]byte(n.Config))
 		if n.Initialized {
 			select {
-			case n.doInitCh <- struct{}{}:
+			case n.doInitCh <- err:
 			default:
 			}
 		}
@@ -136,10 +135,11 @@ func (n *Node) bind(data []byte) error {
 	return err
 }
 
-func (n *Node) waitInit() {
-	<-n.doInitCh
+func (n *Node) waitInit() error {
+	return <-n.doInitCh
 }
 
+// String returns the encoding string
 func (n *Node) String() string {
 	b, _ := json.Marshal(n)
 	return string(b)
