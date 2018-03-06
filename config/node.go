@@ -10,9 +10,22 @@ import (
 	"github.com/henrylee2cn/ant/discovery/etcd"
 )
 
-// Sync registers a configuration template to etcd,
+// InitNode initializes a config node.
+func InitNode(etcdClient *etcd.Client) {
+	globalNodes = &Nodes{
+		nodeMap: make(map[string]*Node),
+	}
+
+	var err error
+	globalNodes.etcdSession, err = etcd.NewSession(etcdClient)
+	if err != nil {
+		ant.Fatalf("Initialization of the global node failed: %s", err.Error())
+	}
+}
+
+// SyncNode registers a configuration template to etcd,
 // and update it when monitoring the configuration changes.
-func Sync(service, version string, cfg Config) {
+func SyncNode(service, version string, cfg Config) {
 	globalNodes.mustAdd(service, version, cfg)
 }
 
@@ -24,17 +37,6 @@ type Nodes struct {
 }
 
 var globalNodes *Nodes
-
-func initGlobalNodes() {
-	globalNodes = &Nodes{
-		nodeMap: make(map[string]*Node),
-	}
-	var err error
-	globalNodes.etcdSession, err = etcd.NewSession(etcdCli)
-	if err != nil {
-		ant.Fatalf("Initialization of the global node failed: %s", err.Error())
-	}
-}
 
 func (n *Nodes) mustAdd(service, version string, cfg Config) {
 	must(n.add(service, version, cfg))
@@ -68,7 +70,7 @@ func (n *Nodes) add(service, version string, cfg Config) (err error) {
 	node.etcdMutex.Lock()
 	defer node.etcdMutex.Unlock()
 
-	resp, err := etcdCli.Get(context.TODO(), key)
+	resp, err := n.etcdSession.Client().Get(context.TODO(), key)
 	if err != nil {
 		return err
 	}
@@ -76,19 +78,19 @@ func (n *Nodes) add(service, version string, cfg Config) (err error) {
 	if len(resp.Kvs) > 0 {
 		err = node.bind(resp.Kvs[0].Value)
 		if node.Initialized {
-			go node.watch()
+			go node.watch(n.etcdSession.Client())
 			return err
 		}
 
 	} else {
-		_, err = etcdCli.Put(context.TODO(), key, node.String())
+		_, err = n.etcdSession.Client().Put(context.TODO(), key, node.String())
 		if err != nil {
 			return err
 		}
 	}
 
 	ant.Warnf("Wait for the configuration in the ETCD to be set: %s", key)
-	go node.watch()
+	go node.watch(n.etcdSession.Client())
 	return node.waitInit()
 }
 
@@ -145,8 +147,8 @@ func (n *Node) String() string {
 	return string(b)
 }
 
-func (n *Node) watch() {
-	watcher := etcdCli.Watch(
+func (n *Node) watch(etcdClient *etcd.Client) {
+	watcher := etcdClient.Watch(
 		context.TODO(),
 		n.key,
 	)

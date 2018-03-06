@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/ant/discovery/etcd"
 )
 
 // Config config interface
@@ -10,20 +9,6 @@ type Config interface {
 	Load([]byte) error
 	Reload([]byte) error
 	String() string
-}
-
-// Client handling the specified microservice configuration
-type Client struct {
-	service, version string
-	etcdClient       *etcd.Client
-}
-
-var etcdCli = new(etcd.Client)
-
-// Init initializes a common etcd client.
-func Init(etcdClient *etcd.Client) {
-	*etcdCli = *etcdClient
-	initGlobalNodes()
 }
 
 const (
