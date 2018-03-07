@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sync"
 
 	"github.com/henrylee2cn/ant"
@@ -58,6 +59,7 @@ func (n *Nodes) add(service, version string, cfg Config) (err error) {
 		Initialized: false,
 		Config:      cfg.String(),
 		doInitCh:    make(chan error, 1),
+		nodes:       n,
 	}
 	n.nodeMap[key] = node
 
@@ -104,6 +106,7 @@ type Node struct {
 	Initialized bool `json:"initialized"`
 	doInitCh    chan error
 	etcdMutex   sync.Locker
+	nodes       *Nodes
 }
 
 // func parseNode(data []byte) (*Node, error) {
@@ -115,12 +118,26 @@ type Node struct {
 // 	return n, err
 // }
 
+func (n *Nodes) archive() {
+	os.Mkdir("./config", 0755)
+	r, err := os.OpenFile("./config/archive", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		ant.Warnf("Archive config error: %v", err)
+		return
+	}
+	b, _ := json.Marshal(n.nodeMap)
+	r.Write(b)
+	r.Close()
+}
+
 func (n *Node) bind(data []byte) error {
 	inited := n.Initialized
 	err := json.Unmarshal(data, n)
 	if err != nil {
 		return err
 	}
+
+	n.nodes.archive()
 
 	if inited {
 		err = n.object.Reload([]byte(n.Config))
