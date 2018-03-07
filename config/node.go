@@ -51,13 +51,13 @@ func (n *Nodes) add(service, version string, cfg Config) (err error) {
 	if _, ok := n.nodeMap[key]; ok {
 		return fmt.Errorf("Repeat the registration configuration: %s", key)
 	}
-
+	cfgBytes, _ := cfg.MarshalJSON()
 	node := &Node{
 		key:         key,
 		object:      cfg,
 		etcdMutex:   etcd.NewLocker(n.etcdSession, key),
 		Initialized: false,
-		Config:      cfg.String(),
+		Config:      string(cfgBytes),
 		doInitCh:    make(chan error, 1),
 		nodes:       n,
 	}
@@ -109,15 +109,6 @@ type Node struct {
 	nodes       *Nodes
 }
 
-// func parseNode(data []byte) (*Node, error) {
-// 	var n = new(Node)
-// 	err := json.Unmarshal(data, n)
-// 	if err == nil {
-// 		n.doInitCh = make(chan error, 1)
-// 	}
-// 	return n, err
-// }
-
 func (n *Nodes) archive() {
 	os.Mkdir("./config", 0755)
 	r, err := os.OpenFile("./config/archive", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
@@ -142,7 +133,7 @@ func (n *Node) bind(data []byte) error {
 	if inited {
 		err = n.object.Reload([]byte(n.Config))
 	} else {
-		err = n.object.Load([]byte(n.Config))
+		err = n.object.UnmarshalJSON([]byte(n.Config))
 		if n.Initialized {
 			select {
 			case n.doInitCh <- err:

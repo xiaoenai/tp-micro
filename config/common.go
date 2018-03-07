@@ -10,9 +10,9 @@ import (
 
 // Config config interface
 type Config interface {
-	Load([]byte) error
+	UnmarshalJSON([]byte) error
+	MarshalJSON() ([]byte, error)
 	Reload([]byte) error
-	String() string
 }
 
 const (
