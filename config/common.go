@@ -45,11 +45,10 @@ func (e *etcdConfig) Reload(bindFunc cfgo.BindFunc) error {
 
 // NewEtcdClientFromYaml uses config/etcd.yaml to create a etcd client.
 func NewEtcdClientFromYaml() (*etcd.Client, error) {
-	// archive
 	onceRegYaml.Do(func() {
 		etcdEasyConfig = new(etcd.EasyConfig)
 		cfgo.
-			MustGet("config/etcd.yaml").
+			MustGet("./config/etcd.yaml").
 			MustReg("ETCD", (*etcdConfig)(etcdEasyConfig))
 	})
 	return etcd.EasyNew(*etcdEasyConfig)
