@@ -10,7 +10,7 @@ import (
 	"github.com/henrylee2cn/ant/discovery/etcd"
 )
 
-// InitNode initializes a config node.
+// InitNode initializes the config node.
 func InitNode(etcdClient *etcd.Client) {
 	globalNodes = &Nodes{
 		nodeMap: make(map[string]*Node),
