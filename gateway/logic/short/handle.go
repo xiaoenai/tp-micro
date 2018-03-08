@@ -37,7 +37,7 @@ type requestHandler struct {
 func (r *requestHandler) handle() {
 	// verify access token
 	accessToken := accessTokenGetter(r)
-	token, rerr := logic.AccessTokenMgr().Verify(accessToken)
+	token, rerr := logic.AccessTokenVerifier()(accessToken)
 	if rerr != nil {
 		r.replyError(rerr)
 		return
