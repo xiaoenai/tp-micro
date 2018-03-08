@@ -29,7 +29,7 @@ var (
 
 func (c *connTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
 	tp.Debugf("verify-auth: id: %s, info: %s", sess.Id(), accessToken)
-	token, rerr := logic.AccessTokenMgr().Verify(accessToken)
+	token, rerr := logic.AccessTokenVerifier()(accessToken)
 	if rerr != nil {
 		return rerr
 	}
