@@ -23,6 +23,11 @@ var globalBusiness *types.Business
 
 // SetBusiness sets business object.
 func SetBusiness(biz *types.Business) {
+	if biz == nil {
+		biz = types.DefaultBusiness()
+	} else {
+		biz.Init()
+	}
 	globalBusiness = biz
 }
 

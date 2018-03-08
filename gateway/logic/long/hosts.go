@@ -262,14 +262,14 @@ func (d *Hosts) sortAndStoreIpsLocked() {
 		sortIps = make(SortWeightIps, 0, cnt)
 		rerr    *tp.Rerror
 	)
-	for outerAddr, w := range d.weightIps {
+	for _, w := range d.weightIps {
 		t = time.Now()
 		reply, rerr = sdk.LongConnTotal(
 			w.innerAddr,
 			tp.WithBodyCodec(codec.ID_PROTOBUF),
 		)
 		if rerr != nil {
-			tp.Warnf("gateway is not available: outerAddr: %s, innerAddr: %s, error: %s", outerAddr, w.innerAddr, rerr)
+			tp.Warnf("Not available gateway: innerAddr: %s, error: %s", w.innerAddr, rerr)
 			continue
 		}
 		w.weight = -int64(reply.ConnTotal) - int64(time.Since(t)/time.Millisecond)

@@ -37,3 +37,46 @@ type ShortConnHooks interface {
 	// OnRequest is called when the client requests.
 	OnRequest(AccessToken, RequestArgs) ([]socket.PacketSetting, *tp.Rerror)
 }
+
+// DefaultLongConnHooks creates a new default LongConnHooks object.
+func DefaultLongConnHooks() LongConnHooks {
+	return new(defLongConnHooks)
+}
+
+type defLongConnHooks struct{}
+
+func (d *defLongConnHooks) OnLogon(accessToken AccessToken, sess plugin.AuthSession) *tp.Rerror {
+	sess.SetId(accessToken.Uid())
+	return nil
+}
+
+func (d *defLongConnHooks) OnLogoff(tp.BaseSession) *tp.Rerror {
+	return nil
+}
+
+var (
+	rerrNotOnline = tp.NewRerror(404, "Not Found", "User is not online")
+)
+
+func (d *defLongConnHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror) {
+	sess, ok := peer.GetSession(uid)
+	if !ok {
+		return nil, rerrNotOnline
+	}
+	return sess, nil
+}
+
+func (d *defLongConnHooks) PreWritePush(tp.WriteCtx) *tp.Rerror {
+	return nil
+}
+
+// DefaultShortConnHooks creates a new default ShortConnHooks object.
+func DefaultShortConnHooks() ShortConnHooks {
+	return new(defShortConnHooks)
+}
+
+type defShortConnHooks struct{}
+
+func (d *defShortConnHooks) OnRequest(AccessToken, RequestArgs) ([]socket.PacketSetting, *tp.Rerror) {
+	return nil, nil
+}

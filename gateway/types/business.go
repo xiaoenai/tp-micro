@@ -27,3 +27,25 @@ type Business struct {
 	// ProxyHooks proxy hooks
 	ProxyHooks
 }
+
+// DefaultBusiness creates a new default Business object.
+func DefaultBusiness() *Business {
+	biz := new(Business)
+	biz.Init()
+	return biz
+}
+
+func (biz *Business) Init() {
+	if biz.AccessTokenMgr == nil {
+		biz.AccessTokenMgr = DefaultAccessTokenMgr()
+	}
+	if biz.LongConnHooks == nil {
+		biz.LongConnHooks = DefaultLongConnHooks()
+	}
+	if biz.ShortConnHooks == nil {
+		biz.ShortConnHooks = DefaultShortConnHooks()
+	}
+	if biz.ProxyHooks == nil {
+		biz.ProxyHooks = DefaultProxyHooks()
+	}
+}

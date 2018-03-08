@@ -1,0 +1,61 @@
+gateway:
+  enable_outer_http: true
+  enable_outer_tcp: true
+  outer_http_server:
+    listen_address: 0.0.0.0:5000
+    tls_cert_file: ""
+    tls_key_file: ""
+  outer_tpc_server:
+    tls_cert_file: ""
+    tls_key_file: ""
+    default_session_age: 0s
+    default_context_age: 0s
+    slow_comet_duration: 0s
+    default_body_codec: ""
+    print_body: true
+    count_time: true
+    network: ""
+    listen_address: 0.0.0.0:5020
+    enable_heartbeat: true
+  inner_tcp_server:
+    tls_cert_file: ""
+    tls_key_file: ""
+    default_session_age: 0s
+    default_context_age: 0s
+    slow_comet_duration: 0s
+    default_body_codec: ""
+    print_body: true
+    count_time: true
+    network: ""
+    listen_address: 0.0.0.0:5030
+    enable_heartbeat: true
+  inner_tcp_client:
+    tls_cert_file: ""
+    tls_key_file: ""
+    default_session_age: 0s
+    default_context_age: 0s
+    default_dial_timeout: 0s
+    redial_times: 0
+    failover: 3
+    slow_comet_duration: 0s
+    default_body_codec: ""
+    print_body: false
+    count_time: false
+    network: ""
+    heartbeat_second: 60
+    sess_max_quota: 0
+    sess_max_idle_duration: 0s
+  etcd:
+    endpoints:
+    - http://127.0.0.1:2379
+    dial_timeout: 0s
+    username: ""
+    password: ""
+  redis:
+    deploy_type: single
+    for_single:
+      addr: 127.0.0.1:6379
+    for_cluster:
+      addrs: []
+    pool_size_per_node: 0
+    idle_timeout: 0

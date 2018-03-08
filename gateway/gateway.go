@@ -28,7 +28,8 @@ import (
 
 // Run the gateway main program.
 // If protoFunc=nil, socket.NewFastProtoFunc is used by default.
-func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
+// If biz=nil, types.DefaultBusiness() is used by default.
+func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 	// config
 	err := cfg.check()
 	if err != nil {
@@ -42,6 +43,9 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 	}
 
 	// business
+	if biz == nil {
+		biz = types.DefaultBusiness()
+	}
 	logic.SetBusiness(biz)
 
 	// protocol
@@ -51,7 +55,7 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 
 	// client
 	client.Init(
-		cfg.InnerClient,
+		cfg.InnerTcpClient,
 		protoFunc,
 		etcdClient,
 	)
@@ -65,9 +69,8 @@ func Run(cfg *Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 	if cfg.EnableOuterTcp {
 		go long.Serve(
 			cfg.OuterTcpServer,
+			cfg.InnerTcpServer,
 			protoFunc,
-			cfg.outerAddr,
-			cfg.innerAddr,
 		)
 	}
 
