@@ -17,6 +17,11 @@ func InitMgr(etcdClient *etcd.Client) {
 	mgr.etcdClient = etcdClient
 }
 
+// PullCtrl returns a new PULL controller.
+func PullCtrl() interface{} {
+	return new(cfg)
+}
+
 type cfg struct {
 	tp.PullCtx
 }
@@ -57,7 +62,10 @@ type ConfigKV struct {
 }
 
 func (c *cfg) Update(cfgKv *ConfigKV) (*struct{}, *tp.Rerror) {
-	_, err := mgr.etcdClient.Put(context.TODO(), cfgKv.Key, cfgKv.Value)
+	_, err := mgr.etcdClient.Put(context.TODO(), cfgKv.Key, (&Node{
+		Initialized: true,
+		Config:      cfgKv.Value,
+	}).String())
 	if err != nil {
 		return nil, tp.NewRerror(100500, "Etcd Error", err.Error())
 	}
