@@ -15,28 +15,25 @@
 package gateway
 
 import (
-	"net"
-	"strconv"
-
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery/etcd"
-	"github.com/henrylee2cn/goutil"
+	"github.com/henrylee2cn/cfgo"
 	"github.com/xiaoenai/ants/gateway/logic/short"
 	"github.com/xiaoenai/redis"
 )
 
 // Config app config
 type Config struct {
-	EnableOuterHttp      bool                     `yaml:"enable_outer_http"`
-	EnableOuterTcp       bool                     `yaml:"enable_outer_tcp"`
-	OuterHttpServer      short.OuterHttpSrvConfig `yaml:"outer_http_server"`
-	OuterTcpServer       ant.SrvConfig            `yaml:"outer_tpc_server"`
-	InnerServer          ant.SrvConfig            `yaml:"inner_server"`
-	InnerClient          ant.CliConfig            `yaml:"inner_client"`
-	Etcd                 etcd.EasyConfig          `yaml:"etcd"`
-	Redis                redis.Config             `yaml:"redis"`
-	outerPort, innerPort int
-	outerAddr, innerAddr string
+	EnableOuterHttp bool                     `yaml:"enable_outer_http"`
+	EnableOuterTcp  bool                     `yaml:"enable_outer_tcp"`
+	OuterHttpServer short.OuterHttpSrvConfig `yaml:"outer_http_server"`
+	OuterTcpServer  ant.SrvConfig            `yaml:"outer_tpc_server"`
+	InnerTcpServer  ant.SrvConfig            `yaml:"inner_tcp_server"`
+	InnerTcpClient  ant.CliConfig            `yaml:"inner_tcp_client"`
+	Etcd            etcd.EasyConfig          `yaml:"etcd"`
+	Redis           redis.Config             `yaml:"redis"`
+	// outerPort, innerPort int
+	// outerAddr, innerAddr string
 }
 
 // NewConfig creates a default config.
@@ -53,13 +50,13 @@ func NewConfig() *Config {
 			PrintBody:       true,
 			CountTime:       true,
 		},
-		InnerServer: ant.SrvConfig{
+		InnerTcpServer: ant.SrvConfig{
 			ListenAddress:   "0.0.0.0:5030",
 			EnableHeartbeat: true,
 			PrintBody:       true,
 			CountTime:       true,
 		},
-		InnerClient: ant.CliConfig{
+		InnerTcpClient: ant.CliConfig{
 			Failover:        3,
 			HeartbeatSecond: 60,
 		},
@@ -70,29 +67,16 @@ func NewConfig() *Config {
 	}
 }
 
-// check the config
-func (c *Config) check() error {
-	err := c.InnerClient.Check()
-	if err != nil {
-		return err
-	}
-	c.outerPort, err = getPort(c.OuterTcpServer.ListenAddress)
-	if err != nil {
-		return err
-	}
-	c.innerPort, err = getPort(c.InnerServer.ListenAddress)
-	innerIp, err := goutil.IntranetIP()
-	if err != nil {
-		return err
-	}
-	c.innerAddr = net.JoinHostPort(innerIp, strconv.Itoa(c.innerPort))
-	return err
+// Reload Bi-directionally synchronizes config between YAML file and memory.
+func (c *Config) Reload(bind cfgo.BindFunc) error {
+	return bind()
 }
 
-func getPort(addr string) (int, error) {
-	_, port, err := net.SplitHostPort(addr)
+// check the config
+func (c *Config) check() error {
+	err := c.InnerTcpClient.Check()
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return strconv.Atoi(port)
+	return nil
 }

@@ -26,3 +26,18 @@ type ProxyHooks interface {
 	// BeforePush is called before pushing the internal service.
 	BeforePush(uri string, args interface{}, setting ...socket.PacketSetting) *tp.Rerror
 }
+
+// DefaultProxyHooks creates a new default ProxyHooks object.
+func DefaultProxyHooks() ProxyHooks {
+	return new(defProxyHooks)
+}
+
+type defProxyHooks struct{}
+
+func (d *defProxyHooks) BeforePull(uri string, args interface{}, reply interface{}, setting ...socket.PacketSetting) *tp.Rerror {
+	return nil
+}
+
+func (d *defProxyHooks) BeforePush(uri string, args interface{}, setting ...socket.PacketSetting) *tp.Rerror {
+	return nil
+}

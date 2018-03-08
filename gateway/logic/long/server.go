@@ -15,6 +15,8 @@
 package long
 
 import (
+	"time"
+
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery"
 	tp "github.com/henrylee2cn/teleport"
@@ -25,26 +27,31 @@ import (
 )
 
 var (
-	srv  *ant.Server
-	peer tp.Peer
+	outerPeer tp.Peer
 )
 
 // Serve starts TCP gateway service.
-func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, outerAddr, innerAddr string) {
-	srv = ant.NewServer(
-		srvCfg,
-		discovery.ServicePluginFromEtcd(innerAddr, client.EtcdClient()),
+func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
+	outerServer := ant.NewServer(
+		outerSrvCfg,
 		plugin.VerifyAuth(connTabPlugin.logon),
 		connTabPlugin,
 		plugin.Proxy(client.ProxyClient()),
-		new(Hosts),
 		logic.PreWritePushPlugin(),
 	)
+	outerPeer = outerServer.Peer()
 
+	outerAddr := outerSrvCfg.OuterIpPort()
+	innerAddr := innerSrvCfg.InnerIpPort()
 	initHosts(outerAddr, innerAddr)
 
-	verGroup := srv.SubRoute(logic.ApiVersion())
+	innerServer := ant.NewServer(
+		innerSrvCfg,
+		discovery.ServicePluginFromEtcd(innerAddr, client.EtcdClient()),
+		hosts,
+	)
 
+	verGroup := innerServer.SubRoute(logic.ApiVersion())
 	{
 		verGroup.RoutePullFunc(GwHosts)
 		group := verGroup.SubRoute("/gw")
@@ -53,7 +60,8 @@ func Serve(srvCfg ant.SrvConfig, protoFunc socket.ProtoFunc, outerAddr, innerAdd
 		}
 	}
 
-	peer = srv.Peer()
-
-	srv.Listen(protoFunc)
+	go outerServer.Listen(protoFunc)
+	time.Sleep(time.Second)
+	go innerServer.Listen(protoFunc)
+	select {}
 }

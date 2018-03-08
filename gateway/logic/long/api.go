@@ -21,7 +21,7 @@ type longConn struct {
 
 // TotalConn returns the long connections total.
 func TotalConn() int32 {
-	return int32(srv.Peer().CountSession())
+	return int32(outerPeer.CountSession())
 }
 
 // Total returns the long connections total.
@@ -31,7 +31,7 @@ func (l *longConn) Total(*types.TotalLongConnArgs) (*types.TotalLongConnReply, *
 
 // InnerPush pushs the message to the designated uid.
 func InnerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rerror {
-	sess, rerr := logic.LongConnHooks().GetSession(peer, uid)
+	sess, rerr := logic.LongConnHooks().GetSession(outerPeer, uid)
 	if rerr != nil {
 		return rerr
 	}
