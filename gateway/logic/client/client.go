@@ -33,6 +33,7 @@ func Init(cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Cli
 		cliCfg,
 		discovery.NewLinkerFromEtcd(etcdCli),
 	)
+	caller = &proxyClient{antCli}
 	antCli.SetProtoFunc(protoFunc)
 	staticClients = newStaticClients(cliCfg, protoFunc)
 }

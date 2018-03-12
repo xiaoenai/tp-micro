@@ -24,10 +24,10 @@ import (
 
 // proxyClient the client for proxy.
 type proxyClient struct {
-	*ant.Client
+	cli *ant.Client
 }
 
-var caller = &proxyClient{AntClient()}
+var caller plugin.Caller
 
 // ProxyClient returns the common proxy client.
 func ProxyClient() plugin.Caller {
@@ -40,7 +40,7 @@ func (p *proxyClient) Pull(uri string, args interface{}, reply interface{}, sett
 		return tp.NewFakePullCmd(uri, args, reply, rerr)
 	}
 
-	return p.Pull(uri, args, reply, setting...)
+	return p.cli.Pull(uri, args, reply, setting...)
 }
 
 func (p *proxyClient) Push(uri string, args interface{}, setting ...socket.PacketSetting) *tp.Rerror {
@@ -49,5 +49,5 @@ func (p *proxyClient) Push(uri string, args interface{}, setting ...socket.Packe
 		return rerr
 	}
 
-	return p.Push(uri, args, setting...)
+	return p.cli.Push(uri, args, setting...)
 }
