@@ -46,8 +46,9 @@ type Hosts struct {
 
 const (
 	servicePrefix = "ANTS-GATEWAY"
-	// minimum lease TTL is 5-second
-	minLeaseTTL = 5
+	// minimum lease TTL is 10-second
+	minLeaseTTL      = 10
+	maxGatewayAmount = 5
 )
 
 var (
@@ -121,7 +122,7 @@ func (d *Hosts) PostListen() error {
 func (d *Hosts) anywayKeepAlive() <-chan *etcd.LeaseKeepAliveResponse {
 	ch, err := d.keepAlive()
 	for err != nil {
-		time.Sleep(minLeaseTTL)
+		time.Sleep(minLeaseTTL * time.Second)
 		ch, err = d.keepAlive()
 	}
 	return ch
@@ -162,8 +163,8 @@ func (d *Hosts) revoke() {
 
 func (d *Hosts) watchEtcd() {
 	const (
-		interval = time.Second * 20
-		wait     = time.Second * 5
+		interval = minLeaseTTL * 2 * time.Second
+		wait     = minLeaseTTL * time.Second
 	)
 	var (
 		updateCh = make(chan struct{})
@@ -279,7 +280,7 @@ func (d *Hosts) sortAndStoreIpsLocked() {
 	ips := make([]string, 0, len(sortIps))
 	for i, w := range sortIps {
 		// 只保留前5个
-		if i > 4 {
+		if i >= maxGatewayAmount {
 			break
 		}
 		ips = append(ips, w.outerAddr)
