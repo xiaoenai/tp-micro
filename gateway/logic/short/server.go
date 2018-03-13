@@ -27,6 +27,7 @@ type OuterHttpSrvConfig struct {
 	ListenAddress string `yaml:"listen_address"`
 	TlsCertFile   string `yaml:"tls_cert_file"`
 	TlsKeyFile    string `yaml:"tls_key_file"`
+	AllowCross    bool   `yaml:"allow_cross"`
 }
 
 // Serve starts HTTP gateway service.
@@ -43,6 +44,7 @@ func Serve(srvCfg OuterHttpSrvConfig) {
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
+	allowCross = srvCfg.AllowCross
 	s := &fasthttp.Server{
 		Name:    "ants-gateway",
 		Handler: handler,
