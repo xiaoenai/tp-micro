@@ -2,6 +2,20 @@
 
 Package gateway is the main program for TCP and HTTP services.
 
-## version
+## demo
 
-v0.1.0
+```go
+package main
+
+import (
+	"github.com/henrylee2cn/cfgo"
+	"github.com/xiaoenai/ants/gateway"
+)
+
+func main() {
+	cfg := gateway.NewConfig()
+	cfgo.MustReg("gateway", cfg)
+	// Run a gateway instance with default business logic and default socket protocol.
+	gateway.Run(*cfg, nil, nil)
+}
+```

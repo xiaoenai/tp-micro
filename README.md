@@ -10,7 +10,7 @@ Ants is a highly available microservice platform based on [Ant](https://github.c
 
 
 ```
-go version ≥ 1.7
+go version ≥ 1.9
 ```
 
 ```sh

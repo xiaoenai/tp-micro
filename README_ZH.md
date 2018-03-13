@@ -7,7 +7,7 @@ Ants 是一套基于 [Ant](https://github.com/henrylee2cn/ant) 和 [Teleport](ht
 ## 1. 安装
 
 ```
-go version ≥ 1.7
+go version ≥ 1.9
 ```
 
 ```sh
