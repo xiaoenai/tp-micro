@@ -11,7 +11,7 @@ go version ≥ 1.9
 ```
 
 ```sh
-go get -u github.com/xiaoenai/ants/...
+go get -u github.com/xiaoenai/ants
 ```
 
 ## 2. 特性
@@ -60,7 +60,54 @@ go get -u github.com/xiaoenai/ants/...
 
 - 在自动生成的文件的文件名中增加 `.gen` 后缀进行标记
 
-## 4. Ant项目示例
+## 4. 项目管理
+
+### 4.1 安装
+
+```sh
+cd $GOPATH/github.com/henrylee2cn/ant/cmd/ant
+go install
+```
+
+### 4.2 用法
+
+- 生成项目
+
+```
+NAME:
+   ant gen - Generate an ant project
+
+USAGE:
+   ant gen [command options] [arguments...]
+
+OPTIONS:
+   --script value, -s value    The script for code generation(relative/absolute)
+   --app_path value, -p value  The path(relative/absolute) of the project
+```
+
+示例：`ant gen -p ./myant -s ./test.ant`
+
+- 热编译运行
+
+```
+NAME:
+   ant run - Compile and run gracefully (monitor changes) an any existing go project
+
+USAGE:
+   ant run [options] [arguments...]
+ or
+   ant run [options except -app_path] [arguments...] {app_path}
+
+OPTIONS:
+   --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
+   --app_path value, -p value    The path(relative/absolute) of the project
+```
+
+example: `ant run -x .yaml -p myant` or `ant run -x .yaml myant`
+
+[更多 ant command](https://github.com/henrylee2cn/ant/tree/master/cmd/ant)
+
+## 5. Ant项目示例
 
 - 服务端
 
@@ -140,6 +187,6 @@ func main() {
 
 [更多](https://github.com/henrylee2cn/ant/tree/master/samples)
 
-## 5. 开源协议
+## 6. 开源协议
 
 Ant 项目采用商业应用友好的 [Apache2.0](https://github.com/xiaoenai/ant/raw/master/LICENSE) 协议发布

@@ -14,7 +14,7 @@ go version ≥ 1.9
 ```
 
 ```sh
-go get -u github.com/xiaoenai/ants/...
+go get -u github.com/xiaoenai/ants
 ```
 
 ## 2. Feature
@@ -64,7 +64,54 @@ Desc:
 
 - add `.gen` suffix to the file name of the automatically generated file
 
-## 4. Demo of Ant
+## 4. Project Management
+
+### 4.1 Install
+
+```sh
+cd $GOPATH/github.com/henrylee2cn/ant/cmd/ant
+go install
+```
+
+### 4.2 Usage
+
+- generate project
+
+```
+NAME:
+   ant gen - Generate an ant project
+
+USAGE:
+   ant gen [command options] [arguments...]
+
+OPTIONS:
+   --script value, -s value    The script for code generation(relative/absolute)
+   --app_path value, -p value  The path(relative/absolute) of the project
+```
+
+example: `ant gen -s ./test.ant -p ./myant`
+
+- run project
+
+```
+NAME:
+   ant run - Compile and run gracefully (monitor changes) an any existing go project
+
+USAGE:
+   ant run [options] [arguments...]
+ or
+   ant run [options except -app_path] [arguments...] {app_path}
+
+OPTIONS:
+   --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
+   --app_path value, -p value    The path(relative/absolute) of the project
+```
+
+example: `ant run -x .yaml -p myant` or `ant run -x .yaml myant`
+
+[More Ant Command](https://github.com/henrylee2cn/ant/tree/master/cmd/ant)
+
+## 5. Demo of Ant
 
 - server
 
@@ -144,6 +191,6 @@ func main() {
 
 [More](https://github.com/henrylee2cn/ant/tree/master/samples)
 
-## 5. License
+## 6. License
 
 Ants is under Apache v2 License. See the [LICENSE](https://github.com/xiaoenai/ants/raw/master/LICENSE) file for the full license text
