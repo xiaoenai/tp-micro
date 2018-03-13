@@ -7,6 +7,7 @@ import (
 
 func main() {
 	cfg := gateway.NewConfig()
+	cfg.OuterHttpServer.AllowCross = true
 	cfgo.MustReg("gateway", cfg)
 	// Run a gateway instance with default business logic and default socket protocol.
 	gateway.Run(*cfg, nil, nil)

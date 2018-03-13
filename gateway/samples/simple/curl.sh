@@ -1,0 +1,1 @@
+curl -v -H "Content-Type:application/json" -X POST --data '{"a":8, "b":2}' http://localhost:5000/math/divide
