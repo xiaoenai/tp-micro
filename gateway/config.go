@@ -43,6 +43,7 @@ func NewConfig() *Config {
 		EnableOuterTcp:  true,
 		OuterHttpServer: short.OuterHttpSrvConfig{
 			ListenAddress: "0.0.0.0:5000",
+			AllowCross:    false,
 		},
 		OuterTcpServer: ant.SrvConfig{
 			ListenAddress:   "0.0.0.0:5020",

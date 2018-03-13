@@ -25,6 +25,8 @@ import (
 	"github.com/xiaoenai/ants/gateway/logic/client"
 )
 
+var allowCross bool
+
 func handler(ctx *fasthttp.RequestCtx) {
 	(&requestHandler{ctx: ctx}).handle()
 }
@@ -35,6 +37,9 @@ type requestHandler struct {
 }
 
 func (r *requestHandler) handle() {
+	if allowCross && r.crossDomainFilter() {
+		return
+	}
 	// verify access token
 	accessToken := accessTokenGetter(r)
 	token, rerr := logic.AccessTokenVerifier()(accessToken)
@@ -58,7 +63,7 @@ func (r *requestHandler) handle() {
 
 	// set body codec
 	var contentType = h.ContentType()
-	bodyCodec := GetBodyCodec(h.ContentType())
+	bodyCodec := GetBodyCodec(contentType)
 	settings = append(settings, socket.WithBodyCodec(bodyCodec))
 
 	// set real ip
@@ -93,15 +98,35 @@ func (r *requestHandler) handle() {
 	ctx.SetBody(reply)
 }
 
-func (r *requestHandler) replyError(rerr *tp.Rerror) {
-	r.ctx.Response.Header.Set("Content-Type", "application/json")
-	b, _ := rerr.MarshalJSON()
-	msg := goutil.BytesToString(b)
-	if rerr.Code < 200 {
-		r.ctx.Error(msg, 500)
-	} else {
-		r.ctx.Error(msg, int(rerr.Code))
+var optionsBytes = []byte("OPTIONS")
+
+func (r *requestHandler) crossDomainFilter() bool {
+	r.ctx.Response.Header.Set("Access-Control-Allow-Origin", string(r.ctx.Request.Header.Peek("Origin")))
+	r.ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
+	r.ctx.Response.Header.Set("Access-Control-Allow-Methods", string(r.ctx.Request.Header.Peek("Access-Control-Request-Method")))
+	// r.ctx.Response.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	r.ctx.Response.Header.Set("Access-Control-Allow-Headers", string(r.ctx.Request.Header.Peek("Access-Control-Request-Headers")))
+	// r.ctx.Response.Header.Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	r.ctx.Response.Header.Set("Access-Control-Max-Age", "-1")
+	// r.ctx.Response.Header.Set("Access-Control-Max-Age", "172800")
+	if !bytes.Equal(r.ctx.Method(), optionsBytes) {
+		return false
 	}
+	r.ctx.SetStatusCode(204)
+	return true
+}
+
+func (r *requestHandler) replyError(rerr *tp.Rerror) {
+	var statusCode int
+	if rerr.Code < 200 {
+		statusCode = 500
+	} else {
+		statusCode = int(rerr.Code)
+	}
+	msg, _ := rerr.MarshalJSON()
+	r.ctx.SetStatusCode(statusCode)
+	r.ctx.SetContentType("application/json")
+	r.ctx.SetBody(msg)
 }
 
 // Query returns query arguments from request URI.
