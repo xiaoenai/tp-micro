@@ -5,6 +5,7 @@ gateway:
     listen_address: 0.0.0.0:5000
     tls_cert_file: ""
     tls_key_file: ""
+    allow_cross: true
   outer_tpc_server:
     tls_cert_file: ""
     tls_key_file: ""
