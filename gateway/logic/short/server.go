@@ -43,7 +43,11 @@ func Serve(srvCfg OuterHttpSrvConfig) {
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
-	err = fasthttp.Serve(ln, handler)
+	s := &fasthttp.Server{
+		Name:    "ants-gateway",
+		Handler: handler,
+	}
+	err = s.Serve(ln)
 	if err != nil && err != http.ErrServerClosed {
 		tp.Fatalf("%v", err)
 	}
