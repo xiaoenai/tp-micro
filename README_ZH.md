@@ -11,7 +11,7 @@ go version ≥ 1.9
 ```
 
 ```sh
-go get -u github.com/xiaoenai/ants
+go get -u -d github.com/xiaoenai/ants/...
 ```
 
 ## 2. 特性
