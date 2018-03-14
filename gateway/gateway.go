@@ -77,12 +77,7 @@ func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 	select {}
 }
 
-// RegBodyCodecForShort registers a mapping of content type to body coder (for http).
-func RegBodyCodecForShort(contentType string, codecId byte) {
+// RegBodyCodecForHTTP registers a mapping of content type to body coder (for http).
+func RegBodyCodecForHTTP(contentType string, codecId byte) {
 	short.RegBodyCodec(contentType, codecId)
-}
-
-// SetAccessTokenGetterForShort sets the function to get access token (for http).
-func SetAccessTokenGetterForShort(fn func(args types.RequestArgs) string) {
-	short.SetAccessTokenGetter(fn)
 }

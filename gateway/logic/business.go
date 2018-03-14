@@ -36,9 +36,9 @@ func ApiVersion() string {
 	return globalBusiness.ApiVersion
 }
 
-// AccessTokenVerifier returns access token verifier.
-func AccessTokenVerifier() types.AccessTokenVerifier {
-	return globalBusiness.AccessTokenVerifier
+// AccessTokenMgr returns access token manager.
+func AccessTokenMgr() types.AccessTokenMgr {
+	return globalBusiness.AccessTokenMgr
 }
 
 // LongConnHooks returns TCP socket connecting event hooks.

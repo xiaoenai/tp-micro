@@ -14,6 +14,7 @@
 
 package types
 
+// RequestArgs http query parameters
 type RequestArgs interface {
 	// Query returns query arguments from request URI.
 	Query(key string) string

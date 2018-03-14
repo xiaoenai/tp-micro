@@ -18,8 +18,8 @@ package types
 type Business struct {
 	// ApiVersion long connection API version
 	ApiVersion string
-	// AccessTokenVerifier access token manager
-	AccessTokenVerifier
+	// AccessTokenMgr access token manager
+	AccessTokenMgr
 	// LongConnHooks TCP socket connecting event hooks
 	LongConnHooks
 	// ShortConnHooks HTTP connecting event hooks
@@ -36,8 +36,8 @@ func DefaultBusiness() *Business {
 }
 
 func (biz *Business) Init() {
-	if biz.AccessTokenVerifier == nil {
-		biz.AccessTokenVerifier = DefaultAccessTokenVerifier()
+	if biz.AccessTokenMgr == nil {
+		biz.AccessTokenMgr = DefaultAccessTokenMgr()
 	}
 	if biz.LongConnHooks == nil {
 		biz.LongConnHooks = DefaultLongConnHooks()

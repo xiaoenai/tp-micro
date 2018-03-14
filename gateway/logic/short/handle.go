@@ -43,11 +43,11 @@ func (r *requestHandler) handle() {
 	}
 	// verify access token
 	var (
-		accessToken = accessTokenGetter(r)
+		accessToken = logic.AccessTokenMgr().QueryForHTTP(r)
 		tokens      []types.AccessToken
 	)
 	if len(accessToken) > 0 {
-		token, rerr := logic.AccessTokenVerifier()(accessToken)
+		token, rerr := logic.AccessTokenMgr().Verify(accessToken)
 		if rerr != nil {
 			r.replyError(rerr)
 			return

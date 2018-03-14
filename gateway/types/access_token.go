@@ -18,8 +18,28 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 )
 
-// AccessTokenVerifier access token verifier
-type AccessTokenVerifier func(accessToken string) (AccessToken, *tp.Rerror)
+// AccessTokenMgr access token manager
+type AccessTokenMgr interface {
+	// QueryForHTTP queries access token from http query parameter
+	QueryForHTTP(args RequestArgs) string
+	// Verify Verifies access token
+	Verify(accessToken string) (AccessToken, *tp.Rerror)
+}
+
+// DefaultAccessTokenMgr returns the default access token manager.
+func DefaultAccessTokenMgr() AccessTokenMgr {
+	return new(defAccessTokenMgr)
+}
+
+type defAccessTokenMgr struct{}
+
+func (defAccessTokenMgr) QueryForHTTP(args RequestArgs) string {
+	return args.Query("access_token")
+}
+
+func (defAccessTokenMgr) Verify(accessToken string) (AccessToken, *tp.Rerror) {
+	return defAccessToken(accessToken), nil
+}
 
 // AccessToken access token info
 type AccessToken interface {
@@ -27,13 +47,6 @@ type AccessToken interface {
 	Uid() string
 	// String returns the access token string.
 	String() string
-}
-
-// DefaultAccessTokenVerifier returns the default access token verifier.
-func DefaultAccessTokenVerifier() AccessTokenVerifier {
-	return func(accessToken string) (AccessToken, *tp.Rerror) {
-		return defAccessToken(accessToken), nil
-	}
 }
 
 type defAccessToken string
