@@ -25,38 +25,43 @@ import (
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
-var _apiVersion string
-
 // Init initializes a common inner ant client.
 func Init(apiVersion string, cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
 	client.Init(cliCfg, protoFunc, etcdClient)
+	SetApiVersion(apiVersion)
+}
+
+var _apiVersion string
+
+// SetApiVersion sets API version
+func SetApiVersion(apiVersion string) {
 	_apiVersion = path.Join("/", apiVersion)
 }
 
 // GwHosts returns the gateway host list.
 func GwHosts(setting ...socket.PacketSetting) (*types.GwHosts, *tp.Rerror) {
 	var reply = new(types.GwHosts)
-	rerr := client.AntClient().Pull(_apiVersion+"/gw_hosts", nil, reply, setting...).Rerror()
+	rerr := client.AntClient().Pull("/gw_hosts", nil, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
 	return reply, nil
 }
 
-// LongConnTotal returns the long connections total of the remote server.
-func LongConnTotal(srvAddr string, setting ...socket.PacketSetting) (*types.TotalLongConnReply, *tp.Rerror) {
-	var reply = new(types.TotalLongConnReply)
-	rerr := client.StaticClient(srvAddr).Pull(_apiVersion+"/gw/long_conn/total", nil, reply, setting...).Rerror()
+// SocketTotal returns the long connections total of the remote server.
+func SocketTotal(srvAddr string, setting ...socket.PacketSetting) (*types.SocketTotalReply, *tp.Rerror) {
+	var reply = new(types.SocketTotalReply)
+	rerr := client.StaticClient(srvAddr).Pull("/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
 	return reply, nil
 }
 
-// LongConnPush pushs the message to the long connection's client user.
-func LongConnPush(srvAddr string, args *types.PushLongConnArgs, setting ...socket.PacketSetting) (*types.PushLongConnReply, *tp.Rerror) {
-	var reply = new(types.PushLongConnReply)
-	rerr := client.StaticClient(srvAddr).Pull("/gw/long_conn/push", args, reply, setting...).Rerror()
+// SocketPush pushs the message to the long connection's client user.
+func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...socket.PacketSetting) (*types.SocketPushReply, *tp.Rerror) {
+	var reply = new(types.SocketPushReply)
+	rerr := client.StaticClient(srvAddr).Pull("/gw"+_apiVersion+"/socket_push", args, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}

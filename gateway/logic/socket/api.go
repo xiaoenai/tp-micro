@@ -1,4 +1,4 @@
-package long
+package socket
 
 import (
 	"github.com/henrylee2cn/ant"
@@ -14,8 +14,8 @@ func GwHosts(tp.PullCtx, *struct{}) (*types.GwHosts, *tp.Rerror) {
 	return r, nil
 }
 
-// longConn long connection controller.
-type longConn struct {
+// gw long connection controller.
+type gw struct {
 	tp.PullCtx
 }
 
@@ -24,27 +24,27 @@ func TotalConn() int32 {
 	return int32(outerPeer.CountSession())
 }
 
-// Total returns the long connections total.
-func (l *longConn) Total(*types.TotalLongConnArgs) (*types.TotalLongConnReply, *tp.Rerror) {
-	return &types.TotalLongConnReply{ConnTotal: TotalConn()}, nil
+// SocketTotal returns the long connections total.
+func (g *gw) SocketTotal(*types.SocketTotalArgs) (*types.SocketTotalReply, *tp.Rerror) {
+	return &types.SocketTotalReply{ConnTotal: TotalConn()}, nil
 }
 
 // InnerPush pushs the message to the designated uid.
 func InnerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rerror {
-	sess, rerr := logic.LongConnHooks().GetSession(outerPeer, uid)
+	sess, rerr := logic.SocketHooks().GetSession(outerPeer, uid)
 	if rerr != nil {
 		return rerr
 	}
 	return sess.Push(uri, args, ant.WithBodyCodec(bodyCodec))
 }
 
-var pushLongConnReply = new(types.PushLongConnReply)
+var pushSocketReply = new(types.SocketPushReply)
 
-// Push returns the long connections total.
-func (l *longConn) Push(args *types.PushLongConnArgs) (*types.PushLongConnReply, *tp.Rerror) {
+// SocketPush returns the long connections total.
+func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp.Rerror) {
 	rerr := InnerPush(args.Uid, args.Uri, args.Body, byte(args.BodyCodec))
 	if rerr != nil {
 		return nil, rerr
 	}
-	return pushLongConnReply, nil
+	return pushSocketReply, nil
 }

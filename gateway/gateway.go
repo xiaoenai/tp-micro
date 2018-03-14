@@ -21,8 +21,8 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
-	"github.com/xiaoenai/ants/gateway/logic/long"
-	"github.com/xiaoenai/ants/gateway/logic/short"
+	short "github.com/xiaoenai/ants/gateway/logic/http"
+	long "github.com/xiaoenai/ants/gateway/logic/socket"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
@@ -55,21 +55,21 @@ func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 
 	// client
 	client.Init(
-		cfg.InnerTcpClient,
+		cfg.InnerSocketClient,
 		protoFunc,
 		etcdClient,
 	)
 
 	// HTTP server
-	if cfg.EnableOuterHttp {
+	if cfg.EnableHttp {
 		go short.Serve(cfg.OuterHttpServer)
 	}
 
 	// TCP socket server
-	if cfg.EnableOuterTcp {
+	if cfg.EnableSocket {
 		go long.Serve(
-			cfg.OuterTcpServer,
-			cfg.InnerTcpServer,
+			cfg.OuterSocketServer,
+			cfg.InnerSocketServer,
 			protoFunc,
 		)
 	}

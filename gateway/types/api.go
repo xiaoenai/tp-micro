@@ -19,11 +19,11 @@ import (
 )
 
 type (
-	// TotalLongConnArgs args
-	TotalLongConnArgs = codec.PbEmpty
+	// SocketTotalArgs args
+	SocketTotalArgs = codec.PbEmpty
 )
 
 type (
-	// PushLongConnReply reply
-	PushLongConnReply = codec.PbEmpty
+	// SocketPushReply reply
+	SocketPushReply = codec.PbEmpty
 )

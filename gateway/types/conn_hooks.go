@@ -20,8 +20,8 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 )
 
-// LongConnHooks TCP socket connecting event hooks
-type LongConnHooks interface {
+// SocketHooks TCP socket connecting event hooks
+type SocketHooks interface {
 	// OnLogon is called when the client goes online.
 	OnLogon(plugin.AuthSession, AccessToken) *tp.Rerror
 	// OnLogoff is called when the client goes offline.
@@ -32,25 +32,25 @@ type LongConnHooks interface {
 	PreWritePush(tp.WriteCtx) *tp.Rerror
 }
 
-// ShortConnHooks HTTP connecting event hooks
-type ShortConnHooks interface {
+// HttpHooks HTTP connecting event hooks
+type HttpHooks interface {
 	// OnRequest is called when the client requests.
 	OnRequest(RequestArgs, ...AccessToken) ([]socket.PacketSetting, *tp.Rerror)
 }
 
-// DefaultLongConnHooks creates a new default LongConnHooks object.
-func DefaultLongConnHooks() LongConnHooks {
-	return new(defLongConnHooks)
+// DefaultSocketHooks creates a new default SocketHooks object.
+func DefaultSocketHooks() SocketHooks {
+	return new(defSocketHooks)
 }
 
-type defLongConnHooks struct{}
+type defSocketHooks struct{}
 
-func (d *defLongConnHooks) OnLogon(sess plugin.AuthSession, accessToken AccessToken) *tp.Rerror {
+func (d *defSocketHooks) OnLogon(sess plugin.AuthSession, accessToken AccessToken) *tp.Rerror {
 	sess.SetId(accessToken.Uid())
 	return nil
 }
 
-func (d *defLongConnHooks) OnLogoff(tp.BaseSession) *tp.Rerror {
+func (d *defSocketHooks) OnLogoff(tp.BaseSession) *tp.Rerror {
 	return nil
 }
 
@@ -58,7 +58,7 @@ var (
 	rerrNotOnline = tp.NewRerror(404, "Not Found", "User is not online")
 )
 
-func (d *defLongConnHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror) {
+func (d *defSocketHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror) {
 	sess, ok := peer.GetSession(uid)
 	if !ok {
 		return nil, rerrNotOnline
@@ -66,17 +66,17 @@ func (d *defLongConnHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp
 	return sess, nil
 }
 
-func (d *defLongConnHooks) PreWritePush(tp.WriteCtx) *tp.Rerror {
+func (d *defSocketHooks) PreWritePush(tp.WriteCtx) *tp.Rerror {
 	return nil
 }
 
-// DefaultShortConnHooks creates a new default ShortConnHooks object.
-func DefaultShortConnHooks() ShortConnHooks {
-	return new(defShortConnHooks)
+// DefaultHttpHooks creates a new default HttpHooks object.
+func DefaultHttpHooks() HttpHooks {
+	return new(defHttpHooks)
 }
 
-type defShortConnHooks struct{}
+type defHttpHooks struct{}
 
-func (d *defShortConnHooks) OnRequest(RequestArgs, ...AccessToken) ([]socket.PacketSetting, *tp.Rerror) {
+func (d *defHttpHooks) OnRequest(RequestArgs, ...AccessToken) ([]socket.PacketSetting, *tp.Rerror) {
 	return nil, nil
 }

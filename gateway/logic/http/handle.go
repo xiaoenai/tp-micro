@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package short
+package http
 
 import (
 	"bytes"
@@ -54,7 +54,7 @@ func (r *requestHandler) handle() {
 		}
 		tokens = append(tokens, token)
 	}
-	settings, rerr := logic.ShortConnHooks().OnRequest(r, tokens...)
+	settings, rerr := logic.HttpHooks().OnRequest(r, tokens...)
 	if rerr != nil {
 		r.replyError(rerr)
 		return

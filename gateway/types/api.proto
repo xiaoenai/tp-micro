@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package types;
 
-message TotalLongConnReply {
+message SocketTotalReply {
     int32  conn_total   = 1;
 }
 
-message PushLongConnArgs {
+message SocketPushArgs {
     string  uid        = 1;
     string  uri        = 2;
     bytes   body       = 3;

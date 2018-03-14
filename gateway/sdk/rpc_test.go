@@ -20,7 +20,7 @@ func TestSdk(t *testing.T) {
 	// 	socket.NewFastProtoFunc,
 	// 	etcdClient,
 	// )
-	// reply, rerr := LongConnTotal()
+	// reply, rerr := SocketTotal()
 	// if rerr != nil {
 	// 	t.Logf("rerr: %v", rerr)
 	// } else {

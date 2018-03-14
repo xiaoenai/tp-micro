@@ -41,14 +41,14 @@ func AccessTokenMgr() types.AccessTokenMgr {
 	return globalBusiness.AccessTokenMgr
 }
 
-// LongConnHooks returns TCP socket connecting event hooks.
-func LongConnHooks() types.LongConnHooks {
-	return globalBusiness.LongConnHooks
+// SocketHooks returns TCP socket connecting event hooks.
+func SocketHooks() types.SocketHooks {
+	return globalBusiness.SocketHooks
 }
 
-// ShortConnHooks returns HTTP connecting event hooks.
-func ShortConnHooks() types.ShortConnHooks {
-	return globalBusiness.ShortConnHooks
+// HttpHooks returns HTTP connecting event hooks.
+func HttpHooks() types.HttpHooks {
+	return globalBusiness.HttpHooks
 }
 
 // ProxyHooks returns proxy hooks.
@@ -70,5 +70,5 @@ func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Rerror {
 
 // PreWritePushPlugin returns PreWritePushPlugin.
 func PreWritePushPlugin() tp.PreWritePushPlugin {
-	return &perPusher{fn: LongConnHooks().PreWritePush}
+	return &perPusher{fn: SocketHooks().PreWritePush}
 }

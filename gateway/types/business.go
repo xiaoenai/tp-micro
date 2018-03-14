@@ -20,10 +20,10 @@ type Business struct {
 	ApiVersion string
 	// AccessTokenMgr access token manager
 	AccessTokenMgr
-	// LongConnHooks TCP socket connecting event hooks
-	LongConnHooks
-	// ShortConnHooks HTTP connecting event hooks
-	ShortConnHooks
+	// SocketHooks TCP socket connecting event hooks
+	SocketHooks
+	// HttpHooks HTTP connecting event hooks
+	HttpHooks
 	// ProxyHooks proxy hooks
 	ProxyHooks
 }
@@ -39,11 +39,11 @@ func (biz *Business) Init() {
 	if biz.AccessTokenMgr == nil {
 		biz.AccessTokenMgr = DefaultAccessTokenMgr()
 	}
-	if biz.LongConnHooks == nil {
-		biz.LongConnHooks = DefaultLongConnHooks()
+	if biz.SocketHooks == nil {
+		biz.SocketHooks = DefaultSocketHooks()
 	}
-	if biz.ShortConnHooks == nil {
-		biz.ShortConnHooks = DefaultShortConnHooks()
+	if biz.HttpHooks == nil {
+		biz.HttpHooks = DefaultHttpHooks()
 	}
 	if biz.ProxyHooks == nil {
 		biz.ProxyHooks = DefaultProxyHooks()

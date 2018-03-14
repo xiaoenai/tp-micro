@@ -9,8 +9,8 @@
 		api.proto
 
 	It has these top-level messages:
-		TotalLongConnReply
-		PushLongConnArgs
+		SocketTotalReply
+		SocketPushArgs
 		GwHosts
 */
 package types
@@ -32,56 +32,56 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
-type TotalLongConnReply struct {
+type SocketTotalReply struct {
 	ConnTotal int32 `protobuf:"varint,1,opt,name=conn_total,json=connTotal,proto3" json:"conn_total,omitempty"`
 }
 
-func (m *TotalLongConnReply) Reset()                    { *m = TotalLongConnReply{} }
-func (m *TotalLongConnReply) String() string            { return proto.CompactTextString(m) }
-func (*TotalLongConnReply) ProtoMessage()               {}
-func (*TotalLongConnReply) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{0} }
+func (m *SocketTotalReply) Reset()                    { *m = SocketTotalReply{} }
+func (m *SocketTotalReply) String() string            { return proto.CompactTextString(m) }
+func (*SocketTotalReply) ProtoMessage()               {}
+func (*SocketTotalReply) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{0} }
 
-func (m *TotalLongConnReply) GetConnTotal() int32 {
+func (m *SocketTotalReply) GetConnTotal() int32 {
 	if m != nil {
 		return m.ConnTotal
 	}
 	return 0
 }
 
-type PushLongConnArgs struct {
+type SocketPushArgs struct {
 	Uid       string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	Uri       string `protobuf:"bytes,2,opt,name=uri,proto3" json:"uri,omitempty"`
 	Body      []byte `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
 	BodyCodec int32  `protobuf:"varint,4,opt,name=body_codec,json=bodyCodec,proto3" json:"body_codec,omitempty"`
 }
 
-func (m *PushLongConnArgs) Reset()                    { *m = PushLongConnArgs{} }
-func (m *PushLongConnArgs) String() string            { return proto.CompactTextString(m) }
-func (*PushLongConnArgs) ProtoMessage()               {}
-func (*PushLongConnArgs) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{1} }
+func (m *SocketPushArgs) Reset()                    { *m = SocketPushArgs{} }
+func (m *SocketPushArgs) String() string            { return proto.CompactTextString(m) }
+func (*SocketPushArgs) ProtoMessage()               {}
+func (*SocketPushArgs) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{1} }
 
-func (m *PushLongConnArgs) GetUid() string {
+func (m *SocketPushArgs) GetUid() string {
 	if m != nil {
 		return m.Uid
 	}
 	return ""
 }
 
-func (m *PushLongConnArgs) GetUri() string {
+func (m *SocketPushArgs) GetUri() string {
 	if m != nil {
 		return m.Uri
 	}
 	return ""
 }
 
-func (m *PushLongConnArgs) GetBody() []byte {
+func (m *SocketPushArgs) GetBody() []byte {
 	if m != nil {
 		return m.Body
 	}
 	return nil
 }
 
-func (m *PushLongConnArgs) GetBodyCodec() int32 {
+func (m *SocketPushArgs) GetBodyCodec() int32 {
 	if m != nil {
 		return m.BodyCodec
 	}
@@ -105,11 +105,11 @@ func (m *GwHosts) GetHosts() []string {
 }
 
 func init() {
-	proto.RegisterType((*TotalLongConnReply)(nil), "types.TotalLongConnReply")
-	proto.RegisterType((*PushLongConnArgs)(nil), "types.PushLongConnArgs")
+	proto.RegisterType((*SocketTotalReply)(nil), "types.SocketTotalReply")
+	proto.RegisterType((*SocketPushArgs)(nil), "types.SocketPushArgs")
 	proto.RegisterType((*GwHosts)(nil), "types.GwHosts")
 }
-func (m *TotalLongConnReply) Marshal() (dAtA []byte, err error) {
+func (m *SocketTotalReply) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalTo(dAtA)
@@ -119,7 +119,7 @@ func (m *TotalLongConnReply) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *TotalLongConnReply) MarshalTo(dAtA []byte) (int, error) {
+func (m *SocketTotalReply) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
@@ -132,7 +132,7 @@ func (m *TotalLongConnReply) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
-func (m *PushLongConnArgs) Marshal() (dAtA []byte, err error) {
+func (m *SocketPushArgs) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalTo(dAtA)
@@ -142,7 +142,7 @@ func (m *PushLongConnArgs) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *PushLongConnArgs) MarshalTo(dAtA []byte) (int, error) {
+func (m *SocketPushArgs) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
@@ -233,7 +233,7 @@ func encodeVarintApi(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return offset + 1
 }
-func (m *TotalLongConnReply) Size() (n int) {
+func (m *SocketTotalReply) Size() (n int) {
 	var l int
 	_ = l
 	if m.ConnTotal != 0 {
@@ -242,7 +242,7 @@ func (m *TotalLongConnReply) Size() (n int) {
 	return n
 }
 
-func (m *PushLongConnArgs) Size() (n int) {
+func (m *SocketPushArgs) Size() (n int) {
 	var l int
 	_ = l
 	l = len(m.Uid)
@@ -288,7 +288,7 @@ func sovApi(x uint64) (n int) {
 func sozApi(x uint64) (n int) {
 	return sovApi(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *TotalLongConnReply) Unmarshal(dAtA []byte) error {
+func (m *SocketTotalReply) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -311,10 +311,10 @@ func (m *TotalLongConnReply) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: TotalLongConnReply: wiretype end group for non-group")
+			return fmt.Errorf("proto: SocketTotalReply: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: TotalLongConnReply: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SocketTotalReply: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -357,7 +357,7 @@ func (m *TotalLongConnReply) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *PushLongConnArgs) Unmarshal(dAtA []byte) error {
+func (m *SocketPushArgs) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -380,10 +380,10 @@ func (m *PushLongConnArgs) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: PushLongConnArgs: wiretype end group for non-group")
+			return fmt.Errorf("proto: SocketPushArgs: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: PushLongConnArgs: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SocketPushArgs: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -702,19 +702,18 @@ var (
 func init() { proto.RegisterFile("api.proto", fileDescriptorApi) }
 
 var fileDescriptorApi = []byte{
-	// 210 bytes of a gzipped FileDescriptorProto
+	// 208 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4c, 0x2c, 0xc8, 0xd4,
-	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2d, 0xa9, 0x2c, 0x48, 0x2d, 0x56, 0x32, 0xe6, 0x12,
-	0x0a, 0xc9, 0x2f, 0x49, 0xcc, 0xf1, 0xc9, 0xcf, 0x4b, 0x77, 0xce, 0xcf, 0xcb, 0x0b, 0x4a, 0x2d,
-	0xc8, 0xa9, 0x14, 0x92, 0xe5, 0xe2, 0x4a, 0xce, 0xcf, 0xcb, 0x8b, 0x2f, 0x01, 0x49, 0x49, 0x30,
-	0x2a, 0x30, 0x6a, 0xb0, 0x06, 0x71, 0x82, 0x44, 0xc0, 0x6a, 0x95, 0x32, 0xb9, 0x04, 0x02, 0x4a,
-	0x8b, 0x33, 0x60, 0x7a, 0x1c, 0x8b, 0xd2, 0x8b, 0x85, 0x04, 0xb8, 0x98, 0x4b, 0x33, 0x53, 0xc0,
-	0x6a, 0x39, 0x83, 0x40, 0x4c, 0xb0, 0x48, 0x51, 0xa6, 0x04, 0x13, 0x54, 0xa4, 0x28, 0x53, 0x48,
-	0x88, 0x8b, 0x25, 0x29, 0x3f, 0xa5, 0x52, 0x82, 0x59, 0x81, 0x51, 0x83, 0x27, 0x08, 0xcc, 0x06,
-	0x59, 0x05, 0xa2, 0xe3, 0x93, 0xf3, 0x53, 0x52, 0x93, 0x25, 0x58, 0x20, 0x56, 0x81, 0x44, 0x9c,
-	0x41, 0x02, 0x4a, 0xf2, 0x5c, 0xec, 0xee, 0xe5, 0x1e, 0xf9, 0xc5, 0x25, 0xc5, 0x42, 0x22, 0x5c,
-	0xac, 0x19, 0x20, 0x86, 0x04, 0xa3, 0x02, 0xb3, 0x06, 0x67, 0x10, 0x84, 0xe3, 0x24, 0x70, 0xe2,
-	0x91, 0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x90,
-	0xc4, 0x06, 0xf6, 0xa0, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x2b, 0x99, 0x5a, 0x38, 0xed, 0x00,
-	0x00, 0x00,
+	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2d, 0xa9, 0x2c, 0x48, 0x2d, 0x56, 0x32, 0xe4, 0x12,
+	0x08, 0xce, 0x4f, 0xce, 0x4e, 0x2d, 0x09, 0xc9, 0x2f, 0x49, 0xcc, 0x09, 0x4a, 0x2d, 0xc8, 0xa9,
+	0x14, 0x92, 0xe5, 0xe2, 0x4a, 0xce, 0xcf, 0xcb, 0x8b, 0x2f, 0x01, 0x09, 0x49, 0x30, 0x2a, 0x30,
+	0x6a, 0xb0, 0x06, 0x71, 0x82, 0x44, 0xc0, 0x6a, 0x94, 0xd2, 0xb9, 0xf8, 0x20, 0x5a, 0x02, 0x4a,
+	0x8b, 0x33, 0x1c, 0x8b, 0xd2, 0x8b, 0x85, 0x04, 0xb8, 0x98, 0x4b, 0x33, 0x53, 0xc0, 0x2a, 0x39,
+	0x83, 0x40, 0x4c, 0xb0, 0x48, 0x51, 0xa6, 0x04, 0x13, 0x54, 0xa4, 0x28, 0x53, 0x48, 0x88, 0x8b,
+	0x25, 0x29, 0x3f, 0xa5, 0x52, 0x82, 0x59, 0x81, 0x51, 0x83, 0x27, 0x08, 0xcc, 0x06, 0x59, 0x04,
+	0xa2, 0xe3, 0x93, 0xf3, 0x53, 0x52, 0x93, 0x25, 0x58, 0x20, 0x16, 0x81, 0x44, 0x9c, 0x41, 0x02,
+	0x4a, 0xf2, 0x5c, 0xec, 0xee, 0xe5, 0x1e, 0xf9, 0xc5, 0x25, 0xc5, 0x42, 0x22, 0x5c, 0xac, 0x19,
+	0x20, 0x86, 0x04, 0xa3, 0x02, 0xb3, 0x06, 0x67, 0x10, 0x84, 0xe3, 0x24, 0x70, 0xe2, 0x91, 0x1c,
+	0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x90, 0xc4, 0x06,
+	0xf6, 0x9c, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x25, 0xa4, 0xc4, 0xe2, 0xe9, 0x00, 0x00, 0x00,
 }

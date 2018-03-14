@@ -1,12 +1,12 @@
 gateway:
-  enable_outer_http: true
-  enable_outer_tcp: true
+  enable_http: true
+  enable_socket: true
   outer_http_server:
     listen_address: 0.0.0.0:5000
     tls_cert_file: ""
     tls_key_file: ""
     allow_cross: true
-  outer_tpc_server:
+  outer_socket_server:
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s
@@ -18,7 +18,7 @@ gateway:
     network: ""
     listen_address: 0.0.0.0:5020
     enable_heartbeat: true
-  inner_tcp_server:
+  inner_socket_server:
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s
@@ -30,7 +30,7 @@ gateway:
     network: ""
     listen_address: 0.0.0.0:5030
     enable_heartbeat: true
-  inner_tcp_client:
+  inner_socket_client:
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s

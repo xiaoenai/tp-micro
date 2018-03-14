@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/henrylee2cn/cfgo"
 	"github.com/xiaoenai/ants/gateway"
+	"github.com/xiaoenai/ants/gateway/types"
 )
 
 func main() {
@@ -10,5 +11,7 @@ func main() {
 	cfg.OuterHttpServer.AllowCross = true
 	cfgo.MustReg("gateway", cfg)
 	// Run a gateway instance with default business logic and default socket protocol.
-	gateway.Run(*cfg, nil, nil)
+	biz := types.DefaultBusiness()
+	biz.ApiVersion = "v1.0"
+	gateway.Run(*cfg, biz, nil)
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package long
+package socket
 
 import (
 	"bytes"
@@ -258,14 +258,14 @@ func (d *Hosts) sortAndStoreIpsLocked() {
 		return
 	}
 	var (
-		reply   *types.TotalLongConnReply
+		reply   *types.SocketTotalReply
 		t       time.Time
 		sortIps = make(SortWeightIps, 0, cnt)
 		rerr    *tp.Rerror
 	)
 	for _, w := range d.weightIps {
 		t = time.Now()
-		reply, rerr = sdk.LongConnTotal(
+		reply, rerr = sdk.SocketTotal(
 			w.innerAddr,
 			tp.WithBodyCodec(codec.ID_PROTOBUF),
 		)

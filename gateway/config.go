@@ -18,46 +18,44 @@ import (
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/cfgo"
-	"github.com/xiaoenai/ants/gateway/logic/short"
+	short "github.com/xiaoenai/ants/gateway/logic/http"
 	"github.com/xiaoenai/redis"
 )
 
 // Config app config
 type Config struct {
-	EnableOuterHttp bool                     `yaml:"enable_outer_http"`
-	EnableOuterTcp  bool                     `yaml:"enable_outer_tcp"`
-	OuterHttpServer short.OuterHttpSrvConfig `yaml:"outer_http_server"`
-	OuterTcpServer  ant.SrvConfig            `yaml:"outer_tpc_server"`
-	InnerTcpServer  ant.SrvConfig            `yaml:"inner_tcp_server"`
-	InnerTcpClient  ant.CliConfig            `yaml:"inner_tcp_client"`
-	Etcd            etcd.EasyConfig          `yaml:"etcd"`
-	Redis           redis.Config             `yaml:"redis"`
-	// outerPort, innerPort int
-	// outerAddr, innerAddr string
+	EnableHttp        bool                     `yaml:"enable_http"`
+	EnableSocket      bool                     `yaml:"enable_socket"`
+	OuterHttpServer   short.OuterHttpSrvConfig `yaml:"outer_http_server"`
+	OuterSocketServer ant.SrvConfig            `yaml:"outer_socket_server"`
+	InnerSocketServer ant.SrvConfig            `yaml:"inner_socket_server"`
+	InnerSocketClient ant.CliConfig            `yaml:"inner_socket_client"`
+	Etcd              etcd.EasyConfig          `yaml:"etcd"`
+	Redis             redis.Config             `yaml:"redis"`
 }
 
 // NewConfig creates a default config.
 func NewConfig() *Config {
 	return &Config{
-		EnableOuterHttp: true,
-		EnableOuterTcp:  true,
+		EnableHttp:   true,
+		EnableSocket: true,
 		OuterHttpServer: short.OuterHttpSrvConfig{
 			ListenAddress: "0.0.0.0:5000",
 			AllowCross:    false,
 		},
-		OuterTcpServer: ant.SrvConfig{
+		OuterSocketServer: ant.SrvConfig{
 			ListenAddress:   "0.0.0.0:5020",
 			EnableHeartbeat: true,
 			PrintBody:       true,
 			CountTime:       true,
 		},
-		InnerTcpServer: ant.SrvConfig{
+		InnerSocketServer: ant.SrvConfig{
 			ListenAddress:   "0.0.0.0:5030",
 			EnableHeartbeat: true,
 			PrintBody:       true,
 			CountTime:       true,
 		},
-		InnerTcpClient: ant.CliConfig{
+		InnerSocketClient: ant.CliConfig{
 			Failover:        3,
 			HeartbeatSecond: 60,
 		},
@@ -75,7 +73,7 @@ func (c *Config) Reload(bind cfgo.BindFunc) error {
 
 // check the config
 func (c *Config) check() error {
-	err := c.InnerTcpClient.Check()
+	err := c.InnerSocketClient.Check()
 	if err != nil {
 		return err
 	}

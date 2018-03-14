@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package long
+package socket
 
 import (
 	"time"
@@ -24,6 +24,7 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/sdk"
 )
 
 var (
@@ -32,10 +33,12 @@ var (
 
 // Serve starts TCP gateway service.
 func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
+	sdk.SetApiVersion(logic.ApiVersion())
+
 	outerServer := ant.NewServer(
 		outerSrvCfg,
-		plugin.VerifyAuth(connTabPlugin.logon),
-		connTabPlugin,
+		plugin.VerifyAuth(socketConnTabPlugin.logon),
+		socketConnTabPlugin,
 		plugin.Proxy(client.ProxyClient()),
 		logic.PreWritePushPlugin(),
 	)
@@ -47,16 +50,22 @@ func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
 
 	innerServer := ant.NewServer(
 		innerSrvCfg,
-		discovery.ServicePluginFromEtcd(innerAddr, client.EtcdClient()),
+		discovery.ServicePluginFromEtcd(
+			innerAddr,
+			client.EtcdClient(),
+			"/gw_hosts",
+		),
 		hosts,
 	)
 
-	verGroup := innerServer.SubRoute(logic.ApiVersion())
+	innerServer.RoutePullFunc(GwHosts)
+
+	gwGroup := innerServer.SubRoute("/gw")
 	{
-		verGroup.RoutePullFunc(GwHosts)
-		group := verGroup.SubRoute("/gw")
+		verGroup := gwGroup.SubRoute(logic.ApiVersion())
 		{
-			group.RoutePull(new(longConn))
+			verGroup.RoutePullFunc((*gw).SocketTotal)
+			verGroup.RoutePullFunc((*gw).SocketPush)
 		}
 	}
 

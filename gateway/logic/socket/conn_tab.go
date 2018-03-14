@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package long
+package socket
 
 import (
 	tp "github.com/henrylee2cn/teleport"
@@ -20,31 +20,31 @@ import (
 	"github.com/xiaoenai/ants/gateway/logic"
 )
 
-type connTab struct{}
+type socketConnTab struct{}
 
 var (
-	connTabPlugin                         = new(connTab)
-	_             tp.PostDisconnectPlugin = connTabPlugin
+	socketConnTabPlugin                         = new(socketConnTab)
+	_                   tp.PostDisconnectPlugin = socketConnTabPlugin
 )
 
-func (c *connTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
+func (c *socketConnTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
 	tp.Debugf("verify-auth: id: %s, info: %s", sess.Id(), accessToken)
 	token, rerr := logic.AccessTokenMgr().Verify(accessToken)
 	if rerr != nil {
 		return rerr
 	}
-	return logic.LongConnHooks().OnLogon(sess, token)
+	return logic.SocketHooks().OnLogon(sess, token)
 }
 
-func (c *connTab) logoff(sess tp.BaseSession) *tp.Rerror {
-	tp.Tracef("[-CONN] ip: %s, id: %s", sess.RemoteIp(), sess.Id())
-	return logic.LongConnHooks().OnLogoff(sess)
+func (c *socketConnTab) logoff(sess tp.BaseSession) *tp.Rerror {
+	tp.Tracef("[-SOCKET_CONN] ip: %s, id: %s", sess.RemoteIp(), sess.Id())
+	return logic.SocketHooks().OnLogoff(sess)
 }
 
-func (c *connTab) Name() string {
-	return "connTab"
+func (c *socketConnTab) Name() string {
+	return "SocketConnTab"
 }
 
-func (c *connTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
+func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
 	return c.logoff(sess)
 }
