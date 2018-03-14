@@ -23,7 +23,7 @@ import (
 // LongConnHooks TCP socket connecting event hooks
 type LongConnHooks interface {
 	// OnLogon is called when the client goes online.
-	OnLogon(AccessToken, plugin.AuthSession) *tp.Rerror
+	OnLogon(plugin.AuthSession, AccessToken) *tp.Rerror
 	// OnLogoff is called when the client goes offline.
 	OnLogoff(tp.BaseSession) *tp.Rerror
 	// GetSession returns session from peer by uid.
@@ -35,7 +35,7 @@ type LongConnHooks interface {
 // ShortConnHooks HTTP connecting event hooks
 type ShortConnHooks interface {
 	// OnRequest is called when the client requests.
-	OnRequest(AccessToken, RequestArgs) ([]socket.PacketSetting, *tp.Rerror)
+	OnRequest(RequestArgs, ...AccessToken) ([]socket.PacketSetting, *tp.Rerror)
 }
 
 // DefaultLongConnHooks creates a new default LongConnHooks object.
@@ -45,7 +45,7 @@ func DefaultLongConnHooks() LongConnHooks {
 
 type defLongConnHooks struct{}
 
-func (d *defLongConnHooks) OnLogon(accessToken AccessToken, sess plugin.AuthSession) *tp.Rerror {
+func (d *defLongConnHooks) OnLogon(sess plugin.AuthSession, accessToken AccessToken) *tp.Rerror {
 	sess.SetId(accessToken.Uid())
 	return nil
 }
@@ -77,6 +77,6 @@ func DefaultShortConnHooks() ShortConnHooks {
 
 type defShortConnHooks struct{}
 
-func (d *defShortConnHooks) OnRequest(AccessToken, RequestArgs) ([]socket.PacketSetting, *tp.Rerror) {
+func (d *defShortConnHooks) OnRequest(RequestArgs, ...AccessToken) ([]socket.PacketSetting, *tp.Rerror) {
 	return nil, nil
 }

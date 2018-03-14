@@ -33,7 +33,7 @@ func (c *connTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror 
 	if rerr != nil {
 		return rerr
 	}
-	return logic.LongConnHooks().OnLogon(token, sess)
+	return logic.LongConnHooks().OnLogon(sess, token)
 }
 
 func (c *connTab) logoff(sess tp.BaseSession) *tp.Rerror {

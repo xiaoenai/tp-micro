@@ -23,6 +23,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/types"
 )
 
 var allowCross bool
@@ -41,13 +42,19 @@ func (r *requestHandler) handle() {
 		return
 	}
 	// verify access token
-	accessToken := accessTokenGetter(r)
-	token, rerr := logic.AccessTokenVerifier()(accessToken)
-	if rerr != nil {
-		r.replyError(rerr)
-		return
+	var (
+		accessToken = accessTokenGetter(r)
+		tokens      []types.AccessToken
+	)
+	if len(accessToken) > 0 {
+		token, rerr := logic.AccessTokenVerifier()(accessToken)
+		if rerr != nil {
+			r.replyError(rerr)
+			return
+		}
+		tokens = append(tokens, token)
 	}
-	settings, rerr := logic.ShortConnHooks().OnRequest(token, r)
+	settings, rerr := logic.ShortConnHooks().OnRequest(r, tokens...)
 	if rerr != nil {
 		r.replyError(rerr)
 		return
