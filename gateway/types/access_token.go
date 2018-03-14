@@ -20,8 +20,8 @@ import (
 
 // AccessTokenMgr access token manager
 type AccessTokenMgr interface {
-	// QueryForHTTP queries access token from http query parameter
-	QueryForHTTP(args RequestArgs) string
+	// QueryForHttp queries access token from http query parameter
+	QueryForHttp(args RequestArgs) string
 	// Verify Verifies access token
 	Verify(accessToken string) (AccessToken, *tp.Rerror)
 }
@@ -33,7 +33,7 @@ func DefaultAccessTokenMgr() AccessTokenMgr {
 
 type defAccessTokenMgr struct{}
 
-func (defAccessTokenMgr) QueryForHTTP(args RequestArgs) string {
+func (defAccessTokenMgr) QueryForHttp(args RequestArgs) string {
 	return args.Query("access_token")
 }
 
