@@ -16,6 +16,7 @@ package sdk
 
 import (
 	"path"
+	"strings"
 
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery/etcd"
@@ -35,7 +36,7 @@ var _apiVersion string
 
 // SetApiVersion sets API version
 func SetApiVersion(apiVersion string) {
-	_apiVersion = path.Join("/", apiVersion)
+	_apiVersion = strings.TrimRight(path.Join("/", apiVersion), "/")
 }
 
 // GwHosts returns the gateway host list.
