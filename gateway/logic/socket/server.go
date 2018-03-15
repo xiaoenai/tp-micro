@@ -15,8 +15,6 @@
 package socket
 
 import (
-	"time"
-
 	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/ant/discovery"
 	tp "github.com/henrylee2cn/teleport"
@@ -42,20 +40,25 @@ func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
 		plugin.Proxy(client.ProxyClient()),
 		logic.PreWritePushPlugin(),
 	)
+
 	outerPeer = outerServer.Peer()
 
 	outerAddr := outerSrvCfg.OuterIpPort()
 	innerAddr := innerSrvCfg.InnerIpPort()
+
 	initHosts(outerAddr, innerAddr)
+
 	discoveryService := discovery.ServicePluginFromEtcd(
 		innerAddr,
 		client.EtcdClient(),
 	)
+
 	innerServer := ant.NewServer(
 		innerSrvCfg,
 		discoveryService,
 		hosts,
 	)
+
 	gwGroup := innerServer.SubRoute("/gw")
 	{
 		verGroup := gwGroup.SubRoute(logic.ApiVersion())
@@ -67,7 +70,7 @@ func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
 	}
 
 	go outerServer.Listen(protoFunc)
-	time.Sleep(time.Second)
 	go innerServer.Listen(protoFunc)
+
 	select {}
 }

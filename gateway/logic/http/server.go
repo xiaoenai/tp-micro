@@ -40,16 +40,26 @@ func Serve(srvCfg OuterHttpSrvConfig) {
 			tp.Fatalf("%v", err)
 		}
 	}
-	ln, err := tp.NewInheritListener("tcp", srvCfg.ListenAddress, tlsConfig)
+
+	lis, err := tp.NewInheritListener("tcp", srvCfg.ListenAddress, tlsConfig)
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
+
 	allowCross = srvCfg.AllowCross
-	s := &fasthttp.Server{
+
+	var network = "http"
+	if tlsConfig != nil {
+		network = "https"
+	}
+	addr := lis.Addr().String()
+	tp.Printf("listen ok (network:%s, addr:%s)", network, addr)
+
+	err = (&fasthttp.Server{
 		Name:    "ants-gateway",
 		Handler: handler,
-	}
-	err = s.Serve(ln)
+	}).Serve(lis)
+
 	if err != nil && err != http.ErrServerClosed {
 		tp.Fatalf("%v", err)
 	}
