@@ -22,7 +22,6 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
-	"github.com/xiaoenai/ants/gateway/sdk"
 )
 
 var (
@@ -31,8 +30,6 @@ var (
 
 // Serve starts TCP gateway service.
 func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
-	sdk.SetApiVersion(logic.ApiVersion())
-
 	outerServer := ant.NewServer(
 		outerSrvCfg,
 		plugin.VerifyAuth(socketConnTabPlugin.logon),
@@ -43,20 +40,14 @@ func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
 
 	outerPeer = outerServer.Peer()
 
-	outerAddr := outerSrvCfg.OuterIpPort()
-	innerAddr := innerSrvCfg.InnerIpPort()
-
-	initHosts(outerAddr, innerAddr)
-
 	discoveryService := discovery.ServicePluginFromEtcd(
-		innerAddr,
+		innerSrvCfg.InnerIpPort(),
 		client.EtcdClient(),
 	)
 
 	innerServer := ant.NewServer(
 		innerSrvCfg,
 		discoveryService,
-		hosts,
 	)
 
 	gwGroup := innerServer.SubRoute("/gw")

@@ -89,7 +89,8 @@ func (m *SocketPushArgs) GetBodyCodec() int32 {
 }
 
 type GwHosts struct {
-	Hosts []string `protobuf:"bytes,1,rep,name=hosts" json:"hosts,omitempty"`
+	Http   []string `protobuf:"bytes,1,rep,name=http" json:"http,omitempty"`
+	Socket []string `protobuf:"bytes,2,rep,name=socket" json:"socket,omitempty"`
 }
 
 func (m *GwHosts) Reset()                    { *m = GwHosts{} }
@@ -97,9 +98,16 @@ func (m *GwHosts) String() string            { return proto.CompactTextString(m)
 func (*GwHosts) ProtoMessage()               {}
 func (*GwHosts) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{2} }
 
-func (m *GwHosts) GetHosts() []string {
+func (m *GwHosts) GetHttp() []string {
 	if m != nil {
-		return m.Hosts
+		return m.Http
+	}
+	return nil
+}
+
+func (m *GwHosts) GetSocket() []string {
+	if m != nil {
+		return m.Socket
 	}
 	return nil
 }
@@ -188,9 +196,24 @@ func (m *GwHosts) MarshalTo(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Hosts) > 0 {
-		for _, s := range m.Hosts {
+	if len(m.Http) > 0 {
+		for _, s := range m.Http {
 			dAtA[i] = 0xa
+			i++
+			l = len(s)
+			for l >= 1<<7 {
+				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
+				l >>= 7
+				i++
+			}
+			dAtA[i] = uint8(l)
+			i++
+			i += copy(dAtA[i:], s)
+		}
+	}
+	if len(m.Socket) > 0 {
+		for _, s := range m.Socket {
+			dAtA[i] = 0x12
 			i++
 			l = len(s)
 			for l >= 1<<7 {
@@ -266,8 +289,14 @@ func (m *SocketPushArgs) Size() (n int) {
 func (m *GwHosts) Size() (n int) {
 	var l int
 	_ = l
-	if len(m.Hosts) > 0 {
-		for _, s := range m.Hosts {
+	if len(m.Http) > 0 {
+		for _, s := range m.Http {
+			l = len(s)
+			n += 1 + l + sovApi(uint64(l))
+		}
+	}
+	if len(m.Socket) > 0 {
+		for _, s := range m.Socket {
 			l = len(s)
 			n += 1 + l + sovApi(uint64(l))
 		}
@@ -546,7 +575,7 @@ func (m *GwHosts) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Hosts", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Http", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -571,7 +600,36 @@ func (m *GwHosts) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Hosts = append(m.Hosts, string(dAtA[iNdEx:postIndex]))
+			m.Http = append(m.Http, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Socket", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowApi
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthApi
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Socket = append(m.Socket, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -702,7 +760,7 @@ var (
 func init() { proto.RegisterFile("api.proto", fileDescriptorApi) }
 
 var fileDescriptorApi = []byte{
-	// 208 bytes of a gzipped FileDescriptorProto
+	// 221 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4c, 0x2c, 0xc8, 0xd4,
 	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2d, 0xa9, 0x2c, 0x48, 0x2d, 0x56, 0x32, 0xe4, 0x12,
 	0x08, 0xce, 0x4f, 0xce, 0x4e, 0x2d, 0x09, 0xc9, 0x2f, 0x49, 0xcc, 0x09, 0x4a, 0x2d, 0xc8, 0xa9,
@@ -712,8 +770,9 @@ var fileDescriptorApi = []byte{
 	0x83, 0x40, 0x4c, 0xb0, 0x48, 0x51, 0xa6, 0x04, 0x13, 0x54, 0xa4, 0x28, 0x53, 0x48, 0x88, 0x8b,
 	0x25, 0x29, 0x3f, 0xa5, 0x52, 0x82, 0x59, 0x81, 0x51, 0x83, 0x27, 0x08, 0xcc, 0x06, 0x59, 0x04,
 	0xa2, 0xe3, 0x93, 0xf3, 0x53, 0x52, 0x93, 0x25, 0x58, 0x20, 0x16, 0x81, 0x44, 0x9c, 0x41, 0x02,
-	0x4a, 0xf2, 0x5c, 0xec, 0xee, 0xe5, 0x1e, 0xf9, 0xc5, 0x25, 0xc5, 0x42, 0x22, 0x5c, 0xac, 0x19,
-	0x20, 0x86, 0x04, 0xa3, 0x02, 0xb3, 0x06, 0x67, 0x10, 0x84, 0xe3, 0x24, 0x70, 0xe2, 0x91, 0x1c,
-	0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x90, 0xc4, 0x06,
-	0xf6, 0x9c, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x25, 0xa4, 0xc4, 0xe2, 0xe9, 0x00, 0x00, 0x00,
+	0x4a, 0xa6, 0x5c, 0xec, 0xee, 0xe5, 0x1e, 0xf9, 0xc5, 0x25, 0xc5, 0x20, 0xdd, 0x19, 0x25, 0x25,
+	0x05, 0x12, 0x8c, 0x0a, 0xcc, 0x1a, 0x9c, 0x41, 0x60, 0xb6, 0x90, 0x18, 0x17, 0x5b, 0x31, 0xd8,
+	0x1d, 0x12, 0x4c, 0x60, 0x51, 0x28, 0xcf, 0x49, 0xe0, 0xc4, 0x23, 0x39, 0xc6, 0x0b, 0x8f, 0xe4,
+	0x18, 0x1f, 0x3c, 0x92, 0x63, 0x9c, 0xf0, 0x58, 0x8e, 0x21, 0x89, 0x0d, 0xec, 0x65, 0x63, 0x40,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0x57, 0x35, 0xa6, 0xc4, 0xff, 0x00, 0x00, 0x00,
 }

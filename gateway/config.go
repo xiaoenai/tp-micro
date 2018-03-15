@@ -24,14 +24,14 @@ import (
 
 // Config app config
 type Config struct {
-	EnableHttp        bool                     `yaml:"enable_http"`
-	EnableSocket      bool                     `yaml:"enable_socket"`
-	OuterHttpServer   short.OuterHttpSrvConfig `yaml:"outer_http_server"`
-	OuterSocketServer ant.SrvConfig            `yaml:"outer_socket_server"`
-	InnerSocketServer ant.SrvConfig            `yaml:"inner_socket_server"`
-	InnerSocketClient ant.CliConfig            `yaml:"inner_socket_client"`
-	Etcd              etcd.EasyConfig          `yaml:"etcd"`
-	Redis             redis.Config             `yaml:"redis"`
+	EnableHttp        bool                `yaml:"enable_http"`
+	EnableSocket      bool                `yaml:"enable_socket"`
+	OuterHttpServer   short.HttpSrvConfig `yaml:"outer_http_server"`
+	OuterSocketServer ant.SrvConfig       `yaml:"outer_socket_server"`
+	InnerSocketServer ant.SrvConfig       `yaml:"inner_socket_server"`
+	InnerSocketClient ant.CliConfig       `yaml:"inner_socket_client"`
+	Etcd              etcd.EasyConfig     `yaml:"etcd"`
+	Redis             redis.Config        `yaml:"redis"`
 }
 
 // NewConfig creates a default config.
@@ -39,7 +39,7 @@ func NewConfig() *Config {
 	return &Config{
 		EnableHttp:   true,
 		EnableSocket: true,
-		OuterHttpServer: short.OuterHttpSrvConfig{
+		OuterHttpServer: short.HttpSrvConfig{
 			ListenAddress: "0.0.0.0:5000",
 			AllowCross:    false,
 		},
@@ -68,7 +68,11 @@ func NewConfig() *Config {
 
 // Reload Bi-directionally synchronizes config between YAML file and memory.
 func (c *Config) Reload(bind cfgo.BindFunc) error {
-	return bind()
+	err := bind()
+	if err == nil {
+		c.OuterHttpServer.OuterIpPort()
+	}
+	return err
 }
 
 // check the config

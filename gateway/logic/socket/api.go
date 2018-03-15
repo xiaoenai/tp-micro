@@ -4,6 +4,7 @@ import (
 	"github.com/henrylee2cn/ant"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/ants/gateway/logic"
+	"github.com/xiaoenai/ants/gateway/logic/hosts"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
@@ -14,9 +15,7 @@ type gw struct {
 
 // Hosts returns the gateway seriver hosts.
 func (g *gw) Hosts(*struct{}) (*types.GwHosts, *tp.Rerror) {
-	r := new(types.GwHosts)
-	r.Hosts = gatewayList()
-	return r, nil
+	return hosts.GwHosts(), nil
 }
 
 // TotalConn returns the long connections total.

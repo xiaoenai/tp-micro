@@ -39,18 +39,37 @@ const html = `<!DOCTYPE html>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
 </head>
 <body>
-<form id="form">  
+<form id="logic">  
   <p>a: <input type='number' name='a' value='10'></p>
   <p>b: <input type='number' name='b' value='2'></p>
 </form>
-<input id="submit" type="button" value="Submit" />
+<input id="divide" type="button" value="a/b=?" />
+<hr>
+<p><input id="hosts" type="button" value="Get Gateway Hosts" /></p>
 <script type="application/javascript">
-    $('#submit').on('click',function(){
+    $('#divide').on('click',function(){
         $.ajax({
             url:"http://localhost:5000/math/divide",
             type:"POST",
-            data:JSON.stringify($('#form').serializeObject()),
+            data:JSON.stringify($('#logic').serializeObject()),
             contentType:"application/json",
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            success:function(res){
+                alert(JSON.stringify(res));
+            },
+            error:function(err){
+                alert(JSON.stringify(err));
+            }
+        });
+    });
+
+    $('#hosts').on('click',function(){
+        $.ajax({
+            url:"http://localhost:5000/gw/v1/hosts",
+            type:"GET",
             xhrFields: {
                 withCredentials: true
             },

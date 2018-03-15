@@ -14,5 +14,6 @@ message SocketPushArgs {
 }
 
 message GwHosts {
-    repeated string hosts = 1;
+    repeated string http   = 1;
+    repeated string socket = 2;
 }

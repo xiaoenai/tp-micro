@@ -16,17 +16,23 @@ package http
 
 import (
 	"bytes"
+	"encoding/json"
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/codec"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/valyala/fasthttp"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/logic/hosts"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
-var allowCross bool
+var (
+	allowCross bool
+	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
+)
 
 func handler(ctx *fasthttp.RequestCtx) {
 	(&requestHandler{ctx: ctx}).handle()
@@ -38,9 +44,30 @@ type requestHandler struct {
 }
 
 func (r *requestHandler) handle() {
+	// cross
 	if allowCross && r.crossDomainFilter() {
 		return
 	}
+
+	var ctx = r.ctx
+	var h = ctx.Request.Header
+	var uri = goutil.BytesToString(ctx.Path())
+	var contentType = h.ContentType()
+	var bodyCodec = GetBodyCodec(contentType)
+
+	// gw hosts
+	if uri == gwHostsUri {
+		switch bodyCodec {
+		case codec.ID_PROTOBUF:
+			b, _ := codec.ProtoMarshal(hosts.GwHosts())
+			r.ctx.Success("application/x-protobuf", b)
+		default:
+			b, _ := json.Marshal(hosts.GwHosts())
+			r.ctx.Success("application/json", b)
+		}
+		return
+	}
+
 	// verify access token
 	var (
 		accessToken = logic.AccessTokenMgr().QueryForHttp(r)
@@ -54,14 +81,12 @@ func (r *requestHandler) handle() {
 		}
 		tokens = append(tokens, token)
 	}
+
 	settings, rerr := logic.HttpHooks().OnRequest(r, tokens...)
 	if rerr != nil {
 		r.replyError(rerr)
 		return
 	}
-
-	var ctx = r.ctx
-	var h = ctx.Request.Header
 
 	// set header
 	h.VisitAll(func(key, value []byte) {
@@ -69,8 +94,6 @@ func (r *requestHandler) handle() {
 	})
 
 	// set body codec
-	var contentType = h.ContentType()
-	bodyCodec := GetBodyCodec(contentType)
 	settings = append(settings, socket.WithBodyCodec(bodyCodec))
 
 	// set real ip
@@ -87,7 +110,6 @@ func (r *requestHandler) handle() {
 
 	var bodyBytes = ctx.Request.Body()
 	var reply []byte
-	var uri = goutil.BytesToString(ctx.Path())
 
 	pullcmd := client.ProxyClient().Pull(uri, bodyBytes, &reply, settings...)
 
