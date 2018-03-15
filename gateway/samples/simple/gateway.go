@@ -12,6 +12,5 @@ func main() {
 	cfgo.MustReg("gateway", cfg)
 	// Run a gateway instance with default business logic and default socket protocol.
 	biz := types.DefaultBusiness()
-	biz.ApiVersion = "v1.0"
 	gateway.Run(*cfg, biz, nil)
 }

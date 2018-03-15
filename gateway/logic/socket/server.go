@@ -47,25 +47,22 @@ func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
 	outerAddr := outerSrvCfg.OuterIpPort()
 	innerAddr := innerSrvCfg.InnerIpPort()
 	initHosts(outerAddr, innerAddr)
-
+	discoveryService := discovery.ServicePluginFromEtcd(
+		innerAddr,
+		client.EtcdClient(),
+	)
 	innerServer := ant.NewServer(
 		innerSrvCfg,
-		discovery.ServicePluginFromEtcd(
-			innerAddr,
-			client.EtcdClient(),
-			"/gw_hosts",
-		),
+		discoveryService,
 		hosts,
 	)
-
-	innerServer.RoutePullFunc(GwHosts)
-
 	gwGroup := innerServer.SubRoute("/gw")
 	{
 		verGroup := gwGroup.SubRoute(logic.ApiVersion())
 		{
-			verGroup.RoutePullFunc((*gw).SocketTotal)
-			verGroup.RoutePullFunc((*gw).SocketPush)
+			verGroup.RoutePullFunc((*gw).Hosts)
+			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketTotal))
+			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketPush))
 		}
 	}
 

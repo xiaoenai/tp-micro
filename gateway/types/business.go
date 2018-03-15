@@ -16,8 +16,6 @@ package types
 
 // Business implement your real business logic
 type Business struct {
-	// ApiVersion long connection API version
-	ApiVersion string
 	// AccessTokenMgr access token manager
 	AccessTokenMgr
 	// SocketHooks TCP socket connecting event hooks
