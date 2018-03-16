@@ -182,7 +182,7 @@ func (h *Hosts) resetGatewayIps(goSort bool) {
 		etcd.WithSort(etcd.SortByKey, etcd.SortDescend),
 	)
 	if err != nil || resp.Kvs == nil || len(resp.Kvs) == 0 {
-		h.ips.Store([]string{})
+		h.ips.Store(new(types.GwHosts))
 		return
 	}
 	var (
