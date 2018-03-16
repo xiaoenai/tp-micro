@@ -11,7 +11,6 @@ import (
 
 	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/goutil"
-	"github.com/henrylee2cn/goutil/coarsetime"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
 	"github.com/xiaoenai/ants/gateway/logic/client"
@@ -23,7 +22,7 @@ const (
 	servicePrefix = "ANTS-GW_HOSTS"
 	// minimum lease TTL is 10-second
 	minLeaseTTL      = 10
-	maxGatewayAmount = 5
+	maxGatewayAmount = 10
 )
 
 // Hosts gateway ip:port list
@@ -67,17 +66,14 @@ func (h *Hosts) start() error {
 		for {
 			select {
 			case <-client.EtcdClient().Ctx().Done():
-				tp.Warnf("GwHosts: etcd server closed")
+				tp.Warnf("[GW_HOSTS] stop!")
 				h.revoke()
-				tp.Warnf("GwHosts: stop\n")
 				return
-			case ka, ok := <-ch:
+			case _, ok := <-ch:
 				if !ok {
-					tp.Debugf("GwHosts: etcd keep alive channel closed, and restart it")
+					tp.Debugf("[GW_HOSTS] etcd keep alive channel closed, and restart it")
 					h.revoke()
 					ch = h.anywayKeepAlive()
-				} else {
-					tp.Tracef("GwHosts: recv etcd ttl:%d", ka.TTL)
 				}
 			}
 		}
@@ -121,7 +117,7 @@ func (h *Hosts) keepAlive() (<-chan *etcd.LeaseKeepAliveResponse, error) {
 func (h *Hosts) revoke() {
 	_, err := client.EtcdClient().Revoke(context.TODO(), h.leaseid)
 	if err != nil {
-		tp.Errorf("GwHosts: revoke service error: %s", err.Error())
+		tp.Errorf("[GW_HOSTS] revoke host error: %s", err.Error())
 		return
 	}
 }
@@ -129,7 +125,6 @@ func (h *Hosts) revoke() {
 func (h *Hosts) watchEtcd() {
 	const (
 		interval = minLeaseTTL * 2 * time.Second
-		wait     = minLeaseTTL * time.Second
 	)
 	var (
 		updateCh = make(chan struct{})
@@ -140,7 +135,9 @@ func (h *Hosts) watchEtcd() {
 			select {
 			case <-updateCh:
 				ticker.Stop()
-				h.resetGatewayIps(false)
+				h.weightIpsLock.Lock()
+				h.sortAndStoreIpsLocked()
+				h.weightIpsLock.Unlock()
 				ticker = time.NewTicker(interval)
 			case <-ticker.C:
 				h.weightIpsLock.Lock()
@@ -151,25 +148,50 @@ func (h *Hosts) watchEtcd() {
 	}()
 
 	var (
-		now     = coarsetime.CeilingTimeNow()
-		last    = now
-		watcher = client.EtcdClient().Watch(
+		key             string
+		httpAddr        string
+		outerSocketAddr string
+		innerSocketAddr string
+		ok              bool
+		watcher         = client.EtcdClient().Watch(
 			context.Background(),
 			servicePrefix,
 			etcd.WithPrefix(),
 		)
 	)
-
 	for wresp := range watcher {
-		for range wresp.Events {
-			now = coarsetime.CeilingTimeNow()
-			if now.Sub(last) > wait {
-				select {
-				case updateCh <- struct{}{}:
-					last = now
-				default:
+		for _, ev := range wresp.Events {
+			httpAddr, outerSocketAddr, innerSocketAddr, ok = splitHostsKey(ev.Kv.Key)
+			if !ok {
+				continue
+			}
+			key = string(ev.Kv.Key)
+			h.weightIpsLock.Lock()
+			_, ok = h.weightIps[key]
+
+			switch ev.Type {
+			case etcd.EventTypePut:
+				if !ok {
+					h.weightIps[key] = &WeightIp{
+						httpAddr:        httpAddr,
+						outerSocketAddr: outerSocketAddr,
+						innerSocketAddr: innerSocketAddr,
+					}
+					tp.Infof("[GW_HOSTS] add host: %s", key)
+				}
+
+			case etcd.EventTypeDelete:
+				if ok {
+					delete(h.weightIps, key)
+					tp.Infof("[GW_HOSTS] delete host: %s", key)
+					select {
+					case updateCh <- struct{}{}:
+					default:
+					}
 				}
 			}
+
+			h.weightIpsLock.Unlock()
 		}
 	}
 }
@@ -195,7 +217,7 @@ func (h *Hosts) resetGatewayIps(goSort bool) {
 	for _, n := range resp.Kvs {
 		httpAddr, outerSocketAddr, innerSocketAddr, ok = splitHostsKey(n.Key)
 		if !ok {
-			tp.Warnf("invalid gateway service etcd key: %s", n.Key)
+			tp.Warnf("[GW_HOSTS] invalid host key: %s", n.Key)
 			continue
 		}
 		m[string(n.Key)] = &WeightIp{
@@ -239,7 +261,7 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 				tp.WithBodyCodec(codec.ID_PROTOBUF),
 			)
 			if rerr != nil {
-				tp.Warnf("Not available gateway: innerSocketAddr: %s, error: %s", w.innerSocketAddr, rerr)
+				tp.Warnf("[GW_HOSTS] not available host: innerSocketAddr: %s, error: %s", w.innerSocketAddr, rerr)
 				continue
 			}
 			w.weight = -int64(reply.ConnTotal) - int64(time.Since(t)/time.Millisecond)
@@ -251,23 +273,30 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 		Http:   make([]string, 0, len(sortIps)),
 		Socket: make([]string, 0, len(sortIps)),
 	}
-	for i, w := range sortIps {
-		// 只保留前5个
-		if i >= maxGatewayAmount {
-			break
+	var (
+		// Eliminate duplicates
+		httpMap   = make(map[string]bool, len(sortIps))
+		socketMap = make(map[string]bool, len(sortIps))
+	)
+	for _, w := range sortIps {
+		if len(w.httpAddr) > 0 && len(ips.Http) < maxGatewayAmount {
+			if !httpMap[w.httpAddr] {
+				ips.Http = append(ips.Http, w.httpAddr)
+				httpMap[w.httpAddr] = true
+			}
 		}
-		if len(w.httpAddr) > 0 {
-			ips.Http = append(ips.Http, w.httpAddr)
-		}
-		if len(w.outerSocketAddr) > 0 {
-			ips.Socket = append(ips.Socket, w.outerSocketAddr)
+		if len(w.outerSocketAddr) > 0 && len(ips.Socket) < maxGatewayAmount {
+			if !socketMap[w.outerSocketAddr] {
+				ips.Socket = append(ips.Socket, w.outerSocketAddr)
+				socketMap[w.outerSocketAddr] = true
+			}
 		}
 	}
 	h.ipsLock.Lock()
 	h.ips.Store(ips)
 	h.ipsLock.Unlock()
 	b, _ := json.MarshalIndent(ips, "", "  ")
-	tp.Tracef("[UPDATE GW_HOSTS] %s", b)
+	tp.Tracef("[GW_HOSTS] update hosts: %s", b)
 }
 
 type (
