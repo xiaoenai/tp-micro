@@ -21,7 +21,6 @@ import (
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
-	"github.com/henrylee2cn/teleport/socket"
 	"github.com/valyala/fasthttp"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
@@ -53,11 +52,12 @@ func (r *requestHandler) handle() {
 	var h = ctx.Request.Header
 	var uri = goutil.BytesToString(ctx.Path())
 	var contentType = h.ContentType()
-	var bodyCodec = GetBodyCodec(contentType)
+	var bodyCodec = GetBodyCodec(contentType, codec.ID_STRING)
+	var acceptBodyCodec = GetBodyCodec(h.Peek("Accept"), bodyCodec)
 
 	// gw hosts
 	if uri == gwHostsUri {
-		switch bodyCodec {
+		switch acceptBodyCodec {
 		case codec.ID_PROTOBUF:
 			b, _ := codec.ProtoMarshal(hosts.GwHosts())
 			r.ctx.Success("application/x-protobuf", b)
@@ -90,11 +90,16 @@ func (r *requestHandler) handle() {
 
 	// set header
 	h.VisitAll(func(key, value []byte) {
-		settings = append(settings, socket.WithAddMeta(string(key), string(value)))
+		settings = append(settings, tp.WithAddMeta(string(key), string(value)))
 	})
 
 	// set body codec
-	settings = append(settings, socket.WithBodyCodec(bodyCodec))
+	settings = append(settings, tp.WithBodyCodec(bodyCodec))
+
+	// set accept body codec
+	if acceptBodyCodec != bodyCodec {
+		settings = append(settings, tp.WithAcceptBodyCodec(acceptBodyCodec))
+	}
 
 	// set real ip
 	var realIp string
@@ -106,7 +111,7 @@ func (r *requestHandler) handle() {
 	if len(realIp) == 0 {
 		realIp = ctx.RemoteAddr().String()
 	}
-	settings = append(settings, socket.WithAddMeta(tp.MetaRealIp, realIp))
+	settings = append(settings, tp.WithAddMeta(tp.MetaRealIp, realIp))
 
 	var bodyBytes = ctx.Request.Body()
 	var reply []byte

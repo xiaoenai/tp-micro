@@ -33,15 +33,15 @@ func RegBodyCodec(contentType string, codecId byte) {
 }
 
 // GetBodyCodec returns the codec id from content type.
-func GetBodyCodec(contentTypeBytes []byte) byte {
-	idx := bytes.Index(contentTypeBytes, []byte{';'})
+func GetBodyCodec(headerValue []byte, defCodec byte) byte {
+	idx := bytes.Index(headerValue, []byte{';'})
 	if idx != -1 {
-		contentTypeBytes = contentTypeBytes[:idx]
+		headerValue = headerValue[:idx]
 	}
-	contentType := goutil.BytesToString(contentTypeBytes)
+	contentType := goutil.BytesToString(headerValue)
 	codecId, ok := bodyCodecMapping[contentType]
 	if !ok {
-		return codec.ID_STRING
+		return defCodec
 	}
 	return codecId
 }
