@@ -15,33 +15,48 @@
 package http
 
 import (
-	"bytes"
+	"strings"
 
-	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/teleport/codec"
 )
 
-var bodyCodecMapping = map[string]byte{
-	"application/x-protobuf": codec.ID_PROTOBUF,
-	"application/json":       codec.ID_JSON,
-	"text/plain":             codec.ID_STRING,
-}
+var (
+	bodyCodecMapping = map[string]byte{
+		"application/x-protobuf": codec.ID_PROTOBUF,
+		"application/json":       codec.ID_JSON,
+		"text/plain":             codec.ID_STRING,
+	}
+	contentTypeMapping = map[byte]string{
+		codec.ID_PROTOBUF: "application/x-protobuf",
+		codec.ID_JSON:     "application/json",
+		codec.ID_STRING:   "text/plain",
+	}
+)
 
 // RegBodyCodec registers a mapping of content type to body coder.
 func RegBodyCodec(contentType string, codecId byte) {
 	bodyCodecMapping[contentType] = codecId
+	contentTypeMapping[codecId] = contentType
 }
 
 // GetBodyCodec returns the codec id from content type.
-func GetBodyCodec(headerValue []byte, defCodec byte) byte {
-	idx := bytes.Index(headerValue, []byte{';'})
+func GetBodyCodec(contentType string, defCodecId byte) byte {
+	idx := strings.Index(contentType, ";")
 	if idx != -1 {
-		headerValue = headerValue[:idx]
+		contentType = contentType[:idx]
 	}
-	contentType := goutil.BytesToString(headerValue)
 	codecId, ok := bodyCodecMapping[contentType]
 	if !ok {
-		return defCodec
+		return defCodecId
 	}
 	return codecId
+}
+
+// GetContentType returns the content type from codec id.
+func GetContentType(codecId byte, defContentType string) string {
+	contentType, ok := contentTypeMapping[codecId]
+	if !ok {
+		return defContentType
+	}
+	return contentType
 }

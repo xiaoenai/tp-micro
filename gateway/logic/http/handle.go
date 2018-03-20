@@ -51,9 +51,9 @@ func (r *requestHandler) handle() {
 	var ctx = r.ctx
 	var h = ctx.Request.Header
 	var uri = goutil.BytesToString(ctx.Path())
-	var contentType = h.ContentType()
+	var contentType = goutil.BytesToString(h.ContentType())
 	var bodyCodec = GetBodyCodec(contentType, codec.ID_STRING)
-	var acceptBodyCodec = GetBodyCodec(h.Peek("Accept"), bodyCodec)
+	var acceptBodyCodec = GetBodyCodec(goutil.BytesToString(h.Peek("Accept")), bodyCodec)
 
 	// gw hosts
 	if uri == gwHostsUri {
@@ -128,7 +128,10 @@ func (r *requestHandler) handle() {
 	pullcmd.InputMeta().VisitAll(func(key, value []byte) {
 		ctx.Response.Header.Add(goutil.BytesToString(key), goutil.BytesToString(value))
 	})
-	ctx.Response.Header.SetBytesV("Content-Type", contentType)
+	ctx.Response.Header.Add(
+		"Content-Type",
+		GetContentType(pullcmd.InputBodyCodec(), contentType),
+	)
 	ctx.SetBody(reply)
 }
 
