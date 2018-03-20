@@ -90,7 +90,7 @@ OPTIONS:
    --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-example: `ant gen -t ./__ant__tpl__.go -p ./myant`
+example: `ant gen -t ./__ant__tpl__.go -p ./myant` or default `ant gen myant`
 
 template file `__ant__tpl__.go` demo:
 

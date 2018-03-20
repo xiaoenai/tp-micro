@@ -85,7 +85,7 @@ OPTIONS:
    --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-示例：`ant gen -t ./__ant__tpl__.go -p ./myant`
+示例：`ant gen -t ./__ant__tpl__.go -p ./myant` 或默认的 `ant gen myant`
 
 模板文件 `__ant__tpl__.go` 样板:
 
