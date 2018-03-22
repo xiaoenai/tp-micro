@@ -3,7 +3,7 @@
 
 Ants 是一套基于 [TP-Micro](https://github.com/henrylee2cn/tp-micro) 和 [Teleport](https://github.com/henrylee2cn/teleport) 的、高可用的微服务平台解决方案。
 
-## 1. 安装
+## 1 安装
 
 ```
 go version ≥ 1.9
@@ -13,7 +13,7 @@ go version ≥ 1.9
 go get -u -f -d github.com/xiaoenai/ants/...
 ```
 
-## 2. 特性
+## 2 特性
 
 - 支持服务自动发现
 - 支持自定义服务链接选择器
@@ -160,7 +160,7 @@ example: `ant run -x .yaml -p myant` or `ant run`
 
 [更多 Ant 命令](https://github.com/xiaoenai/ants/tree/master/ant)
 
-## 5. Ant项目示例
+## 4 Ant项目示例
 
 - server
 
@@ -242,6 +242,6 @@ func main() {
 
 [更多](https://github.com/henrylee2cn/tp-micro/tree/master/samples)
 
-## 6. 开源协议
+## 5 开源协议
 
 Ant 项目采用商业应用友好的 [Apache2.0](https://github.com/xiaoenai/ant/raw/master/LICENSE) 协议发布

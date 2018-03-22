@@ -247,6 +247,6 @@ func main() {
 
 [More](https://github.com/henrylee2cn/tp-micro/tree/master/samples)
 
-## 6. License
+## 5 License
 
 Ants is under Apache v2 License. See the [LICENSE](https://github.com/xiaoenai/ants/raw/master/LICENSE) file for the full license text
