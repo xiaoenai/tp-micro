@@ -2,7 +2,6 @@ package socket
 
 import (
 	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/hosts"
 	"github.com/xiaoenai/ants/gateway/types"
@@ -34,7 +33,7 @@ func InnerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rer
 	if rerr != nil {
 		return rerr
 	}
-	return sess.Push(uri, args, ant.WithBodyCodec(bodyCodec))
+	return sess.Push(uri, args, tp.WithBodyCodec(bodyCodec))
 }
 
 var pushSocketReply = new(types.SocketPushReply)

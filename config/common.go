@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/henrylee2cn/cfgo"
-	micro "github.com/henrylee2cn/tp-micro"
+	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 )
 
@@ -28,7 +28,7 @@ func NewKey(service string, version string) string {
 
 func must(err error) {
 	if err != nil {
-		ant.Fatalf("%v", err)
+		tp.Fatalf("%v", err)
 	}
 }
 

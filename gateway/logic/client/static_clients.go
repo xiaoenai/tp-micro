@@ -23,8 +23,8 @@ import (
 
 // StaticClients static clients map
 type StaticClients struct {
-	clients   map[string]*ant.Client
-	cfg       ant.CliConfig
+	clients   map[string]*micro.Client
+	cfg       micro.CliConfig
 	protoFunc socket.ProtoFunc
 	mu        sync.RWMutex
 }
@@ -33,14 +33,14 @@ var staticClients *StaticClients
 
 // StaticClient returns the client whose server address is srvAddr.
 // If the client does not exist, set and return it.
-func StaticClient(srvAddr string) *ant.Client {
+func StaticClient(srvAddr string) *micro.Client {
 	return staticClients.GetOrSet(srvAddr)
 }
 
 // newStaticClients creates a static clients map.
-func newStaticClients(cfg ant.CliConfig, protoFunc socket.ProtoFunc) *StaticClients {
+func newStaticClients(cfg micro.CliConfig, protoFunc socket.ProtoFunc) *StaticClients {
 	return &StaticClients{
-		clients:   make(map[string]*ant.Client),
+		clients:   make(map[string]*micro.Client),
 		cfg:       cfg,
 		protoFunc: protoFunc,
 	}
@@ -49,7 +49,7 @@ func newStaticClients(cfg ant.CliConfig, protoFunc socket.ProtoFunc) *StaticClie
 // Set sets the client whose server address is srvAddr.
 func (s *StaticClients) Set(srvAddr string) {
 	s.mu.Lock()
-	cli := ant.NewClient(s.cfg, ant.NewStaticLinker(srvAddr))
+	cli := micro.NewClient(s.cfg, micro.NewStaticLinker(srvAddr))
 	cli.SetProtoFunc(s.protoFunc)
 	s.clients[srvAddr] = cli
 	s.mu.Unlock()
@@ -57,7 +57,7 @@ func (s *StaticClients) Set(srvAddr string) {
 
 // GetOrSet returns the client whose server address is srvAddr.
 // If the client does not exist, set and return it.
-func (s *StaticClients) GetOrSet(srvAddr string) *ant.Client {
+func (s *StaticClients) GetOrSet(srvAddr string) *micro.Client {
 	s.mu.RLock()
 	cli, ok := s.clients[srvAddr]
 	s.mu.RUnlock()
@@ -70,14 +70,14 @@ func (s *StaticClients) GetOrSet(srvAddr string) *ant.Client {
 	if ok {
 		return cli
 	}
-	cli = ant.NewClient(s.cfg, ant.NewStaticLinker(srvAddr))
+	cli = micro.NewClient(s.cfg, micro.NewStaticLinker(srvAddr))
 	cli.SetProtoFunc(s.protoFunc)
 	s.clients[srvAddr] = cli
 	return cli
 }
 
 // Get returns the client whose server address is srvAddr.
-func (s *StaticClients) Get(srvAddr string) (*ant.Client, bool) {
+func (s *StaticClients) Get(srvAddr string) (*micro.Client, bool) {
 	s.mu.RLock()
 	cli, ok := s.clients[srvAddr]
 	s.mu.RUnlock()

@@ -44,7 +44,7 @@ func (h *HttpSrvConfig) ListenPort() string {
 
 // InnerIpPort returns the service's intranet address, such as '192.168.1.120:8080'.
 func (h *HttpSrvConfig) InnerIpPort() string {
-	hostPort, err := ant.InnerIpPort(h.ListenPort())
+	hostPort, err := micro.InnerIpPort(h.ListenPort())
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
@@ -54,7 +54,7 @@ func (h *HttpSrvConfig) InnerIpPort() string {
 // OuterIpPort returns the service's extranet address, such as '113.116.141.121:8080'.
 func (h *HttpSrvConfig) OuterIpPort() string {
 	if len(h.OuterHost) == 0 {
-		h.OuterHost, _ = ant.OuterIpPort(h.ListenPort())
+		h.OuterHost, _ = micro.OuterIpPort(h.ListenPort())
 	}
 	return h.OuterHost
 }

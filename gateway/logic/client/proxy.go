@@ -24,7 +24,7 @@ import (
 
 // proxyClient the client for proxy.
 type proxyClient struct {
-	cli *ant.Client
+	cli *micro.Client
 }
 
 var caller plugin.Caller

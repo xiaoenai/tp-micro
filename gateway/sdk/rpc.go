@@ -27,7 +27,7 @@ import (
 )
 
 // Init initializes a common inner ant client.
-func Init(apiVersion string, cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
+func Init(apiVersion string, cliCfg micro.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
 	client.Init(cliCfg, protoFunc, etcdClient)
 	SetApiVersion(apiVersion)
 }

@@ -22,14 +22,14 @@ import (
 )
 
 var (
-	antCli  *ant.Client
+	antCli  *micro.Client
 	etcdCli *etcd.Client
 )
 
 // Init initializes a common inner ant client.
-func Init(cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
+func Init(cliCfg micro.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
 	etcdCli = etcdClient
-	antCli = ant.NewClient(
+	antCli = micro.NewClient(
 		cliCfg,
 		discovery.NewLinkerFromEtcd(etcdCli),
 	)
@@ -39,7 +39,7 @@ func Init(cliCfg ant.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Cli
 }
 
 // AntClient returns the common inner ant client.
-func AntClient() *ant.Client {
+func AntClient() *micro.Client {
 	return antCli
 }
 

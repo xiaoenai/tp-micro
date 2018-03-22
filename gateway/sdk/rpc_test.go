@@ -13,7 +13,7 @@ func TestSdk(t *testing.T) {
 	// 	t.Fatalf("%v", err)
 	// }
 	// Init(
-	// 	ant.CliConfig{
+	// 	micro.CliConfig{
 	// 		Failover:        3,
 	// 		HeartbeatSecond: 4,
 	// 	},

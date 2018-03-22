@@ -29,8 +29,8 @@ var (
 )
 
 // Serve starts TCP gateway service.
-func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
-	outerServer := ant.NewServer(
+func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc) {
+	outerServer := micro.NewServer(
 		outerSrvCfg,
 		plugin.VerifyAuth(socketConnTabPlugin.logon),
 		socketConnTabPlugin,
@@ -45,7 +45,7 @@ func Serve(outerSrvCfg, innerSrvCfg ant.SrvConfig, protoFunc socket.ProtoFunc) {
 		client.EtcdClient(),
 	)
 
-	innerServer := ant.NewServer(
+	innerServer := micro.NewServer(
 		innerSrvCfg,
 		discoveryService,
 	)

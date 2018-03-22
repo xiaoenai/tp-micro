@@ -3,17 +3,18 @@ package main
 import (
 	"time"
 
+	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	micro "github.com/henrylee2cn/tp-micro"
 )
 
 func main() {
-	cli := ant.NewClient(
-		ant.CliConfig{
+	cli := micro.NewClient(
+		micro.CliConfig{
 			Failover:        3,
 			HeartbeatSecond: 4,
 		},
-		ant.NewStaticLinker(":5020"),
+		micro.NewStaticLinker(":5020"),
 		plugin.LaunchAuth(generateAuthInfo),
 	)
 
@@ -29,21 +30,21 @@ func main() {
 
 	rerr := cli.Pull("/math/divide", arg, &reply).Rerror()
 	if rerr != nil {
-		ant.Fatalf("%v", rerr)
+		tp.Fatalf("%v", rerr)
 	}
-	ant.Infof("10/2=%d", reply)
+	tp.Infof("10/2=%d", reply)
 
-	ant.Debugf("waiting for 10s...")
+	tp.Debugf("waiting for 10s...")
 	time.Sleep(time.Second * 10)
 
 	arg.B = 5
 	rerr = cli.Pull("/math/divide", arg, &reply).Rerror()
 	if rerr != nil {
-		ant.Fatalf("%v", rerr)
+		tp.Fatalf("%v", rerr)
 	}
-	ant.Infof("10/5=%d", reply)
+	tp.Infof("10/5=%d", reply)
 
-	ant.Debugf("waiting for 10s...")
+	tp.Debugf("waiting for 10s...")
 	time.Sleep(time.Second * 10)
 }
 

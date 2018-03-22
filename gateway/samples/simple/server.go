@@ -24,11 +24,11 @@ func (m *Math) Divide(args *Args) (int, *tp.Rerror) {
 }
 
 func main() {
-	cfg := ant.SrvConfig{
+	cfg := micro.SrvConfig{
 		ListenAddress:   ":9090",
 		EnableHeartbeat: true,
 	}
-	srv := ant.NewServer(cfg, discovery.ServicePlugin(
+	srv := micro.NewServer(cfg, discovery.ServicePlugin(
 		cfg.InnerIpPort(),
 		etcd.EasyConfig{
 			Endpoints: []string{"http://127.0.0.1:2379"},

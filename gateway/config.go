@@ -27,9 +27,9 @@ type Config struct {
 	EnableHttp        bool                `yaml:"enable_http"`
 	EnableSocket      bool                `yaml:"enable_socket"`
 	OuterHttpServer   short.HttpSrvConfig `yaml:"outer_http_server"`
-	OuterSocketServer ant.SrvConfig       `yaml:"outer_socket_server"`
-	InnerSocketServer ant.SrvConfig       `yaml:"inner_socket_server"`
-	InnerSocketClient ant.CliConfig       `yaml:"inner_socket_client"`
+	OuterSocketServer micro.SrvConfig     `yaml:"outer_socket_server"`
+	InnerSocketServer micro.SrvConfig     `yaml:"inner_socket_server"`
+	InnerSocketClient micro.CliConfig     `yaml:"inner_socket_client"`
 	Etcd              etcd.EasyConfig     `yaml:"etcd"`
 	Redis             redis.Config        `yaml:"redis"`
 }
@@ -43,19 +43,19 @@ func NewConfig() *Config {
 			ListenAddress: "0.0.0.0:5000",
 			AllowCross:    false,
 		},
-		OuterSocketServer: ant.SrvConfig{
+		OuterSocketServer: micro.SrvConfig{
 			ListenAddress:   "0.0.0.0:5020",
 			EnableHeartbeat: true,
 			PrintBody:       true,
 			CountTime:       true,
 		},
-		InnerSocketServer: ant.SrvConfig{
+		InnerSocketServer: micro.SrvConfig{
 			ListenAddress:   "0.0.0.0:5030",
 			EnableHeartbeat: true,
 			PrintBody:       true,
 			CountTime:       true,
 		},
-		InnerSocketClient: ant.CliConfig{
+		InnerSocketClient: micro.CliConfig{
 			Failover:        3,
 			HeartbeatSecond: 60,
 		},
