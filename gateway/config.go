@@ -15,9 +15,9 @@
 package gateway
 
 import (
-	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/cfgo"
+	micro "github.com/henrylee2cn/tp-micro"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 	short "github.com/xiaoenai/ants/gateway/logic/http"
 	"github.com/xiaoenai/redis"
 )

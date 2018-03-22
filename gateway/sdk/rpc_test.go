@@ -2,7 +2,7 @@ package sdk
 
 import (
 	"testing"
-	// "github.com/henrylee2cn/ant"
+	// micro "github.com/henrylee2cn/tp-micro"
 	// "github.com/xiaoenai/ants/gateway/types"
 )
 

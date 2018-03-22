@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/henrylee2cn/ant/discovery/etcd"
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 )
 
 var mgr = struct {

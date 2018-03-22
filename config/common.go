@@ -3,9 +3,9 @@ package config
 import (
 	"sync"
 
-	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/cfgo"
+	micro "github.com/henrylee2cn/tp-micro"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 )
 
 // Config config interface

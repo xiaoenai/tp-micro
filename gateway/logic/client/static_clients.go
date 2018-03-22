@@ -17,8 +17,8 @@ package client
 import (
 	"sync"
 
-	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/teleport/socket"
+	micro "github.com/henrylee2cn/tp-micro"
 )
 
 // StaticClients static clients map

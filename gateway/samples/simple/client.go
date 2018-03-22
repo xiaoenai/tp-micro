@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	"github.com/henrylee2cn/ant"
 	"github.com/henrylee2cn/teleport/plugin"
+	micro "github.com/henrylee2cn/tp-micro"
 )
 
 func main() {

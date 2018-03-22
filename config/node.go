@@ -7,8 +7,8 @@ import (
 	"os"
 	"sync"
 
-	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/ant/discovery/etcd"
+	micro "github.com/henrylee2cn/tp-micro"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 )
 
 // InitNode initializes the config node.

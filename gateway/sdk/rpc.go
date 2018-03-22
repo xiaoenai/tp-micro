@@ -18,10 +18,10 @@ import (
 	"path"
 	"strings"
 
-	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/ant/discovery/etcd"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
+	micro "github.com/henrylee2cn/tp-micro"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 	"github.com/xiaoenai/ants/gateway/logic/client"
 	"github.com/xiaoenai/ants/gateway/types"
 )

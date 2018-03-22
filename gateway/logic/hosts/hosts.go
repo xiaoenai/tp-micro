@@ -9,10 +9,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 	"github.com/xiaoenai/ants/gateway/logic/client"
 	"github.com/xiaoenai/ants/gateway/sdk"
 	"github.com/xiaoenai/ants/gateway/types"

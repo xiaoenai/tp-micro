@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/henrylee2cn/ant"
-	"github.com/henrylee2cn/ant/discovery"
-	"github.com/henrylee2cn/ant/discovery/etcd"
 	tp "github.com/henrylee2cn/teleport"
+	micro "github.com/henrylee2cn/tp-micro"
+	"github.com/henrylee2cn/tp-micro/discovery"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 )
 
 // Args args

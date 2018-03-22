@@ -15,10 +15,10 @@
 package client
 
 import (
-	"github.com/henrylee2cn/ant"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
+	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/xiaoenai/ants/gateway/logic"
 )
 

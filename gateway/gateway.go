@@ -17,8 +17,8 @@
 package gateway
 
 import (
-	"github.com/henrylee2cn/ant/discovery/etcd"
 	"github.com/henrylee2cn/teleport/socket"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
 	"github.com/xiaoenai/ants/gateway/logic/hosts"

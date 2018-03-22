@@ -1,8 +1,8 @@
 package socket
 
 import (
-	"github.com/henrylee2cn/ant"
 	tp "github.com/henrylee2cn/teleport"
+	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/hosts"
 	"github.com/xiaoenai/ants/gateway/types"
