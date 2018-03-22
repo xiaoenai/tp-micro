@@ -69,7 +69,7 @@ Desc:
 ### 4.1 Install
 
 ```sh
-cd $GOPATH/github.com/henrylee2cn/ant/cmd/ant
+cd $GOPATH/src/github.com/henrylee2cn/ant/cmd/ant
 go install
 ```
 

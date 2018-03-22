@@ -65,7 +65,7 @@ go get -u -f -d github.com/xiaoenai/ants/...
 ### 4.1 安装
 
 ```sh
-cd $GOPATH/github.com/henrylee2cn/ant/cmd/ant
+cd $GOPATH/src/github.com/henrylee2cn/ant/cmd/ant
 go install
 ```
 
@@ -81,7 +81,7 @@ USAGE:
    ant gen [command options] [arguments...]
 
 OPTIONS:
-   --template value, -t value    The template for code generation(relative/absolute)
+   --template value, -t value  The template for code generation(relative/absolute)
    --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
@@ -155,9 +155,9 @@ OPTIONS:
    --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
-example: `ant run -x .yaml -p myant` or `ant run -x .yaml myant`
+示例: `ant run -x .yaml -p myant` or `ant run -x .yaml myant`
 
-[更多 ant command](https://github.com/henrylee2cn/ant/tree/master/cmd/ant)
+[更多 ant 命令](https://github.com/henrylee2cn/ant/tree/master/cmd/ant)
 
 ## 5. Ant项目示例
 
