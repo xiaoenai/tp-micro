@@ -3,7 +3,7 @@
 
 Ants 是一套基于 [TP-Micro](https://github.com/henrylee2cn/tp-micro) 和 [Teleport](https://github.com/henrylee2cn/teleport) 的、高可用的微服务平台解决方案。
 
-## 1 安装
+## 安装
 
 ```
 go version ≥ 1.9
@@ -13,7 +13,7 @@ go version ≥ 1.9
 go get -u -f -d github.com/xiaoenai/ants/...
 ```
 
-## 2 特性
+## 特性
 
 - 支持服务自动发现
 - 支持自定义服务链接选择器
@@ -31,16 +31,16 @@ go get -u -f -d github.com/xiaoenai/ants/...
 - 支持的网络类型：`tcp`、`tcp4`、`tcp6`、`unix`、`unixpacket`等
 - 客户端支持断线后自动重连
 
-## 3 项目管理
+## 项目管理
 
-### 3.1 安装ant命令行
+### 安装ant命令行
 
 ```sh
 cd $GOPATH/src/github.com/xiaoenai/ants/ant
 go install
 ```
 
-### 3.2 生成项目
+### 生成项目
 
 `ant gen` command help:
 
@@ -138,7 +138,7 @@ type StatArgs struct {
 - 在自动生成的文件的文件名中增加 `.gen` 后缀进行标记
 - `tmp_code.gen.go` 是为了通过编译而生成的临时文件，项目完成后应该移除它
 
-### 3.3 热编译运行
+### 热编译运行
 
 `ant run` 命令帮助：
 
@@ -160,7 +160,7 @@ example: `ant run -x .yaml -p myant` or `ant run`
 
 [更多 Ant 命令](https://github.com/xiaoenai/ants/tree/master/ant)
 
-## 4 Ant项目示例
+## Ant项目示例
 
 - server
 
@@ -242,6 +242,6 @@ func main() {
 
 [更多](https://github.com/henrylee2cn/tp-micro/tree/master/samples)
 
-## 5 开源协议
+## 开源协议
 
 Ant 项目采用商业应用友好的 [Apache2.0](https://github.com/xiaoenai/ant/raw/master/LICENSE) 协议发布

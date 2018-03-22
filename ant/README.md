@@ -2,18 +2,18 @@
 
 A deployment tools for [TP-Micro](https://github.com/henrylee2cn/tp-micro) micro service framework.
 
-## 1 Feature
+## Feature
 
 - Quickly create a ant project
 - Run ant project with hot compilation
 
-## 2 Install
+## Install
 
 ```sh
 go install
 ```
 
-## 3 Generate project
+## Generate project
 
 `ant gen` command help:
 
@@ -110,7 +110,7 @@ Desc:
 - add `.gen` suffix to the file name of the automatically generated file
 - `tmp_code.gen.go` is temporary code used to ensure successful compilation!<br>When the project is completed, it should be removed!
 
-## 4 Run project
+## Run project
 
 `ant run` command help:
 

@@ -6,7 +6,7 @@ Ants is a highly available micro service platform based on [TP-Micro](https://gi
 [简体中文](https://github.com/xiaoenai/ants/blob/master/README_ZH.md)
 
 
-## 1 Install
+## Install
 
 
 ```
@@ -17,7 +17,7 @@ go version ≥ 1.9
 go get -u -f -d github.com/xiaoenai/ants/...
 ```
 
-## 2 Feature
+## Feature
 
 - Support auto service-discovery
 - Supports custom service linker
@@ -36,16 +36,16 @@ go get -u -f -d github.com/xiaoenai/ants/...
 - Client support automatically redials after disconnection
 
 
-## 3 Project Management
+## Project Management
 
-### 3.1 Install Ant Command
+### Install Ant Command
 
 ```sh
 cd $GOPATH/src/github.com/xiaoenai/ants/ant
 go install
 ```
 
-### 3.2 Generate project
+### Generate project
 
 `ant gen` command help:
 
@@ -142,7 +142,7 @@ Desc:
 - add `.gen` suffix to the file name of the automatically generated file
 - `tmp_code.gen.go` is temporary code used to ensure successful compilation!<br>When the project is completed, it should be removed!
 
-### 3.3 Run project
+### Run project
 
 `ant run` command help:
 
@@ -164,7 +164,7 @@ example: `ant run -x .yaml -p myant` or `ant run`
 
 [More Ant Command](https://github.com/xiaoenai/ants/tree/master/ant)
 
-## 4 Demo
+## Demo
 
 
 - server
@@ -247,6 +247,6 @@ func main() {
 
 [More](https://github.com/henrylee2cn/tp-micro/tree/master/samples)
 
-## 5 License
+## License
 
 Ants is under Apache v2 License. See the [LICENSE](https://github.com/xiaoenai/ants/raw/master/LICENSE) file for the full license text

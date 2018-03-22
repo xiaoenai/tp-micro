@@ -2,7 +2,7 @@
 
 Package gateway is the main program for TCP and HTTP services.
 
-## 1 Demo
+## Demo
 
 ```go
 package main
@@ -20,9 +20,9 @@ func main() {
 }
 ```
 
-## 2 Usage
+## Usage
 
-### 2.1 Authorization
+### Authorization
 
 - HTTP short connection gateway
     * Optional authorization
