@@ -36,7 +36,7 @@ go get -u -f -d github.com/xiaoenai/ants/...
 ### 3.1 安装ant命令行
 
 ```sh
-cd $GOPATH/github.com/xiaoenai/ants/ant
+cd $GOPATH/src/github.com/xiaoenai/ants/ant
 go install
 ```
 
