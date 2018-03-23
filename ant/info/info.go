@@ -36,6 +36,13 @@ func Init(appPath string) (err error) {
 	projInfo.fileName = projInfo.projName
 	if runtime.GOOS == "windows" {
 		projInfo.fileName += ".exe"
+		if old, ok := os.LookupEnv("GOPATH"); ok {
+			projInfo.gopath += ";" + old
+		}
+	} else {
+		if old, ok := os.LookupEnv("GOPATH"); ok {
+			projInfo.gopath += ":" + old
+		}
 	}
 	projInfo.rawCmdPath, _ = os.Getwd()
 	return nil
