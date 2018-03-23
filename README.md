@@ -34,6 +34,7 @@ go get -u -f -d github.com/xiaoenai/ants/...
 - Support push handler
 - Support network list: `tcp`, `tcp4`, `tcp6`, `unix`, `unixpacket` and so on
 - Client support automatically redials after disconnection
+- Circuit breaker for overload protection
 
 
 ## Project Management
