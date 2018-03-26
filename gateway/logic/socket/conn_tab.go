@@ -28,16 +28,19 @@ var (
 )
 
 func (c *socketConnTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
-	tp.Debugf("verify-auth: id: %s, info: %s", sess.Id(), accessToken)
 	token, rerr := logic.AccessTokenMgr().Verify(accessToken)
 	if rerr != nil {
 		return rerr
 	}
-	return logic.SocketHooks().OnLogon(sess, token)
+	rerr = logic.SocketHooks().OnLogon(sess, token)
+	if rerr == nil {
+		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).Id())
+	}
+	return rerr
 }
 
 func (c *socketConnTab) logoff(sess tp.BaseSession) *tp.Rerror {
-	tp.Tracef("[-SOCKET_CONN] ip: %s, id: %s", sess.RemoteIp(), sess.Id())
+	tp.Tracef("[-SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.Id())
 	return logic.SocketHooks().OnLogoff(sess)
 }
 
