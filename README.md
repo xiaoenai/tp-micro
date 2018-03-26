@@ -74,45 +74,45 @@ package __ANT__TPL__
 //  /home
 //  /math/divide
 type __API__PULL__ interface {
-  Home(*struct{}) *HomeReply
-  Math
+    Home(*struct{}) *HomeReply
+    Math
 }
 
 // __API__PUSH__ register PUSH router:
 //  /stat
 type __API__PUSH__ interface {
-  Stat(*StatArgs)
+    Stat(*StatArgs)
 }
 
 // Math controller
 type Math interface {
-  // Divide handler
-  Divide(*DivideArgs) *DivideReply
+    // Divide handler
+    Divide(*DivideArgs) *DivideReply
 }
 
 // HomeReply home reply
 type HomeReply struct {
-  Content string // text
+    Content string // text
 }
 
 type (
-  // DivideArgs divide api args
-  DivideArgs struct {
-    // dividend
-    A float64
-    // divisor
-    B float64 `param:"<range: 0.01:100000>"`
-  }
-  // DivideReply divide api result
-  DivideReply struct {
-    // quotient
-    C float64
-  }
+    // DivideArgs divide api args
+    DivideArgs struct {
+        // dividend
+        A float64
+        // divisor
+        B float64 `param:"<range: 0.01:100000>"`
+    }
+    // DivideReply divide api result
+    DivideReply struct {
+        // quotient
+        C float64
+    }
 )
 
 // StatArgs stat handler args
 type StatArgs struct {
-  Ts int64 // timestamps
+    Ts int64 // timestamps
 }
 ```
 
@@ -174,32 +174,32 @@ example: `ant run -x .yaml -p myant` or `ant run`
 package main
 
 import (
-	micro "github.com/henrylee2cn/tp-micro"
-	tp "github.com/henrylee2cn/teleport"
+    micro "github.com/henrylee2cn/tp-micro"
+    tp "github.com/henrylee2cn/teleport"
 )
 
 // Args args
 type Args struct {
-	A int
-	B int `param:"<range:1:>"`
+    A int
+    B int `param:"<range:1:>"`
 }
 
 // P handler
 type P struct {
-	tp.PullCtx
+    tp.PullCtx
 }
 
 // Divide divide API
 func (p *P) Divide(args *Args) (int, *tp.Rerror) {
-	return args.A / args.B, nil
+    return args.A / args.B, nil
 }
 
 func main() {
-	srv := micro.NewServer(micro.SrvConfig{
-		ListenAddress: ":9090",
-	})
-	srv.RoutePull(new(P))
-	srv.Listen()
+    srv := micro.NewServer(micro.SrvConfig{
+        ListenAddress: ":9090",
+    })
+    srv.RoutePull(new(P))
+    srv.Listen()
 }
 ```
 
@@ -209,39 +209,39 @@ func main() {
 package main
 
 import (
-	micro "github.com/henrylee2cn/tp-micro"
+    micro "github.com/henrylee2cn/tp-micro"
   tp "github.com/henrylee2cn/teleport"
 )
 
 func main() {
-	cli := micro.NewClient(
-		micro.CliConfig{},
-		micro.NewStaticLinker(":9090"),
-	)
-	defer	cli.Close()
+    cli := micro.NewClient(
+        micro.CliConfig{},
+        micro.NewStaticLinker(":9090"),
+    )
+    defer   cli.Close()
 
-	type Args struct {
-		A int
-		B int
-	}
+    type Args struct {
+        A int
+        B int
+    }
 
-	var reply int
-	rerr := cli.Pull("/p/divide", &Args{
-		A: 10,
-		B: 2,
-	}, &reply).Rerror()
-	if rerr != nil {
-		tp.Fatalf("%v", rerr)
-	}
-	tp.Infof("10/2=%d", reply)
-	rerr = cli.Pull("/p/divide", &Args{
-		A: 10,
-		B: 0,
-	}, &reply).Rerror()
-	if rerr == nil {
-		tp.Fatalf("%v", rerr)
-	}
-	tp.Infof("test binding error: ok: %v", rerr)
+    var reply int
+    rerr := cli.Pull("/p/divide", &Args{
+        A: 10,
+        B: 2,
+    }, &reply).Rerror()
+    if rerr != nil {
+        tp.Fatalf("%v", rerr)
+    }
+    tp.Infof("10/2=%d", reply)
+    rerr = cli.Pull("/p/divide", &Args{
+        A: 10,
+        B: 0,
+    }, &reply).Rerror()
+    if rerr == nil {
+        tp.Fatalf("%v", rerr)
+    }
+    tp.Infof("test binding error: ok: %v", rerr)
 }
 ```
 
