@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/henrylee2cn/cfgo"
+	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
@@ -9,7 +10,7 @@ import (
 )
 
 type config struct {
-	Server ant.SrvConfig   `yaml:"server"`
+	Server micro.SrvConfig `yaml:"server"`
 	Etcd   etcd.EasyConfig `yaml:"etcd"`
 }
 
@@ -19,7 +20,7 @@ func (e *config) Reload(bindFunc cfgo.BindFunc) error {
 
 func main() {
 	cfg := &config{
-		Server: ant.SrvConfig{
+		Server: micro.SrvConfig{
 			ListenAddress: ":4040",
 		},
 		Etcd: etcd.EasyConfig{
@@ -30,12 +31,12 @@ func main() {
 
 	etcdClient, err := etcd.EasyNew(cfg.Etcd)
 	if err != nil {
-		ant.Fatalf("%v", err)
+		tp.Fatalf("%v", err)
 	}
 
 	conf.InitMgr(etcdClient)
 
-	srv := ant.NewServer(
+	srv := micro.NewServer(
 		cfg.Server,
 		discovery.ServicePluginFromEtcd(
 			cfg.Server.InnerIpPort(),
@@ -43,5 +44,5 @@ func main() {
 		),
 	)
 	srv.RoutePull(conf.PullCtrl())
-	srv.Listen()
+	srv.ListenAndServe()
 }
