@@ -35,5 +35,5 @@ func main() {
 		},
 	))
 	srv.RoutePull(new(Math))
-	srv.Listen()
+	srv.ListenAndServe()
 }
