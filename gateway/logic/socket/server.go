@@ -60,8 +60,8 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc)
 		}
 	}
 
-	go outerServer.Listen(protoFunc)
-	go innerServer.Listen(protoFunc)
+	go outerServer.ListenAndServe(protoFunc)
+	go innerServer.ListenAndServe(protoFunc)
 
 	select {}
 }
