@@ -214,7 +214,7 @@ func main() {
 		EnableHeartbeat: true,
 	})
 	api.Route("/${service_api_prefix}", srv.Router())
-	srv.Listen()
+	srv.ListenAndServe()
 }`,
 
 	"types/types.gen.go": `package types
