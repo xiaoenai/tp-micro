@@ -86,6 +86,8 @@ func DefaultHttpHooks() HttpHooks {
 
 type defHttpHooks struct{}
 
-func (d *defHttpHooks) OnRequest(RequestArgs, AuthFunc) ([]socket.PacketSetting, *tp.Rerror) {
-	return nil, nil
+func (d *defHttpHooks) OnRequest(args RequestArgs, authFunc AuthFunc) ([]socket.PacketSetting, *tp.Rerror) {
+	accessToken, rerr := authFunc(string(args.QueryArgs().Peek("access_token")))
+	_ = accessToken
+	return nil, rerr
 }
