@@ -141,9 +141,14 @@ func (r *requestHandler) crossDomainFilter() bool {
 func (r *requestHandler) replyError(rerr *tp.Rerror) {
 	var statusCode int
 	if rerr.Code < 200 {
+		// Internal communication error
 		statusCode = 500
-	} else {
+	} else if rerr.Code < 600 {
+		// Custom HTTP error
 		statusCode = int(rerr.Code)
+	} else {
+		// Business error
+		statusCode = 200
 	}
 	msg, _ := rerr.MarshalJSON()
 	r.ctx.SetStatusCode(statusCode)
