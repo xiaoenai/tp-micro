@@ -19,7 +19,6 @@ import (
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 	short "github.com/xiaoenai/ants/gateway/logic/http"
-	"github.com/xiaoenai/redis"
 )
 
 // Config app config
@@ -31,7 +30,6 @@ type Config struct {
 	InnerSocketServer micro.SrvConfig     `yaml:"inner_socket_server"`
 	InnerSocketClient micro.CliConfig     `yaml:"inner_socket_client"`
 	Etcd              etcd.EasyConfig     `yaml:"etcd"`
-	Redis             redis.Config        `yaml:"redis"`
 }
 
 // NewConfig creates a default config.
@@ -62,7 +60,6 @@ func NewConfig() *Config {
 		Etcd: etcd.EasyConfig{
 			Endpoints: []string{"http://127.0.0.1:2379"},
 		},
-		Redis: *redis.NewConfig(),
 	}
 }
 
