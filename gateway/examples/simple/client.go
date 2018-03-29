@@ -28,7 +28,7 @@ func main() {
 
 	var reply int
 
-	rerr := cli.Pull("/math/divide", arg, &reply).Rerror()
+	rerr := cli.Pull("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
 	if rerr != nil {
 		tp.Fatalf("%v", rerr)
 	}
@@ -38,7 +38,7 @@ func main() {
 	time.Sleep(time.Second * 10)
 
 	arg.B = 5
-	rerr = cli.Pull("/math/divide", arg, &reply).Rerror()
+	rerr = cli.Pull("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
 	if rerr != nil {
 		tp.Fatalf("%v", rerr)
 	}

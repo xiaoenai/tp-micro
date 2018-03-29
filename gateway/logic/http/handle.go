@@ -25,7 +25,6 @@ import (
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/client"
 	"github.com/xiaoenai/ants/gateway/logic/hosts"
-	"github.com/xiaoenai/ants/gateway/types"
 )
 
 var (
@@ -38,8 +37,7 @@ func handler(ctx *fasthttp.RequestCtx) {
 }
 
 type requestHandler struct {
-	ctx       *fasthttp.RequestCtx
-	queryArgs *fasthttp.Args
+	ctx *fasthttp.RequestCtx
 }
 
 func (r *requestHandler) handle() {
@@ -49,7 +47,7 @@ func (r *requestHandler) handle() {
 	}
 
 	var ctx = r.ctx
-	var h = ctx.Request.Header
+	var h = r.Header()
 	var uri = goutil.BytesToString(ctx.Path())
 	var contentType = goutil.BytesToString(h.ContentType())
 	var bodyCodec = GetBodyCodec(contentType, codec.ID_STRING)
@@ -69,20 +67,7 @@ func (r *requestHandler) handle() {
 	}
 
 	// verify access token
-	var (
-		accessToken = logic.AccessTokenMgr().QueryForHttp(r)
-		tokens      []types.AccessToken
-	)
-	if len(accessToken) > 0 {
-		token, rerr := logic.AccessTokenMgr().Verify(accessToken)
-		if rerr != nil {
-			r.replyError(rerr)
-			return
-		}
-		tokens = append(tokens, token)
-	}
-
-	settings, rerr := logic.HttpHooks().OnRequest(r, tokens...)
+	settings, rerr := logic.HttpHooks().OnRequest(r, logic.AuthFunc())
 	if rerr != nil {
 		r.replyError(rerr)
 		return
@@ -115,7 +100,7 @@ func (r *requestHandler) handle() {
 
 	var bodyBytes = ctx.Request.Body()
 	var reply []byte
-
+	uri += "?" + r.ctx.QueryArgs().String()
 	pullcmd := client.ProxyClient().Pull(uri, bodyBytes, &reply, settings...)
 
 	// fail
@@ -166,32 +151,12 @@ func (r *requestHandler) replyError(rerr *tp.Rerror) {
 	r.ctx.SetBody(msg)
 }
 
-// Query returns query arguments from request URI.
-func (r *requestHandler) Query(key string) string {
-	if r.queryArgs == nil {
-		r.queryArgs = r.ctx.QueryArgs()
-	}
-	v := r.queryArgs.Peek(key)
-	if len(v) == 0 {
-		return ""
-	}
-	return string(v)
+// QueryArgs returns the query arguments object of request.
+func (r *requestHandler) QueryArgs() *fasthttp.Args {
+	return r.ctx.QueryArgs()
 }
 
-// Header returns header value for the given key.
-func (r *requestHandler) Header(key string) string {
-	v := r.ctx.Request.Header.Peek(key)
-	if len(v) == 0 {
-		return ""
-	}
-	return string(v)
-}
-
-// Cookie returns cookie for the given key.
-func (r *requestHandler) Cookie(key string) string {
-	v := r.ctx.Request.Header.Cookie(key)
-	if len(v) == 0 {
-		return ""
-	}
-	return string(v)
+// Header returns the header object of request.
+func (r *requestHandler) Header() *fasthttp.RequestHeader {
+	return &r.ctx.Request.Header
 }

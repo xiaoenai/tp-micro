@@ -14,10 +14,14 @@
 
 package types
 
+import (
+	tp "github.com/henrylee2cn/teleport"
+)
+
 // Business implement your real business logic
 type Business struct {
-	// AccessTokenMgr access token manager
-	AccessTokenMgr
+	// AuthFunc Verifies access token
+	AuthFunc func(accessToken string) (AccessToken, *tp.Rerror)
 	// SocketHooks TCP socket connecting event hooks
 	SocketHooks
 	// HttpHooks HTTP connecting event hooks
@@ -34,8 +38,8 @@ func DefaultBusiness() *Business {
 }
 
 func (biz *Business) Init() {
-	if biz.AccessTokenMgr == nil {
-		biz.AccessTokenMgr = DefaultAccessTokenMgr()
+	if biz.AuthFunc == nil {
+		biz.AuthFunc = DefaultAuthFunc()
 	}
 	if biz.SocketHooks == nil {
 		biz.SocketHooks = DefaultSocketHooks()

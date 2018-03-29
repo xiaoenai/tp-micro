@@ -18,6 +18,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
+	"github.com/valyala/fasthttp"
 )
 
 // SocketHooks TCP socket connecting event hooks
@@ -31,12 +32,20 @@ type SocketHooks interface {
 	//PreWritePush is executed before writing PUSH packet.
 	PreWritePush(tp.WriteCtx) *tp.Rerror
 }
-
-// HttpHooks HTTP connecting event hooks
-type HttpHooks interface {
-	// OnRequest is called when the client requests.
-	OnRequest(RequestArgs, ...AccessToken) ([]socket.PacketSetting, *tp.Rerror)
-}
+type (
+	// HttpHooks HTTP connecting event hooks
+	HttpHooks interface {
+		// OnRequest is called when the client requests.
+		OnRequest(RequestArgs, AuthFunc) ([]socket.PacketSetting, *tp.Rerror)
+	}
+	// RequestArgs http query parameters
+	RequestArgs interface {
+		// Query returns query arguments from request URI.
+		QueryArgs() *fasthttp.Args
+		// Header returns the header object of request.
+		Header() *fasthttp.RequestHeader
+	}
+)
 
 // DefaultSocketHooks creates a new default SocketHooks object.
 func DefaultSocketHooks() SocketHooks {
@@ -77,6 +86,6 @@ func DefaultHttpHooks() HttpHooks {
 
 type defHttpHooks struct{}
 
-func (d *defHttpHooks) OnRequest(RequestArgs, ...AccessToken) ([]socket.PacketSetting, *tp.Rerror) {
+func (d *defHttpHooks) OnRequest(RequestArgs, AuthFunc) ([]socket.PacketSetting, *tp.Rerror) {
 	return nil, nil
 }

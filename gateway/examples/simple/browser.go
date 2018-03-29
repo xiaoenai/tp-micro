@@ -49,7 +49,7 @@ const html = `<!DOCTYPE html>
 <script type="application/javascript">
     $('#divide').on('click',function(){
         $.ajax({
-            url:"http://localhost:5000/math/divide",
+            url:"http://localhost:5000/math/divide?access_token=sdfghj",
             type:"POST",
             data:JSON.stringify($('#logic').serializeObject()),
             contentType:"application/json",

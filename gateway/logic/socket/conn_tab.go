@@ -28,7 +28,7 @@ var (
 )
 
 func (c *socketConnTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
-	token, rerr := logic.AccessTokenMgr().Verify(accessToken)
+	token, rerr := logic.AuthFunc()(accessToken)
 	if rerr != nil {
 		return rerr
 	}

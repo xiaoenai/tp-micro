@@ -36,9 +36,9 @@ func ApiVersion() string {
 	return "v1"
 }
 
-// AccessTokenMgr returns access token manager.
-func AccessTokenMgr() types.AccessTokenMgr {
-	return globalBusiness.AccessTokenMgr
+// AuthFunc returns the authorization function for access behavior.
+func AuthFunc() types.AuthFunc {
+	return globalBusiness.AuthFunc
 }
 
 // SocketHooks returns TCP socket connecting event hooks.
