@@ -66,8 +66,10 @@ func (r *requestHandler) handle() {
 		return
 	}
 
+	var bodyBytes = ctx.Request.Body()
+
 	// verify access token
-	settings, rerr := logic.HttpHooks().OnRequest(r, logic.AuthFunc())
+	settings, rerr := logic.HttpHooks().OnRequest(r, bodyBytes, logic.AuthFunc())
 	if rerr != nil {
 		r.replyError(rerr)
 		return
@@ -98,7 +100,6 @@ func (r *requestHandler) handle() {
 	}
 	settings = append(settings, tp.WithAddMeta(tp.MetaRealIp, realIp))
 
-	var bodyBytes = ctx.Request.Body()
 	var reply []byte
 	uri += "?" + r.ctx.QueryArgs().String()
 	pullcmd := client.ProxyClient().Pull(uri, bodyBytes, &reply, settings...)

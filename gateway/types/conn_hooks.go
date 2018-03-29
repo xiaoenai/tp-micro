@@ -36,7 +36,7 @@ type (
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks interface {
 		// OnRequest is called when the client requests.
-		OnRequest(RequestArgs, AuthFunc) ([]socket.PacketSetting, *tp.Rerror)
+		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) ([]socket.PacketSetting, *tp.Rerror)
 	}
 	// RequestArgs http query parameters
 	RequestArgs interface {
@@ -86,8 +86,8 @@ func DefaultHttpHooks() HttpHooks {
 
 type defHttpHooks struct{}
 
-func (d *defHttpHooks) OnRequest(args RequestArgs, authFunc AuthFunc) ([]socket.PacketSetting, *tp.Rerror) {
-	accessToken, rerr := authFunc(string(args.QueryArgs().Peek("access_token")))
+func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) ([]socket.PacketSetting, *tp.Rerror) {
+	accessToken, rerr := authFunc(string(params.QueryArgs().Peek("access_token")))
 	_ = accessToken
 	return nil, rerr
 }
