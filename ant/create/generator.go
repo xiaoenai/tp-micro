@@ -8,6 +8,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"path"
 	"strings"
 	"unicode"
 
@@ -421,11 +422,11 @@ func (p *Project) createFunc(r *Handler, isPull bool) (handler, logic, sdk, sdkT
 			), fmt.Sprintf(
 				"%sfunc %s(args %s, setting ...socket.PacketSetting)(%s,*tp.Rerror){\n"+
 					"reply := new(%s)\n"+
-					"rerr := client.Pull(\"/%s/%s\", args, reply, setting...).Rerror()\n"+
+					"rerr := client.Pull(\"%s\", args, reply, setting...).Rerror()\n"+
 					"return reply, rerr\n}\n",
 				camelDoc, camelName, paramAndresult[0], paramAndresult[1],
 				paramAndresult[1][1:],
-				goutil.SnakeString(p.Name), goutil.SnakeString(r.Name),
+				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
 					"reply, rerr :=%s(&%s{})\n"+
@@ -443,10 +444,10 @@ func (p *Project) createFunc(r *Handler, isPull bool) (handler, logic, sdk, sdkT
 				camelDoc, camelName, paramAndresult[0],
 			), fmt.Sprintf(
 				"%sfunc %s(args %s, setting ...socket.PacketSetting)*tp.Rerror{\n"+
-					"return client.Push(\"/%s/%s\", args, setting...)\n"+
+					"return client.Push(\"%s\", args, setting...)\n"+
 					"}\n",
 				camelDoc, camelName, paramAndresult[0],
-				goutil.SnakeString(p.Name), goutil.SnakeString(r.Name),
+				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
 					"rerr :=%s(&%s{})\n"+
@@ -490,11 +491,11 @@ func (p *Project) createMethod(ctrl string, r *Handler, isPull bool) (handler, l
 			), fmt.Sprintf(
 				"%sfunc %s(args %s, setting ...socket.PacketSetting)(%s,*tp.Rerror){\n"+
 					"reply := new(%s)\n"+
-					"rerr := client.Pull(\"/%s/%s/%s\", args, reply, setting...).Rerror()\n"+
+					"rerr := client.Pull(\"%s\", args, reply, setting...).Rerror()\n"+
 					"return reply, rerr\n}\n",
 				fullDoc, fullName, paramAndresult[0], paramAndresult[1],
 				paramAndresult[1][1:],
-				goutil.SnakeString(p.Name), goutil.SnakeString(ctrl), goutil.SnakeString(r.Name),
+				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(ctrl), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
 					"reply, rerr :=%s(&%s{})\n"+
@@ -512,10 +513,10 @@ func (p *Project) createMethod(ctrl string, r *Handler, isPull bool) (handler, l
 				fullDoc, fullName, paramAndresult[0],
 			), fmt.Sprintf(
 				"%sfunc %s(args %s, setting ...socket.PacketSetting)*tp.Rerror{\n"+
-					"return client.Push(\"/%s/%s/%s\", args, setting...)\n"+
+					"return client.Push(\"%s\", args, setting...)\n"+
 					"}\n",
 				fullDoc, fullName, paramAndresult[0],
-				goutil.SnakeString(p.Name), goutil.SnakeString(ctrl), goutil.SnakeString(r.Name),
+				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(ctrl), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
 					"rerr :=%s(&%s{})\n"+
