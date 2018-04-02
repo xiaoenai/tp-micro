@@ -226,6 +226,7 @@ ${type_define_list}
 import (
 	tp "github.com/henrylee2cn/teleport"
 	"${import_prefix}/types"
+	// "${import_prefix}/rerrs"
 )
 ${logic_api_define}
 `,

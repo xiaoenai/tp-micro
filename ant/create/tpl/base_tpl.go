@@ -4,6 +4,7 @@
 // README.md
 // api/handlers.go
 // api/router.go
+// rerrs/rerrs.go
 // sdk/rpc.go
 // sdk/rpc_test.go
 // types/types.go
@@ -157,6 +158,26 @@ func apiRouterGo() (*asset, error) {
 	return a, nil
 }
 
+var _rerrsRerrsGo = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x6c\xca\xb1\xce\x82\x30\x10\x00\xe0\x99\x7b\x8a\x4b\x27\x48\x08\x2d\xff\xfe\x4f\x4e\x2e\xc6\xf0\x06\x27\x5e\xa0\x11\xda\x7a\x3d\x30\xbe\xbd\xc1\xa0\x93\xf3\xf7\x25\xea\x6f\x34\x30\x0a\x8b\x64\x00\x3f\xa7\x28\x8a\x25\x14\x9a\xd0\x0c\x5e\xc7\xe5\xd2\xf4\x71\xb6\x23\x07\x79\x4e\xcc\x7f\x7d\xb0\xca\x13\x6f\xcd\x40\x05\xb0\x92\x6c\xdd\x5a\xec\x58\xe4\x18\x56\x9a\xfc\xf5\x4c\x42\x33\x2b\x0b\xb2\x48\x14\x28\x7e\xda\x3f\x6a\x6a\x4e\xfc\xe8\xde\xa9\x6c\x9d\x73\xae\xad\xd1\xec\x11\xbf\xd3\xd4\x68\x0e\x31\x28\xf9\x90\xd1\xef\x2a\x7c\x5f\x38\x2b\xa6\xcf\xca\xa6\x82\x0a\x5e\x01\x00\x00\xff\xff\x8b\x81\xb9\xe7\xd1\x00\x00\x00")
+
+func rerrsRerrsGoBytes() ([]byte, error) {
+	return bindataRead(
+		_rerrsRerrsGo,
+		"rerrs/rerrs.go",
+	)
+}
+
+func rerrsRerrsGo() (*asset, error) {
+	bytes, err := rerrsRerrsGoBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "rerrs/rerrs.go", size: 209, mode: os.FileMode(420), modTime: time.Unix(1522665545, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 var _sdkRpcGo = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x2a\x48\x4c\xce\x4e\x4c\x4f\x55\x28\x4e\xc9\xe6\x02\x04\x00\x00\xff\xff\x36\xfa\x03\xb1\x0c\x00\x00\x00")
 
 func sdkRpcGoBytes() ([]byte, error) {
@@ -273,6 +294,7 @@ var _bindata = map[string]func() (*asset, error){
 	"README.md":       readmeMd,
 	"api/handlers.go": apiHandlersGo,
 	"api/router.go":   apiRouterGo,
+	"rerrs/rerrs.go":  rerrsRerrsGo,
 	"sdk/rpc.go":      sdkRpcGo,
 	"sdk/rpc_test.go": sdkRpc_testGo,
 	"types/types.go":  typesTypesGo,
@@ -325,6 +347,9 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"handlers.go": &bintree{apiHandlersGo, map[string]*bintree{}},
 		"router.go":   &bintree{apiRouterGo, map[string]*bintree{}},
 	}},
+	"rerrs": &bintree{nil, map[string]*bintree{
+		"rerrs.go": &bintree{rerrsRerrsGo, map[string]*bintree{}},
+	}},
 	"sdk": &bintree{nil, map[string]*bintree{
 		"rpc.go":      &bintree{sdkRpcGo, map[string]*bintree{}},
 		"rpc_test.go": &bintree{sdkRpc_testGo, map[string]*bintree{}},
@@ -333,11 +358,6 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"types.go": &bintree{typesTypesGo, map[string]*bintree{}},
 	}},
 }}
-
-func _filePath(dir, name string) string {
-	cannonicalName := strings.Replace(name, "\\", "/", -1)
-	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
-}
 
 // RestoreAsset restores an asset under the given directory
 func RestoreAsset(dir, name string) error {
@@ -388,6 +408,11 @@ func RestoreAssets(dir, name string) error {
 		}
 	}
 	return nil
+}
+
+func _filePath(dir, name string) string {
+	cannonicalName := strings.Replace(name, "\\", "/", -1)
+	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
 
 var (

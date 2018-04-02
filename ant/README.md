@@ -95,6 +95,8 @@ type StatArgs struct {
 │   └── router.go
 ├── logic
 │   └── tmp_code.gen.go
+├── rerrs
+│   └── rerrs.go
 ├── sdk
 │   ├── rpc.gen.go
 │   ├── rpc.gen_test.go
