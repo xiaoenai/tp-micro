@@ -580,11 +580,16 @@ func addTag(body string) string {
 			}
 		}
 		jsTag := fmt.Sprintf("json:\"%s\"", goutil.SnakeString(col[0]))
-		if col[2] == "" {
+		if col[1] == "" {
+			col[2] = "`" + jsTag + "`"
+		} else if col[1][0] == '/' {
+			col[1] = "`" + jsTag + "`" + col[1]
+		} else if col[1][0] == '`' && !strings.Contains(col[1], "json:\"") {
+			col[1] = col[1][:1] + jsTag + " " + col[1][1:]
+		} else if col[2] == "" {
 			col[2] = "`" + jsTag + "`"
 		} else if col[2][0] == '/' {
-			col[3] = col[2] + " " + col[3]
-			col[2] = "`" + jsTag + "`"
+			col[2] = "`" + jsTag + "`" + col[2]
 		} else if !strings.Contains(col[2], "json:\"") {
 			col[2] = col[2][:1] + jsTag + " " + col[2][1:]
 		}

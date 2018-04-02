@@ -61,14 +61,14 @@ type (
 	}
 	// DivideReply divide api result
 	DivideReply struct {
-		// quotient
-		C float64
+		C float64 // quotient
 	}
 )
 
 // StatArgs stat handler args
 type StatArgs struct {
-	Ts int64 // timestamps
+	Ts int64 ` + "`json:\"ts\"` // timestamps" + `
+	Q ` + "`param:\"<query>\"` // anonymous fields" + `
 }
 
 // StatArgsCopy StatArgs copy
