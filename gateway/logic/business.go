@@ -69,6 +69,6 @@ func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Rerror {
 }
 
 // PreWritePushPlugin returns PreWritePushPlugin.
-func PreWritePushPlugin() tp.PreWritePushPlugin {
+func PreWritePushPlugin() tp.Plugin {
 	return &perPusher{fn: SocketHooks().PreWritePush}
 }
