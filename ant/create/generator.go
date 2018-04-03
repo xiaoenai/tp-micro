@@ -352,7 +352,7 @@ func (p *Project) genRouterFile() {
 		s += "\n// PULL APIs...\n"
 		for _, r := range p.PullApis {
 			if r.IsCtrl {
-				s += fmt.Sprintf("group.RoutePull(&%s{})\n", r.Name)
+				s += fmt.Sprintf("group.RoutePull(new(%s))\n", r.Name)
 			} else {
 				s += fmt.Sprintf("group.RoutePullFunc(%s)\n", r.Name)
 			}
@@ -362,7 +362,7 @@ func (p *Project) genRouterFile() {
 		s += "\n// PUSH APIs...\n"
 		for _, r := range p.PushApis {
 			if r.IsCtrl {
-				s += fmt.Sprintf("group.RoutePush(&%s{})\n", r.Name)
+				s += fmt.Sprintf("group.RoutePush(new(%s))\n", r.Name)
 			} else {
 				s += fmt.Sprintf("group.RoutePushFunc(%s)\n", r.Name)
 			}
@@ -418,7 +418,7 @@ func (p *Project) createFunc(r *Handler, isPull bool) (handler, logic, sdk, sdkT
 				"%sfunc %s(ctx tp.PullCtx,args %s)(%s,*tp.Rerror){\nreturn logic.%s(ctx,args)\n}\n",
 				r.Doc, r.Name, paramAndresult[0], paramAndresult[1], camelName,
 			), fmt.Sprintf(
-				"%sfunc %s(ctx tp.PullCtx,args %s)(%s,*tp.Rerror){\nreturn &%s{},nil\n}\n",
+				"%sfunc %s(ctx tp.PullCtx,args %s)(%s,*tp.Rerror){\nreturn new(%s),nil\n}\n",
 				camelDoc, camelName, paramAndresult[0], paramAndresult[1], paramAndresult[1][1:],
 			), fmt.Sprintf(
 				"%sfunc %s(args %s, setting ...socket.PacketSetting)(%s,*tp.Rerror){\n"+
@@ -430,7 +430,7 @@ func (p *Project) createFunc(r *Handler, isPull bool) (handler, logic, sdk, sdkT
 				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
-					"reply, rerr :=%s(&%s{})\n"+
+					"reply, rerr :=%s(new(%s))\n"+
 					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n} else {\ntp.Infof(\"%s: reply: %%#v\", reply)\n}\n"+
 					"}\n",
 				camelName, paramAndresult[0][1:], camelName, camelName,
@@ -451,7 +451,7 @@ func (p *Project) createFunc(r *Handler, isPull bool) (handler, logic, sdk, sdkT
 				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
-					"rerr :=%s(&%s{})\n"+
+					"rerr :=%s(new(%s))\n"+
 					"tp.Infof(\"%s: rerr: %%v\", rerr)\n"+
 					"}\n",
 				camelName, paramAndresult[0][1:], camelName,
@@ -487,7 +487,7 @@ func (p *Project) createMethod(ctrl string, r *Handler, isPull bool) (handler, l
 				"%sfunc(%s *%s) %s(args %s)(%s,*tp.Rerror){\nreturn logic.%s(%s.PullCtx,args)\n}\n",
 				r.Doc, first, ctrl, r.Name, paramAndresult[0], paramAndresult[1], fullName, first,
 			), fmt.Sprintf(
-				"%sfunc %s(ctx tp.PullCtx,args %s)(%s,*tp.Rerror){\nreturn &%s{},nil\n}\n",
+				"%sfunc %s(ctx tp.PullCtx,args %s)(%s,*tp.Rerror){\nreturn new(%s),nil\n}\n",
 				fullDoc, fullName, paramAndresult[0], paramAndresult[1], paramAndresult[1][1:],
 			), fmt.Sprintf(
 				"%sfunc %s(args %s, setting ...socket.PacketSetting)(%s,*tp.Rerror){\n"+
@@ -499,7 +499,7 @@ func (p *Project) createMethod(ctrl string, r *Handler, isPull bool) (handler, l
 				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(ctrl), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
-					"reply, rerr :=%s(&%s{})\n"+
+					"reply, rerr :=%s(new(%s))\n"+
 					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n} else {\ntp.Infof(\"%s: reply: %%#v\", reply)\n}\n"+
 					"}\n",
 				fullName, paramAndresult[0][1:], fullName, fullName,
@@ -520,7 +520,7 @@ func (p *Project) createMethod(ctrl string, r *Handler, isPull bool) (handler, l
 				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(ctrl), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
-					"rerr :=%s(&%s{})\n"+
+					"rerr :=%s(new(%s))\n"+
 					"tp.Infof(\"%s: rerr: %%v\", rerr)\n"+
 					"}\n",
 				fullName, paramAndresult[0][1:], fullName,
