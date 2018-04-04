@@ -30,7 +30,7 @@ var (
 	contentTypeMapping = map[byte]string{
 		codec.ID_PROTOBUF: "application/x-protobuf",
 		codec.ID_JSON:     "application/json",
-		codec.ID_FORM:     "text/plain",
+		codec.ID_FORM:     "application/x-www-form-urlencoded",
 		codec.ID_PLAIN:    "text/plain",
 	}
 )
