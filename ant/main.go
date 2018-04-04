@@ -66,6 +66,11 @@ func main() {
 				Value: (*cli.StringSlice)(&[]string{".go", ".ini", ".yaml", ".toml", ".xml"}),
 				Usage: "Specified to increase the listening file suffix",
 			},
+			cli.StringSliceFlag{
+				Name:  "notwatch, n",
+				Value: (*cli.StringSlice)(&[]string{}),
+				Usage: "Not watch files or directories",
+			},
 			cli.StringFlag{
 				Name:  "app_path, p",
 				Usage: "The path(relative/absolute) of the project",
@@ -73,7 +78,7 @@ func main() {
 		},
 		Before: initProject,
 		Action: func(c *cli.Context) error {
-			run.RunProject(c.StringSlice("watch_exts"))
+			run.RunProject(c.StringSlice("watch_exts"), c.StringSlice("notwatch"))
 			return nil
 		},
 	}

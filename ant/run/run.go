@@ -15,13 +15,16 @@ import (
 )
 
 // RunProject runs project.
-func RunProject(newWatchExts []string) {
+func RunProject(newWatchExts []string, newNotWatch []string) {
 	if err := os.Chdir(info.AbsPath()); err != nil {
 		tp.Fatalf("[ant] Jump working directory failed: %v", err)
 	}
 
 	if len(newWatchExts) > 0 {
 		watchExts = append(newWatchExts, ".go")
+	}
+	if len(newNotWatch) > 0 {
+		notWatch = append(notWatch, newNotWatch...)
 	}
 
 	go rewatch()
@@ -183,6 +186,9 @@ func readAppDirectories(dir string) (paths []string) {
 	}
 	useDirectory := false
 	for _, fileInfo := range fileInfos {
+		if checkIfNotWatch(fileInfo.Name()) {
+			continue
+		}
 		if fileInfo.IsDir() == true && fileInfo.Name()[0] != '.' {
 			paths = append(paths, readAppDirectories(path.Join(dir, fileInfo.Name()))...)
 			continue
@@ -198,6 +204,20 @@ func readAppDirectories(dir string) (paths []string) {
 		}
 	}
 	return
+}
+
+var notWatch = []string{}
+
+func checkIfNotWatch(name string) bool {
+	if name[0] == '_' {
+		return true
+	}
+	for _, s := range notWatch {
+		if name == s {
+			return true
+		}
+	}
+	return false
 }
 
 var watchExts = []string{".go", ".ini", ".yaml", ".toml", ".xml"}

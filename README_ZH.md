@@ -156,6 +156,7 @@ USAGE:
 
 OPTIONS:
    --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
+   --notwatch value, -n value    Not watch files or directories
    --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
