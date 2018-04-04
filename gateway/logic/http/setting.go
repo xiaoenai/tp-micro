@@ -24,12 +24,12 @@ var (
 	bodyCodecMapping = map[string]byte{
 		"application/x-protobuf": codec.ID_PROTOBUF,
 		"application/json":       codec.ID_JSON,
-		"text/plain":             codec.ID_STRING,
+		"text/plain":             codec.ID_PLAIN,
 	}
 	contentTypeMapping = map[byte]string{
 		codec.ID_PROTOBUF: "application/x-protobuf",
 		codec.ID_JSON:     "application/json",
-		codec.ID_STRING:   "text/plain",
+		codec.ID_PLAIN:    "text/plain",
 	}
 )
 

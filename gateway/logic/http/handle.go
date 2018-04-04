@@ -50,7 +50,7 @@ func (r *requestHandler) handle() {
 	var h = r.Header()
 	var uri = goutil.BytesToString(ctx.Path())
 	var contentType = goutil.BytesToString(h.ContentType())
-	var bodyCodec = GetBodyCodec(contentType, codec.ID_STRING)
+	var bodyCodec = GetBodyCodec(contentType, codec.ID_PLAIN)
 	var acceptBodyCodec = GetBodyCodec(goutil.BytesToString(h.Peek("Accept")), bodyCodec)
 
 	// gw hosts
