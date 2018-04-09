@@ -27,6 +27,11 @@ import (
 	"github.com/xiaoenai/ants/gateway/logic/hosts"
 )
 
+const (
+	// SEQ the packet sequence query parameter specified by the client
+	SEQ = "_seq"
+)
+
 var (
 	allowCross bool
 	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
@@ -100,8 +105,14 @@ func (r *requestHandler) handle() {
 	}
 	settings = append(settings, tp.WithAddMeta(tp.MetaRealIp, realIp))
 
+	// set seq
+	query := r.ctx.QueryArgs()
+	if seqBytes := query.Peek(SEQ); len(seqBytes) > 0 {
+		settings = append(settings, tp.WithSeq(realIp+"@"+goutil.BytesToString(seqBytes)))
+	}
+
 	var reply []byte
-	uri += "?" + r.ctx.QueryArgs().String()
+	uri += "?" + query.String()
 	pullcmd := client.ProxyClient().Pull(uri, bodyBytes, &reply, settings...)
 
 	// fail

@@ -26,8 +26,18 @@ func main() {
 
 - HTTP short connection gateway
     * Optional authorization
-    * Use query parameter `access_token` to carry authorization token
+    * Use query or header parameter to carry authorization token
 
 - TCP long connection gateway
     * Required authorization
     * Use the first packet of the connection to carry authorization information:<br>Package type `PULL`, URI `/auth/verify`, BodyType `s`, Body `access token string`
+
+### RequestID
+
+- HTTP short connection gateway
+    * Optional query parameter
+    * Use query parameter `_seq` to carry request ID
+
+- TCP long connection gateway
+    * Required packet `seq` field
+    * The request ID is `{session ID}@{packet seq}`
