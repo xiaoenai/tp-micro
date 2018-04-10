@@ -160,7 +160,7 @@ func (r *requestHandler) replyError(rerr *tp.Rerror) {
 		statusCode = int(rerr.Code)
 	} else {
 		// Business error
-		statusCode = 200
+		statusCode = 299
 	}
 	msg, _ := rerr.MarshalJSON()
 	r.ctx.SetStatusCode(statusCode)

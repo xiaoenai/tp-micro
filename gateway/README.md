@@ -41,3 +41,10 @@ func main() {
 - TCP long connection gateway
     * Required packet `seq` field
     * The request ID is `{session ID}@{packet seq}`
+
+### HTTP Status Code
+
+- 200 OK
+- 299 Business error
+- 500 Internal communication error
+- Other codes (200,600)
