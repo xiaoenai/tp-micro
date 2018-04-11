@@ -206,14 +206,23 @@ var codeFiles = map[string]string{
 
 import (
 	micro "github.com/henrylee2cn/tp-micro"
+	"github.com/henrylee2cn/tp-micro/discovery"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+
 	"${import_prefix}/api"
 )
 
 func main() {
-	srv := micro.NewServer(micro.SrvConfig{
+	cfg := micro.SrvConfig{
 		ListenAddress:   ":9090",
 		EnableHeartbeat: true,
-	})
+	}
+	srv := micro.NewServer(cfg, discovery.ServicePlugin(
+		cfg.InnerIpPort(),
+		etcd.EasyConfig{
+			Endpoints: []string{"http://127.0.0.1:2379"},
+		},
+	))
 	api.Route("/${service_api_prefix}", srv.Router())
 	srv.ListenAndServe()
 }`,
@@ -225,6 +234,7 @@ ${type_define_list}
 	"logic/tmp_code.gen.go": `package logic
 import (
 	tp "github.com/henrylee2cn/teleport"
+
 	"${import_prefix}/types"
 	// "${import_prefix}/rerrs"
 )
@@ -233,9 +243,10 @@ ${logic_api_define}
 
 	"api/handler.gen.go": `package api
 import (
+    tp "github.com/henrylee2cn/teleport"
+
     "${import_prefix}/logic"
     "${import_prefix}/types"
-    tp "github.com/henrylee2cn/teleport"
 )
 ${handler_api_define}
 `,
@@ -260,16 +271,19 @@ func Route(root string, router *tp.Router) {
 	"sdk/rpc.gen.go": `package sdk
 import (
 	micro "github.com/henrylee2cn/tp-micro"
-	"${import_prefix}/types"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
+    "github.com/henrylee2cn/tp-micro/discovery"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+
+	"${import_prefix}/types"
 )
 var client *micro.Client
 // Init init client with config and linker.
-func Init(cliConfig micro.CliConfig, linker micro.Linker) {
+func Init(cliConfig micro.CliConfig, etcdConfing etcd.EasyConfig) {
 	client = micro.NewClient(
 		cliConfig,
-		linker,
+		discovery.NewLinker(etcdConfing),
 	)
 }
 // InitWithClient init client with current client.
@@ -285,6 +299,8 @@ import (
 
 	micro "github.com/henrylee2cn/tp-micro"
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+
 	"${import_prefix}/types"
 )
 
@@ -295,7 +311,9 @@ func TestSdk(t *testing.T) {
 			Failover:        3,
 			HeartbeatSecond: 4,
 		},
-		micro.NewStaticLinker(":9090"),
+		etcd.EasyConfig{
+			Endpoints: []string{"http://127.0.0.1:2379"},
+		},
 	)
 	${rpc_call_test_define}}
 `}
