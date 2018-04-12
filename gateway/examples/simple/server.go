@@ -5,21 +5,27 @@ import (
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+	html "github.com/xiaoenai/ants/helper/mod-html"
 )
+
+func init() {
+	// html.ParseGlob("*.tpl")
+
+	html.Parse("home", `<!DOCTYPE html>
+<html>
+	<head>
+	    <title>Home</title>
+	</head>
+	<body>
+		<br/>
+		<h2><center>{{.}}</center></h2>
+	</body>
+</html>`)
+}
 
 // Home HTML home page
 func Home(ctx tp.PullCtx, args *struct{}) ([]byte, *tp.Rerror) {
-	ctx.SetMeta("Content-Type", "text/html; charset=utf-8")
-	return []byte(`<!DOCTYPE html>
-	<html>
-	<head>
-	    <title>home page</title>
-	</head>
-	<body>
-	<br/>
-	<h2><center>HTML Test!</center></h2>
-	</body>
-	</html>`), nil
+	return html.Render(ctx, "home", "Home Page Test!")
 }
 
 // Args args
