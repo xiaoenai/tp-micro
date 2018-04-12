@@ -122,13 +122,24 @@ func (r *requestHandler) handle() {
 	}
 
 	// succ
+
+	var hasRespContentType bool
 	pullcmd.InputMeta().VisitAll(func(key, value []byte) {
-		ctx.Response.Header.Add(goutil.BytesToString(key), goutil.BytesToString(value))
+		k := goutil.BytesToString(key)
+		v := goutil.BytesToString(value)
+		if k == "Content-Type" {
+			hasRespContentType = true
+			ctx.Response.Header.Set(k, v)
+		} else {
+			ctx.Response.Header.Add(k, v)
+		}
 	})
-	ctx.Response.Header.Add(
-		"Content-Type",
-		GetContentType(pullcmd.InputBodyCodec(), contentType),
-	)
+	if !hasRespContentType {
+		ctx.Response.Header.Add(
+			"Content-Type",
+			GetContentType(pullcmd.InputBodyCodec(), contentType),
+		)
+	}
 	ctx.SetBody(reply)
 }
 
