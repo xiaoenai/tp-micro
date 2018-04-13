@@ -152,6 +152,8 @@ type StatArgs struct {
 - 在自动生成的文件的文件名中增加 `.gen` 后缀进行标记
 - `tmp_code.gen.go` 是为了通过编译而生成的临时文件，项目完成后应该移除它
 
+[默认生成的示例](https://github.com/henrylee2cn/tp-micro/tree/master/examples/sample)
+
 ### 热编译运行
 
 `ant run` 命令帮助：
