@@ -121,7 +121,7 @@ Desc:
 - add `.gen` suffix to the file name of the automatically generated file
 - `tmp_code.gen.go` is temporary code used to ensure successful compilation!<br>When the project is completed, it should be removed!
 
-[Default Generated Sample](https://github.com/henrylee2cn/tp-micro/tree/master/examples/sample)
+[Generated Default Sample](https://github.com/henrylee2cn/tp-micro/tree/master/examples/sample)
 
 ## Run project
 
