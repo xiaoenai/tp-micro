@@ -19,14 +19,14 @@ go install
 
 ```
 NAME:
-   ant gen - Generate an ant project
+     ant gen - Generate an ant project
 
 USAGE:
-   ant gen [command options] [arguments...]
+     ant gen [command options] [arguments...]
 
 OPTIONS:
-   --template value, -t value    The template for code generation(relative/absolute)
-   --app_path value, -p value  The path(relative/absolute) of the project
+     --template value, -t value    The template for code generation(relative/absolute)
+     --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
 example: `ant gen -t ./__ant__tpl__.go -p ./myant` or default `ant gen myant`
@@ -41,50 +41,50 @@ package __ANT__TPL__
 //  /home
 //  /math/divide
 type __API__PULL__ interface {
-  Home(*struct{}) *HomeReply
-  Math
+    Home(*struct{}) *HomeReply
+    Math
 }
 
 // __API__PUSH__ register PUSH router:
 //  /stat
 type __API__PUSH__ interface {
-  Stat(*StatArgs)
+    Stat(*StatArgs)
 }
 
 // MODEL create model
 type __MODEL__ struct {
-  DivideArgs
+    DivideArgs
 }
 
 // Math controller
 type Math interface {
-  // Divide handler
-  Divide(*DivideArgs) *DivideReply
+    // Divide handler
+    Divide(*DivideArgs) *DivideReply
 }
 
 // HomeReply home reply
 type HomeReply struct {
-  Content string // text
+    Content string // text
 }
 
 type (
-  // DivideArgs divide api args
-  DivideArgs struct {
-    // dividend
-    A float64
-    // divisor
-    B float64 `param:"<range: 0.01:100000>"`
-  }
-  // DivideReply divide api result
-  DivideReply struct {
-    // quotient
-    C float64
-  }
+    // DivideArgs divide api args
+    DivideArgs struct {
+        // dividend
+        A float64
+        // divisor
+        B float64 `param:"<range: 0.01:100000>"`
+    }
+    // DivideReply divide api result
+    DivideReply struct {
+        // quotient
+        C float64
+    }
 )
 
 // StatArgs stat handler args
 type StatArgs struct {
-  Ts int64 // timestamps
+    Ts int64 // timestamps
 }
 ```
 
@@ -93,6 +93,7 @@ type StatArgs struct {
 ```
 ├── README.md
 ├── main.go
+├── config.go
 ├── api
 │   ├── handlers.gen.go
 │   ├── handlers.go
@@ -111,8 +112,8 @@ type StatArgs struct {
 │   ├── rpc.go
 │   └── rpc_test.go
 └── types
-    ├── types.gen.go
-    └── types.go
+        ├── types.gen.go
+        └── types.go
 ```
 
 Desc:
@@ -126,17 +127,17 @@ Desc:
 
 ```
 NAME:
-   ant run - Compile and run gracefully (monitor changes) an any existing go project
+     ant run - Compile and run gracefully (monitor changes) an any existing go project
 
 USAGE:
-   ant run [options] [arguments...]
+     ant run [options] [arguments...]
  or
-   ant run [options except -app_path] [arguments...] {app_path}
+     ant run [options except -app_path] [arguments...] {app_path}
 
 OPTIONS:
-   --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
-   --notwatch value, -n value    Not watch files or directories
-   --app_path value, -p value    The path(relative/absolute) of the project
+     --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
+     --notwatch value, -n value    Not watch files or directories
+     --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
 example: `ant run -x .yaml -p myant` or `ant run`
