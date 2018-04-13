@@ -101,10 +101,9 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/goutil/coarsetime"
+	"github.com/xiaoenai/ants/model"
 	"github.com/xiaoenai/ants/model/sqlx"
 )
-
-var {{.LowerFirstName}}DB, _ = dbHandler.RegCacheableDB(new({{.Name}}), time.Hour*24, ` + "``" + `)
 
 {{.StructDefinition}}
 
@@ -113,8 +112,14 @@ func (*{{.Name}}) TableName() string {
 	return "{{.SnakeName}}"
 }
 
+var {{.LowerFirstName}}DB, _ = dbHandler.RegCacheableDB(new({{.Name}}), time.Hour*24, ` + "``" + `)
 
-// Insert{{.Name}} insert a {{.Name}} data into database
+// Get{{.Name}}DB returns the {{.Name}} DB handler.
+func Get{{.Name}}DB() *model.CacheableDB {
+	return {{.LowerFirstName}}DB
+}
+
+// Insert{{.Name}} insert a {{.Name}} data into database.
 func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, error) {
 	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
@@ -140,7 +145,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 	}, tx...)
 }
 
-// Update{{.Name}}ById update the {{.Name}} data in database by id
+// Update{{.Name}}ById update the {{.Name}} data in database by id.
 func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) error {
 	return {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
@@ -152,7 +157,7 @@ func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) erro
 	}, tx...)
 }
 
-// Delete{{.Name}}ById delete a {{.Name}} data in database by id
+// Delete{{.Name}}ById delete a {{.Name}} data in database by id.
 func Delete{{.Name}}ById(id int64, tx ...*sqlx.Tx) error {
 	return {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
 		_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE id=?;", id)
@@ -165,8 +170,8 @@ func Delete{{.Name}}ById(id int64, tx ...*sqlx.Tx) error {
 	}, tx...)
 }
 
-// Get{{.Name}}ById query a {{.Name}} data from database by id
-// if @reply bool=false error=nil, means the data is not exist.
+// Get{{.Name}}ById query a {{.Name}} data from database by id.
+// If @reply bool=false error=nil, means the data is not exist.
 func Get{{.Name}}ById(id int64) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = &{{.Name}}{
 		Id: id,
@@ -190,7 +195,7 @@ func Get{{.Name}}ById(id int64) (*{{.Name}}, bool, error) {
 }
 
 // Get{{.Name}}ByWhere query a {{.Name}} data from database by WHERE condition.
-// if @reply bool=false error=nil, means the data is not exist.
+// If @reply bool=false error=nil, means the data is not exist.
 func Get{{.Name}}ByWhere(whereCond string, args ...interface{}) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = new({{.Name}})
 	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond+" LIMIT 1;", args...)
@@ -204,14 +209,14 @@ func Get{{.Name}}ByWhere(whereCond string, args ...interface{}) (*{{.Name}}, boo
 	}
 }
 
-// Select{{.Name}}ByWhere query some {{.Name}} data from database by WHERE condition
+// Select{{.Name}}ByWhere query some {{.Name}} data from database by WHERE condition.
 func Select{{.Name}}ByWhere(whereCond string, args ...interface{}) ([]*{{.Name}}, error) {
 	var objs = new([]*{{.Name}})
 	err := {{.LowerFirstName}}DB.Select(objs, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond, args...)
 	return *objs, err
 }
 
-// Count{{.Name}}ByWhere count {{.Name}} data number from database by WHERE condition
+// Count{{.Name}}ByWhere count {{.Name}} data number from database by WHERE condition.
 func Count{{.Name}}ByWhere(whereCond string, args ...interface{}) (int64, error) {
 	var count int64
 	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(1) FROM {{.NameSql}} WHERE "+whereCond, args...)
