@@ -22,9 +22,9 @@ func (mod *Model) createModel(t *TypeStruct) {
 	mod.UpdateSql = ""
 
 	var (
-		fields                                        []string
-		querySql1, querySql2                          string
-		hasId, hasCreatedAt, hasUpdatedAt, hasDeleted bool
+		fields                            []string
+		querySql1, querySql2              string
+		hasId, hasCreatedAt, hasUpdatedAt bool
 	)
 	for _, field := range st.Fields.List {
 		if len(field.Names) == 0 {
@@ -42,8 +42,6 @@ func (mod *Model) createModel(t *TypeStruct) {
 			hasCreatedAt = true
 		case "updated_at":
 			hasUpdatedAt = true
-		case "deleted":
-			hasDeleted = true
 		}
 		fields = append(fields, name)
 	}
@@ -60,18 +58,18 @@ func (mod *Model) createModel(t *TypeStruct) {
 		t.appendTailField(`UpdatedAt int64`)
 		fields = append(fields, "updated_at")
 	}
-	if !hasDeleted {
-		t.appendTailField(`Deleted bool`)
-		fields = append(fields, "deleted")
-	}
 	mod.StructDefinition = fmt.Sprintf("\n%stype %s %s\n", t.Doc, t.Name, addTag(t.Body))
 
 	for _, field := range fields {
+		if field == "id" {
+			continue
+		}
 		querySql1 += fmt.Sprintf("`%s`,", field)
 		querySql2 += fmt.Sprintf(":%s,", field)
 		mod.UpdateSql += fmt.Sprintf("`%s`=:%s,", field, field)
 	}
-	mod.QuerySql = [2]string{querySql1, querySql2}
+	mod.QuerySql = [2]string{querySql1[:len(querySql1)-1], querySql2[:len(querySql2)-1]}
+	mod.UpdateSql = mod.UpdateSql[:len(mod.UpdateSql)-1]
 
 	m, err := template.New("").Parse(modelTpl)
 	if err != nil {
@@ -124,10 +122,10 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 	}
 	return _{{.LowerFirstLetter}}.Id, {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
 		var query string
-		if _{{.LowerFirstLetter}}.Id == 0 {
-			query = "INSERT INTO {{.NameSql}} ({{index .QuerySql 0}}updated_at,created_at,deleted)VALUES({{index .QuerySql 1}}:updated_at,:created_at,:deleted);"
+		if _{{.LowerFirstLetter}}.Id > 0 {
+			query = "INSERT INTO {{.NameSql}} (id,{{index .QuerySql 0}})VALUES(:id,{{index .QuerySql 1}});"
 		} else {
-			query = "INSERT INTO {{.NameSql}} (id,{{index .QuerySql 0}}updated_at,created_at,deleted)VALUES(:id,{{index .QuerySql 1}}:updated_at,:created_at,:deleted);"
+			query = "INSERT INTO {{.NameSql}} ({{index .QuerySql 0}})VALUES({{index .QuerySql 1}});"
 		}
 		r, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
 		if err != nil {
@@ -146,7 +144,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) error {
 	return {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
-		_, err := tx.NamedExec("UPDATE {{.NameSql}} SET {{.UpdateSql}}updated_at=:updated_at WHERE id=:id LIMIT 1;", _{{.LowerFirstLetter}})
+		_, err := tx.NamedExec("UPDATE {{.NameSql}} SET {{.UpdateSql}} WHERE id=:id LIMIT 1;", _{{.LowerFirstLetter}})
 		if err != nil {
 			return err
 		}
@@ -157,16 +155,13 @@ func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) erro
 // Delete{{.Name}}ById delete a {{.Name}} data in database by id
 func Delete{{.Name}}ById(id int64, tx ...*sqlx.Tx) error {
 	return {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
-		_{{.LowerFirstLetter}} := &{{.Name}}{
-			Id:       id,
-			UpdatedAt: coarsetime.FloorTimeNow().Unix(),
-			Deleted:  true,
-		}
-		_, err := tx.Exec("UPDATE {{.NameSql}} SET updated_at=?, deleted=1 WHERE id=?;", _{{.LowerFirstLetter}}.UpdatedAt, id)
+		_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE id=?;", id)
 		if err != nil {
 			return err
 		}
-		return {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
+		return {{.LowerFirstName}}DB.PutCache(&{{.Name}}{
+			Id: id,
+		})
 	}, tx...)
 }
 
@@ -198,7 +193,7 @@ func Get{{.Name}}ById(id int64) (*{{.Name}}, bool, error) {
 // if @reply bool=false error=nil, means the data is not exist.
 func Get{{.Name}}ByWhere(whereCond string, args ...interface{}) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = new({{.Name}})
-	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT id,{{index .QuerySql 0}}updated_at,created_at,deleted FROM {{.NameSql}} WHERE "+whereCond+" LIMIT 1;", args...)
+	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond+" LIMIT 1;", args...)
 	switch err {
 	case nil:
 		return _{{.LowerFirstLetter}}, true, nil
@@ -212,7 +207,7 @@ func Get{{.Name}}ByWhere(whereCond string, args ...interface{}) (*{{.Name}}, boo
 // Select{{.Name}}ByWhere query some {{.Name}} data from database by WHERE condition
 func Select{{.Name}}ByWhere(whereCond string, args ...interface{}) ([]*{{.Name}}, error) {
 	var objs = new([]*{{.Name}})
-	err := {{.LowerFirstName}}DB.Select(objs, "SELECT id,{{index .QuerySql 0}}updated_at,created_at,deleted FROM {{.NameSql}} WHERE "+whereCond, args...)
+	err := {{.LowerFirstName}}DB.Select(objs, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond, args...)
 	return *objs, err
 }
 
