@@ -15,6 +15,11 @@ type __API__PUSH__ interface {
 	Stat(*StatArgs)
 }
 
+// MODEL create model
+type __MODEL__ struct {
+	DivideArgs
+}
+
 // Math controller
 type Math interface {
 	// Divide handler
