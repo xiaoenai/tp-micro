@@ -71,45 +71,50 @@ package __ANT__TPL__
 //  /home
 //  /math/divide
 type __API__PULL__ interface {
-    Home(*struct{}) *HomeReply
-    Math
+  Home(*struct{}) *HomeReply
+  Math
 }
 
 // __API__PUSH__ register PUSH router:
 //  /stat
 type __API__PUSH__ interface {
-    Stat(*StatArgs)
+  Stat(*StatArgs)
+}
+
+// MODEL create model
+type __MODEL__ struct {
+  DivideArgs
 }
 
 // Math controller
 type Math interface {
-    // Divide handler
-    Divide(*DivideArgs) *DivideReply
+  // Divide handler
+  Divide(*DivideArgs) *DivideReply
 }
 
 // HomeReply home reply
 type HomeReply struct {
-    Content string // text
+  Content string // text
 }
 
 type (
-    // DivideArgs divide api args
-    DivideArgs struct {
-        // dividend
-        A float64
-        // divisor
-        B float64 `param:"<range: 0.01:100000>"`
-    }
-    // DivideReply divide api result
-    DivideReply struct {
-        // quotient
-        C float64
-    }
+  // DivideArgs divide api args
+  DivideArgs struct {
+    // dividend
+    A float64
+    // divisor
+    B float64 `param:"<range: 0.01:100000>"`
+  }
+  // DivideReply divide api result
+  DivideReply struct {
+    // quotient
+    C float64
+  }
 )
 
 // StatArgs stat handler args
 type StatArgs struct {
-    Ts int64 // timestamps
+  Ts int64 // timestamps
 }
 ```
 
@@ -124,6 +129,9 @@ type StatArgs struct {
 │   ├── router.gen.go
 │   └── router.go
 ├── logic
+│   ├── model
+│   │   ├── init.go
+│   │   └── xxx.gen.go
 │   └── tmp_code.gen.go
 ├── rerrs
 │   └── rerrs.go
