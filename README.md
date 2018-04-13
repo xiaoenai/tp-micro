@@ -15,6 +15,8 @@ go version ≥ 1.9
 
 ```sh
 go get -u -f -d github.com/xiaoenai/ants/...
+cd $GOPATH/src/github.com/xiaoenai/ants/cmd/ant
+go install
 ```
 
 ## Feature
@@ -42,7 +44,7 @@ go get -u -f -d github.com/xiaoenai/ants/...
 ### Install Ant Command
 
 ```sh
-cd $GOPATH/src/github.com/xiaoenai/ants/ant
+cd $GOPATH/src/github.com/xiaoenai/ants/cmd/ant
 go install
 ```
 
@@ -166,7 +168,7 @@ OPTIONS:
 
 example: `ant run -x .yaml -p myant` or `ant run`
 
-[More Ant Command](https://github.com/xiaoenai/ants/tree/master/ant)
+[More Ant Command](https://github.com/xiaoenai/ants/tree/master/cmd/ant)
 
 ## Demo
 

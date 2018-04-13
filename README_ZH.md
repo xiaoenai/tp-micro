@@ -11,6 +11,8 @@ go version ≥ 1.9
 
 ```sh
 go get -u -f -d github.com/xiaoenai/ants/...
+cd $GOPATH/src/github.com/xiaoenai/ants/cmd/ant
+go install
 ```
 
 ## 特性
@@ -37,7 +39,7 @@ go get -u -f -d github.com/xiaoenai/ants/...
 ### 安装ant命令行
 
 ```sh
-cd $GOPATH/src/github.com/xiaoenai/ants/ant
+cd $GOPATH/src/github.com/xiaoenai/ants/cmd/ant
 go install
 ```
 
@@ -162,7 +164,7 @@ OPTIONS:
 
 example: `ant run -x .yaml -p myant` or `ant run`
 
-[更多 Ant 命令](https://github.com/xiaoenai/ants/tree/master/ant)
+[更多 Ant 命令](https://github.com/xiaoenai/ants/tree/master/cmd/ant)
 
 ## Ant项目示例
 
