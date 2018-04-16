@@ -29,14 +29,6 @@ type StaticClients struct {
 	mu        sync.RWMutex
 }
 
-var staticClients *StaticClients
-
-// StaticClient returns the client whose server address is srvAddr.
-// If the client does not exist, set and return it.
-func StaticClient(srvAddr string) *micro.Client {
-	return staticClients.GetOrSet(srvAddr)
-}
-
 // newStaticClients creates a static clients map.
 func newStaticClients(cfg micro.CliConfig, protoFunc socket.ProtoFunc) *StaticClients {
 	return &StaticClients{

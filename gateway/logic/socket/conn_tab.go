@@ -27,7 +27,11 @@ var (
 	_                   tp.PostDisconnectPlugin = socketConnTabPlugin
 )
 
-func (c *socketConnTab) logon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
+func (c *socketConnTab) Name() string {
+	return "SocketConnTab"
+}
+
+func (c *socketConnTab) authAndLogon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
 	token, rerr := logic.AuthFunc()(accessToken)
 	if rerr != nil {
 		return rerr
@@ -39,15 +43,7 @@ func (c *socketConnTab) logon(accessToken string, sess plugin.AuthSession) *tp.R
 	return rerr
 }
 
-func (c *socketConnTab) logoff(sess tp.BaseSession) *tp.Rerror {
+func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
 	tp.Tracef("[-SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.Id())
 	return logic.SocketHooks().OnLogoff(sess)
-}
-
-func (c *socketConnTab) Name() string {
-	return "SocketConnTab"
-}
-
-func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
-	return c.logoff(sess)
 }

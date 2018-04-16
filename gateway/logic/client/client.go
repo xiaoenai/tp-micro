@@ -15,6 +15,7 @@
 package client
 
 import (
+	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery"
@@ -22,25 +23,38 @@ import (
 )
 
 var (
-	antCli  *micro.Client
-	etcdCli *etcd.Client
+	staticClients *StaticClients
+	dynamicCli    *micro.Client
+	proxyCaller   plugin.Caller
+	etcdCli       *etcd.Client
 )
 
-// Init initializes a common inner ant client.
+// Init initializes a common inner tp-micro client.
 func Init(cliCfg micro.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
 	etcdCli = etcdClient
-	antCli = micro.NewClient(
+	dynamicCli = micro.NewClient(
 		cliCfg,
 		discovery.NewLinkerFromEtcd(etcdCli),
 	)
-	caller = &proxyClient{antCli}
-	antCli.SetProtoFunc(protoFunc)
+	proxyCaller = &proxyClient{dynamicCli}
+	dynamicCli.SetProtoFunc(protoFunc)
 	staticClients = newStaticClients(cliCfg, protoFunc)
 }
 
-// AntClient returns the common inner ant client.
-func AntClient() *micro.Client {
-	return antCli
+// StaticClient returns the client whose server address is srvAddr.
+// If the client does not exist, set and return it.
+func StaticClient(srvAddr string) *micro.Client {
+	return staticClients.GetOrSet(srvAddr)
+}
+
+// DynamicClient returns the common inner dynamic routing client.
+func DynamicClient() *micro.Client {
+	return dynamicCli
+}
+
+// ProxyClient returns the common proxy client.
+func ProxyClient() plugin.Caller {
+	return proxyCaller
 }
 
 // EtcdClient returns the common ETCD client.

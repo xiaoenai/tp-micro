@@ -17,18 +17,18 @@ func (g *gw) Hosts(*struct{}) (*types.GwHosts, *tp.Rerror) {
 	return hosts.GwHosts(), nil
 }
 
-// TotalConn returns the long connections total.
-func TotalConn() int32 {
+// totalConn returns the long connections total.
+func totalConn() int32 {
 	return int32(outerPeer.CountSession())
 }
 
 // SocketTotal returns the long connections total.
 func (g *gw) SocketTotal(*types.SocketTotalArgs) (*types.SocketTotalReply, *tp.Rerror) {
-	return &types.SocketTotalReply{ConnTotal: TotalConn()}, nil
+	return &types.SocketTotalReply{ConnTotal: totalConn()}, nil
 }
 
-// InnerPush pushs the message to the designated uid.
-func InnerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rerror {
+// innerPush pushs the message to the designated uid.
+func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rerror {
 	sess, rerr := logic.SocketHooks().GetSession(outerPeer, uid)
 	if rerr != nil {
 		return rerr
@@ -36,13 +36,30 @@ func InnerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rer
 	return sess.Push(uri, args, tp.WithBodyCodec(bodyCodec))
 }
 
-var pushSocketReply = new(types.SocketPushReply)
+var socketPushReply = new(types.SocketPushReply)
 
 // SocketPush returns the long connections total.
 func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp.Rerror) {
-	rerr := InnerPush(args.Uid, args.Uri, args.Body, byte(args.BodyCodec))
+	rerr := innerPush(args.Uid, args.Uri, args.Body, byte(args.BodyCodec))
 	if rerr != nil {
 		return nil, rerr
 	}
-	return pushSocketReply, nil
+	return socketPushReply, nil
+}
+
+// Kick kicks the uid offline.
+func Kick(uid string) (existed bool, err error) {
+	sess, existed := outerPeer.GetSession(uid)
+	if existed {
+		err = sess.Close()
+	}
+	return existed, err
+}
+
+// SocketKick kicks the uid offline.
+func (g *gw) SocketKick(args *types.SocketKickArgs) (*types.SocketKickReply, *tp.Rerror) {
+	existed, _ := Kick(args.Uid)
+	return &types.SocketKickReply{
+		Existed: existed,
+	}, nil
 }

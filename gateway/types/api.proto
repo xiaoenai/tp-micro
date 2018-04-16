@@ -13,6 +13,13 @@ message SocketPushArgs {
     int32   body_codec = 4;
 }
 
+message SocketKickArgs {
+    string  uid        = 1;
+}
+message SocketKickReply {
+    bool  existed      = 1;
+}
+
 message GwHosts {
     repeated string http   = 1;
     repeated string socket = 2;

@@ -42,7 +42,7 @@ func SetApiVersion(apiVersion string) {
 // GwHosts returns the gateway host list.
 func GwHosts(setting ...socket.PacketSetting) (*types.GwHosts, *tp.Rerror) {
 	var reply = new(types.GwHosts)
-	rerr := client.AntClient().Pull("/gw"+_apiVersion+"/hosts", nil, reply, setting...).Rerror()
+	rerr := client.DynamicClient().Pull("/gw"+_apiVersion+"/hosts", nil, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}

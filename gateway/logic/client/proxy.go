@@ -16,7 +16,6 @@ package client
 
 import (
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/xiaoenai/ants/gateway/logic"
@@ -25,13 +24,6 @@ import (
 // proxyClient the client for proxy.
 type proxyClient struct {
 	cli *micro.Client
-}
-
-var caller plugin.Caller
-
-// ProxyClient returns the common proxy client.
-func ProxyClient() plugin.Caller {
-	return caller
 }
 
 func (p *proxyClient) Pull(uri string, args interface{}, reply interface{}, setting ...socket.PacketSetting) tp.PullCmd {

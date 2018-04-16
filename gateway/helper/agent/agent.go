@@ -1,0 +1,293 @@
+package agent
+
+import (
+	"encoding/json"
+	"time"
+	"unsafe"
+
+	"github.com/henrylee2cn/goutil"
+	"github.com/henrylee2cn/goutil/coarsetime"
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/xiaoenai/ants/gateway/logic"
+	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/logic/hosts"
+	"github.com/xiaoenai/ants/gateway/logic/socket"
+	"github.com/xiaoenai/ants/gateway/types"
+	"github.com/xiaoenai/ants/model/redis"
+)
+
+const (
+	// AgentKeyPrefix agent key prefix in redis.
+	AgentKeyPrefix = "agent"
+	// AgentChannel agent state of the subscription channel
+	AgentChannel = "agent_state"
+	// AgentLife agent max life time
+	AgentLife = time.Hour * 24 * 3
+)
+
+var kickUri = "/gw/" + logic.ApiVersion() + "/socket_kick"
+var globalHandler *agentHandler
+
+// Init initializes agent packet.
+func Init(rerrCode int32, redisWithLargeMemory *redis.Client, redisWithPublishCmd *redis.Client) error {
+	globalHandler = new(agentHandler)
+	globalHandler.redisWithLargeMemory = redisWithLargeMemory
+	globalHandler.redisWithPublishCmd = redisWithPublishCmd
+	globalHandler.module = redis.NewModule(AgentKeyPrefix)
+	globalHandler.rerr = tp.NewRerror(rerrCode, "Agent Error", "")
+	return nil
+}
+
+// GetSocketHooks returns the custom agent types.SocketHooks interface.
+func GetSocketHooks() types.SocketHooks {
+	return globalHandler
+}
+
+type agentHandler struct {
+	peer                 tp.Peer
+	module               *redis.Module
+	redisWithLargeMemory *redis.Client
+	redisWithPublishCmd  *redis.Client
+	rerr                 *tp.Rerror
+}
+
+var (
+	rerrNotOnline = tp.NewRerror(404, "Not Found", "User is not online")
+)
+
+func newSalt(m goutil.Map) uint64 {
+	salt := uint64(uintptr(unsafe.Pointer(&m)))
+	m.Store("agent_salt", salt)
+	return salt
+}
+
+func getSalt(m goutil.Map) (uint64, bool) {
+	v, ok := m.Load("agent_salt")
+	if ok {
+		salt, ok := v.(uint64)
+		return salt, ok
+	}
+	return 0, false
+}
+
+func (h *agentHandler) newRerror(detail string) *tp.Rerror {
+	return h.rerr.Copy().SetDetail(detail)
+}
+
+func (*agentHandler) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror) {
+	sess, ok := peer.GetSession(uid)
+	if ok {
+		return sess, nil
+	}
+	enforceKickOffline(uid, true)
+	return nil, rerrNotOnline
+}
+
+func (*agentHandler) PreWritePush(tp.WriteCtx) *tp.Rerror {
+	return nil
+}
+
+func (h *agentHandler) OnLogon(sess plugin.AuthSession, accessToken types.AccessToken) *tp.Rerror {
+	uid := accessToken.Uid()
+	// check or remove old session
+	_, rerr := kickOffline(uid, true)
+	if rerr != nil {
+		return rerr
+	}
+
+	// logon new agent
+	_, innerIp := hosts.SocketAddress()
+	a := &Agent{
+		Uid:      uid,
+		InnerGw:  innerIp,
+		OnlineAt: coarsetime.CeilingTimeNow().Unix(),
+		Salt:     newSalt(sess.Swap()),
+	}
+	key := h.module.Key(uid)
+	var err error
+	lockErr := h.redisWithLargeMemory.LockCallback("lock_"+key, func() {
+		data, _ := json.Marshal(a)
+		err = h.redisWithLargeMemory.Set(key, data, AgentLife).Err()
+		if err == nil {
+			h.redisWithPublishCmd.Publish(AgentChannel, uid+",1")
+		}
+	})
+	if lockErr != nil {
+		return h.newRerror(lockErr.Error())
+	}
+	if err != nil {
+		return h.newRerror(err.Error())
+	}
+	// logon new session
+	sess.SetId(uid)
+	return nil
+}
+
+func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
+	salt, ok := getSalt(sess.Swap())
+	if !ok {
+		return nil
+	}
+	uid := sess.Id()
+	_, innerGw := hosts.SocketAddress()
+	var err error
+	key := h.module.Key(uid)
+	lockErr := h.redisWithLargeMemory.LockCallback(
+		"lock_"+key,
+		func() {
+			var agentBytes []byte
+			if agentBytes, err = h.redisWithLargeMemory.Get(key).Bytes(); err != nil {
+				if redis.IsRedisNil(err) {
+					err = nil
+				}
+				return
+			}
+			var a = new(Agent)
+			if json.Unmarshal(agentBytes, a) == nil {
+				if a.Salt != salt {
+					return
+				}
+				if a.InnerGw != innerGw {
+					return
+				}
+			}
+			h.redisWithPublishCmd.Publish(AgentChannel, uid+",0")
+			err = h.redisWithLargeMemory.Del(key).Err()
+		},
+	)
+	if lockErr != nil {
+		return h.newRerror(lockErr.Error())
+	}
+	if err != nil {
+		return h.newRerror(err.Error())
+	}
+	return nil
+}
+
+// EnforceKickOffline enforches kick the user offline.
+func EnforceKickOffline(uid string) *tp.Rerror {
+	return enforceKickOffline(uid, false)
+}
+
+// enforceKickOffline enforches kick the user offline.
+func enforceKickOffline(uid string, checkLocal bool) *tp.Rerror {
+	succ, rerr := kickOffline(uid, checkLocal)
+	if succ || rerr != nil {
+		return rerr
+	}
+	// enforce remove agent
+	var (
+		err error
+		key = globalHandler.module.Key(uid)
+	)
+	lockErr := globalHandler.redisWithLargeMemory.LockCallback(
+		"lock_"+key,
+		func() {
+			var agentBytes []byte
+			if agentBytes, err = globalHandler.redisWithLargeMemory.Get(key).Bytes(); err != nil {
+				if redis.IsRedisNil(err) {
+					err = nil
+				}
+				return
+			}
+			var a = new(Agent)
+			if json.Unmarshal(agentBytes, a) == nil {
+				_, innerGw := hosts.SocketAddress()
+				if a.InnerGw != innerGw {
+					return
+				}
+			}
+			globalHandler.redisWithPublishCmd.Publish(AgentChannel, uid+",0")
+			err = globalHandler.redisWithLargeMemory.Del(key).Err()
+		},
+	)
+	if lockErr != nil {
+		return globalHandler.newRerror(lockErr.Error())
+	}
+	if err != nil {
+		return globalHandler.newRerror(err.Error())
+	}
+	return nil
+}
+
+// kickOffline kicks the user offline.
+func kickOffline(uid string, checkLocal bool) (succ bool, rerr *tp.Rerror) {
+	if checkLocal {
+		// Try to delete the session from the local gateway.
+		existed, _ := socket.Kick(uid)
+		if existed {
+			return true, nil
+		}
+	}
+	// Find the agent of the uid.
+	agent, rerr := GetAgent(uid)
+	if rerr != nil {
+		return false, rerr
+	}
+	if agent.IsOffline {
+		return true, nil
+	}
+	// Try to delete the session from the remote gateway.
+	var reply types.SocketKickReply
+	rerr = client.StaticClient(agent.InnerGw).
+		Pull(kickUri, types.SocketKickArgs{Uid: uid}, &reply).
+		Rerror()
+	if reply.Existed {
+		return true, nil
+	}
+	return false, rerr
+}
+
+// GetAgent returns agent information.
+func GetAgent(uid string) (*Agent, *tp.Rerror) {
+	key := globalHandler.module.Key(uid)
+	data, err := globalHandler.redisWithLargeMemory.Get(key).Bytes()
+	switch {
+	case err == nil:
+		a := new(Agent)
+		err = json.Unmarshal(data, a)
+		if err != nil {
+			return nil, globalHandler.newRerror(err.Error())
+		}
+		return a, nil
+
+	case redis.IsRedisNil(err):
+		a := new(Agent)
+		a.Uid = uid
+		a.IsOffline = true
+		return a, nil
+
+	default:
+		return nil, globalHandler.newRerror(err.Error())
+	}
+}
+
+var nilAgents = &Agents{Agents: []*Agent{}}
+
+// QueryAgent queries agent information in batches.
+func QueryAgent(uids []string) (*Agents, *tp.Rerror) {
+	if len(uids) == 0 {
+		return nilAgents, nil
+	}
+	var keys = make([]string, len(uids))
+	for i, uid := range uids {
+		keys[i] = globalHandler.module.Key(uid)
+	}
+	rets, err := globalHandler.redisWithLargeMemory.MGet(keys...).Result()
+	if err != nil {
+		return nil, globalHandler.newRerror(err.Error())
+	}
+	agents := make([]*Agent, len(rets))
+	for i, r := range rets {
+		a := new(Agent)
+		if s, ok := r.(string); ok {
+			json.Unmarshal(goutil.StringToBytes(s), a)
+		} else {
+			a.Uid = uids[i]
+			a.IsOffline = true
+		}
+		agents[i] = a
+	}
+	return &Agents{Agents: agents}, nil
+}

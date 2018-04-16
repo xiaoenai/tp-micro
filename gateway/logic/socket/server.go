@@ -32,10 +32,10 @@ var (
 func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc) {
 	outerServer := micro.NewServer(
 		outerSrvCfg,
-		plugin.VerifyAuth(socketConnTabPlugin.logon),
+		plugin.VerifyAuth(socketConnTabPlugin.authAndLogon),
 		socketConnTabPlugin,
 		plugin.Proxy(client.ProxyClient()),
-		logic.PreWritePushPlugin(),
+		preWritePushPlugin(),
 	)
 
 	outerPeer = outerServer.Peer()
@@ -57,6 +57,7 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc)
 			verGroup.RoutePullFunc((*gw).Hosts)
 			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketTotal))
 			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketPush))
+			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketKick))
 		}
 	}
 
@@ -64,4 +65,25 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc)
 	go innerServer.ListenAndServe(protoFunc)
 
 	select {}
+}
+
+type perPusher struct {
+	fn func(tp.WriteCtx) *tp.Rerror
+}
+
+func (p *perPusher) Name() string {
+	return "PUSH-LOGIC"
+}
+
+var (
+	_ tp.PreWritePushPlugin = (*perPusher)(nil)
+)
+
+func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Rerror {
+	return p.fn(ctx)
+}
+
+// preWritePushPlugin returns PreWritePushPlugin.
+func preWritePushPlugin() tp.Plugin {
+	return &perPusher{fn: logic.SocketHooks().PreWritePush}
 }

@@ -27,12 +27,14 @@ const (
 
 // Hosts gateway ip:port list
 type Hosts struct {
-	serviceKey    string
-	ips           atomic.Value
-	ipsLock       sync.Mutex
-	weightIps     map[string]*WeightIp
-	weightIpsLock sync.Mutex
-	leaseid       etcd.LeaseID
+	serviceKey      string
+	outerSocketAddr string
+	innerSocketAddr string
+	ips             atomic.Value
+	ipsLock         sync.Mutex
+	weightIps       map[string]*WeightIp
+	weightIpsLock   sync.Mutex
+	leaseid         etcd.LeaseID
 }
 
 var (
@@ -51,7 +53,14 @@ func GwHosts() *types.GwHosts {
 	return r
 }
 
+// SocketAddress returns the current gateway addresses.
+func SocketAddress() (outer, inner string) {
+	return hosts.outerSocketAddr, hosts.innerSocketAddr
+}
+
 func (h *Hosts) init(httpAddr, outerSocketAddr, innerSocketAddr string) {
+	h.outerSocketAddr = outerSocketAddr
+	h.innerSocketAddr = innerSocketAddr
 	h.serviceKey = servicePrefix + "@" + httpAddr + "@" + outerSocketAddr + "@" + innerSocketAddr
 }
 
