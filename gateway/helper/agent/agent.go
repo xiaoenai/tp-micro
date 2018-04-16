@@ -2,6 +2,9 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
+	"sync"
 	"time"
 	"unsafe"
 
@@ -110,7 +113,7 @@ func (h *agentHandler) OnLogon(sess plugin.AuthSession, accessToken types.Access
 		data, _ := json.Marshal(a)
 		err = h.redisWithLargeMemory.Set(key, data, AgentLife).Err()
 		if err == nil {
-			h.redisWithPublishCmd.Publish(AgentChannel, uid+",1")
+			h.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(uid, EVENT_ONLINE))
 		}
 	})
 	if lockErr != nil {
@@ -152,7 +155,7 @@ func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
 					return
 				}
 			}
-			h.redisWithPublishCmd.Publish(AgentChannel, uid+",0")
+			h.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(uid, EVENT_OFFLINE))
 			err = h.redisWithLargeMemory.Del(key).Err()
 		},
 	)
@@ -198,7 +201,7 @@ func enforceKickOffline(uid string, checkLocal bool) *tp.Rerror {
 					return
 				}
 			}
-			globalHandler.redisWithPublishCmd.Publish(AgentChannel, uid+",0")
+			globalHandler.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(uid, EVENT_OFFLINE))
 			err = globalHandler.redisWithLargeMemory.Del(key).Err()
 		},
 	)
@@ -290,4 +293,66 @@ func QueryAgent(uids []string) (*Agents, *tp.Rerror) {
 		agents[i] = a
 	}
 	return &Agents{Agents: agents}, nil
+}
+
+const (
+	// EVENT_ONLINE agent online event
+	EVENT_ONLINE = "ONLINE"
+	// EVENT_OFFLINE agent offline event
+	EVENT_OFFLINE = "OFFLINE"
+)
+
+var (
+	subscribeInit    sync.Once
+	subscribeChannel chan *AgentNews
+)
+
+// AgentNews agent online/offline message
+type AgentNews struct {
+	Uid   string
+	Event string
+}
+
+func createAgentNews(uid string, event string) string {
+	return uid + "," + event
+}
+
+func parseAgentNews(msg string) (*AgentNews, error) {
+	a := strings.Split(msg, ",")
+	if len(a) != 2 {
+		return nil, fmt.Errorf("The format of the agent news is wrong: %s", msg)
+	}
+	return &AgentNews{
+		Uid:   a[0],
+		Event: a[1],
+	}, nil
+}
+
+// IsOnline returns whether it is an online message.
+func (a *AgentNews) IsOnline() bool {
+	return a.Event == EVENT_ONLINE
+}
+
+// IsOffline returns whether it is an offline message.
+func (a *AgentNews) IsOffline() bool {
+	return a.Event == EVENT_OFFLINE
+}
+
+// Subscribe subscribes agent news from redis.
+func Subscribe() <-chan *AgentNews {
+	subscribeInit.Do(func() {
+		pubSub := globalHandler.redisWithPublishCmd.Subscribe(AgentChannel)
+		subscribeChannel = make(chan *AgentNews, 100)
+		go func() {
+			for msg := range pubSub.Channel() {
+				news, err := parseAgentNews(msg.Payload)
+				if err != nil {
+					tp.Errorf("%s", err.Error())
+					continue
+				}
+				subscribeChannel <- news
+			}
+		}()
+	})
+	return subscribeChannel
 }

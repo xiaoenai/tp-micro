@@ -21,5 +21,13 @@ func main() {
 	}
 	agent.Init(10001, redisClient, redisClient)
 	biz.SocketHooks = agent.GetSocketHooks()
+	tp.Go(func() {
+		agentNewsChan := agent.Subscribe()
+		for news := range agentNewsChan {
+			tp.Infof("agent news: uid:%s, event:%s",
+				news.Uid, news.Event,
+			)
+		}
+	})
 	gateway.Run(*cfg, biz, nil)
 }
