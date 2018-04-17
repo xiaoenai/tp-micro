@@ -354,6 +354,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 
 	"${import_prefix}/types"
+	// "${import_prefix}/logic/model"
 	// "${import_prefix}/rerrs"
 )
 ${logic_api_define}
@@ -422,14 +423,14 @@ import (
 	"${import_prefix}/types"
 )
 var client *micro.Client
-// Init init client with config and linker.
+// Init initializes client with configs.
 func Init(cliConfig micro.CliConfig, etcdConfing etcd.EasyConfig) {
 	client = micro.NewClient(
 		cliConfig,
 		discovery.NewLinker(etcdConfing),
 	)
 }
-// InitWithClient init client with current client.
+// InitWithClient initializes client with specified object.
 func InitWithClient(cli *micro.Client) {
 	client = cli
 }
