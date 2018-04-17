@@ -21,10 +21,12 @@ import (
 
 // ProxyHooks proxy hooks
 type ProxyHooks interface {
-	// BeforePull is called before pulling the internal service.
-	BeforePull(uri string, args interface{}, reply interface{}, setting ...socket.PacketSetting) *tp.Rerror
-	// BeforePush is called before pushing the internal service.
-	BeforePush(uri string, args interface{}, setting ...socket.PacketSetting) *tp.Rerror
+	// PullFilter is called before pulling the internal service.
+	// If @pass=false, will terminate the process, and return the result.
+	PullFilter(uri string, args interface{}, reply interface{}, setting ...socket.PacketSetting) (pullcmd tp.PullCmd, pass bool)
+	// PushFilter is called before pushing the internal service.
+	// If @pass=false, will terminate the process, and return the result.
+	PushFilter(uri string, args interface{}, setting ...socket.PacketSetting) (rerr *tp.Rerror, pass bool)
 }
 
 // DefaultProxyHooks creates a new default ProxyHooks object.
@@ -34,10 +36,10 @@ func DefaultProxyHooks() ProxyHooks {
 
 type defProxyHooks struct{}
 
-func (d *defProxyHooks) BeforePull(uri string, args interface{}, reply interface{}, setting ...socket.PacketSetting) *tp.Rerror {
-	return nil
+func (d *defProxyHooks) PullFilter(uri string, args interface{}, reply interface{}, setting ...socket.PacketSetting) (pullcmd tp.PullCmd, pass bool) {
+	return nil, true
 }
 
-func (d *defProxyHooks) BeforePush(uri string, args interface{}, setting ...socket.PacketSetting) *tp.Rerror {
-	return nil
+func (d *defProxyHooks) PushFilter(uri string, args interface{}, setting ...socket.PacketSetting) (rerr *tp.Rerror, pass bool) {
+	return nil, true
 }

@@ -27,19 +27,17 @@ type proxyClient struct {
 }
 
 func (p *proxyClient) Pull(uri string, args interface{}, reply interface{}, setting ...socket.PacketSetting) tp.PullCmd {
-	rerr := logic.ProxyHooks().BeforePull(uri, args, reply, setting...)
-	if rerr != nil {
-		return tp.NewFakePullCmd(uri, args, reply, rerr)
+	pullcmd, pass := logic.ProxyHooks().PullFilter(uri, args, reply, setting...)
+	if !pass {
+		return pullcmd
 	}
-
 	return p.cli.Pull(uri, args, reply, setting...)
 }
 
 func (p *proxyClient) Push(uri string, args interface{}, setting ...socket.PacketSetting) *tp.Rerror {
-	rerr := logic.ProxyHooks().BeforePush(uri, args, setting...)
-	if rerr != nil {
+	rerr, pass := logic.ProxyHooks().PushFilter(uri, args, setting...)
+	if !pass {
 		return rerr
 	}
-
 	return p.cli.Push(uri, args, setting...)
 }
