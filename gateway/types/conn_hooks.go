@@ -32,11 +32,12 @@ type SocketHooks interface {
 	//PreWritePush is executed before writing PUSH packet.
 	PreWritePush(tp.WriteCtx) *tp.Rerror
 }
+
 type (
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks interface {
 		// OnRequest is called when the client requests.
-		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) ([]socket.PacketSetting, *tp.Rerror)
+		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []socket.PacketSetting, *tp.Rerror)
 	}
 	// RequestArgs http query parameters
 	RequestArgs interface {
@@ -86,8 +87,7 @@ func DefaultHttpHooks() HttpHooks {
 
 type defHttpHooks struct{}
 
-func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) ([]socket.PacketSetting, *tp.Rerror) {
+func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []socket.PacketSetting, *tp.Rerror) {
 	accessToken, rerr := authFunc(string(params.QueryArgs().Peek("access_token")))
-	_ = accessToken
-	return nil, rerr
+	return accessToken, nil, rerr
 }

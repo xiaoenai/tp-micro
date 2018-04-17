@@ -15,7 +15,6 @@
 package client
 
 import (
-	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery"
@@ -25,7 +24,6 @@ import (
 var (
 	staticClients *StaticClients
 	dynamicCli    *micro.Client
-	proxyCaller   plugin.Caller
 	etcdCli       *etcd.Client
 )
 
@@ -36,7 +34,6 @@ func Init(cliCfg micro.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.C
 		cliCfg,
 		discovery.NewLinkerFromEtcd(etcdCli),
 	)
-	proxyCaller = &proxyClient{dynamicCli}
 	dynamicCli.SetProtoFunc(protoFunc)
 	staticClients = newStaticClients(cliCfg, protoFunc)
 }
@@ -50,11 +47,6 @@ func StaticClient(srvAddr string) *micro.Client {
 // DynamicClient returns the common inner dynamic routing client.
 func DynamicClient() *micro.Client {
 	return dynamicCli
-}
-
-// ProxyClient returns the common proxy client.
-func ProxyClient() plugin.Caller {
-	return proxyCaller
 }
 
 // EtcdClient returns the common ETCD client.

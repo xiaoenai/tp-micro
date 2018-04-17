@@ -22,7 +22,7 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
-	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/client"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 

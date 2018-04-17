@@ -1,0 +1,75 @@
+package gray
+
+import (
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/socket"
+	micro "github.com/henrylee2cn/tp-micro"
+	"github.com/henrylee2cn/tp-micro/discovery"
+	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+	"github.com/xiaoenai/ants/gateway/client"
+	"github.com/xiaoenai/ants/gateway/helper/gray/api"
+	"github.com/xiaoenai/ants/gateway/helper/gray/logic"
+	mod "github.com/xiaoenai/ants/gateway/helper/gray/logic/model"
+	types "github.com/xiaoenai/ants/gateway/helper/gray/types"
+	gwTypes "github.com/xiaoenai/ants/gateway/types"
+	"github.com/xiaoenai/ants/model"
+	"github.com/xiaoenai/ants/model/redis"
+)
+
+// SetGray sets gray model to *gwTypes.Business.
+func SetGray(
+	biz *gwTypes.Business,
+	grayClientConfig micro.CliConfig,
+	grayEtcdConfig etcd.EasyConfig,
+	mysqlConfig model.Config,
+	redisConfig redis.Config,
+	protoFunc socket.ProtoFunc,
+) error {
+	err := mod.Init(mysqlConfig, redisConfig)
+	if err != nil {
+		return err
+	}
+	if protoFunc == nil {
+		protoFunc = socket.NewFastProtoFunc
+	}
+	grayEtcdClient, err := etcd.EasyNew(grayEtcdConfig)
+	if err != nil {
+		return err
+	}
+	grayClient := micro.NewClient(
+		grayClientConfig,
+		discovery.NewLinkerFromEtcd(grayEtcdClient),
+	)
+	grayClient.SetProtoFunc(protoFunc)
+
+	biz.InnerServerPlugins = append(biz.InnerServerPlugins, new(innerServerPlugin))
+	biz.ProxySelector = func(label *plugin.ProxyLabel) plugin.Caller {
+		r, rerr := logic.IsGray(&types.IsGrayArgs{
+			Uri: label.Uri,
+			Uid: label.SessionId,
+		})
+		if rerr != nil {
+			tp.Errorf("%s", rerr.String())
+			return client.DynamicClient()
+		}
+		if !r.Gray {
+			return client.DynamicClient()
+		}
+		return grayClient
+	}
+	return nil
+}
+
+type innerServerPlugin struct{}
+
+func (*innerServerPlugin) Name() string {
+	return "route_gray"
+}
+
+var _ tp.PostNewPeerPlugin = (*innerServerPlugin)(nil)
+
+func (*innerServerPlugin) PostNewPeer(peer tp.EarlyPeer) error {
+	api.Route("/gray", peer.Router())
+	return nil
+}

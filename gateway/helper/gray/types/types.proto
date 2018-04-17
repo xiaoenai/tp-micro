@@ -1,0 +1,20 @@
+syntax = "proto3";
+package types;
+
+message IsGrayArgs {
+    string Uri  = 1;
+    string Uid  = 2;
+}
+message IsGrayResult {
+    bool Gray = 1;
+}
+message GetArgs {
+    string Uri  = 1;
+}
+message DeleteArgs {
+    string Uri  = 1;
+}
+message SetArgs {
+    string Uri    = 1;
+    string Regexp = 2;
+}

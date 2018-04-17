@@ -13,7 +13,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
-	"github.com/xiaoenai/ants/gateway/logic/client"
+	"github.com/xiaoenai/ants/gateway/client"
 	"github.com/xiaoenai/ants/gateway/sdk"
 	"github.com/xiaoenai/ants/gateway/types"
 )

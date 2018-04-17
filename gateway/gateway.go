@@ -19,8 +19,8 @@ package gateway
 import (
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+	"github.com/xiaoenai/ants/gateway/client"
 	"github.com/xiaoenai/ants/gateway/logic"
-	"github.com/xiaoenai/ants/gateway/logic/client"
 	"github.com/xiaoenai/ants/gateway/logic/hosts"
 	short "github.com/xiaoenai/ants/gateway/logic/http"
 	long "github.com/xiaoenai/ants/gateway/logic/socket"
@@ -44,15 +44,6 @@ func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 		return err
 	}
 
-	// business
-	if biz == nil {
-		biz = types.DefaultBusiness()
-	}
-	logic.SetBusiness(biz)
-
-	// sdk
-	sdk.SetApiVersion(logic.ApiVersion())
-
 	// protocol
 	if protoFunc == nil {
 		protoFunc = socket.NewFastProtoFunc
@@ -64,11 +55,22 @@ func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 		protoFunc,
 		etcdClient,
 	)
+
+	// business
+	if biz == nil {
+		biz = types.DefaultBusiness()
+	}
+	logic.SetBusiness(biz)
+
+	// sdk
+	sdk.SetApiVersion(logic.ApiVersion())
+
 	var (
 		httpAddr        string
 		outerSocketAddr string
 		innerSocketAddr string
 	)
+
 	// HTTP server
 	if cfg.EnableHttp {
 		httpAddr = cfg.OuterHttpServer.OuterIpPort()

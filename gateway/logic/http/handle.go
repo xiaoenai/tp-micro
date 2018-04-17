@@ -21,9 +21,9 @@ import (
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
+	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/valyala/fasthttp"
 	"github.com/xiaoenai/ants/gateway/logic"
-	"github.com/xiaoenai/ants/gateway/logic/client"
 	"github.com/xiaoenai/ants/gateway/logic/hosts"
 )
 
@@ -50,16 +50,17 @@ func (r *requestHandler) handle() {
 	if allowCross && r.crossDomainFilter() {
 		return
 	}
-
 	var ctx = r.ctx
 	var h = r.Header()
-	var uri = goutil.BytesToString(ctx.Path())
 	var contentType = goutil.BytesToString(h.ContentType())
 	var bodyCodec = GetBodyCodec(contentType, codec.ID_PLAIN)
 	var acceptBodyCodec = GetBodyCodec(goutil.BytesToString(h.Peek("Accept")), bodyCodec)
 
+	var label plugin.ProxyLabel
+	label.Uri = goutil.BytesToString(ctx.Path())
+
 	// gw hosts
-	if uri == gwHostsUri {
+	if label.Uri == gwHostsUri {
 		switch acceptBodyCodec {
 		case codec.ID_PROTOBUF:
 			b, _ := codec.ProtoMarshal(hosts.GwHosts())
@@ -74,7 +75,7 @@ func (r *requestHandler) handle() {
 	var bodyBytes = ctx.Request.Body()
 
 	// verify access token
-	settings, rerr := logic.HttpHooks().OnRequest(r, bodyBytes, logic.AuthFunc())
+	accessToken, settings, rerr := logic.HttpHooks().OnRequest(r, bodyBytes, logic.AuthFunc())
 	if rerr != nil {
 		r.replyError(rerr)
 		return
@@ -93,27 +94,37 @@ func (r *requestHandler) handle() {
 		settings = append(settings, tp.WithAcceptBodyCodec(acceptBodyCodec))
 	}
 
+	// set session id
+	if accessToken == nil {
+		label.SessionId = ctx.RemoteAddr().String()
+	} else {
+		label.SessionId = accessToken.Uid()
+	}
+
 	// set real ip
-	var realIp string
 	if xRealIp := h.Peek("X-Real-IP"); len(xRealIp) > 0 {
-		realIp = string(xRealIp)
+		label.RealIp = string(xRealIp)
 	} else if xForwardedFor := h.Peek("X-Forwarded-For"); len(xForwardedFor) > 0 {
-		realIp = string(bytes.Split(xForwardedFor, []byte{','})[0])
+		label.RealIp = string(bytes.Split(xForwardedFor, []byte{','})[0])
 	}
-	if len(realIp) == 0 {
-		realIp = ctx.RemoteAddr().String()
+	if len(label.RealIp) == 0 {
+		label.RealIp = ctx.RemoteAddr().String()
 	}
-	settings = append(settings, tp.WithAddMeta(tp.MetaRealIp, realIp))
+
+	settings = append(settings, tp.WithAddMeta(tp.MetaRealIp, label.RealIp))
 
 	// set seq
 	query := r.ctx.QueryArgs()
 	if seqBytes := query.Peek(SEQ); len(seqBytes) > 0 {
-		settings = append(settings, tp.WithSeq(realIp+"@"+goutil.BytesToString(seqBytes)))
+		settings = append(settings, tp.WithSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes)))
 	}
 
 	var reply []byte
-	uri += "?" + query.String()
-	pullcmd := client.ProxyClient().Pull(uri, bodyBytes, &reply, settings...)
+	label.Uri += "?" + query.String()
+
+	pullcmd := logic.
+		ProxySelector(&label).
+		Pull(label.Uri, bodyBytes, &reply, settings...)
 
 	// fail
 	if rerr := pullcmd.Rerror(); rerr != nil {

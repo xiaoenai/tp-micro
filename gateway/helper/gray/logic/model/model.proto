@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package model;
+
+message GrayMatch {
+    string Uri       = 1;
+    string Regexp    = 2;
+    int64  CreatedAt = 3;
+    int64  UpdatedAt = 4;
+}

@@ -20,8 +20,8 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery"
+	"github.com/xiaoenai/ants/gateway/client"
 	"github.com/xiaoenai/ants/gateway/logic"
-	"github.com/xiaoenai/ants/gateway/logic/client"
 )
 
 var (
@@ -34,20 +34,21 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc)
 		outerSrvCfg,
 		plugin.VerifyAuth(socketConnTabPlugin.authAndLogon),
 		socketConnTabPlugin,
-		plugin.Proxy(client.ProxyClient()),
+		plugin.Proxy(logic.ProxySelector),
 		preWritePushPlugin(),
 	)
 
 	outerPeer = outerServer.Peer()
 
+	innerPlugins := logic.InnerServerPlugins()
 	discoveryService := discovery.ServicePluginFromEtcd(
 		innerSrvCfg.InnerIpPort(),
 		client.EtcdClient(),
 	)
-
+	innerPlugins = append(innerPlugins, discoveryService)
 	innerServer := micro.NewServer(
 		innerSrvCfg,
-		discoveryService,
+		innerPlugins...,
 	)
 
 	gwGroup := innerServer.SubRoute("/gw")
@@ -67,6 +68,11 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc)
 	select {}
 }
 
+// preWritePushPlugin returns PreWritePushPlugin.
+func preWritePushPlugin() tp.Plugin {
+	return &perPusher{fn: logic.SocketHooks().PreWritePush}
+}
+
 type perPusher struct {
 	fn func(tp.WriteCtx) *tp.Rerror
 }
@@ -81,9 +87,4 @@ var (
 
 func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Rerror {
 	return p.fn(ctx)
-}
-
-// preWritePushPlugin returns PreWritePushPlugin.
-func preWritePushPlugin() tp.Plugin {
-	return &perPusher{fn: logic.SocketHooks().PreWritePush}
 }

@@ -16,6 +16,8 @@ package types
 
 import (
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/xiaoenai/ants/gateway/client"
 )
 
 // Business implement your real business logic
@@ -26,8 +28,10 @@ type Business struct {
 	SocketHooks
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks
-	// ProxyHooks proxy hooks
-	ProxyHooks
+	// ProxySelector returns proxy caller by label.
+	ProxySelector func(*plugin.ProxyLabel) plugin.Caller
+	// InnerServerPlugins inner server plugins
+	InnerServerPlugins []tp.Plugin
 }
 
 // DefaultBusiness creates a new default Business object.
@@ -47,7 +51,14 @@ func (biz *Business) Init() {
 	if biz.HttpHooks == nil {
 		biz.HttpHooks = DefaultHttpHooks()
 	}
-	if biz.ProxyHooks == nil {
-		biz.ProxyHooks = DefaultProxyHooks()
+	if biz.ProxySelector == nil {
+		biz.ProxySelector = DefaultProxySelector()
+	}
+}
+
+// DefaultProxySelector creates a new default proxy caller selector.
+func DefaultProxySelector() func(*plugin.ProxyLabel) plugin.Caller {
+	return func(*plugin.ProxyLabel) plugin.Caller {
+		return client.DynamicClient()
 	}
 }

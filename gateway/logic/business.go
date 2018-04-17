@@ -15,6 +15,8 @@
 package logic
 
 import (
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
@@ -50,7 +52,12 @@ func HttpHooks() types.HttpHooks {
 	return globalBusiness.HttpHooks
 }
 
-// ProxyHooks returns proxy hooks.
-func ProxyHooks() types.ProxyHooks {
-	return globalBusiness.ProxyHooks
+// ProxySelector returns proxy caller by label.
+func ProxySelector(label *plugin.ProxyLabel) plugin.Caller {
+	return globalBusiness.ProxySelector(label)
+}
+
+// InnerServerPlugins returns inner server plugins.
+func InnerServerPlugins() []tp.Plugin {
+	return globalBusiness.InnerServerPlugins
 }
