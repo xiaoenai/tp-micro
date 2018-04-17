@@ -3,6 +3,7 @@ gateway:
   enable_socket: true
   outer_http_server:
     listen_address: 0.0.0.0:5000
+    outer_host: 113.116.142.218:5000
     tls_cert_file: ""
     tls_key_file: ""
     allow_cross: true
@@ -46,17 +47,13 @@ gateway:
     heartbeat_second: 60
     sess_max_quota: 0
     sess_max_idle_duration: 0s
+    circuit_breaker:
+      enable: false
+      error_percentage: 0
+      break_duration: 0s
   etcd:
     endpoints:
     - http://127.0.0.1:2379
     dial_timeout: 0s
     username: ""
     password: ""
-  redis:
-    deploy_type: single
-    for_single:
-      addr: 127.0.0.1:6379
-    for_cluster:
-      addrs: []
-    pool_size_per_node: 0
-    idle_timeout: 0
