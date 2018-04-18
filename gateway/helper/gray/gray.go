@@ -1,6 +1,8 @@
 package gray
 
 import (
+	"strings"
+
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
@@ -45,8 +47,15 @@ func SetGray(
 
 	biz.InnerServerPlugins = append(biz.InnerServerPlugins, new(innerServerPlugin))
 	biz.ProxySelector = func(label *plugin.ProxyLabel) plugin.Caller {
+		idx := strings.Index(label.Uri, "?")
+		var uri string
+		if idx != -1 {
+			uri = label.Uri[:idx]
+		} else {
+			uri = label.Uri
+		}
 		r, rerr := logic.IsGray(&types.IsGrayArgs{
-			Uri: label.Uri,
+			Uri: uri,
 			Uid: label.SessionId,
 		})
 		if rerr != nil {

@@ -42,7 +42,7 @@ func main() {
 	}
 	cfgo.AllowAppsShare(true)
 	cfgo.MustReg("gateway", &cfg)
-	// Run a gateway instance with default business logic and default socket protocol.
+
 	biz := types.DefaultBusiness()
 	redisClient, err := redis.NewClient(&cfg.Redis)
 	if err != nil {
