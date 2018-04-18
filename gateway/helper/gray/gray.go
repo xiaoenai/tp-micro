@@ -14,6 +14,7 @@ import (
 	"github.com/xiaoenai/ants/gateway/helper/gray/logic"
 	mod "github.com/xiaoenai/ants/gateway/helper/gray/logic/model"
 	types "github.com/xiaoenai/ants/gateway/helper/gray/types"
+	gwLogic "github.com/xiaoenai/ants/gateway/logic"
 	gwTypes "github.com/xiaoenai/ants/gateway/types"
 	"github.com/xiaoenai/ants/model"
 	"github.com/xiaoenai/ants/model/redis"
@@ -79,6 +80,6 @@ func (*innerServerPlugin) Name() string {
 var _ tp.PostNewPeerPlugin = (*innerServerPlugin)(nil)
 
 func (*innerServerPlugin) PostNewPeer(peer tp.EarlyPeer) error {
-	api.Route("/gray", peer.Router())
+	api.Route("/gw/"+gwLogic.ApiVersion()+"/gray", peer.Router())
 	return nil
 }
