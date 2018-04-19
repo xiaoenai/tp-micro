@@ -29,7 +29,7 @@ import (
 
 const (
 	// SEQ the packet sequence query parameter specified by the client
-	SEQ = "_seq"
+	SEQ = "seq_"
 )
 
 var (

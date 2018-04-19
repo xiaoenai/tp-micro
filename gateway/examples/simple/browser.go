@@ -51,7 +51,7 @@ const html = `<!DOCTYPE html>
 <script type="application/javascript">
     $('#divide').on('click',function(){
         $.ajax({
-            url:"http://localhost:5000/math/divide?_seq=seq_abc_123&access_token=sdfghj",
+            url:"http://localhost:5000/math/divide?seq_=seq_abc_123&access_token=sdfghj",
             type:"POST",
             data:JSON.stringify($('#logic').serializeObject()),
             contentType:"application/json",
@@ -70,7 +70,7 @@ const html = `<!DOCTYPE html>
 
     $('#hosts').on('click',function(){
         $.ajax({
-            url:"http://localhost:5000/gw/v1/hosts?_seq=seq_abc_456",
+            url:"http://localhost:5000/gw/v1/hosts?seq_=seq_abc_456",
             type:"GET",
             xhrFields: {
                 withCredentials: true
