@@ -20,7 +20,7 @@ import (
 
 type (
 	// AuthFunc Verifies access token
-	AuthFunc func(accessToken string) (AccessToken, *tp.Rerror)
+	AuthFunc func(authInfo string) (AccessToken, *tp.Rerror)
 	// AccessToken access token info
 	AccessToken interface {
 		// Uid returns the user id.
@@ -35,8 +35,8 @@ func DefaultAuthFunc() AuthFunc {
 	return defAuthFunc
 }
 
-func defAuthFunc(accessToken string) (AccessToken, *tp.Rerror) {
-	return defAccessToken(accessToken), nil
+func defAuthFunc(authInfo string) (AccessToken, *tp.Rerror) {
+	return defAccessToken(authInfo), nil
 }
 
 type defAccessToken string

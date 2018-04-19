@@ -31,8 +31,8 @@ func (c *socketConnTab) Name() string {
 	return "SocketConnTab"
 }
 
-func (c *socketConnTab) authAndLogon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
-	token, rerr := logic.AuthFunc()(accessToken)
+func (c *socketConnTab) authAndLogon(authInfo string, sess plugin.AuthSession) *tp.Rerror {
+	token, rerr := logic.AuthFunc()(authInfo)
 	if rerr != nil {
 		return rerr
 	}
