@@ -15,16 +15,24 @@
 package socket
 
 import (
+	"strings"
+
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/utils"
 	"github.com/xiaoenai/ants/gateway/logic"
 )
 
 type socketConnTab struct{}
 
 var (
-	socketConnTabPlugin                         = new(socketConnTab)
-	_                   tp.PostDisconnectPlugin = socketConnTabPlugin
+	socketConnTabPlugin = (*socketConnTab)(nil)
+)
+
+var (
+	_ tp.PostReadPullBodyPlugin = socketConnTabPlugin
+	_ tp.PostReadPushBodyPlugin = socketConnTabPlugin
+	_ tp.PostDisconnectPlugin   = socketConnTabPlugin
 )
 
 func (c *socketConnTab) Name() string {
@@ -36,11 +44,28 @@ func (c *socketConnTab) authAndLogon(authInfo string, sess plugin.AuthSession) *
 	if rerr != nil {
 		return rerr
 	}
+	sess.Swap().Store(socketConnTabPlugin, token.Info())
 	rerr = logic.SocketHooks().OnLogon(sess, token)
 	if rerr == nil {
 		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).Id())
 	}
 	return rerr
+}
+
+func (c *socketConnTab) PostReadPullBody(ctx tp.ReadCtx) *tp.Rerror {
+	_args, _ := ctx.Swap().Load(socketConnTabPlugin)
+	args, _ := _args.(*utils.Args)
+	if args == nil {
+		return nil
+	}
+	u := ctx.UriObject()
+	u.RawQuery += "&" + args.String()
+	u.RawQuery = strings.Trim(u.RawQuery, "&")
+	return nil
+}
+
+func (c *socketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Rerror {
+	return c.PostReadPullBody(ctx)
 }
 
 func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {

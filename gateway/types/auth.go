@@ -16,6 +16,7 @@ package types
 
 import (
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/utils"
 )
 
 type (
@@ -27,6 +28,8 @@ type (
 		Uid() string
 		// String returns the access token string.
 		String() string
+		// Info the user information will be appended to the URI query part.
+		Info() *utils.Args
 	}
 )
 
@@ -47,4 +50,8 @@ func (d defAccessToken) Uid() string {
 
 func (d defAccessToken) String() string {
 	return string(d)
+}
+
+func (d defAccessToken) Info() *utils.Args {
+	return nil
 }
