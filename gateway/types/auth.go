@@ -16,17 +16,24 @@ package types
 
 import (
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/utils"
 )
 
 type (
 	// AuthFunc Verifies access token
-	AuthFunc func(accessToken string) (AccessToken, *tp.Rerror)
+	AuthFunc func(authInfo string) (AccessToken, *tp.Rerror)
 	// AccessToken access token info
 	AccessToken interface {
-		// Uid returns the user id.
-		Uid() string
 		// String returns the access token string.
 		String() string
+		// SessionId specifies the string as the session ID.
+		SessionId() string
+		// Uid returns the user id.
+		Uid() string
+		// DeviceId returns the device id.
+		DeviceId() string
+		// AddedQuery the user information will be appended to the URI query part.
+		AddedQuery() *utils.Args
 	}
 )
 
@@ -35,16 +42,36 @@ func DefaultAuthFunc() AuthFunc {
 	return defAuthFunc
 }
 
-func defAuthFunc(accessToken string) (AccessToken, *tp.Rerror) {
-	return defAccessToken(accessToken), nil
+func defAuthFunc(authInfo string) (AccessToken, *tp.Rerror) {
+	return defAccessToken(authInfo), nil
 }
 
 type defAccessToken string
 
+// String returns the access token string.
+func (d defAccessToken) String() string {
+	return string(d)
+}
+
+// SessionId specifies the string as the session ID.
+func (d defAccessToken) SessionId() string {
+	return string(d)
+}
+
+// Uid returns the user id.
 func (d defAccessToken) Uid() string {
 	return string(d)
 }
 
-func (d defAccessToken) String() string {
+// DeviceId returns the device id.
+func (d defAccessToken) DeviceId() string {
 	return string(d)
+}
+
+// AddedQuery the user information will be appended to the URI query part.
+func (d defAccessToken) AddedQuery() *utils.Args {
+	args := utils.AcquireArgs()
+	args.Set("_uid", d.Uid())
+	args.Set("_device_id", d.DeviceId())
+	return args
 }

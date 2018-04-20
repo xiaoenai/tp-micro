@@ -15,6 +15,8 @@
 package socket
 
 import (
+	"strings"
+
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/xiaoenai/ants/gateway/logic"
@@ -23,24 +25,46 @@ import (
 type socketConnTab struct{}
 
 var (
-	socketConnTabPlugin                         = new(socketConnTab)
-	_                   tp.PostDisconnectPlugin = socketConnTabPlugin
+	socketConnTabPlugin = (*socketConnTab)(nil)
+)
+
+var (
+	_ tp.PostReadPullBodyPlugin = socketConnTabPlugin
+	_ tp.PostReadPushBodyPlugin = socketConnTabPlugin
+	_ tp.PostDisconnectPlugin   = socketConnTabPlugin
 )
 
 func (c *socketConnTab) Name() string {
 	return "SocketConnTab"
 }
 
-func (c *socketConnTab) authAndLogon(accessToken string, sess plugin.AuthSession) *tp.Rerror {
-	token, rerr := logic.AuthFunc()(accessToken)
+func (c *socketConnTab) authAndLogon(authInfo string, sess plugin.AuthSession) *tp.Rerror {
+	token, rerr := logic.AuthFunc()(authInfo)
 	if rerr != nil {
 		return rerr
+	}
+	info := token.AddedQuery()
+	if info != nil && info.Len() > 0 {
+		sess.Swap().Store(socketConnTabPlugin, info.String())
 	}
 	rerr = logic.SocketHooks().OnLogon(sess, token)
 	if rerr == nil {
 		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).Id())
 	}
 	return rerr
+}
+
+func (c *socketConnTab) PostReadPullBody(ctx tp.ReadCtx) *tp.Rerror {
+	_appendQuery, _ := ctx.Swap().Load(socketConnTabPlugin)
+	appendQuery, _ := _appendQuery.(string)
+	u := ctx.UriObject()
+	u.RawQuery += "&" + appendQuery
+	u.RawQuery = strings.Trim(u.RawQuery, "&")
+	return nil
+}
+
+func (c *socketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Rerror {
+	return c.PostReadPullBody(ctx)
 }
 
 func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {

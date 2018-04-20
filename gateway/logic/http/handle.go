@@ -29,7 +29,7 @@ import (
 
 const (
 	// SEQ the packet sequence query parameter specified by the client
-	SEQ = "_seq"
+	SEQ = "seq_"
 )
 
 var (
@@ -94,11 +94,18 @@ func (r *requestHandler) handle() {
 		settings = append(settings, tp.WithAcceptBodyCodec(acceptBodyCodec))
 	}
 
+	query := r.ctx.QueryArgs()
+
 	// set session id
 	if accessToken == nil {
 		label.SessionId = ctx.RemoteAddr().String()
 	} else {
-		label.SessionId = accessToken.Uid()
+		label.SessionId = accessToken.SessionId()
+		if info := accessToken.AddedQuery(); info != nil {
+			info.VisitAll(func(key, value []byte) {
+				query.AddBytesKV(key, value)
+			})
+		}
 	}
 
 	// set real ip
@@ -114,7 +121,6 @@ func (r *requestHandler) handle() {
 	settings = append(settings, tp.WithAddMeta(tp.MetaRealIp, label.RealIp))
 
 	// set seq
-	query := r.ctx.QueryArgs()
 	if seqBytes := query.Peek(SEQ); len(seqBytes) > 0 {
 		settings = append(settings, tp.WithSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes)))
 	}
