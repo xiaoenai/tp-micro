@@ -48,7 +48,7 @@ func main() {
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
-	agent.Init(10001, redisClient, redisClient)
+	agent.Init(redisClient, redisClient)
 	biz.SocketHooks = agent.GetSocketHooks()
 	err = gray.SetGray(biz, cfg.GraySocketClient, cfg.GrayEtcd, cfg.Mysql, cfg.Redis, nil)
 	if err != nil {

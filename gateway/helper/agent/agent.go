@@ -33,12 +33,11 @@ var kickUri = "/gw/" + logic.ApiVersion() + "/socket_kick"
 var globalHandler *agentHandler
 
 // Init initializes agent packet.
-func Init(rerrCode int32, redisWithLargeMemory *redis.Client, redisWithPublishCmd *redis.Client) error {
+func Init(redisWithLargeMemory *redis.Client, redisWithPublishCmd *redis.Client) error {
 	globalHandler = new(agentHandler)
 	globalHandler.redisWithLargeMemory = redisWithLargeMemory
 	globalHandler.redisWithPublishCmd = redisWithPublishCmd
 	globalHandler.module = redis.NewModule(AgentKeyPrefix)
-	globalHandler.rerr = tp.NewRerror(rerrCode, "Agent Error", "")
 	return nil
 }
 
@@ -52,7 +51,6 @@ type agentHandler struct {
 	module               *redis.Module
 	redisWithLargeMemory *redis.Client
 	redisWithPublishCmd  *redis.Client
-	rerr                 *tp.Rerror
 }
 
 var (
@@ -74,8 +72,10 @@ func getSalt(m goutil.Map) (uint64, bool) {
 	return 0, false
 }
 
-func (h *agentHandler) newRerror(detail string) *tp.Rerror {
-	return h.rerr.Copy().SetDetail(detail)
+var rerrServerError = tp.NewRerror(500, "System is busy, please try again later", "Agent Error")
+
+func newServerRerror(detail string) *tp.Rerror {
+	return rerrServerError.Copy().SetDetail(detail)
 }
 
 func (*agentHandler) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror) {
@@ -117,10 +117,10 @@ func (h *agentHandler) OnLogon(sess plugin.AuthSession, accessToken types.Access
 		}
 	})
 	if lockErr != nil {
-		return h.newRerror(lockErr.Error())
+		return newServerRerror(lockErr.Error())
 	}
 	if err != nil {
-		return h.newRerror(err.Error())
+		return newServerRerror(err.Error())
 	}
 	// logon new session
 	sess.SetId(uid)
@@ -160,10 +160,10 @@ func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
 		},
 	)
 	if lockErr != nil {
-		return h.newRerror(lockErr.Error())
+		return newServerRerror(lockErr.Error())
 	}
 	if err != nil {
-		return h.newRerror(err.Error())
+		return newServerRerror(err.Error())
 	}
 	return nil
 }
@@ -206,10 +206,10 @@ func enforceKickOffline(uid string, checkLocal bool) *tp.Rerror {
 		},
 	)
 	if lockErr != nil {
-		return globalHandler.newRerror(lockErr.Error())
+		return newServerRerror(lockErr.Error())
 	}
 	if err != nil {
-		return globalHandler.newRerror(err.Error())
+		return newServerRerror(err.Error())
 	}
 	return nil
 }
@@ -251,7 +251,7 @@ func GetAgent(uid string) (*Agent, *tp.Rerror) {
 		a := new(Agent)
 		err = json.Unmarshal(data, a)
 		if err != nil {
-			return nil, globalHandler.newRerror(err.Error())
+			return nil, newServerRerror(err.Error())
 		}
 		return a, nil
 
@@ -262,7 +262,7 @@ func GetAgent(uid string) (*Agent, *tp.Rerror) {
 		return a, nil
 
 	default:
-		return nil, globalHandler.newRerror(err.Error())
+		return nil, newServerRerror(err.Error())
 	}
 }
 
@@ -279,7 +279,7 @@ func QueryAgent(uids []string) (*Agents, *tp.Rerror) {
 	}
 	rets, err := globalHandler.redisWithLargeMemory.MGet(keys...).Result()
 	if err != nil {
-		return nil, globalHandler.newRerror(err.Error())
+		return nil, newServerRerror(err.Error())
 	}
 	agents := make([]*Agent, len(rets))
 	for i, r := range rets {
