@@ -100,8 +100,8 @@ func (r *requestHandler) handle() {
 	if accessToken == nil {
 		label.SessionId = ctx.RemoteAddr().String()
 	} else {
-		label.SessionId = accessToken.Uid()
-		if info := accessToken.Info(); info != nil {
+		label.SessionId = accessToken.SessionId()
+		if info := accessToken.AddedQuery(); info != nil {
 			info.VisitAll(func(key, value []byte) {
 				query.AddBytesKV(key, value)
 			})

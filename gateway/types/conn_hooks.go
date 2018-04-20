@@ -56,7 +56,7 @@ func DefaultSocketHooks() SocketHooks {
 type defSocketHooks struct{}
 
 func (d *defSocketHooks) OnLogon(sess plugin.AuthSession, accessToken AccessToken) *tp.Rerror {
-	sess.SetId(accessToken.Uid())
+	sess.SetId(accessToken.SessionId())
 	return nil
 }
 

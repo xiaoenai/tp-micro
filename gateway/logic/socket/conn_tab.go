@@ -43,7 +43,7 @@ func (c *socketConnTab) authAndLogon(authInfo string, sess plugin.AuthSession) *
 	if rerr != nil {
 		return rerr
 	}
-	info := token.Info()
+	info := token.AddedQuery()
 	if info != nil && info.Len() > 0 {
 		sess.Swap().Store(socketConnTabPlugin, info.String())
 	}
