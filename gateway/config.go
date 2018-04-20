@@ -15,6 +15,8 @@
 package gateway
 
 import (
+	"time"
+
 	"github.com/henrylee2cn/cfgo"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
@@ -54,8 +56,9 @@ func NewConfig() *Config {
 			CountTime:       true,
 		},
 		InnerSocketClient: micro.CliConfig{
-			Failover:        3,
-			HeartbeatSecond: 60,
+			Failover:          3,
+			HeartbeatSecond:   60,
+			DefaultContextAge: time.Second * 5,
 		},
 		Etcd: etcd.EasyConfig{
 			Endpoints: []string{"http://127.0.0.1:2379"},
