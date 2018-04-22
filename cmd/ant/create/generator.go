@@ -290,6 +290,7 @@ func main() {
 
 import (
 	"github.com/henrylee2cn/cfgo"
+	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
@@ -339,6 +340,7 @@ var cfg = &config{
 }
 
 func init() {
+	goutil.WritePidFile()
 	cfgo.MustReg("${service_api_prefix}", cfg)
 }
 `,
