@@ -78,12 +78,12 @@ func newServerRerror(detail string) *tp.Rerror {
 	return rerrServerError.Copy().SetDetail(detail)
 }
 
-func (*agentHandler) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror) {
-	sess, ok := peer.GetSession(uid)
+func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp.Rerror) {
+	sess, ok := peer.GetSession(sessionId)
 	if ok {
 		return sess, nil
 	}
-	enforceKickOffline(uid, true)
+	enforceKickOffline(sessionId, true)
 	return nil, rerrNotOnline
 }
 
@@ -92,9 +92,9 @@ func (*agentHandler) PreWritePush(tp.WriteCtx) *tp.Rerror {
 }
 
 func (h *agentHandler) OnLogon(sess plugin.AuthSession, accessToken types.AccessToken) *tp.Rerror {
-	uid := accessToken.Uid()
+	sessionId := accessToken.SessionId()
 	// check or remove old session
-	_, rerr := kickOffline(uid, true)
+	_, rerr := kickOffline(sessionId, true)
 	if rerr != nil {
 		return rerr
 	}
@@ -102,18 +102,18 @@ func (h *agentHandler) OnLogon(sess plugin.AuthSession, accessToken types.Access
 	// logon new agent
 	_, innerIp := hosts.SocketAddress()
 	a := &Agent{
-		Uid:      uid,
-		InnerGw:  innerIp,
-		OnlineAt: coarsetime.CeilingTimeNow().Unix(),
-		Salt:     newSalt(sess.Swap()),
+		SessionId: sessionId,
+		InnerGw:   innerIp,
+		OnlineAt:  coarsetime.CeilingTimeNow().Unix(),
+		Salt:      newSalt(sess.Swap()),
 	}
-	key := h.module.Key(uid)
+	key := h.module.Key(sessionId)
 	var err error
 	lockErr := h.redisWithLargeMemory.LockCallback("lock_"+key, func() {
 		data, _ := json.Marshal(a)
 		err = h.redisWithLargeMemory.Set(key, data, AgentLife).Err()
 		if err == nil {
-			h.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(uid, EVENT_ONLINE))
+			h.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(sessionId, EVENT_ONLINE))
 		}
 	})
 	if lockErr != nil {
@@ -123,7 +123,7 @@ func (h *agentHandler) OnLogon(sess plugin.AuthSession, accessToken types.Access
 		return newServerRerror(err.Error())
 	}
 	// logon new session
-	sess.SetId(uid)
+	sess.SetId(sessionId)
 	return nil
 }
 
@@ -132,10 +132,10 @@ func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
 	if !ok {
 		return nil
 	}
-	uid := sess.Id()
+	sessionId := sess.Id()
 	_, innerGw := hosts.SocketAddress()
 	var err error
-	key := h.module.Key(uid)
+	key := h.module.Key(sessionId)
 	lockErr := h.redisWithLargeMemory.LockCallback(
 		"lock_"+key,
 		func() {
@@ -155,7 +155,7 @@ func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
 					return
 				}
 			}
-			h.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(uid, EVENT_OFFLINE))
+			h.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(sessionId, EVENT_OFFLINE))
 			err = h.redisWithLargeMemory.Del(key).Err()
 		},
 	)
@@ -169,20 +169,20 @@ func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
 }
 
 // EnforceKickOffline enforches kick the user offline.
-func EnforceKickOffline(uid string) *tp.Rerror {
-	return enforceKickOffline(uid, false)
+func EnforceKickOffline(sessionId string) *tp.Rerror {
+	return enforceKickOffline(sessionId, false)
 }
 
 // enforceKickOffline enforches kick the user offline.
-func enforceKickOffline(uid string, checkLocal bool) *tp.Rerror {
-	succ, rerr := kickOffline(uid, checkLocal)
+func enforceKickOffline(sessionId string, checkLocal bool) *tp.Rerror {
+	succ, rerr := kickOffline(sessionId, checkLocal)
 	if succ || rerr != nil {
 		return rerr
 	}
 	// enforce remove agent
 	var (
 		err error
-		key = globalHandler.module.Key(uid)
+		key = globalHandler.module.Key(sessionId)
 	)
 	lockErr := globalHandler.redisWithLargeMemory.LockCallback(
 		"lock_"+key,
@@ -201,7 +201,7 @@ func enforceKickOffline(uid string, checkLocal bool) *tp.Rerror {
 					return
 				}
 			}
-			globalHandler.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(uid, EVENT_OFFLINE))
+			globalHandler.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(sessionId, EVENT_OFFLINE))
 			err = globalHandler.redisWithLargeMemory.Del(key).Err()
 		},
 	)
@@ -215,16 +215,16 @@ func enforceKickOffline(uid string, checkLocal bool) *tp.Rerror {
 }
 
 // kickOffline kicks the user offline.
-func kickOffline(uid string, checkLocal bool) (succ bool, rerr *tp.Rerror) {
+func kickOffline(sessionId string, checkLocal bool) (succ bool, rerr *tp.Rerror) {
 	if checkLocal {
 		// Try to delete the session from the local gateway.
-		existed, _ := socket.Kick(uid)
+		existed, _ := socket.Kick(sessionId)
 		if existed {
 			return true, nil
 		}
 	}
-	// Find the agent of the uid.
-	agent, rerr := GetAgent(uid)
+	// Find the agent of the sessionId.
+	agent, rerr := GetAgent(sessionId)
 	if rerr != nil {
 		return false, rerr
 	}
@@ -234,7 +234,7 @@ func kickOffline(uid string, checkLocal bool) (succ bool, rerr *tp.Rerror) {
 	// Try to delete the session from the remote gateway.
 	var reply types.SocketKickReply
 	rerr = client.StaticClient(agent.InnerGw).
-		Pull(kickUri, types.SocketKickArgs{Uid: uid}, &reply).
+		Pull(kickUri, types.SocketKickArgs{SessionId: sessionId}, &reply).
 		Rerror()
 	if reply.Existed {
 		return true, nil
@@ -243,8 +243,8 @@ func kickOffline(uid string, checkLocal bool) (succ bool, rerr *tp.Rerror) {
 }
 
 // GetAgent returns agent information.
-func GetAgent(uid string) (*Agent, *tp.Rerror) {
-	key := globalHandler.module.Key(uid)
+func GetAgent(sessionId string) (*Agent, *tp.Rerror) {
+	key := globalHandler.module.Key(sessionId)
 	data, err := globalHandler.redisWithLargeMemory.Get(key).Bytes()
 	switch {
 	case err == nil:
@@ -257,7 +257,7 @@ func GetAgent(uid string) (*Agent, *tp.Rerror) {
 
 	case redis.IsRedisNil(err):
 		a := new(Agent)
-		a.Uid = uid
+		a.SessionId = sessionId
 		a.IsOffline = true
 		return a, nil
 
@@ -269,13 +269,13 @@ func GetAgent(uid string) (*Agent, *tp.Rerror) {
 var nilAgents = &Agents{Agents: []*Agent{}}
 
 // QueryAgent queries agent information in batches.
-func QueryAgent(uids []string) (*Agents, *tp.Rerror) {
-	if len(uids) == 0 {
+func QueryAgent(sessionIds []string) (*Agents, *tp.Rerror) {
+	if len(sessionIds) == 0 {
 		return nilAgents, nil
 	}
-	var keys = make([]string, len(uids))
-	for i, uid := range uids {
-		keys[i] = globalHandler.module.Key(uid)
+	var keys = make([]string, len(sessionIds))
+	for i, sessionId := range sessionIds {
+		keys[i] = globalHandler.module.Key(sessionId)
 	}
 	rets, err := globalHandler.redisWithLargeMemory.MGet(keys...).Result()
 	if err != nil {
@@ -287,7 +287,7 @@ func QueryAgent(uids []string) (*Agents, *tp.Rerror) {
 		if s, ok := r.(string); ok {
 			json.Unmarshal(goutil.StringToBytes(s), a)
 		} else {
-			a.Uid = uids[i]
+			a.SessionId = sessionIds[i]
 			a.IsOffline = true
 		}
 		agents[i] = a
@@ -309,12 +309,12 @@ var (
 
 // AgentNews agent online/offline message
 type AgentNews struct {
-	Uid   string
-	Event string
+	SessionId string
+	Event     string
 }
 
-func createAgentNews(uid string, event string) string {
-	return uid + "," + event
+func createAgentNews(sessionId string, event string) string {
+	return sessionId + "," + event
 }
 
 func parseAgentNews(msg string) (*AgentNews, error) {
@@ -323,8 +323,8 @@ func parseAgentNews(msg string) (*AgentNews, error) {
 		return nil, fmt.Errorf("The format of the agent news is wrong: %s", msg)
 	}
 	return &AgentNews{
-		Uid:   a[0],
-		Event: a[1],
+		SessionId: a[0],
+		Event:     a[1],
 	}, nil
 }
 

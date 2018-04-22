@@ -40,7 +40,7 @@ var socketPushReply = new(types.SocketPushReply)
 
 // SocketPush returns the long connections total.
 func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp.Rerror) {
-	rerr := innerPush(args.Uid, args.Uri, args.Body, byte(args.BodyCodec))
+	rerr := innerPush(args.SessionId, args.Uri, args.Body, byte(args.BodyCodec))
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -58,7 +58,7 @@ func Kick(uid string) (existed bool, err error) {
 
 // SocketKick kicks the uid offline.
 func (g *gw) SocketKick(args *types.SocketKickArgs) (*types.SocketKickReply, *tp.Rerror) {
-	existed, _ := Kick(args.Uid)
+	existed, _ := Kick(args.SessionId)
 	return &types.SocketKickReply{
 		Existed: existed,
 	}, nil

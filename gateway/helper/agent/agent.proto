@@ -3,7 +3,7 @@ syntax = "proto3";
 package agent;
 
 message Agent {
-	string uid        = 1;
+	string session_id = 1;
 	string inner_gw   = 2;
 	int64  online_at  = 3;
 	bool   is_offline = 4;

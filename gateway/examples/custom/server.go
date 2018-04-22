@@ -73,15 +73,15 @@ func main() {
 	cfgo.MustReg("server", &cfg)
 
 	redisClient, err := redis.NewClient(&cfg.Redis)
-	agent.Init(10001, redisClient, redisClient)
+	agent.Init(redisClient, redisClient)
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
 	tp.Go(func() {
 		agentNewsChan := agent.Subscribe()
 		for news := range agentNewsChan {
-			tp.Infof("agent news: uid:%s, event:%s",
-				news.Uid, news.Event,
+			tp.Infof("agent news: sessionId:%s, event:%s",
+				news.SessionId, news.Event,
 			)
 		}
 	})

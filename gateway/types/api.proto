@@ -7,14 +7,14 @@ message SocketTotalReply {
 }
 
 message SocketPushArgs {
-    string  uid        = 1;
+    string  session_id = 1;
     string  uri        = 2;
     bytes   body       = 3;
     int32   body_codec = 4;
 }
 
 message SocketKickArgs {
-    string  uid        = 1;
+    string  session_id = 1;
 }
 message SocketKickReply {
     bool  existed      = 1;
