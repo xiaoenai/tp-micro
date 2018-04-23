@@ -328,6 +328,8 @@ var cfg = &config{
 	Srv: micro.SrvConfig{
 		ListenAddress:   ":9090",
 		EnableHeartbeat: true,
+		PrintDetail:     true,
+		CountTime:       true,
 	},
 	Etcd: etcd.EasyConfig{
 		Endpoints: []string{"http://127.0.0.1:2379"},

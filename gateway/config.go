@@ -46,13 +46,13 @@ func NewConfig() *Config {
 		OuterSocketServer: micro.SrvConfig{
 			ListenAddress:   "0.0.0.0:5020",
 			EnableHeartbeat: true,
-			PrintBody:       true,
+			PrintDetail:     true,
 			CountTime:       true,
 		},
 		InnerSocketServer: micro.SrvConfig{
 			ListenAddress:   "0.0.0.0:5030",
 			EnableHeartbeat: true,
-			PrintBody:       true,
+			PrintDetail:     true,
 			CountTime:       true,
 		},
 		InnerSocketClient: micro.CliConfig{

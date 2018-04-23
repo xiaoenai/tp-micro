@@ -15,7 +15,7 @@ gateway:
       default_context_age: 0s
       slow_comet_duration: 0s
       default_body_codec: ""
-      print_body: true
+      print_detail: true
       count_time: true
       network: ""
       listen_address: 0.0.0.0:5020
@@ -27,7 +27,7 @@ gateway:
       default_context_age: 0s
       slow_comet_duration: 0s
       default_body_codec: ""
-      print_body: true
+      print_detail: true
       count_time: true
       network: ""
       listen_address: 0.0.0.0:5030
@@ -42,7 +42,7 @@ gateway:
       failover: 3
       slow_comet_duration: 0s
       default_body_codec: ""
-      print_body: false
+      print_detail: false
       count_time: false
       network: ""
       heartbeat_second: 60
@@ -90,7 +90,7 @@ server:
     enable_heartbeat: true
     listen_address: :9090
     network: ""
-    print_body: false
+    print_detail: false
     slow_comet_duration: 0s
     tls_cert_file: ""
     tls_key_file: ""
