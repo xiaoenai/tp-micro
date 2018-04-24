@@ -34,7 +34,7 @@ const (
 
 var (
 	allowCross bool
-	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
+	gwHostsUri string
 )
 
 func handler(ctx *fasthttp.RequestCtx) {

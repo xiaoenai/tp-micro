@@ -10,6 +10,7 @@ import (
 	"github.com/xiaoenai/ants/gateway"
 	"github.com/xiaoenai/ants/gateway/helper/agent"
 	"github.com/xiaoenai/ants/gateway/helper/gray"
+	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/types"
 	"github.com/xiaoenai/ants/model"
 	"github.com/xiaoenai/ants/model/redis"
@@ -30,6 +31,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 }
 
 func main() {
+	logic.SetApiVersion("v2")
 	cfg := config{
 		Gw: *gateway.NewConfig(),
 		GraySocketClient: micro.CliConfig{

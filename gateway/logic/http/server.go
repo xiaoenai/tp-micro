@@ -22,6 +22,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/valyala/fasthttp"
+	"github.com/xiaoenai/ants/gateway/logic"
 )
 
 // HttpSrvConfig config of HTTP server
@@ -61,6 +62,7 @@ func (h *HttpSrvConfig) OuterIpPort() string {
 
 // Serve starts HTTP gateway service.
 func Serve(srvCfg HttpSrvConfig) {
+	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
 	var tlsConfig *tls.Config
 	var err error
 	if len(srvCfg.TlsCertFile) > 0 && len(srvCfg.TlsKeyFile) > 0 {

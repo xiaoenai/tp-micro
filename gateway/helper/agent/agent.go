@@ -29,11 +29,12 @@ const (
 	AgentLife = time.Hour * 24 * 3
 )
 
-var kickUri = "/gw/" + logic.ApiVersion() + "/socket_kick"
+var kickUri string
 var globalHandler *agentHandler
 
 // Init initializes agent packet.
 func Init(redisWithLargeMemory *redis.Client, redisWithPublishCmd *redis.Client) error {
+	kickUri = "/gw/" + logic.ApiVersion() + "/socket_kick"
 	globalHandler = new(agentHandler)
 	globalHandler.redisWithLargeMemory = redisWithLargeMemory
 	globalHandler.redisWithPublishCmd = redisWithPublishCmd

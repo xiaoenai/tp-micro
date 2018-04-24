@@ -20,7 +20,10 @@ import (
 	"github.com/xiaoenai/ants/gateway/types"
 )
 
-var globalBusiness *types.Business
+var (
+	globalBusiness *types.Business
+	apiVersion     = "v1"
+)
 
 // SetBusiness sets business object.
 func SetBusiness(biz *types.Business) {
@@ -32,9 +35,14 @@ func SetBusiness(biz *types.Business) {
 	globalBusiness = biz
 }
 
-// ApiVersion returns long connection API version.
+// SetApiVersion sets gateway API version.
+func SetApiVersion(ver string) {
+	apiVersion = ver
+}
+
+// ApiVersion returns gateway API version.
 func ApiVersion() string {
-	return "v1"
+	return apiVersion
 }
 
 // AuthFunc returns the authorization function for access behavior.
