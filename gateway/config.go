@@ -74,6 +74,9 @@ func (c *Config) Reload(bind cfgo.BindFunc) error {
 	if err == nil {
 		c.OuterHttpServer.OuterIpPort()
 	}
+	c.OuterHttpServer.PrintDetail = c.OuterSocketServer.PrintDetail
+	c.OuterHttpServer.CountTime = c.OuterSocketServer.CountTime
+	c.OuterHttpServer.SlowCometDuration = c.OuterSocketServer.SlowCometDuration
 	return err
 }
 

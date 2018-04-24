@@ -17,6 +17,7 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"time"
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
@@ -42,22 +43,38 @@ func handler(ctx *fasthttp.RequestCtx) {
 }
 
 type requestHandler struct {
-	ctx *fasthttp.RequestCtx
+	ctx    *fasthttp.RequestCtx
+	errMsg []byte
 }
 
 func (r *requestHandler) handle() {
-	// cross
-	if allowCross && r.crossDomainFilter() {
-		return
-	}
 	var ctx = r.ctx
 	var h = r.Header()
 	var contentType = goutil.BytesToString(h.ContentType())
 	var bodyCodec = GetBodyCodec(contentType, codec.ID_PLAIN)
 	var acceptBodyCodec = GetBodyCodec(goutil.BytesToString(h.Peek("Accept")), bodyCodec)
-
+	var query = r.ctx.QueryArgs()
+	var bodyBytes = ctx.Request.Body()
+	var reply []byte
 	var label plugin.ProxyLabel
 	label.Uri = goutil.BytesToString(ctx.Path())
+
+	// set real ip
+	if xRealIp := h.Peek("X-Real-IP"); len(xRealIp) > 0 {
+		label.RealIp = string(xRealIp)
+	} else if xForwardedFor := h.Peek("X-Forwarded-For"); len(xForwardedFor) > 0 {
+		label.RealIp = string(bytes.Split(xForwardedFor, []byte{','})[0])
+	}
+	if len(label.RealIp) == 0 {
+		label.RealIp = ctx.RemoteAddr().String()
+	}
+
+	defer r.runlog(time.Now(), &label, goutil.BytesToString(query.Peek(SEQ)), bodyBytes, &reply)
+
+	// cross
+	if allowCross && r.crossDomainFilter() {
+		return
+	}
 
 	// gw hosts
 	if label.Uri == gwHostsUri {
@@ -71,8 +88,6 @@ func (r *requestHandler) handle() {
 		}
 		return
 	}
-
-	var bodyBytes = ctx.Request.Body()
 
 	// verify access token
 	accessToken, settings, rerr := logic.HttpHooks().OnRequest(r, bodyBytes, logic.AuthFunc())
@@ -94,8 +109,6 @@ func (r *requestHandler) handle() {
 		settings = append(settings, tp.WithAcceptBodyCodec(acceptBodyCodec))
 	}
 
-	query := r.ctx.QueryArgs()
-
 	// set session id
 	if accessToken == nil {
 		label.SessionId = ctx.RemoteAddr().String()
@@ -108,16 +121,6 @@ func (r *requestHandler) handle() {
 		}
 	}
 
-	// set real ip
-	if xRealIp := h.Peek("X-Real-IP"); len(xRealIp) > 0 {
-		label.RealIp = string(xRealIp)
-	} else if xForwardedFor := h.Peek("X-Forwarded-For"); len(xForwardedFor) > 0 {
-		label.RealIp = string(bytes.Split(xForwardedFor, []byte{','})[0])
-	}
-	if len(label.RealIp) == 0 {
-		label.RealIp = ctx.RemoteAddr().String()
-	}
-
 	settings = append(settings, tp.WithAddMeta(tp.MetaRealIp, label.RealIp))
 
 	// set seq
@@ -125,7 +128,6 @@ func (r *requestHandler) handle() {
 		settings = append(settings, tp.WithSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes)))
 	}
 
-	var reply []byte
 	label.Uri += "?" + query.String()
 
 	pullcmd := logic.
@@ -190,10 +192,10 @@ func (r *requestHandler) replyError(rerr *tp.Rerror) {
 		// Business error
 		statusCode = 299
 	}
-	msg, _ := rerr.MarshalJSON()
+	r.errMsg, _ = rerr.MarshalJSON()
 	r.ctx.SetStatusCode(statusCode)
 	r.ctx.SetContentType("application/json")
-	r.ctx.SetBody(msg)
+	r.ctx.SetBody(r.errMsg)
 }
 
 // QueryArgs returns the query arguments object of request.

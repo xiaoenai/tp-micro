@@ -18,6 +18,7 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
+	"time"
 
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/henrylee2cn/tp-micro"
@@ -27,11 +28,14 @@ import (
 
 // HttpSrvConfig config of HTTP server
 type HttpSrvConfig struct {
-	ListenAddress string `yaml:"listen_address"`
-	OuterHost     string `yaml:"outer_host"`
-	TlsCertFile   string `yaml:"tls_cert_file"`
-	TlsKeyFile    string `yaml:"tls_key_file"`
-	AllowCross    bool   `yaml:"allow_cross"`
+	ListenAddress     string        `yaml:"listen_address"`
+	OuterHost         string        `yaml:"outer_host"`
+	TlsCertFile       string        `yaml:"tls_cert_file"`
+	TlsKeyFile        string        `yaml:"tls_key_file"`
+	AllowCross        bool          `yaml:"allow_cross"`
+	PrintDetail       bool          `yaml:"-"`
+	CountTime         bool          `yaml:"-"`
+	SlowCometDuration time.Duration `yaml:"-"`
 }
 
 // ListenPort returns the listened port, such as '8080'.
@@ -62,6 +66,9 @@ func (h *HttpSrvConfig) OuterIpPort() string {
 
 // Serve starts HTTP gateway service.
 func Serve(srvCfg HttpSrvConfig) {
+	printDetail = srvCfg.PrintDetail
+	countTime = srvCfg.CountTime
+	slowCometDuration = srvCfg.SlowCometDuration
 	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
 	var tlsConfig *tls.Config
 	var err error
