@@ -104,4 +104,5 @@ func RegBodyCodecForHTTP(contentType string, codecId byte) {
 	short.RegBodyCodec(contentType, codecId)
 }
 
+// TotalConn returns the current connections amount.
 func TotalConn() int32
