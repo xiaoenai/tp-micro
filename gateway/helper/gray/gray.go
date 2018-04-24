@@ -21,6 +21,7 @@ import (
 )
 
 // SetGray sets gray model to *gwTypes.Business.
+// Note: the result grayClient may be used externally.
 func SetGray(
 	biz *gwTypes.Business,
 	grayClientConfig micro.CliConfig,
@@ -28,19 +29,19 @@ func SetGray(
 	mysqlConfig model.Config,
 	redisConfig redis.Config,
 	protoFunc socket.ProtoFunc,
-) error {
-	err := mod.Init(mysqlConfig, redisConfig)
+) (grayClient *micro.Client, err error) {
+	err = mod.Init(mysqlConfig, redisConfig)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if protoFunc == nil {
 		protoFunc = socket.NewFastProtoFunc
 	}
 	grayEtcdClient, err := etcd.EasyNew(grayEtcdConfig)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	grayClient := micro.NewClient(
+	grayClient = micro.NewClient(
 		grayClientConfig,
 		discovery.NewLinkerFromEtcd(grayEtcdClient),
 	)
@@ -68,7 +69,7 @@ func SetGray(
 		}
 		return grayClient
 	}
-	return nil
+	return grayClient, nil
 }
 
 type innerServerPlugin struct{}
