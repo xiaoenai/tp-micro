@@ -1,6 +1,8 @@
 package socket
 
 import (
+	_ "unsafe"
+
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/logic/hosts"
@@ -18,6 +20,8 @@ func (g *gw) Hosts(*struct{}) (*types.GwHosts, *tp.Rerror) {
 }
 
 // totalConn returns the long connections total.
+//go:linkname totalConn github.com/xiaoenai/ants/gateway.TotalConn
+//go:nosplit
 func totalConn() int32 {
 	return int32(outerPeer.CountSession())
 }

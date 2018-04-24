@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/henrylee2cn/cfgo"
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/henrylee2cn/tp-micro"
@@ -54,5 +56,14 @@ func main() {
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
+
+	go func() {
+		t := time.NewTicker(time.Second)
+		for {
+			<-t.C
+			tp.Infof("total conn: %d", gateway.TotalConn())
+		}
+	}()
+
 	gateway.Run(cfg.Gw, biz, nil)
 }

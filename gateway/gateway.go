@@ -17,6 +17,8 @@
 package gateway
 
 import (
+	_ "unsafe"
+
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 	"github.com/xiaoenai/ants/gateway/client"
@@ -101,3 +103,5 @@ func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 func RegBodyCodecForHTTP(contentType string, codecId byte) {
 	short.RegBodyCodec(contentType, codecId)
 }
+
+func TotalConn() int32
