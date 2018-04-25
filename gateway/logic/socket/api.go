@@ -23,6 +23,9 @@ func (g *gw) Hosts(*struct{}) (*types.GwHosts, *tp.Rerror) {
 //go:linkname totalConn github.com/xiaoenai/ants/gateway.TotalConn
 //go:nosplit
 func totalConn() int32 {
+	if outerPeer == nil {
+		return 0
+	}
 	return int32(outerPeer.CountSession())
 }
 
