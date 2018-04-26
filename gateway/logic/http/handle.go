@@ -17,6 +17,7 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/henrylee2cn/goutil"
@@ -47,6 +48,8 @@ type requestHandler struct {
 	errMsg []byte
 }
 
+var rerrInternalServerError = tp.NewRerror(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
+
 func (r *requestHandler) handle() {
 	var ctx = r.ctx
 	var h = r.Header()
@@ -68,8 +71,13 @@ func (r *requestHandler) handle() {
 	if len(label.RealIp) == 0 {
 		label.RealIp = ctx.RemoteAddr().String()
 	}
-
-	defer r.runlog(time.Now(), &label, goutil.BytesToString(query.Peek(SEQ)), bodyBytes, &reply)
+	start := time.Now()
+	defer func() {
+		if p := recover(); p != nil {
+			r.replyError(rerrInternalServerError.Copy().SetDetail(fmt.Sprint(p)))
+		}
+		r.runlog(start, &label, goutil.BytesToString(query.Peek(SEQ)), bodyBytes, &reply)
+	}()
 
 	// cross
 	if allowCross && r.crossDomainFilter() {
