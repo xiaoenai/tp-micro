@@ -136,7 +136,9 @@ func (r *requestHandler) handle() {
 		settings = append(settings, tp.WithSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes)))
 	}
 
-	label.Uri += "?" + query.String()
+	if query.Len() > 0 {
+		label.Uri += "?" + query.String()
+	}
 
 	pullcmd := logic.
 		ProxySelector(&label).
