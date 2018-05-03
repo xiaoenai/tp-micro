@@ -19,11 +19,24 @@ import (
 )
 
 const (
-	servicePrefix = "ANTS-GW_HOSTS"
 	// minimum lease TTL is 10-second
 	minLeaseTTL      = 10
 	maxGatewayAmount = 10
 )
+
+var (
+	hostsPrefix = "ANTS-GW_HOSTS"
+)
+
+// HostsNamespace returns the gateway hosts prefix of ETCD key.
+func HostsNamespace() string {
+	return hostsPrefix
+}
+
+// SetHostsNamespace sets the gateway hosts prefix of ETCD key.
+func SetHostsNamespace(prefix string) {
+	hostsPrefix = prefix
+}
 
 // Hosts gateway ip:port list
 type Hosts struct {
@@ -61,7 +74,7 @@ func SocketAddress() (outer, inner string) {
 func (h *Hosts) init(httpAddr, outerSocketAddr, innerSocketAddr string) {
 	h.outerSocketAddr = outerSocketAddr
 	h.innerSocketAddr = innerSocketAddr
-	h.serviceKey = servicePrefix + "@" + httpAddr + "@" + outerSocketAddr + "@" + innerSocketAddr
+	h.serviceKey = hostsPrefix + "@" + httpAddr + "@" + outerSocketAddr + "@" + innerSocketAddr
 }
 
 // start starts the SocketHosts program.
@@ -164,7 +177,7 @@ func (h *Hosts) watchEtcd() {
 		ok              bool
 		watcher         = client.EtcdClient().Watch(
 			context.Background(),
-			servicePrefix,
+			hostsPrefix,
 			etcd.WithPrefix(),
 		)
 	)
@@ -208,7 +221,7 @@ func (h *Hosts) watchEtcd() {
 func (h *Hosts) resetGatewayIps(goSort bool) {
 	resp, err := client.EtcdClient().Get(
 		context.Background(),
-		servicePrefix,
+		hostsPrefix,
 		etcd.WithPrefix(),
 		etcd.WithSort(etcd.SortByKey, etcd.SortDescend),
 	)
@@ -337,7 +350,7 @@ func (s SortWeightIps) Swap(i, j int) {
 }
 
 func splitHostsKey(valueBytes []byte) (httpAddr, outerSocketAddr, innerSocketAddr string, ok bool) {
-	valueBytes = bytes.TrimPrefix(valueBytes, goutil.StringToBytes(servicePrefix))
+	valueBytes = bytes.TrimPrefix(valueBytes, goutil.StringToBytes(hostsPrefix))
 	a := bytes.Split(valueBytes, []byte{'@'})
 	if len(a) != 4 {
 		return

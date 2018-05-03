@@ -106,3 +106,13 @@ func RegBodyCodecForHTTP(contentType string, codecId byte) {
 
 // TotalConn returns the current connections amount.
 func TotalConn() int32
+
+// HostsNamespace returns the gateway hosts prefix of ETCD key.
+func HostsNamespace() string {
+	return hosts.HostsNamespace()
+}
+
+// SetHostsNamespace sets the gateway hosts prefix of ETCD key.
+func SetHostsNamespace(prefix string) {
+	hosts.SetHostsNamespace(prefix)
+}
