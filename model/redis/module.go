@@ -14,7 +14,7 @@ type Module struct {
 // NewModule creates a module for the redis key prefix.
 func NewModule(module string) *Module {
 	return &Module{
-		keyFormat: "%s:%s", // module:moduleVersion:key
+		keyFormat: "%s:%s", // module:key
 		module:    module,
 		keyPrefix: fmt.Sprintf("%s:", module),
 	}
