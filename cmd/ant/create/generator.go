@@ -9,6 +9,7 @@ import (
 	"go/token"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -744,6 +745,8 @@ func (t *TypeStructGroup) createTypesAndModels(models map[string]*Model) (s stri
 	}
 }
 
+var jsonRegexp = regexp.MustCompile("^[^/]*[`\\s\"]*json:\"")
+
 func addTag(body string) string {
 	body = strings.Replace(body, "\n\n", "\n", -1)
 	body = strings.Replace(body, "\r\n\r\n", "\n", -1)
@@ -754,7 +757,8 @@ func addTag(body string) string {
 			continue
 		}
 		s = strings.TrimSpace(s)
-		if len(s) == 0 || s[0] == '/' {
+		ss := strings.TrimPrefix(s, "*")
+		if len(ss) == 0 || !unicode.IsUpper(rune(ss[0])) || jsonRegexp.MatchString(ss) {
 			continue
 		}
 		var lastIsSpace bool
