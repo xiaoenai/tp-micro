@@ -146,6 +146,11 @@ func (r *requestHandler) handle() {
 
 	// fail
 	if rerr := pullcmd.Rerror(); rerr != nil {
+		pullcmd.InputMeta().VisitAll(func(key, value []byte) {
+			k := goutil.BytesToString(key)
+			v := goutil.BytesToString(value)
+			ctx.Response.Header.Add(k, v)
+		})
 		r.replyError(rerr)
 		return
 	}

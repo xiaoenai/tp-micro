@@ -48,6 +48,7 @@ const html = `<!DOCTYPE html>
 <p><input id="hosts" type="button" value="Get Gateway Hosts" /></p>
 <hr>
 <p><a href="http://localhost:5000/home" target="_blank">Go to Home Page</a></p>
+<p><a href="http://localhost:5000/home2" target="_blank">Test Redirect to Home Page</a></p>
 <script type="application/javascript">
     $('#divide').on('click',function(){
         $.ajax({

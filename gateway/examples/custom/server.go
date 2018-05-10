@@ -7,6 +7,7 @@ import (
 	"github.com/henrylee2cn/tp-micro/discovery"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 	"github.com/xiaoenai/ants/gateway/helper/agent"
+	"github.com/xiaoenai/ants/helper"
 	html "github.com/xiaoenai/ants/helper/mod-html"
 	"github.com/xiaoenai/ants/model/redis"
 )
@@ -29,6 +30,11 @@ func init() {
 // Home HTML home page
 func Home(ctx tp.PullCtx, args *struct{}) ([]byte, *tp.Rerror) {
 	return html.Render(ctx, "home", "Home Page Test!")
+}
+
+// Home2 HTML home page
+func Home2(ctx tp.PullCtx, args *struct{}) ([]byte, *tp.Rerror) {
+	return nil, helper.Redirect(ctx, 302, "http://localhost:5000/home")
 }
 
 // Args args
@@ -63,6 +69,7 @@ func main() {
 		Srv: micro.SrvConfig{
 			ListenAddress:   ":9090",
 			EnableHeartbeat: true,
+			PrintDetail:     true,
 		},
 		Etcd: etcd.EasyConfig{
 			Endpoints: []string{"http://127.0.0.1:2379"},
@@ -90,6 +97,7 @@ func main() {
 		cfg.Etcd,
 	))
 	srv.RoutePullFunc(Home)
+	srv.RoutePullFunc(Home2)
 	srv.RoutePull(new(Math))
 	srv.ListenAndServe()
 }

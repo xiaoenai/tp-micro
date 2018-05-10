@@ -5,6 +5,7 @@ import (
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+	"github.com/xiaoenai/ants/helper"
 	html "github.com/xiaoenai/ants/helper/mod-html"
 )
 
@@ -28,6 +29,11 @@ func Home(ctx tp.PullCtx, args *struct{}) ([]byte, *tp.Rerror) {
 	return html.Render(ctx, "home", "Home Page Test!")
 }
 
+// Home2 HTML home page
+func Home2(ctx tp.PullCtx, args *struct{}) ([]byte, *tp.Rerror) {
+	return nil, helper.Redirect(ctx, 302, "http://localhost:5000/home")
+}
+
 // Args args
 type Args struct {
 	A int
@@ -48,6 +54,7 @@ func main() {
 	cfg := micro.SrvConfig{
 		ListenAddress:   ":9090",
 		EnableHeartbeat: true,
+		PrintDetail:     true,
 	}
 	srv := micro.NewServer(cfg, discovery.ServicePlugin(
 		cfg.InnerIpPort(),
@@ -56,6 +63,7 @@ func main() {
 		},
 	))
 	srv.RoutePullFunc(Home)
+	srv.RoutePullFunc(Home2)
 	srv.RoutePull(new(Math))
 	srv.ListenAndServe()
 }
