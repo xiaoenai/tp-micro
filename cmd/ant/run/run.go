@@ -124,7 +124,7 @@ func rerun() {
 	state.Lock()
 	defer state.Unlock()
 	tp.Printf("[ant] Start build...")
-	buildCom := exec.Command("go", "build", "-o", info.ProjName())
+	buildCom := exec.Command("go", "build", "-o", info.FileName())
 	buildCom.Env = []string{"GOPATH=" + info.Gopath()}
 	for _, env := range os.Environ() {
 		if strings.HasPrefix(strings.TrimSpace(env), "GOPATH=") {
