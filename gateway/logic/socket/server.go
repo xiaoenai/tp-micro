@@ -58,6 +58,7 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc)
 			verGroup.RoutePullFunc((*gw).Hosts)
 			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketTotal))
 			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketPush))
+			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketMpush))
 			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketKick))
 		}
 	}

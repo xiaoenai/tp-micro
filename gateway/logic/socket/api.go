@@ -1,6 +1,8 @@
 package socket
 
 import (
+	"strings"
+	"sync"
 	_ "unsafe"
 
 	tp "github.com/henrylee2cn/teleport"
@@ -34,7 +36,7 @@ func (g *gw) SocketTotal(*types.SocketTotalArgs) (*types.SocketTotalReply, *tp.R
 	return &types.SocketTotalReply{ConnTotal: totalConn()}, nil
 }
 
-// innerPush pushs the message to the designated uid.
+// innerPush pushes the message to the specified user.
 func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rerror {
 	sess, rerr := logic.SocketHooks().GetSession(outerPeer, uid)
 	if rerr != nil {
@@ -45,13 +47,49 @@ func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rer
 
 var socketPushReply = new(types.SocketPushReply)
 
-// SocketPush returns the long connections total.
+// SocketPush pushes message to the specified user.
 func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp.Rerror) {
 	rerr := innerPush(args.SessionId, args.Uri, args.Body, byte(args.BodyCodec))
 	if rerr != nil {
 		return nil, rerr
 	}
 	return socketPushReply, nil
+}
+
+// SocketMpush multi-push messages to the specified users.
+func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, *tp.Rerror) {
+	var (
+		uri               string
+		wg                sync.WaitGroup
+		sep               = "?"
+		failureSessionIds = make([]string, 0, len(args.Target))
+		lock              sync.Mutex
+	)
+	if strings.Contains(args.Uri, "?") {
+		sep = "&"
+	}
+	wg.Add(len(args.Target))
+	for _, t := range args.Target {
+		if t.AdditionalQuery != "" {
+			uri = args.Uri + sep + t.AdditionalQuery
+		} else {
+			uri = args.Uri
+		}
+		tp.TryGo(func() {
+			defer wg.Done()
+			rerr := innerPush(t.SessionId, uri, args.Body, byte(args.BodyCodec))
+			if rerr != nil {
+				lock.Lock()
+				failureSessionIds = append(failureSessionIds, t.SessionId)
+				lock.Unlock()
+				tp.Tracef("SocketMpush: %s", rerr.String())
+			}
+		})
+	}
+	wg.Wait()
+	return &types.SocketMpushReply{
+		FailureSessionIds: failureSessionIds,
+	}, nil
 }
 
 // Kick kicks the uid offline.

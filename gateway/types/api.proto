@@ -13,9 +13,26 @@ message SocketPushArgs {
     int32   body_codec = 4;
 }
 
+message SocketMpushArgs {
+    repeated MpushTarget target = 1;
+    string  uri                 = 2;
+    bytes   body                = 3;
+    int32   body_codec          = 4;
+}
+
+message MpushTarget {
+	string  session_id       = 1;
+    string  additional_query = 2;
+}
+
+message SocketMpushReply {
+    repeated string failure_session_ids = 1;
+}
+
 message SocketKickArgs {
     string  session_id = 1;
 }
+
 message SocketKickReply {
     bool  existed      = 1;
 }

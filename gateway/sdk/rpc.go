@@ -59,10 +59,20 @@ func SocketTotal(srvAddr string, setting ...socket.PacketSetting) (*types.Socket
 	return reply, nil
 }
 
-// SocketPush pushs the message to the long connection's client user.
+// SocketPush pushes message to the specified user.
 func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...socket.PacketSetting) (*types.SocketPushReply, *tp.Rerror) {
 	var reply = new(types.SocketPushReply)
 	rerr := client.StaticClient(srvAddr).Pull("/gw"+_apiVersion+"/socket_push", args, reply, setting...).Rerror()
+	if rerr != nil {
+		return nil, rerr
+	}
+	return reply, nil
+}
+
+// SocketMpush multi-push messages to the specified users.
+func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...socket.PacketSetting) (*types.SocketMpushReply, *tp.Rerror) {
+	var reply = new(types.SocketMpushReply)
+	rerr := client.StaticClient(srvAddr).Pull("/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
