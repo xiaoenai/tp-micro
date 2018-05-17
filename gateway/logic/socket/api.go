@@ -64,6 +64,8 @@ func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, 
 		sep               = "?"
 		failureSessionIds = make([]string, 0, len(args.Target))
 		lock              sync.Mutex
+		body              = args.Body
+		bodyCodec         = byte(args.BodyCodec)
 	)
 	if strings.Contains(args.Uri, "?") {
 		sep = "&"
@@ -77,7 +79,7 @@ func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, 
 		}
 		tp.TryGo(func() {
 			defer wg.Done()
-			rerr := innerPush(t.SessionId, uri, args.Body, byte(args.BodyCodec))
+			rerr := innerPush(t.SessionId, uri, body, bodyCodec)
 			if rerr != nil {
 				lock.Lock()
 				failureSessionIds = append(failureSessionIds, t.SessionId)
