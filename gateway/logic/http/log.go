@@ -3,6 +3,7 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"math"
 	"strconv"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 var (
 	printDetail       bool
 	countTime         bool
-	slowCometDuration time.Duration
+	slowCometDuration time.Duration = math.MaxInt64
 )
 
 func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, seq string, inputBody []byte, outputBody *[]byte) {

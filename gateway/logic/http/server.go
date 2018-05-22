@@ -68,7 +68,9 @@ func (h *HttpSrvConfig) OuterIpPort() string {
 func Serve(srvCfg HttpSrvConfig) {
 	printDetail = srvCfg.PrintDetail
 	countTime = srvCfg.CountTime
-	slowCometDuration = srvCfg.SlowCometDuration
+	if srvCfg.SlowCometDuration > 0 {
+		slowCometDuration = srvCfg.SlowCometDuration
+	}
 	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
 	var tlsConfig *tls.Config
 	var err error
