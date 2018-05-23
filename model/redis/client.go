@@ -154,6 +154,7 @@ type (
 	ZRangeBy       = redis.ZRangeBy
 	Z              = redis.Z
 	Pipeliner      = redis.Pipeliner
+	RedisCmdable   = redis.Cmdable
 )
 
 // NewClient creates a redis(cluster) client from yaml config, and pings the client.
