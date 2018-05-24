@@ -147,14 +147,28 @@ type (
 		Subscribe(channels ...string) *redis.PubSub
 	}
 	// Alias
-	PubSub         = redis.PubSub
-	Message        = redis.Message
-	GeoLocation    = redis.GeoLocation
-	GeoRadiusQuery = redis.GeoRadiusQuery
-	ZRangeBy       = redis.ZRangeBy
-	Z              = redis.Z
-	Pipeliner      = redis.Pipeliner
-	RedisCmdable   = redis.Cmdable
+	PubSub             = redis.PubSub
+	Message            = redis.Message
+	GeoLocation        = redis.GeoLocation
+	GeoRadiusQuery     = redis.GeoRadiusQuery
+	ZRangeBy           = redis.ZRangeBy
+	Z                  = redis.Z
+	Pipeliner          = redis.Pipeliner
+	RedisCmdable       = redis.Cmdable
+	SliceCmd           = redis.SliceCmd
+	StatusCmd          = redis.StatusCmd
+	IntCmd             = redis.IntCmd
+	DurationCmd        = redis.DurationCmd
+	BoolCmd            = redis.BoolCmd
+	StringCmd          = redis.StringCmd
+	FloatCmd           = redis.FloatCmd
+	StringSliceCmd     = redis.StringSliceCmd
+	BoolSliceCmd       = redis.BoolSliceCmd
+	StringStringMapCmd = redis.StringStringMapCmd
+	StringIntMapCmd    = redis.StringIntMapCmd
+	ZSliceCmd          = redis.ZSliceCmd
+	ScanCmd            = redis.ScanCmd
+	ClusterSlotsCmd    = redis.ClusterSlotsCmd
 )
 
 // NewClient creates a redis(cluster) client from yaml config, and pings the client.
