@@ -112,8 +112,10 @@ func (p *Project) Prepare() {
 		}
 
 		for _, spec := range genDecl.Specs {
-
-			typeSpec := spec.(*ast.TypeSpec)
+			typeSpec, ok := spec.(*ast.TypeSpec)
+			if !ok {
+				continue
+			}
 			name := typeSpec.Name.Name
 			var doc = typeStructGroup.Doc
 			if len(genDecl.Specs) > 1 {
