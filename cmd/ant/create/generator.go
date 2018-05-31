@@ -841,18 +841,19 @@ func (p *Project) checkHandler(r *Handler, isPull bool) (paramAndResult [2]strin
 		} else {
 			name := t[1:]
 
-		Q:
-			for _, ty := range p.Types {
-				for _, s := range ty.Structs {
-					if s.Name == name {
-						paramAndResult[i] = t[:1] + "types." + name
-						break Q
-					}
-				}
-			}
-			if paramAndResult[i] == "" {
-				panic("Arguments and results must be exised struct pointers: " + r.Name)
-			}
+			paramAndResult[i] = t[:1] + "types." + name
+			// Q:
+			// 	for _, ty := range p.Types {
+			// 		for _, s := range ty.Structs {
+			// 			if s.Name == name {
+			// 				paramAndResult[i] = t[:1] + "types." + name
+			// 				break Q
+			// 			}
+			// 		}
+			// 	}
+			// 	if paramAndResult[i] == "" {
+			// 		panic("Arguments and results must be exised struct pointers: " + r.Name)
+			// 	}
 		}
 	}
 	return
