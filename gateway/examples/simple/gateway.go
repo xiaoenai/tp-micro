@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/henrylee2cn/cfgo"
+	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/ants/gateway"
 	"github.com/xiaoenai/ants/gateway/types"
 )
@@ -12,5 +13,8 @@ func main() {
 	cfgo.MustReg("gateway", cfg)
 	// Run a gateway instance with default business logic and default socket protocol.
 	biz := types.DefaultBusiness()
-	gateway.Run(*cfg, biz, nil)
+	err := gateway.Run(*cfg, biz, nil)
+	if err != nil {
+		tp.Fatalf("%v", err)
+	}
 }

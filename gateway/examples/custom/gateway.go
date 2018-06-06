@@ -67,5 +67,8 @@ func main() {
 		}
 	}()
 
-	gateway.Run(cfg.Gw, biz, nil)
+	err = gateway.Run(cfg.Gw, biz, nil)
+	if err != nil {
+		tp.Fatalf("%v", err)
+	}
 }
