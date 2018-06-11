@@ -20,25 +20,31 @@ import (
 	"github.com/xiaoenai/ants/model/redis"
 )
 
-const (
-	// AgentKeyPrefix agent key prefix in redis.
-	AgentKeyPrefix = "agent"
-	// AgentChannel agent state of the subscription channel
-	AgentChannel = "agent_state"
-	// AgentLife agent max life time
-	AgentLife = time.Hour * 24 * 3
+var (
+	// agentKeyPrefix agent key prefix in redis.
+	agentKeyPrefix = "AGENT"
+	// agentChannel agent state of the subscription channel
+	agentChannel = "AGENT_Q"
+	// agentLife agent max life time
+	agentLife = time.Hour * 24 * 3
 )
 
 var kickUri string
 var globalHandler *agentHandler
 
 // Init initializes agent packet.
-func Init(redisWithLargeMemory *redis.Client, redisWithPublishCmd *redis.Client) error {
+func Init(redisWithLargeMemory *redis.Client, redisWithPublishCmd *redis.Client, namespace ...string) error {
+	agentKeyPrefix += ":" + logic.ApiVersion()
+	agentChannel += ":" + logic.ApiVersion()
+	if len(namespace) > 0 && namespace[0] != "" {
+		agentKeyPrefix = namespace[0] + "@" + agentKeyPrefix
+		agentChannel = namespace[0] + "@" + agentChannel
+	}
 	kickUri = "/gw/" + logic.ApiVersion() + "/socket_kick"
 	globalHandler = new(agentHandler)
 	globalHandler.redisWithLargeMemory = redisWithLargeMemory
 	globalHandler.redisWithPublishCmd = redisWithPublishCmd
-	globalHandler.module = redis.NewModule(AgentKeyPrefix)
+	globalHandler.module = redis.NewModule(agentKeyPrefix)
 	return nil
 }
 
@@ -112,9 +118,9 @@ func (h *agentHandler) OnLogon(sess plugin.AuthSession, accessToken types.Access
 	var err error
 	lockErr := h.redisWithLargeMemory.LockCallback("lock_"+key, func() {
 		data, _ := json.Marshal(a)
-		err = h.redisWithLargeMemory.Set(key, data, AgentLife).Err()
+		err = h.redisWithLargeMemory.Set(key, data, agentLife).Err()
 		if err == nil {
-			h.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(sessionId, EVENT_ONLINE))
+			h.redisWithPublishCmd.Publish(agentChannel, createAgentNews(sessionId, EVENT_ONLINE))
 		}
 	})
 	if lockErr != nil {
@@ -156,7 +162,7 @@ func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
 					return
 				}
 			}
-			h.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(sessionId, EVENT_OFFLINE))
+			h.redisWithPublishCmd.Publish(agentChannel, createAgentNews(sessionId, EVENT_OFFLINE))
 			err = h.redisWithLargeMemory.Del(key).Err()
 		},
 	)
@@ -202,7 +208,7 @@ func enforceKickOffline(sessionId string, checkLocal bool) *tp.Rerror {
 					return
 				}
 			}
-			globalHandler.redisWithPublishCmd.Publish(AgentChannel, createAgentNews(sessionId, EVENT_OFFLINE))
+			globalHandler.redisWithPublishCmd.Publish(agentChannel, createAgentNews(sessionId, EVENT_OFFLINE))
 			err = globalHandler.redisWithLargeMemory.Del(key).Err()
 		},
 	)
@@ -342,7 +348,7 @@ func (a *AgentNews) IsOffline() bool {
 // Subscribe subscribes agent news from redis.
 func Subscribe() <-chan *AgentNews {
 	subscribeInit.Do(func() {
-		pubSub := globalHandler.redisWithPublishCmd.Subscribe(AgentChannel)
+		pubSub := globalHandler.redisWithPublishCmd.Subscribe(agentChannel)
 		subscribeChannel = make(chan *AgentNews, 100)
 		go func() {
 			for msg := range pubSub.Channel() {
