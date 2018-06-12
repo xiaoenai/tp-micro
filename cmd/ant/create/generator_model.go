@@ -66,6 +66,9 @@ func (mod *Model) createModel(t *TypeStruct) {
 		}
 		querySql1 += fmt.Sprintf("`%s`,", field)
 		querySql2 += fmt.Sprintf(":%s,", field)
+		if field == "created_at" {
+			continue
+		}
 		mod.UpdateSql += fmt.Sprintf("`%s`=:%s,", field, field)
 	}
 	mod.QuerySql = [2]string{querySql1[:len(querySql1)-1], querySql2[:len(querySql2)-1]}
