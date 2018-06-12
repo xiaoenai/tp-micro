@@ -411,12 +411,12 @@ import (
     tp "github.com/henrylee2cn/teleport"
 )
 // Route registers handlers to router.
-func Route(root string, router *tp.Router) {
+func Route(_root string, _router *tp.Router) {
     // root router group
-    group := router.SubRoute(root)
+    _group := _router.SubRoute(_root)
     
     // custom router
-    customRoute(group.ToRouter())
+    customRoute(_group.ToRouter())
    
     // automatically generated router
     ${register_router_list}}
@@ -537,9 +537,9 @@ func (p *Project) genRouterFile() {
 		s += "\n// PULL APIs...\n"
 		for _, r := range p.PullApis {
 			if r.IsCtrl {
-				s += fmt.Sprintf("group.RoutePull(new(%s))\n", r.Name)
+				s += fmt.Sprintf("_group.RoutePull(new(%s))\n", r.Name)
 			} else {
-				s += fmt.Sprintf("group.RoutePullFunc(%s)\n", r.Name)
+				s += fmt.Sprintf("_group.RoutePullFunc(%s)\n", r.Name)
 			}
 		}
 	}
@@ -547,9 +547,9 @@ func (p *Project) genRouterFile() {
 		s += "\n// PUSH APIs...\n"
 		for _, r := range p.PushApis {
 			if r.IsCtrl {
-				s += fmt.Sprintf("group.RoutePush(new(%s))\n", r.Name)
+				s += fmt.Sprintf("_group.RoutePush(new(%s))\n", r.Name)
 			} else {
-				s += fmt.Sprintf("group.RoutePushFunc(%s)\n", r.Name)
+				s += fmt.Sprintf("_group.RoutePushFunc(%s)\n", r.Name)
 			}
 		}
 	}
