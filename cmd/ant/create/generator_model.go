@@ -144,7 +144,11 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 			return err
 		}
 		_{{.LowerFirstLetter}}.Id = id
-		return {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
+		err = {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
+		if err != nil {
+			tp.Errorf("%s", err.Error())
+		}
+		return nil
 	}, tx...)
 }
 
@@ -156,7 +160,11 @@ func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) erro
 		if err != nil {
 			return err
 		}
-		return {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
+		err = {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
+		if err != nil {
+			tp.Errorf("%s", err.Error())
+		}
+		return nil
 	}, tx...)
 }
 
@@ -167,9 +175,13 @@ func Delete{{.Name}}ById(id int64, tx ...*sqlx.Tx) error {
 		if err != nil {
 			return err
 		}
-		return {{.LowerFirstName}}DB.PutCache(&{{.Name}}{
+		err = {{.LowerFirstName}}DB.PutCache(&{{.Name}}{
 			Id: id,
 		})
+		if err != nil {
+			tp.Errorf("%s", err.Error())
+		}
+		return nil
 	}, tx...)
 }
 
