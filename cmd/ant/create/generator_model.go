@@ -128,7 +128,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	return _{{.LowerFirstLetter}}.Id, {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
+	return _{{.LowerFirstLetter}}.Id, {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		var query string
 		if _{{.LowerFirstLetter}}.Id > 0 {
 			query = "INSERT INTO {{.NameSql}} (id,{{index .QuerySql 0}})VALUES(:id,{{index .QuerySql 1}});"
@@ -155,7 +155,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 // Update{{.Name}}ById update the {{.Name}} data in database by id.
 // NOTE: _fields' members must be snake format.
 func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, _fields []string, tx ...*sqlx.Tx) error {
-	return {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
+	return {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 		var err error
 		if len(_fields) == 0 {
@@ -187,7 +187,7 @@ func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, _fields []string, tx
 
 // Delete{{.Name}}ById delete a {{.Name}} data in database by id.
 func Delete{{.Name}}ById(id int64, tx ...*sqlx.Tx) error {
-	return {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
+	return {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE id=?;", id)
 		if err != nil {
 			return err
