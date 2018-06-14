@@ -153,10 +153,27 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 }
 
 // Update{{.Name}}ById update the {{.Name}} data in database by id.
-func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) error {
+// NOTE: _fields' members must be snake format.
+func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, _fields []string, tx ...*sqlx.Tx) error {
 	return {{.LowerFirstName}}DB.TransactCallback(func(tx *sqlx.Tx) error {
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
-		_, err := tx.NamedExec("UPDATE {{.NameSql}} SET {{.UpdateSql}} WHERE id=:id LIMIT 1;", _{{.LowerFirstLetter}})
+		var err error
+		if len(_fields) == 0 {
+			_, err = tx.NamedExec("UPDATE {{.NameSql}} SET {{.UpdateSql}} WHERE id=:id LIMIT 1;", _{{.LowerFirstLetter}})
+		} else {
+			var sql = "UPDATE {{.NameSql}} SET "
+			for _, s := range _fields {
+				if s == "updated_at" {
+					continue
+				}
+				sql += ` + "\"`\" + s + \"`=:\" + s + \",\"" + `
+			}
+			if sql[len(sql)-1] != ',' {
+				return nil
+			}
+			sql += ` + "\"`updated_at`=:updated_at WHERE id=:id LIMIT 1;\"" + `
+			_, err = tx.NamedExec(sql, _{{.LowerFirstLetter}})
+		}
 		if err != nil {
 			return err
 		}
