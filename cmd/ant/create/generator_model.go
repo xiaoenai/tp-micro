@@ -152,13 +152,13 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 	}, tx...)
 }
 
-// Update{{.Name}}ById update the {{.Name}} data in database by id.
+// Update{{.Name}}ByPrimary update the {{.Name}} data in database by primary key.
 // NOTE:
 //  _updateFields' members must be snake format;
 //  Automatic update updated_at field;
 //  Don't update the primary key and the created_at key;
 //  Update all fields except the primary key and the created_at key if _updateFields is empty.
-func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) error {
+func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) error {
 	return {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 		var err error
@@ -189,8 +189,8 @@ func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []stri
 	}, tx...)
 }
 
-// Delete{{.Name}}ById delete a {{.Name}} data in database by id.
-func Delete{{.Name}}ById(id int64, tx ...*sqlx.Tx) error {
+// Delete{{.Name}}ByPrimary delete a {{.Name}} data in database by primary key.
+func Delete{{.Name}}ByPrimary(id int64, tx ...*sqlx.Tx) error {
 	return {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE id=?;", id)
 		if err != nil {
@@ -206,9 +206,9 @@ func Delete{{.Name}}ById(id int64, tx ...*sqlx.Tx) error {
 	}, tx...)
 }
 
-// Get{{.Name}}ById query a {{.Name}} data from database by id.
+// Get{{.Name}}ByPrimary query a {{.Name}} data from database by primary key.
 // If @reply bool=false error=nil, means the data is not exist.
-func Get{{.Name}}ById(id int64) (*{{.Name}}, bool, error) {
+func Get{{.Name}}ByPrimary(id int64) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = &{{.Name}}{
 		Id: id,
 	}
