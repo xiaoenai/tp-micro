@@ -161,18 +161,18 @@ func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, _fields []string, tx
 		if len(_fields) == 0 {
 			_, err = tx.NamedExec("UPDATE {{.NameSql}} SET {{.UpdateSql}} WHERE id=:id LIMIT 1;", _{{.LowerFirstLetter}})
 		} else {
-			var sql = "UPDATE {{.NameSql}} SET "
+			var query = "UPDATE {{.NameSql}} SET "
 			for _, s := range _fields {
 				if s == "updated_at" {
 					continue
 				}
-				sql += ` + "\"`\" + s + \"`=:\" + s + \",\"" + `
+				query += ` + "\"`\" + s + \"`=:\" + s + \",\"" + `
 			}
-			if sql[len(sql)-1] != ',' {
+			if query[len(query)-1] != ',' {
 				return nil
 			}
-			sql += ` + "\"`updated_at`=:updated_at WHERE id=:id LIMIT 1;\"" + `
-			_, err = tx.NamedExec(sql, _{{.LowerFirstLetter}})
+			query += ` + "\"`updated_at`=:updated_at WHERE id=:id LIMIT 1;\"" + `
+			_, err = tx.NamedExec(query, _{{.LowerFirstLetter}})
 		}
 		if err != nil {
 			return err
