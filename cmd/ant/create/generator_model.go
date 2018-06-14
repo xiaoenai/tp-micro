@@ -153,17 +153,21 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 }
 
 // Update{{.Name}}ById update the {{.Name}} data in database by id.
-// NOTE: _fields' members must be snake format.
-func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, _fields []string, tx ...*sqlx.Tx) error {
+// NOTE:
+//  _updateFields' members must be snake format;
+//  Automatic update updated_at field;
+//  Don't update the primary key and the created_at key;
+//  Update all fields except the primary key and the created_at key if _updateFields is empty.
+func Update{{.Name}}ById(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) error {
 	return {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 		var err error
-		if len(_fields) == 0 {
+		if len(_updateFields) == 0 {
 			_, err = tx.NamedExec("UPDATE {{.NameSql}} SET {{.UpdateSql}} WHERE id=:id LIMIT 1;", _{{.LowerFirstLetter}})
 		} else {
 			var query = "UPDATE {{.NameSql}} SET "
-			for _, s := range _fields {
-				if s == "updated_at" {
+			for _, s := range _updateFields {
+				if s == "updated_at" || s == "id" || s == "created_at" {
 					continue
 				}
 				query += ` + "\"`\" + s + \"`=:\" + s + \",\"" + `
