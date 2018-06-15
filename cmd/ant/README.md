@@ -105,7 +105,7 @@ type User struct {
 ├── __ant__tpl__.go
 ├── api
 │   ├── handler.gen.go
-│   ├── handlers.go
+│   ├── handler.go
 │   ├── router.gen.go
 │   └── router.go
 ├── args
