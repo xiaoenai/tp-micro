@@ -176,7 +176,7 @@ Desc:
 - Add `.gen` suffix to the file name of the automatically generated file
 - `tmp_code.gen.go` is temporary code used to ensure successful compilation!<br>When the project is completed, it should be removed!
 
-[Generated Default Sample](https://github.com/henrylee2cn/tp-micro/tree/master/examples/sample)
+[Generated Default Sample](https://github.com/henrylee2cn/tp-micro/tree/master/examples/project)
 
 ### Run project
 
@@ -214,8 +214,8 @@ import (
         tp "github.com/henrylee2cn/teleport"
 )
 
-// Args args
-type Args struct {
+// Arg arg
+type Arg struct {
         A int
         B int `param:"<range:1:>"`
 }
@@ -226,8 +226,8 @@ type P struct {
 }
 
 // Divide divide API
-func (p *P) Divide(args *Args) (int, *tp.Rerror) {
-        return args.A / args.B, nil
+func (p *P) Divide(arg *Arg) (int, *tp.Rerror) {
+        return arg.A / arg.B, nil
 }
 
 func main() {
@@ -256,24 +256,24 @@ func main() {
         )
         defer   cli.Close()
 
-        type Args struct {
+        type Arg struct {
                 A int
                 B int
         }
 
-        var reply int
-        rerr := cli.Pull("/p/divide", &Args{
+        var result int
+        rerr := cli.Pull("/p/divide", &Arg{
                 A: 10,
                 B: 2,
-        }, &reply).Rerror()
+        }, &result).Rerror()
         if rerr != nil {
                 tp.Fatalf("%v", rerr)
         }
-        tp.Infof("10/2=%d", reply)
-        rerr = cli.Pull("/p/divide", &Args{
+        tp.Infof("10/2=%d", result)
+        rerr = cli.Pull("/p/divide", &Arg{
                 A: 10,
                 B: 0,
-        }, &reply).Rerror()
+        }, &result).Rerror()
         if rerr == nil {
                 tp.Fatalf("%v", rerr)
         }
