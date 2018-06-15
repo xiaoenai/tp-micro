@@ -207,7 +207,7 @@ func Delete{{.Name}}ByPrimary(id int64, tx ...*sqlx.Tx) error {
 }
 
 // Get{{.Name}}ByPrimary query a {{.Name}} data from database by primary key.
-// If @reply bool=false error=nil, means the data is not exist.
+// If @return bool=false error=nil, means the data is not exist.
 func Get{{.Name}}ByPrimary(id int64) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = &{{.Name}}{
 		Id: id,
@@ -231,10 +231,10 @@ func Get{{.Name}}ByPrimary(id int64) (*{{.Name}}, bool, error) {
 }
 
 // Get{{.Name}}ByWhere query a {{.Name}} data from database by WHERE condition.
-// If @reply bool=false error=nil, means the data is not exist.
-func Get{{.Name}}ByWhere(whereCond string, args ...interface{}) (*{{.Name}}, bool, error) {
+// If @return bool=false error=nil, means the data is not exist.
+func Get{{.Name}}ByWhere(whereCond string, arg ...interface{}) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = new({{.Name}})
-	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond+" LIMIT 1;", args...)
+	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond+" LIMIT 1;", arg...)
 	switch err {
 	case nil:
 		return _{{.LowerFirstLetter}}, true, nil
@@ -246,15 +246,15 @@ func Get{{.Name}}ByWhere(whereCond string, args ...interface{}) (*{{.Name}}, boo
 }
 
 // Select{{.Name}}ByWhere query some {{.Name}} data from database by WHERE condition.
-func Select{{.Name}}ByWhere(whereCond string, args ...interface{}) ([]*{{.Name}}, error) {
+func Select{{.Name}}ByWhere(whereCond string, arg ...interface{}) ([]*{{.Name}}, error) {
 	var objs = new([]*{{.Name}})
-	err := {{.LowerFirstName}}DB.Select(objs, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond, args...)
+	err := {{.LowerFirstName}}DB.Select(objs, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond, arg...)
 	return *objs, err
 }
 
 // Count{{.Name}}ByWhere count {{.Name}} data number from database by WHERE condition.
-func Count{{.Name}}ByWhere(whereCond string, args ...interface{}) (int64, error) {
+func Count{{.Name}}ByWhere(whereCond string, arg ...interface{}) (int64, error) {
 	var count int64
-	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(1) FROM {{.NameSql}} WHERE "+whereCond, args...)
+	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(1) FROM {{.NameSql}} WHERE "+whereCond, arg...)
 	return count, err
 }`

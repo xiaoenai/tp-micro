@@ -17,7 +17,7 @@ func TestGenerator(t *testing.T) {
 	proj.genHandlerAndLogicAndSdkFiles()
 	t.Logf("main.go:\n%s", codeFiles["main.go"])
 	t.Logf("config.go:\n%s", codeFiles["config.go"])
-	t.Logf("types/types.gen.go:\n%s", codeFiles["types/types.gen.go"])
+	t.Logf("args/type.gen.go:\n%s", codeFiles["args/type.gen.go"])
 	t.Logf("logic/tmp_code.gen.go:\n%s", codeFiles["logic/tmp_code.gen.go"])
 	t.Logf("logic/model/init.go:\n%s", codeFiles["logic/model/init.go"])
 	t.Logf("api/handler.gen.go:\n%s", codeFiles["api/handler.gen.go"])
@@ -38,50 +38,50 @@ package __ANT__TPL__
 //  /home
 //  /math/divide
 type __API__PULL__ interface {
-	Home(*struct{}) *HomeReply
+	Home(*struct{}) *HomeResult
 	Math
 }
 
 // __API__PUSH__ register PUSH router:
 //  /stat
 type __API__PUSH__ interface {
-	Stat(*StatArgs)
+	Stat(*StatArg)
 }
 
 // MODEL create model
 type __MODEL__ struct {
-	DivideArgs
+	DivideArg
 	User
 }
 
 // Math controller
 type Math interface {
 	// Divide handler
-	Divide(*DivideArgs) *DivideReply
+	Divide(*DivideArg) *DivideResult
 }
 
-// HomeReply home reply
-type HomeReply struct {
+// HomeResult home result
+type HomeResult struct {
 	Content string // text
 }
 
 type (
-	// DivideArgs divide api args
-	DivideArgs struct {
+	// DivideArg divide api arg
+	DivideArg struct {
 		// dividend
 		A float64
 		// divisor
 		B float64 ` + "`param:\"<range: 0.01:100000>\"`" + `
 	}
-	// DivideReply divide api result
-	DivideReply struct {
+	// DivideResult divide api result
+	DivideResult struct {
 		// quotient
 		C float64
 	}
 )
 
-// StatArgs stat handler args
-type StatArgs struct {
+// StatArg stat handler arg
+type StatArg struct {
 	Ts int64 // timestamps
 }
 

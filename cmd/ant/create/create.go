@@ -49,7 +49,7 @@ func CreateProject(tplFile string) {
 	}
 
 	// creates base files
-	if !goutil.FileExists("main.go") {
+	if !goutil.FileExists(".ant_gen_lock") {
 		tpl.Create()
 	}
 

@@ -15,6 +15,7 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/xiaoenai/ants/cmd/ant/create/tpl"
 	"github.com/xiaoenai/ants/cmd/ant/info"
 )
 
@@ -352,7 +353,7 @@ func init() {
 	cfgo.MustReg("${service_api_prefix}", cfg)
 }
 `,
-	"types/types.gen.go": `package types
+	"args/type.gen.go": `package args
 import (
 	${has_model} "${import_prefix}/logic/model"
 )
@@ -363,7 +364,7 @@ ${type_define_list}
 import (
 	tp "github.com/henrylee2cn/teleport"
 
-	"${import_prefix}/types"
+	"${import_prefix}/args"
 	// "${import_prefix}/logic/model"
 	// "${import_prefix}/rerrs"
 )
@@ -400,7 +401,7 @@ import (
     tp "github.com/henrylee2cn/teleport"
 
     "${import_prefix}/logic"
-    "${import_prefix}/types"
+    "${import_prefix}/args"
 )
 ${handler_api_define}
 `,
@@ -430,7 +431,7 @@ import (
     "github.com/henrylee2cn/tp-micro/discovery"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 
-	"${import_prefix}/types"
+	"${import_prefix}/args"
 )
 var client *micro.Client
 // Init initializes client with configs.
@@ -455,7 +456,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
 
-	"${import_prefix}/types"
+	"${import_prefix}/args"
 )
 
 // TestSdk test SDK.
@@ -487,12 +488,15 @@ func (p *Project) Generator() {
 	p.genRouterFile()
 	p.genHandlerAndLogicAndSdkFiles()
 	// make all directorys
-	mustMkdirAll("types")
+	mustMkdirAll("args")
 	mustMkdirAll("api")
 	mustMkdirAll("logic/model")
 	mustMkdirAll("sdk")
 	// write files
-	notFirst := goutil.FileExists("main.go")
+	notFirst := goutil.FileExists(".ant_gen_lock")
+	if !notFirst {
+		tpl.RestoreAsset("./", ".ant_gen_lock")
+	}
 	for k, v := range codeFiles {
 		if notFirst && (k == "main.go" || k == "config.go" || k == "logic/model/init.go") {
 			continue
@@ -519,11 +523,11 @@ func (p *Project) genTypeAndModelFiles() {
 		s += t.createTypesAndModels(p.Models)
 	}
 	if len(p.Models) > 0 {
-		replace("types/types.gen.go", "${has_model}", "")
+		replace("args/type.gen.go", "${has_model}", "")
 	} else {
-		replace("types/types.gen.go", "${has_model}", "//")
+		replace("args/type.gen.go", "${has_model}", "//")
 	}
-	replaceWithLine("types/types.gen.go", "${type_define_list}", s)
+	replaceWithLine("args/type.gen.go", "${type_define_list}", s)
 	for k, v := range p.Models {
 		fileName := "logic/model/" + goutil.SnakeString(k) + ".gen.go"
 		codeFiles[fileName] = v.code
@@ -600,37 +604,37 @@ func (p *Project) createFunc(r *Handler, isPull bool) (handler, logic, sdk, sdkT
 	camelDoc := strings.Replace(r.Doc, "// "+r.Name, "// "+camelName, 1)
 	if isPull {
 		return fmt.Sprintf(
-				"%sfunc %s(ctx tp.PullCtx,args %s)(%s,*tp.Rerror){\nreturn logic.%s(ctx,args)\n}\n",
+				"%sfunc %s(ctx tp.PullCtx,arg %s)(%s,*tp.Rerror){\nreturn logic.%s(ctx,arg)\n}\n",
 				r.Doc, r.Name, paramAndresult[0], paramAndresult[1], camelName,
 			), fmt.Sprintf(
-				"%sfunc %s(ctx tp.PullCtx,args %s)(%s,*tp.Rerror){\nreturn new(%s),nil\n}\n",
+				"%sfunc %s(ctx tp.PullCtx,arg %s)(%s,*tp.Rerror){\nreturn new(%s),nil\n}\n",
 				camelDoc, camelName, paramAndresult[0], paramAndresult[1], paramAndresult[1][1:],
 			), fmt.Sprintf(
-				"%sfunc %s(args %s, setting ...socket.PacketSetting)(%s,*tp.Rerror){\n"+
-					"reply := new(%s)\n"+
-					"rerr := client.Pull(\"%s\", args, reply, setting...).Rerror()\n"+
-					"return reply, rerr\n}\n",
+				"%sfunc %s(arg %s, setting ...socket.PacketSetting)(%s,*tp.Rerror){\n"+
+					"result := new(%s)\n"+
+					"rerr := client.Pull(\"%s\", arg, result, setting...).Rerror()\n"+
+					"return result, rerr\n}\n",
 				camelDoc, camelName, paramAndresult[0], paramAndresult[1],
 				paramAndresult[1][1:],
 				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
-					"reply, rerr :=%s(new(%s))\n"+
-					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n} else {\ntp.Infof(\"%s: reply: %%#v\", reply)\n}\n"+
+					"result, rerr :=%s(new(%s))\n"+
+					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n} else {\ntp.Infof(\"%s: result: %%#v\", result)\n}\n"+
 					"}\n",
 				camelName, paramAndresult[0][1:], camelName, camelName,
 			)
 
 	} else {
 		return fmt.Sprintf(
-				"%sfunc %s(ctx tp.PushCtx,args %s)*tp.Rerror{\nreturn logic.%s(ctx,args)\n}\n",
+				"%sfunc %s(ctx tp.PushCtx,arg %s)*tp.Rerror{\nreturn logic.%s(ctx,arg)\n}\n",
 				r.Doc, r.Name, paramAndresult[0], camelName,
 			), fmt.Sprintf(
-				"%sfunc %s(ctx tp.PushCtx,args %s)*tp.Rerror{\nreturn nil\n}\n",
+				"%sfunc %s(ctx tp.PushCtx,arg %s)*tp.Rerror{\nreturn nil\n}\n",
 				camelDoc, camelName, paramAndresult[0],
 			), fmt.Sprintf(
-				"%sfunc %s(args %s, setting ...socket.PacketSetting)*tp.Rerror{\n"+
-					"return client.Push(\"%s\", args, setting...)\n"+
+				"%sfunc %s(arg %s, setting ...socket.PacketSetting)*tp.Rerror{\n"+
+					"return client.Push(\"%s\", arg, setting...)\n"+
 					"}\n",
 				camelDoc, camelName, paramAndresult[0],
 				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(r.Name)),
@@ -669,37 +673,37 @@ func (p *Project) createMethod(ctrl string, r *Handler, isPull bool) (handler, l
 	fullDoc := strings.Replace(r.Doc, "// "+r.Name, "// "+fullName, 1)
 	if isPull {
 		return fmt.Sprintf(
-				"%sfunc(%s *%s) %s(args %s)(%s,*tp.Rerror){\nreturn logic.%s(%s.PullCtx,args)\n}\n",
+				"%sfunc(%s *%s) %s(arg %s)(%s,*tp.Rerror){\nreturn logic.%s(%s.PullCtx,arg)\n}\n",
 				r.Doc, first, ctrl, r.Name, paramAndresult[0], paramAndresult[1], fullName, first,
 			), fmt.Sprintf(
-				"%sfunc %s(ctx tp.PullCtx,args %s)(%s,*tp.Rerror){\nreturn new(%s),nil\n}\n",
+				"%sfunc %s(ctx tp.PullCtx,arg %s)(%s,*tp.Rerror){\nreturn new(%s),nil\n}\n",
 				fullDoc, fullName, paramAndresult[0], paramAndresult[1], paramAndresult[1][1:],
 			), fmt.Sprintf(
-				"%sfunc %s(args %s, setting ...socket.PacketSetting)(%s,*tp.Rerror){\n"+
-					"reply := new(%s)\n"+
-					"rerr := client.Pull(\"%s\", args, reply, setting...).Rerror()\n"+
-					"return reply, rerr\n}\n",
+				"%sfunc %s(arg %s, setting ...socket.PacketSetting)(%s,*tp.Rerror){\n"+
+					"result := new(%s)\n"+
+					"rerr := client.Pull(\"%s\", arg, result, setting...).Rerror()\n"+
+					"return result, rerr\n}\n",
 				fullDoc, fullName, paramAndresult[0], paramAndresult[1],
 				paramAndresult[1][1:],
 				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(ctrl), tp.ToUriPath(r.Name)),
 			), fmt.Sprintf(
 				"{\n"+
-					"reply, rerr :=%s(new(%s))\n"+
-					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n} else {\ntp.Infof(\"%s: reply: %%#v\", reply)\n}\n"+
+					"result, rerr :=%s(new(%s))\n"+
+					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n} else {\ntp.Infof(\"%s: result: %%#v\", result)\n}\n"+
 					"}\n",
 				fullName, paramAndresult[0][1:], fullName, fullName,
 			)
 
 	} else {
 		return fmt.Sprintf(
-				"%sfunc(%s *%s) %s(args %s)*tp.Rerror{\nreturn logic.%s(%s.PushCtx,args)\n}\n",
+				"%sfunc(%s *%s) %s(arg %s)*tp.Rerror{\nreturn logic.%s(%s.PushCtx,arg)\n}\n",
 				r.Doc, first, ctrl, r.Name, paramAndresult[0], fullName, first,
 			), fmt.Sprintf(
-				"%sfunc %s(ctx tp.PushCtx,args %s)*tp.Rerror{\nreturn nil\n}\n",
+				"%sfunc %s(ctx tp.PushCtx,arg %s)*tp.Rerror{\nreturn nil\n}\n",
 				fullDoc, fullName, paramAndresult[0],
 			), fmt.Sprintf(
-				"%sfunc %s(args %s, setting ...socket.PacketSetting)*tp.Rerror{\n"+
-					"return client.Push(\"%s\", args, setting...)\n"+
+				"%sfunc %s(arg %s, setting ...socket.PacketSetting)*tp.Rerror{\n"+
+					"return client.Push(\"%s\", arg, setting...)\n"+
 					"}\n",
 				fullDoc, fullName, paramAndresult[0],
 				path.Join("/", goutil.SnakeString(p.Name), tp.ToUriPath(ctrl), tp.ToUriPath(r.Name)),
@@ -841,12 +845,12 @@ func (p *Project) checkHandler(r *Handler, isPull bool) (paramAndResult [2]strin
 		} else {
 			name := t[1:]
 
-			paramAndResult[i] = t[:1] + "types." + name
+			paramAndResult[i] = t[:1] + "args." + name
 			// Q:
 			// 	for _, ty := range p.Types {
 			// 		for _, s := range ty.Structs {
 			// 			if s.Name == name {
-			// 				paramAndResult[i] = t[:1] + "types." + name
+			// 				paramAndResult[i] = t[:1] + "args." + name
 			// 				break Q
 			// 			}
 			// 		}
