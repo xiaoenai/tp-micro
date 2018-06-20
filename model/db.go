@@ -596,22 +596,20 @@ func (c *CacheableDB) DeleteCache(srcStructPtr Cacheable, fields ...string) erro
 	if c.DB.dbConfig.NoCache {
 		return nil
 	}
-	cacheKey, structElemValue, err := c.CreateCacheKey(srcStructPtr, fields...)
+	cacheKey, _, err := c.CreateCacheKey(srcStructPtr, fields...)
 	if err != nil {
 		return err
 	}
-
-	key := cacheKey.Key
-	if cacheKey.isPriKey {
-		return c.Cache.Del(key).Err()
-	}
-
+	var keys = []string{cacheKey.Key}
 	// secondary cache
-	key, err = c.createPrikey(structElemValue)
-	if err != nil {
-		return err
+	if !cacheKey.isPriKey {
+		// get first cache key
+		firstKey, err := c.Cache.Get(cacheKey.Key).Result()
+		if err == nil {
+			keys = append(keys, firstKey)
+		}
 	}
-	return c.Cache.Del(key, cacheKey.Key).Err()
+	return c.Cache.Del(keys...).Err()
 }
 
 // DbOrTx contains all the exportable methods of *sqlx.DB
