@@ -131,7 +131,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	return _{{.LowerFirstLetter}}.Id, {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
+	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		var query string
 		if _{{.LowerFirstLetter}}.Id > 0 {
 			query = "INSERT INTO {{.NameSql}} (id,{{index .QuerySql 0}})VALUES(:id,{{index .QuerySql 1}});"
@@ -147,12 +147,9 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 			return err
 		}
 		_{{.LowerFirstLetter}}.Id = id
-		err = {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
-		if err != nil {
-			tp.Errorf("%s", err.Error())
-		}
 		return nil
 	}, tx...)
+	return _{{.LowerFirstLetter}}.Id, err
 }
 
 // Update{{.Name}}ByPrimary update the {{.Name}} data in database by primary key.
@@ -162,13 +159,12 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 //  Don't update the primary key and the created_at key;
 //  Update all fields except the primary key and the created_at key if _updateFields is empty.
 func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) error {
-	return {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
-		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
-		var err error
+	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
+	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
+		query := "UPDATE {{.NameSql}} SET "
 		if len(_updateFields) == 0 {
-			_, err = tx.NamedExec("UPDATE {{.NameSql}} SET {{.UpdateSql}} WHERE id=:id LIMIT 1;", _{{.LowerFirstLetter}})
+			query += "{{.UpdateSql}} WHERE id=:id LIMIT 1;"
 		} else {
-			var query = "UPDATE {{.NameSql}} SET "
 			for _, s := range _updateFields {
 				if s == "updated_at" || s == "id" || s == "created_at" {
 					continue
@@ -179,17 +175,18 @@ func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields [
 				return nil
 			}
 			query += ` + "\"`updated_at`=:updated_at WHERE id=:id LIMIT 1;\"" + `
-			_, err = tx.NamedExec(query, _{{.LowerFirstLetter}})
 		}
-		if err != nil {
-			return err
-		}
-		err = {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
-		if err != nil {
-			tp.Errorf("%s", err.Error())
-		}
-		return nil
+		_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		return err
 	}, tx...)
+	if err != nil {
+		return err
+	}
+	err = {{.LowerFirstName}}DB.DeleteCache(_{{.LowerFirstLetter}})
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
 }
 
 // Upsert{{.Name}} insert or update the {{.Name}} data by primary key.
@@ -242,19 +239,20 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 
 // Delete{{.Name}}ByPrimary delete a {{.Name}} data in database by primary key.
 func Delete{{.Name}}ByPrimary(id int64, tx ...*sqlx.Tx) error {
-	return {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
+	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE id=?;", id)
-		if err != nil {
-			return err
-		}
-		err = {{.LowerFirstName}}DB.PutCache(&{{.Name}}{
-			Id: id,
-		})
-		if err != nil {
-			tp.Errorf("%s", err.Error())
-		}
-		return nil
+		return err
 	}, tx...)
+	if err != nil {
+		return err
+	}
+	err = {{.LowerFirstName}}DB.PutCache(&{{.Name}}{
+		Id: id,
+	})
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
 }
 
 // Get{{.Name}}ByPrimary query a {{.Name}} data from database by primary key.
