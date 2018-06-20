@@ -550,7 +550,54 @@ func (d *DB) TransactCallback(fn func(*sqlx.Tx) error, tx ...*sqlx.Tx) (err erro
 		}()
 	}
 	err = fn(_tx)
-	return
+	return err
+}
+
+// CallbackInSession non-transactional operations in one session.
+func (d *DB) CallbackInSession(fn func(context.Context, *sqlx.Conn) error, ctx ...context.Context) error {
+	if fn == nil {
+		return nil
+	}
+	var _ctx = context.Background()
+	if len(ctx) > 0 {
+		_ctx = ctx[0]
+	}
+	conn, err := d.Conn(_ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return fn(_ctx, conn)
+}
+
+// TransactCallbackInSession transactional operations in one session.
+// note: if an error is returned, the rollback method should be invoked outside the function.
+func (d *DB) TransactCallbackInSession(fn func(context.Context, *sqlx.Tx) error, ctx ...context.Context) (err error) {
+	if fn == nil {
+		return
+	}
+	var _ctx = context.Background()
+	if len(ctx) > 0 {
+		_ctx = ctx[0]
+	}
+	conn, err := d.Conn(_ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	_tx, err := conn.Beginx()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			_tx.Rollback()
+		} else {
+			_tx.Commit()
+		}
+	}()
+	err = fn(_ctx, _tx)
+	return err
 }
 
 // ErrNoRows is returned by Scan when QueryRow doesn't return a
