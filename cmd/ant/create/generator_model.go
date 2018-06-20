@@ -20,6 +20,7 @@ func (mod *Model) createModel(t *TypeStruct) {
 	mod.NameSql = fmt.Sprintf("`%s`", mod.SnakeName)
 	mod.QuerySql = [2]string{}
 	mod.UpdateSql = ""
+	mod.UpsertSqlSuffix = ""
 
 	var (
 		fields                            []string
@@ -70,9 +71,11 @@ func (mod *Model) createModel(t *TypeStruct) {
 			continue
 		}
 		mod.UpdateSql += fmt.Sprintf("`%s`=:%s,", field, field)
+		mod.UpsertSqlSuffix += fmt.Sprintf("`%s`=VALUES(`%s`),", field, field)
 	}
 	mod.QuerySql = [2]string{querySql1[:len(querySql1)-1], querySql2[:len(querySql2)-1]}
 	mod.UpdateSql = mod.UpdateSql[:len(mod.UpdateSql)-1]
+	mod.UpsertSqlSuffix = mod.UpsertSqlSuffix[:len(mod.UpsertSqlSuffix)-1] + ";"
 
 	m, err := template.New("").Parse(modelTpl)
 	if err != nil {
@@ -187,6 +190,54 @@ func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields [
 		}
 		return nil
 	}, tx...)
+}
+
+// Upsert{{.Name}} insert or update the {{.Name}} data by primary key.
+// NOTE:
+//  Insert data if the primary key is specified;
+//  Update data based on _updateFields if no primary key is specified;
+//  _updateFields' members must be snake format;
+//  Automatic update updated_at field;
+//  Don't update the primary key and the created_at key;
+//  Update all fields except the primary key and the created_at key if _updateFields is empty.
+func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) (int64, error) {
+	if _{{.LowerFirstLetter}}.Id <= 0 {
+		return Insert{{.Name}}(_{{.LowerFirstLetter}}, tx ...)
+	}
+	if _{{.LowerFirstLetter}}.UpdatedAt == 0 {
+		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
+	}
+	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
+		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
+	}
+	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
+		query := "INSERT INTO {{.NameSql}} (id,{{index .QuerySql 0}})VALUES(:id,{{index .QuerySql 1}})" +
+			" ON DUPLICATE KEY UPDATE "
+		if len(_updateFields) == 0 {
+			query += "{{.UpsertSqlSuffix}}"
+		} else {
+			for _, s := range _updateFields {
+				if s == "updated_at" || s == "id" || s == "created_at" {
+					continue
+				}
+				query += ` + "\"`\" + s + \"`=VALUES(`\" + s + \"`),\"" + `
+			}
+			if query[len(query)-1] != ',' {
+				return nil
+			}
+			query += ` + "\"`updated_at`=VALUES(`updated_at`);\"" + `
+		}
+		_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		return err
+	}, tx...)
+	if err != nil {
+		return 0, err
+	}
+	err = {{.LowerFirstName}}DB.DeleteCache(_{{.LowerFirstLetter}})
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return _{{.LowerFirstLetter}}.Id, nil
 }
 
 // Delete{{.Name}}ByPrimary delete a {{.Name}} data in database by primary key.

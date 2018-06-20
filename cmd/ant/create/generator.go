@@ -76,6 +76,7 @@ type (
 		NameSql          string
 		QuerySql         [2]string
 		UpdateSql        string
+		UpsertSqlSuffix  string
 		code             string
 	}
 )
