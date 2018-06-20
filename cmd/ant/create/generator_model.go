@@ -256,7 +256,8 @@ func Delete{{.Name}}ByPrimary(id int64, tx ...*sqlx.Tx) error {
 }
 
 // Get{{.Name}}ByPrimary query a {{.Name}} data from database by primary key.
-// If @return bool=false error=nil, means the data is not exist.
+// NOTE:
+//  If @return bool=false error=nil, means the data is not exist.
 func Get{{.Name}}ByPrimary(id int64) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = &{{.Name}}{
 		Id: id,
@@ -276,6 +277,30 @@ func Get{{.Name}}ByPrimary(id int64) (*{{.Name}}, bool, error) {
 		return nil, false, nil
 	default:
 		return nil, false, err
+	}
+}
+
+// Bind{{.Name}}ByFields query the {{.Name}} data from database by field keys, and bind it to _{{.LowerFirstLetter}}.
+// NOTE:
+//  _fields' members should be snake format;
+//  Query by the primary key field if fields is empty;
+//  If @return bool=false error=nil, means the data is not exist.
+func Bind{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) (bool, error) {
+	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}}, _fields...)
+	switch err {
+	case nil:
+		if _{{.LowerFirstLetter}}.CreatedAt == 0 {
+			return false, nil
+		}
+		return true, nil
+	case sql.ErrNoRows:
+		err2 := {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
+		if err2 != nil {
+			tp.Errorf("%s", err2.Error())
+		}
+		return false, nil
+	default:
+		return false, err
 	}
 }
 
