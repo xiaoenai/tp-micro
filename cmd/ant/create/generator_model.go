@@ -126,6 +126,8 @@ func Get{{.Name}}DB() *model.CacheableDB {
 }
 
 // Insert{{.Name}} insert a {{.Name}} data into database.
+// NOTE:
+//  Without cache layer.
 func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, error) {
 	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
@@ -154,6 +156,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 
 // Update{{.Name}}ByPrimary update the {{.Name}} data in database by primary key.
 // NOTE:
+//  With cache layer;
 //  _updateFields' members must be snake format;
 //  Automatic update updated_at field;
 //  Don't update the primary key and the created_at key;
@@ -191,6 +194,7 @@ func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields [
 
 // Upsert{{.Name}} insert or update the {{.Name}} data by primary key.
 // NOTE:
+//  With cache layer;
 //  Insert data if the primary key is specified;
 //  Update data based on _updateFields if no primary key is specified;
 //  _updateFields' members must be snake format;
@@ -238,6 +242,8 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 }
 
 // Delete{{.Name}}ByPrimary delete a {{.Name}} data in database by primary key.
+// NOTE:
+//  With cache layer.
 func Delete{{.Name}}ByPrimary(id int64, tx ...*sqlx.Tx) error {
 	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
 		_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE id=?;", id)
@@ -257,6 +263,7 @@ func Delete{{.Name}}ByPrimary(id int64, tx ...*sqlx.Tx) error {
 
 // Get{{.Name}}ByPrimary query a {{.Name}} data from database by primary key.
 // NOTE:
+//  With cache layer;
 //  If @return bool=false error=nil, means the data is not exist.
 func Get{{.Name}}ByPrimary(id int64) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = &{{.Name}}{
@@ -282,6 +289,7 @@ func Get{{.Name}}ByPrimary(id int64) (*{{.Name}}, bool, error) {
 
 // Bind{{.Name}}ByFields query the {{.Name}} data from database by field keys, and bind it to _{{.LowerFirstLetter}}.
 // NOTE:
+//  With cache layer;
 //  _fields' members should be snake format;
 //  Query by the primary key field if fields is empty;
 //  If @return bool=false error=nil, means the data is not exist.
@@ -304,8 +312,34 @@ func Bind{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string)
 	}
 }
 
+// Bind{{.Name}}ByWhere query the {{.Name}} data from database by WHERE condition(whereNamedCond), and bind it to _{{.LowerFirstLetter}}.
+// NOTE:
+//  With cache layer;
+//  If @return bool=false error=nil, means the data is not exist;
+//  whereNamedCond e.g. 'id=:id AND created_at>1520000000'.
+func Bind{{.Name}}ByWhere(_{{.LowerFirstLetter}} *{{.Name}}, whereNamedCond string) (bool, error) {
+	err := {{.LowerFirstName}}DB.CacheGetByWhere(_{{.LowerFirstLetter}}, whereNamedCond)
+	switch err {
+	case nil:
+		if _{{.LowerFirstLetter}}.CreatedAt == 0 {
+			return false, nil
+		}
+		return true, nil
+	case sql.ErrNoRows:
+		err2 := {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
+		if err2 != nil {
+			tp.Errorf("%s", err2.Error())
+		}
+		return false, nil
+	default:
+		return false, err
+	}
+}
+
 // Get{{.Name}}ByWhere query a {{.Name}} data from database by WHERE condition.
-// If @return bool=false error=nil, means the data is not exist.
+// NOTE:
+//  Without cache layer;
+//  If @return bool=false error=nil, means the data is not exist.
 func Get{{.Name}}ByWhere(whereCond string, arg ...interface{}) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = new({{.Name}})
 	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond+" LIMIT 1;", arg...)
@@ -320,6 +354,8 @@ func Get{{.Name}}ByWhere(whereCond string, arg ...interface{}) (*{{.Name}}, bool
 }
 
 // Select{{.Name}}ByWhere query some {{.Name}} data from database by WHERE condition.
+// NOTE:
+//  Without cache layer.
 func Select{{.Name}}ByWhere(whereCond string, arg ...interface{}) ([]*{{.Name}}, error) {
 	var objs = new([]*{{.Name}})
 	err := {{.LowerFirstName}}DB.Select(objs, "SELECT id,{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond, arg...)
@@ -327,6 +363,8 @@ func Select{{.Name}}ByWhere(whereCond string, arg ...interface{}) ([]*{{.Name}},
 }
 
 // Count{{.Name}}ByWhere count {{.Name}} data number from database by WHERE condition.
+// NOTE:
+//  Without cache layer.
 func Count{{.Name}}ByWhere(whereCond string, arg ...interface{}) (int64, error) {
 	var count int64
 	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(1) FROM {{.NameSql}} WHERE "+whereCond, arg...)

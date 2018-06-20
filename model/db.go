@@ -196,7 +196,8 @@ func (c *CacheableDB) CreateCacheKeyByFields(fields []string, values []interface
 var emptyValue = reflect.Value{}
 
 // CreateCacheKey creates cache key and fields' values.
-// Note: if fields is empty, auto-use primary fields.
+// NOTE:
+//  If fields is empty, auto-use primary fields.
 func (c *CacheableDB) CreateCacheKey(structPtr Cacheable, fields ...string) (CacheKey, reflect.Value, error) {
 	var t = reflect.TypeOf(structPtr)
 	var typeName = t.String()
@@ -258,7 +259,7 @@ func (c *CacheableDB) createPrikey(structElemValue reflect.Value) (string, error
 }
 
 // CreateGetQuery creates query string of selecting one row data.
-// Note:
+// NOTE:
 //  If whereFields is empty, auto-use primary fields.
 func (c *CacheableDB) CreateGetQuery(whereFields ...string) string {
 	if len(whereFields) == 0 {
@@ -278,9 +279,9 @@ func (c *CacheableDB) CreateGetQuery(whereFields ...string) string {
 
 // CacheGet selects one row by primary key.
 // Priority from the read cache.
-// Note:
+// NOTE:
 //  If the cache does not exist, then write the cache;
-//  @destStructPtr must be a *struct type;
+//  destStructPtr must be a *struct type;
 //  If fields is empty, auto-use primary fields.
 func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error {
 	var cacheKey, structElemValue, err = c.CreateCacheKey(destStructPtr, fields...)
@@ -322,12 +323,12 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 			return err
 		}
 		if exist {
-			// check
+			// check secondary cache
 			if !cacheKey.isPriKey && !c.checkSecondCache(structElemValue, fields, cacheKey.FieldValues) {
 				c.Cache.Del(cacheKey.Key)
-				return ErrNoRows
+			} else {
+				return nil
 			}
-			return nil
 		}
 	}
 
@@ -382,6 +383,134 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 	return err
 }
 
+func (c *CacheableDB) createCacheKeyByWhere(structPtr Cacheable, whereNamedCond string) (CacheKey, string, error) {
+	whereCond, values, err := sqlx.Named(whereNamedCond, structPtr)
+	if err != nil {
+		return emptyCacheKey, whereCond, err
+	}
+	bs, err := json.Marshal(values)
+	if err != nil {
+		return emptyCacheKey, whereCond, errors.New("CreateCacheKeyByFields(): " + err.Error())
+	}
+	return CacheKey{
+		Key:         c.module.Key(whereCond + goutil.BytesToString(bs)),
+		FieldValues: values,
+		isPriKey:    false,
+	}, whereCond, nil
+}
+
+func (c *CacheableDB) createGetQueryByWhere(whereCond string) string {
+	var queryAll = "SELECT"
+	for _, col := range c.cols {
+		queryAll += " `" + col + "`,"
+	}
+	return queryAll[:len(queryAll)-1] + " FROM " + c.tableName + " WHERE " + whereCond + " LIMIT 1;"
+}
+
+// CacheGetByWhere selects one row by the whereNamedCond.
+// Priority from the read cache.
+// NOTE:
+//  If the cache does not exist, then write the cache;
+//  destStructPtr must be a *struct type;
+//  whereNamedCond e.g. 'id=:id AND created_at>1520000000'.
+func (c *CacheableDB) CacheGetByWhere(destStructPtr Cacheable, whereNamedCond string) error {
+	cacheKey, whereCond, err := c.createCacheKeyByWhere(destStructPtr, whereNamedCond)
+	if err != nil {
+		return err
+	}
+	structElemValue := reflect.ValueOf(destStructPtr).Elem()
+
+	if c.DB.dbConfig.NoCache {
+		// read db
+		return c.DB.Get(destStructPtr, c.createGetQueryByWhere(whereCond), cacheKey.FieldValues...)
+	}
+
+	var (
+		key                 = cacheKey.Key
+		gettedFirstCacheKey bool
+		b                   []byte
+		exist               bool
+	)
+
+	// read secondary cache
+	b, err = c.Cache.Get(key).Bytes()
+	if err == nil {
+		key = goutil.BytesToString(b)
+		gettedFirstCacheKey = true
+	} else if !redis.IsRedisNil(err) {
+		return err
+	}
+
+	// get first cache
+	if gettedFirstCacheKey {
+		// clean
+		c.cleanDestCacheable(structElemValue)
+
+		exist, err = c.getFirstCache(key, destStructPtr)
+		if err != nil {
+			return err
+		}
+		if exist {
+			// check secondary cache
+			cacheKey2, _, _ := c.createCacheKeyByWhere(destStructPtr, whereNamedCond)
+			if cacheKey2.Key != cacheKey.Key {
+				c.Cache.Del(cacheKey.Key)
+			} else {
+				return nil
+			}
+		}
+	}
+
+	// to lock or get first cache
+	c.Cache.LockCallback("lock_"+key, func() {
+	FIRST:
+		if gettedFirstCacheKey {
+			exist, err = c.getFirstCache(key, destStructPtr)
+			if exist {
+				err = nil
+				return
+			}
+			if err != nil {
+				return
+			}
+		} else {
+			b, err = c.Cache.Get(key).Bytes()
+			if err == nil {
+				key = goutil.BytesToString(b)
+				gettedFirstCacheKey = true
+				goto FIRST
+			} else if !redis.IsRedisNil(err) {
+				return
+			}
+		}
+
+		// read db
+		err = c.DB.Get(destStructPtr, c.createGetQueryByWhere(whereCond), cacheKey.FieldValues...)
+		if err != nil {
+			return
+		}
+		key, err = c.createPrikey(structElemValue)
+		if err != nil {
+			tp.Errorf("CacheGetByWhere(): createPrikey: %s", err.Error())
+			err = nil
+			return
+		}
+
+		// write cache
+		data, _ := json.Marshal(destStructPtr)
+		err = c.Cache.Set(key, data, c.cacheExpiration).Err()
+		if err == nil && !cacheKey.isPriKey {
+			err = c.Cache.Set(cacheKey.Key, key, c.cacheExpiration).Err()
+		}
+		if err != nil {
+			tp.Errorf("CacheGetByWhere(): %s", err.Error())
+			err = nil
+		}
+	})
+
+	return err
+}
+
 func (c *CacheableDB) cleanDestCacheable(destStructElemValue reflect.Value) {
 	for _, i := range c.fieldsIndexMap {
 		fv := destStructElemValue.Field(i)
@@ -425,8 +554,8 @@ func (c *CacheableDB) getFirstCache(key string, destStructPtr Cacheable) (bool, 
 }
 
 // PutCache caches one row by primary key.
-// Note:
-//  @destStructPtr must be a *struct type;
+// NOTE:
+//  destStructPtr must be a *struct type;
 //  If fields is empty, auto-use primary fields.
 func (c *CacheableDB) PutCache(srcStructPtr Cacheable, fields ...string) error {
 	if c.DB.dbConfig.NoCache {
@@ -460,8 +589,8 @@ func (c *CacheableDB) PutCache(srcStructPtr Cacheable, fields ...string) error {
 }
 
 // DeleteCache deletes one row form cache by primary key.
-// Note:
-//  @destStructPtr must be a *struct type;
+// NOTE:
+//  destStructPtr must be a *struct type;
 //  If fields is empty, auto-use primary fields.
 func (c *CacheableDB) DeleteCache(srcStructPtr Cacheable, fields ...string) error {
 	if c.DB.dbConfig.NoCache {
@@ -527,7 +656,7 @@ func (d *DB) Callback(fn func(DbOrTx) error, tx ...*sqlx.Tx) error {
 }
 
 // TransactCallback transactional operations.
-// note: if an error is returned, the rollback method should be invoked outside the function.
+// nOTE: if an error is returned, the rollback method should be invoked outside the function.
 func (d *DB) TransactCallback(fn func(*sqlx.Tx) error, tx ...*sqlx.Tx) (err error) {
 	if fn == nil {
 		return
@@ -571,7 +700,7 @@ func (d *DB) CallbackInSession(fn func(context.Context, *sqlx.Conn) error, ctx .
 }
 
 // TransactCallbackInSession transactional operations in one session.
-// note: if an error is returned, the rollback method should be invoked outside the function.
+// nOTE: if an error is returned, the rollback method should be invoked outside the function.
 func (d *DB) TransactCallbackInSession(fn func(context.Context, *sqlx.Tx) error, ctx ...context.Context) (err error) {
 	if fn == nil {
 		return
