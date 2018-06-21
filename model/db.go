@@ -384,7 +384,7 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 }
 
 func (c *CacheableDB) createCacheKeyByWhere(structPtr Cacheable, whereNamedCond string) (CacheKey, string, error) {
-	whereCond, values, err := sqlx.Named(whereNamedCond, structPtr)
+	whereCond, values, err := c.BindNamed(whereNamedCond, structPtr)
 	if err != nil {
 		return emptyCacheKey, whereCond, err
 	}

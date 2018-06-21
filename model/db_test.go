@@ -5,8 +5,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/henrylee2cn/goutil"
 	"github.com/xiaoenai/ants/model"
 	"github.com/xiaoenai/ants/model/redis"
+	"github.com/xiaoenai/ants/model/sqlx"
+	"github.com/xiaoenai/ants/model/sqlx/reflectx"
 )
 
 type testTable struct {
@@ -17,6 +20,25 @@ type testTable struct {
 
 func (t *testTable) TableName() string {
 	return "dbtest"
+}
+
+func TestNamed(t *testing.T) {
+	db := new(sqlx.DB)
+	db.Mapper = reflectx.NewMapperFunc("json", goutil.SnakeString)
+	p := &testTable{
+		TestId:      123,
+		TestContent: "ctn",
+		Deleted:     true,
+	}
+	whereCond, values, err := db.BindNamed("test_id=:test_id AND test_content=:test_content OR test_deleted=1", p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("whereCond:%s", whereCond)
+	t.Logf("values:%v", values)
+	// Output:
+	// test_id=? AND test_content=? OR test_deleted=1
+	// values:[123 ctn]
 }
 
 func TestCacheDb(t *testing.T) {
