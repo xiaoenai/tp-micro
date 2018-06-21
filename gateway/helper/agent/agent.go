@@ -12,12 +12,12 @@ import (
 	"github.com/henrylee2cn/goutil/coarsetime"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
-	"github.com/xiaoenai/ants/gateway/client"
-	"github.com/xiaoenai/ants/gateway/logic"
-	"github.com/xiaoenai/ants/gateway/logic/hosts"
-	"github.com/xiaoenai/ants/gateway/logic/socket"
-	"github.com/xiaoenai/ants/gateway/types"
-	"github.com/xiaoenai/ants/model/redis"
+	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/gateway/logic"
+	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
+	"github.com/xiaoenai/tp-micro/gateway/logic/socket"
+	"github.com/xiaoenai/tp-micro/gateway/types"
+	"github.com/xiaoenai/tp-micro/model/redis"
 )
 
 var (

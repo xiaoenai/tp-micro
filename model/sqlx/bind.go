@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/xiaoenai/ants/model/sqlx/reflectx"
+	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
 )
 
 // Bindvar types supported by Rebind, BindMap and BindStruct.

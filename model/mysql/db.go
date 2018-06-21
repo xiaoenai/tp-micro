@@ -13,9 +13,9 @@ import (
 	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/goutil/errors"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/ants/model/redis"
-	"github.com/xiaoenai/ants/model/sqlx"
-	"github.com/xiaoenai/ants/model/sqlx/reflectx"
+	"github.com/xiaoenai/tp-micro/model/redis"
+	"github.com/xiaoenai/tp-micro/model/sqlx"
+	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
 )
 
 // DB is a wrapper around sqlx.DB and redis.Client.

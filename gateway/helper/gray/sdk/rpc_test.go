@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/henrylee2cn/tp-micro"
-	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 
-	"github.com/xiaoenai/ants/gateway/helper/gray"
-	"github.com/xiaoenai/ants/gateway/helper/gray/types"
+	"github.com/xiaoenai/tp-micro/gateway/helper/gray"
+	"github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
 )
 
 // TestSdk test SDK.

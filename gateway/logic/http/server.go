@@ -21,9 +21,9 @@ import (
 	"time"
 
 	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/valyala/fasthttp"
-	"github.com/xiaoenai/ants/gateway/logic"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/gateway/logic"
 )
 
 // HttpSrvConfig config of HTTP server
@@ -97,7 +97,7 @@ func Serve(srvCfg HttpSrvConfig) {
 	tp.Printf("listen ok (network:%s, addr:%s)", network, addr)
 
 	err = (&fasthttp.Server{
-		Name:    "ants-gateway",
+		Name:    "micro-gateway",
 		Handler: handler,
 	}).Serve(lis)
 

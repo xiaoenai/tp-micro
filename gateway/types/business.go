@@ -17,7 +17,7 @@ package types
 import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
-	"github.com/xiaoenai/ants/gateway/client"
+	"github.com/xiaoenai/tp-micro/gateway/client"
 )
 
 // Business implement your real business logic

@@ -20,14 +20,14 @@ import (
 	_ "unsafe"
 
 	"github.com/henrylee2cn/teleport/socket"
-	"github.com/henrylee2cn/tp-micro/discovery/etcd"
-	"github.com/xiaoenai/ants/gateway/client"
-	"github.com/xiaoenai/ants/gateway/logic"
-	"github.com/xiaoenai/ants/gateway/logic/hosts"
-	short "github.com/xiaoenai/ants/gateway/logic/http"
-	long "github.com/xiaoenai/ants/gateway/logic/socket"
-	"github.com/xiaoenai/ants/gateway/sdk"
-	"github.com/xiaoenai/ants/gateway/types"
+	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/gateway/logic"
+	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
+	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
+	long "github.com/xiaoenai/tp-micro/gateway/logic/socket"
+	"github.com/xiaoenai/tp-micro/gateway/sdk"
+	"github.com/xiaoenai/tp-micro/gateway/types"
 )
 
 // Run the gateway main program.

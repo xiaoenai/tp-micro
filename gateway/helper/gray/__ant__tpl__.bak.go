@@ -1,5 +1,5 @@
-// package __ANT__TPL__ is the project template
-package __ANT__TPL__
+// package __TPL__ is the project template
+package __TPL__
 
 // __API__PULL__ register PULL router:
 type __API__PULL__ interface {

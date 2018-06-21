@@ -18,9 +18,9 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/cfgo"
-	micro "github.com/henrylee2cn/tp-micro"
-	"github.com/henrylee2cn/tp-micro/discovery/etcd"
-	short "github.com/xiaoenai/ants/gateway/logic/http"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/model/etcd"
+	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
 )
 
 // Config app config

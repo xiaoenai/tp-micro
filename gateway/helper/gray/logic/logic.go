@@ -6,9 +6,9 @@ import (
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 
-	"github.com/xiaoenai/ants/gateway/helper/gray/logic/model"
-	"github.com/xiaoenai/ants/gateway/helper/gray/rerrs"
-	"github.com/xiaoenai/ants/gateway/helper/gray/types"
+	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic/model"
+	"github.com/xiaoenai/tp-micro/gateway/helper/gray/rerrs"
+	"github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
 )
 
 var (

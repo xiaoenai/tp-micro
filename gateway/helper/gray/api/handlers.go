@@ -3,8 +3,8 @@ package api
 import (
 	tp "github.com/henrylee2cn/teleport"
 
-	"github.com/xiaoenai/ants/gateway/helper/gray/logic"
-	"github.com/xiaoenai/ants/gateway/helper/gray/types"
+	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic"
+	"github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
 )
 
 // IsGray check whether the service should use grayscale based on the uid.

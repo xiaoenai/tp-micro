@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/xiaoenai/ants/model/redis"
+	"github.com/xiaoenai/tp-micro/model/redis"
 	"gopkg.in/mgo.v2"
 )
 

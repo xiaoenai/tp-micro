@@ -26,3 +26,10 @@ _testmain.go
 *nohup.out
 *.sublime-project
 *.sublime-workspace
+*.vscode
+
+examples/*/gateway
+examples/*/browser
+examples/*/server
+examples/*/client
+examples/project/project

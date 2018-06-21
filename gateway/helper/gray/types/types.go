@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/xiaoenai/ants/gateway/helper/gray/logic/model"
+	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic/model"
 )
 
 type (

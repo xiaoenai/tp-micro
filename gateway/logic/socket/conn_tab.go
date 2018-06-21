@@ -19,7 +19,7 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
-	"github.com/xiaoenai/ants/gateway/logic"
+	"github.com/xiaoenai/tp-micro/gateway/logic"
 )
 
 type socketConnTab struct{}

@@ -17,7 +17,7 @@ package logic
 import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
-	"github.com/xiaoenai/ants/gateway/types"
+	"github.com/xiaoenai/tp-micro/gateway/types"
 )
 
 var (

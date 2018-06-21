@@ -1,7 +1,8 @@
-# Ants [![GitHub release](https://img.shields.io/github/release/xiaoenai/ants.svg)](https://github.com/xiaoenai/ants/releases) [![report card](https://goreportcard.com/badge/github.com/xiaoenai/ants)](http://goreportcard.com/report/xiaoenai/ants) [![github issues](https://img.shields.io/github/issues/xiaoenai/ants.svg)](https://github.com/xiaoenai/ants/issues?q=is%3Aopen+is%3Aissue) [![github closed issues](https://img.shields.io/github/issues-closed-raw/xiaoenai/ants.svg)](https://github.com/xiaoenai/ants/issues?q=is%3Aissue+is%3Aclosed) [![view teleport](https://img.shields.io/badge/based%20on-teleport-00BCD4.svg)](https://github.com/henrylee2cn/teleport) [![view tp-micro](https://img.shields.io/badge/based%20on-tp--micro-00BCD4.svg)](https://github.com/henrylee2cn/tp-micro) [![view Go网络编程群](https://img.shields.io/badge/官方QQ群-Go网络编程(42730308)-27a5ea.svg)](http://jq.qq.com/?_wv=1027&k=fzi4p1)
+# Micro [![GitHub release](https://img.shields.io/github/release/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/releases) [![report card](https://goreportcard.com/badge/github.com/xiaoenai/tp-micro?style=flat-square)](http://goreportcard.com/report/xiaoenai/tp-micro) [![github issues](https://img.shields.io/github/issues/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aopen+is%3Aissue) [![github closed issues](https://img.shields.io/github/issues-closed-raw/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aissue+is%3Aclosed) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/xiaoenai/tp-micro) [![view examples](https://img.shields.io/badge/learn%20by-examples-00BCD4.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/tree/master/examples) [![view teleport](https://img.shields.io/badge/based%20on-teleport-00BCD4.svg?style=flat-square)](https://github.com/henrylee2cn/teleport) [![view Go网络编程群](https://img.shields.io/badge/官方QQ群-Go网络编程(42730308)-27a5ea.svg?style=flat-square)](http://jq.qq.com/?_wv=1027&k=fzi4p1)
 
 
-Ants 是一套基于 [TP-Micro](https://github.com/henrylee2cn/tp-micro) 和 [Teleport](https://github.com/henrylee2cn/teleport) 的、高可用的微服务平台解决方案。
+TP-Micro 是一个基于 [Teleport](https://github.com/henrylee2cn/teleport) 定制的、简约而强大的微服务框架。
+
 
 ## 安装
 
@@ -10,9 +11,7 @@ go version ≥ 1.9
 ```
 
 ```sh
-go get -u -f -d github.com/xiaoenai/ants/...
-cd $GOPATH/src/github.com/xiaoenai/ants/cmd/ant
-go install
+go get -u -f github.com/xiaoenai/tp-micro
 ```
 
 ## 特性
@@ -34,105 +33,191 @@ go install
 - 客户端支持断线后自动重连
 - 支持过载保护（断路器）
 
+## 代码示例
+
+- 服务端
+
+```go
+package main
+
+import (
+    micro "github.com/xiaoenai/tp-micro"
+    tp "github.com/henrylee2cn/teleport"
+)
+
+// Arg arg
+type Arg struct {
+    A int
+    B int `param:"<range:1:>"`
+}
+
+// P handler
+type P struct {
+    tp.PullCtx
+}
+
+// Divide divide API
+func (p *P) Divide(arg *Arg) (int, *tp.Rerror) {
+    return arg.A / arg.B, nil
+}
+
+func main() {
+    srv := micro.NewServer(micro.SrvConfig{
+        ListenAddress: ":9090",
+    })
+    srv.RoutePull(new(P))
+    srv.ListenAndServe()
+}
+```
+
+- 客户端
+
+```go
+package main
+
+import (
+    micro "github.com/xiaoenai/tp-micro"
+    tp "github.com/henrylee2cn/teleport"
+)
+
+func main() {
+    cli := micro.NewClient(
+        micro.CliConfig{},
+        micro.NewStaticLinker(":9090"),
+    )
+    defer cli.Close()
+
+    type Arg struct {
+        A int
+        B int
+    }
+
+    var result int
+    rerr := cli.Pull("/p/divide", &Arg{
+        A: 10,
+        B: 2,
+    }, &result).Rerror()
+    if rerr != nil {
+        tp.Fatalf("%v", rerr)
+    }
+    tp.Infof("10/2=%d", result)
+    rerr = cli.Pull("/p/divide", &Arg{
+        A: 10,
+        B: 0,
+    }, &result).Rerror()
+    if rerr == nil {
+        tp.Fatalf("%v", rerr)
+    }
+    tp.Infof("test binding error: ok: %v", rerr)
+}
+```
+
+[更多示例](https://github.com/xiaoenai/tp-micro/tree/master/examples)
+
+
 ## 项目管理
+
+- 快速创建项目
+- 热编译模式运行项目
 
 ### 安装ant命令行
 
 ```sh
-cd $GOPATH/src/github.com/xiaoenai/ants/cmd/ant
+go get -u -f -d github.com/xiaoenai/tp-micro/...
+cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/micro
 go install
 ```
 
 ### 生成项目
 
-`ant gen` command help:
+`micro gen` command help:
 
 ```
 NAME:
-     ant gen - Generate an ant project
+     micro gen - Generate a tp-micro project
 
 USAGE:
-     ant gen [command options] [arguments...]
+     micro gen [command options] [arguments...]
 
 OPTIONS:
      --template value, -t value    The template for code generation(relative/absolute)
      --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-example: `ant gen -t ./__ant__tpl__.go -p ./myant` or default `ant gen myant`
+example: `micro gen -t ./__tp-micro__tpl__.go -p ./myant` or default `micro gen myant`
 
-- template file `__ant__tpl__.go` demo:
+- template file `__tp-micro__tpl__.go` demo:
 
 ```go
-// package __ANT__TPL__ is the project template
-package __ANT__TPL__
+// package __TPL__ is the project template
+package __TPL__
 
 // __API__PULL__ register PULL router:
 //  /home
 //  /math/divide
 type __API__PULL__ interface {
-	Home(*struct{}) *HomeResult
-	Math
+    Home(*struct{}) *HomeResult
+    Math
 }
 
 // __API__PUSH__ register PUSH router:
 //  /stat
 type __API__PUSH__ interface {
-	Stat(*StatArg)
+    Stat(*StatArg)
 }
 
 // MODEL create model
 type __MODEL__ struct {
-	DivideArg
-	User
+    DivideArg
+    User
 }
 
 // Math controller
 type Math interface {
-	// Divide handler
-	Divide(*DivideArg) *DivideResult
+    // Divide handler
+    Divide(*DivideArg) *DivideResult
 }
 
 // HomeResult home result
 type HomeResult struct {
-	Content string // text
+    Content string // text
 }
 
 type (
-	// DivideArg divide api arg
-	DivideArg struct {
-		// dividend
-		A float64
-		// divisor
-		B float64 `param:"<range: 0.01:100000>"`
-	}
-	// DivideResult divide api result
-	DivideResult struct {
-		// quotient
-		C float64
-	}
+    // DivideArg divide api arg
+    DivideArg struct {
+        // dividend
+        A float64
+        // divisor
+        B float64 `param:"<range: 0.01:100000>"`
+    }
+    // DivideResult divide api result
+    DivideResult struct {
+        // quotient
+        C float64
+    }
 )
 
 // StatArg stat handler arg
 type StatArg struct {
-	Ts int64 // timestamps
+    Ts int64 // timestamps
 }
 
 // User user info
 type User struct {
-	Id   int64
-	Name string
-	Age  int32
+    Id   int64
+    Name string
+    Age  int32
 }
 ```
 
-- The template generated by `ant gen` command.
+- The template generated by `micro gen` command.
 
 ```
-├── .ant_gen_lock
+├── __tp-micro__gen__.lock
 ├── .gitignore
 ├── README.md
-├── __ant__tpl__.go
+├── __tp-micro__tpl__.go
 ├── api
 │   ├── handler.gen.go
 │   ├── handler.go
@@ -167,24 +252,24 @@ type User struct {
 
 说明：
 
-- 如果 `.ant_gen_lock` 文件存在，`ant gen` 命令只覆盖带有 ".gen.go" 后缀的文件
+- 如果 `__tp-micro__gen__.lock` 文件存在，`micro gen` 命令只覆盖带有 ".gen.go" 后缀的文件
 - 在自动生成的文件的文件名中增加 `.gen` 后缀进行标记
 - `tmp_code.gen.go` 是为了通过编译而生成的临时文件，项目完成后应该移除它
 
-[生成的默认示例](https://github.com/henrylee2cn/tp-micro/tree/master/examples/project)
+[生成的默认示例](https://github.com/xiaoenai/tp-micro/tree/master/examples/project)
 
 ### 热编译运行
 
-`ant run` 命令帮助：
+`micro run` 命令帮助：
 
 ```
 NAME:
-     ant run - Compile and run gracefully (monitor changes) an any existing go project
+     micro run - Compile and run gracefully (monitor changes) an any existing go project
 
 USAGE:
-     ant run [options] [arguments...]
+     micro run [options] [arguments...]
  or
-     ant run [options except -app_path] [arguments...] {app_path}
+     micro run [options except -app_path] [arguments...] {app_path}
 
 OPTIONS:
      --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
@@ -192,92 +277,377 @@ OPTIONS:
      --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
-example: `ant run -x .yaml -p myant` or `ant run`
+example: `micro run -x .yaml -p myant` or `micro run`
 
-[更多 Ant 命令](https://github.com/xiaoenai/ants/tree/master/cmd/ant)
+[更多 Micro 命令](https://github.com/xiaoenai/tp-micro/tree/master/cmd/micro)
 
-## Ant项目示例
 
-- server
+## 用法
+
+### Peer端点（服务端或客户端）示例
+
+```go
+// Start a server
+var peer1 = tp.NewPeer(tp.PeerConfig{
+        ListenAddress: "0.0.0.0:9090", // for server role
+})
+peer1.Listen()
+
+...
+
+// Start a client
+var peer2 = tp.NewPeer(tp.PeerConfig{})
+var sess, err = peer2.Dial("127.0.0.1:8080")
+```
+
+
+### Pull-Controller-Struct 接口模板
+
+```go
+type Aaa struct {
+        tp.PullCtx
+}
+func (x *Aaa) XxZz(arg *<T>) (<T>, *tp.Rerror) {
+        ...
+        return r, nil
+}
+```
+
+- 注册到根路由：
+
+```go
+// register the pull route: /aaa/xx_zz
+peer.RoutePull(new(Aaa))
+
+// or register the pull route: /xx_zz
+peer.RoutePullFunc((*Aaa).XxZz)
+```
+
+### Pull-Handler-Function 接口模板
+
+```go
+func XxZz(ctx tp.PullCtx, arg *<T>) (<T>, *tp.Rerror) {
+        ...
+        return r, nil
+}
+```
+
+- 注册到根路由：
+
+```go
+// register the pull route: /xx_zz
+peer.RoutePullFunc(XxZz)
+```
+
+### Push-Controller-Struct 接口模板
+
+```go
+type Bbb struct {
+        tp.PushCtx
+}
+func (b *Bbb) YyZz(arg *<T>) *tp.Rerror {
+        ...
+        return nil
+}
+```
+
+- 注册到根路由：
+
+```go
+// register the push route: /bbb/yy_zz
+peer.RoutePush(new(Bbb))
+
+// or register the push route: /yy_zz
+peer.RoutePushFunc((*Bbb).YyZz)
+```
+
+### Push-Handler-Function 接口模板
+
+```go
+// YyZz register the route: /yy_zz
+func YyZz(ctx tp.PushCtx, arg *<T>) *tp.Rerror {
+        ...
+        return nil
+}
+```
+
+- 注册到根路由：
+
+```go
+// register the push route: /yy_zz
+peer.RoutePushFunc(YyZz)
+```
+
+### Unknown-Pull-Handler-Function 接口模板
+
+```go
+func XxxUnknownPull (ctx tp.UnknownPullCtx) (interface{}, *tp.Rerror) {
+        ...
+        return r, nil
+}
+```
+
+- 注册到根路由：
+
+```go
+// register the unknown pull route: /*
+peer.SetUnknownPull(XxxUnknownPull)
+```
+
+### Unknown-Push-Handler-Function 接口模板
+
+```go
+func XxxUnknownPush(ctx tp.UnknownPushCtx) *tp.Rerror {
+        ...
+        return nil
+}
+```
+
+- 注册到根路由：
+
+```go
+// register the unknown push route: /*
+peer.SetUnknownPush(XxxUnknownPush)
+```
+
+### 结构体（函数）名称映射到URI路径的规则：
+
+- `AaBb` -> `/aa_bb`
+- `Aa_Bb` -> `/aa/bb`
+- `aa_bb` -> `/aa/bb`
+- `Aa__Bb` -> `/aa_bb`
+- `aa__bb` -> `/aa_bb`
+- `ABC_XYZ` -> `/abc/xyz`
+- `ABcXYz` -> `/abc_xyz`
+- `ABC__XYZ` -> `/abc_xyz`
+
+### 插件示例
+
+```go
+// NewIgnoreCase Returns a ignoreCase plugin.
+func NewIgnoreCase() *ignoreCase {
+        return &ignoreCase{}
+}
+
+type ignoreCase struct{}
+
+var (
+        _ tp.PostReadPullHeaderPlugin = new(ignoreCase)
+        _ tp.PostReadPushHeaderPlugin = new(ignoreCase)
+)
+
+func (i *ignoreCase) Name() string {
+        return "ignoreCase"
+}
+
+func (i *ignoreCase) PostReadPullHeader(ctx tp.ReadCtx) *tp.Rerror {
+        // Dynamic transformation path is lowercase
+        ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
+        return nil
+}
+
+func (i *ignoreCase) PostReadPushHeader(ctx tp.ReadCtx) *tp.Rerror {
+        // Dynamic transformation path is lowercase
+        ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
+        return nil
+}
+```
+
+### 注册以上操作和插件示例到路由
+
+```go
+// add router group
+group := peer.SubRoute("test")
+// register to test group
+group.RoutePull(new(Aaa), NewIgnoreCase())
+peer.RoutePullFunc(XxZz, NewIgnoreCase())
+group.RoutePush(new(Bbb))
+peer.RoutePushFunc(YyZz)
+peer.SetUnknownPull(XxxUnknownPull)
+peer.SetUnknownPush(XxxUnknownPush)
+```
+
+### 配置信息
+
+```go
+// SrvConfig server config
+type SrvConfig struct {
+    Network           string        `yaml:"network"              ini:"network"              comment:"Network; tcp, tcp4, tcp6, unix or unixpacket"`
+    ListenAddress     string        `yaml:"listen_address"       ini:"listen_address"       comment:"Listen address; for server role"`
+    TlsCertFile       string        `yaml:"tls_cert_file"        ini:"tls_cert_file"        comment:"TLS certificate file path"`
+    TlsKeyFile        string        `yaml:"tls_key_file"         ini:"tls_key_file"         comment:"TLS key file path"`
+    DefaultSessionAge time.Duration `yaml:"default_session_age"  ini:"default_session_age"  comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+    DefaultContextAge time.Duration `yaml:"default_context_age"  ini:"default_context_age"  comment:"Default PULL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+    SlowCometDuration time.Duration `yaml:"slow_comet_duration"  ini:"slow_comet_duration"  comment:"Slow operation alarm threshold; ns,µs,ms,s ..."`
+    DefaultBodyCodec  string        `yaml:"default_body_codec"   ini:"default_body_codec"   comment:"Default body codec type id"`
+    PrintDetail       bool          `yaml:"print_detail"         ini:"print_detail"         comment:"Is print body and metadata or not"`
+    CountTime         bool          `yaml:"count_time"           ini:"count_time"           comment:"Is count cost time or not"`
+    EnableHeartbeat   bool          `yaml:"enable_heartbeat"     ini:"enable_heartbeat"     comment:"enable heartbeat"`
+}
+
+// CliConfig client config
+type CliConfig struct {
+    Network             string               `yaml:"network"                ini:"network"                comment:"Network; tcp, tcp4, tcp6, unix or unixpacket"`
+    LocalIP             string               `yaml:"local_ip"               ini:"local_ip"               comment:"Local IP"`
+    TlsCertFile         string               `yaml:"tls_cert_file"          ini:"tls_cert_file"          comment:"TLS certificate file path"`
+    TlsKeyFile          string               `yaml:"tls_key_file"           ini:"tls_key_file"           comment:"TLS key file path"`
+    DefaultSessionAge   time.Duration        `yaml:"default_session_age"    ini:"default_session_age"    comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+    DefaultContextAge   time.Duration        `yaml:"default_context_age"    ini:"default_context_age"    comment:"Default PULL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+    DefaultDialTimeout  time.Duration        `yaml:"default_dial_timeout"   ini:"default_dial_timeout"   comment:"Default maximum duration for dialing; for client role; ns,µs,ms,s,m,h"`
+    RedialTimes         int                  `yaml:"redial_times"           ini:"redial_times"           comment:"The maximum times of attempts to redial, after the connection has been unexpectedly broken; for client role"`
+    Failover            int                  `yaml:"failover"               ini:"failover"               comment:"The maximum times of failover"`
+    SlowCometDuration   time.Duration        `yaml:"slow_comet_duration"    ini:"slow_comet_duration"    comment:"Slow operation alarm threshold; ns,µs,ms,s ..."`
+    DefaultBodyCodec    string               `yaml:"default_body_codec"     ini:"default_body_codec"     comment:"Default body codec type id"`
+    PrintDetail         bool                 `yaml:"print_detail"           ini:"print_detail"           comment:"Is print body and metadata or not"`
+    CountTime           bool                 `yaml:"count_time"             ini:"count_time"             comment:"Is count cost time or not"`
+    HeartbeatSecond     int                  `yaml:"heartbeat_second"       ini:"heartbeat_second"       comment:"When the heartbeat interval(second) is greater than 0, heartbeat is enabled; if it's smaller than 3, change to 3 default"`
+    SessMaxQuota        int                  `yaml:"sess_max_quota"         ini:"sess_max_quota"         comment:"The maximum number of sessions in the connection pool"`
+    SessMaxIdleDuration time.Duration        `yaml:"sess_max_idle_duration" ini:"sess_max_idle_duration" comment:"The maximum time period for the idle session in the connection pool; ns,µs,ms,s,m,h"`
+    CircuitBreaker      CircuitBreakerConfig `yaml:"circuit_breaker" ini:"circuit_breaker" comment:"Circuit breaker config"`
+}
+
+// CircuitBreakerConfig circuit breaker config
+type CircuitBreakerConfig struct {
+    Enable          bool          `yaml:"enable" ini:"enable" comment:"Whether to use circuit breaker"`
+    ErrorPercentage int           `yaml:"error_percentage" ini:"error_percentage" comment:"break linker when the error rate exceeds the threshold during a statistical period; default 50"`
+    BreakDuration   time.Duration `yaml:"break_duration" ini:"break_duration" comment:"The period of one-cycle break in milliseconds; must ≥ 1ms"`
+}
+```
+
+
+### Binder
+
+#### Param-Tags
+
+tag   |   key    | required |     value     |   desc
+------|----------|----------|---------------|----------------------------------
+param |   query    | no |     -      | It indicates that the parameter is from the URI query part. e.g. `/a/b?x={query}`
+param |   swap    | no |     -      | It indicates that the parameter is from the context swap.
+param |   desc   |      no      |     (e.g.`id`)   | Parameter Description
+param |   len    |      no      |   (e.g.`3:6`)  | Length range [a,b] of parameter's value
+param |   range  |      no      |   (e.g.`0:10`)   | Numerical range [a,b] of parameter's value
+param |  nonzero |      no      |    -    | Not allowed to zero
+param |  regexp  |      no      |   (e.g.`^\w+$`)  | Regular expression validation
+param |   rerr   |      no      |(e.g.`100002:wrong password format`)| Custom error code and message
+
+NOTES:
+
+* `param:"-"` means ignore
+* Encountered untagged exportable anonymous structure field, automatic recursive resolution
+* Parameter name is the name of the structure field converted to snake format
+* If the parameter is not from `query` or `swap`, it is the default from the body
+
+#### Field-Types
+
+base    |   slice    | special
+--------|------------|------------
+string  |  []string  | [][]byte
+byte    |  []byte    | [][]uint8
+uint8   |  []uint8   | struct
+bool    |  []bool    |
+int     |  []int     |
+int8    |  []int8    |
+int16   |  []int16   |
+int32   |  []int32   |
+int64   |  []int64   |
+uint8   |  []uint8   |
+uint16  |  []uint16  |
+uint32  |  []uint32  |
+uint64  |  []uint64  |
+float32 |  []float32 |
+float64 |  []float64 |
+
+#### 示例
 
 ```go
 package main
 
 import (
-        micro "github.com/henrylee2cn/tp-micro"
-        tp "github.com/henrylee2cn/teleport"
+    tp "github.com/henrylee2cn/teleport"
+    micro "github.com/xiaoenai/tp-micro"
 )
 
-// Arg arg
-type Arg struct {
+type (
+    // Arg arg
+    Arg struct {
         A int
-        B int `param:"<range:1:>"`
-}
+        B int `param:"<range:1:100>"`
+        Query
+        XyZ string `param:"<query><nonzero><rerr: 100002: Parameter cannot be empty>"`
+    }
+    Query struct {
+        X string `param:"<query>"`
+    }
+)
 
 // P handler
 type P struct {
-        tp.PullCtx
+    tp.PullCtx
 }
 
 // Divide divide API
 func (p *P) Divide(arg *Arg) (int, *tp.Rerror) {
-        return arg.A / arg.B, nil
+    tp.Infof("query arg x: %s, xy_z: %s", arg.Query.X, arg.XyZ)
+    return arg.A / arg.B, nil
 }
 
 func main() {
-        srv := micro.NewServer(micro.SrvConfig{
-                ListenAddress: ":9090",
-        })
-        srv.RoutePull(new(P))
-        srv.Listen()
+    srv := micro.NewServer(micro.SrvConfig{
+        ListenAddress:   ":9090",
+        EnableHeartbeat: true,
+    })
+    group := srv.SubRoute("/static")
+    group.RoutePull(new(P))
+    srv.ListenAndServe()
 }
 ```
 
-- client
-
-```go
-package main
-
-import (
-        micro "github.com/henrylee2cn/tp-micro"
-    tp "github.com/henrylee2cn/teleport"
-)
-
-func main() {
-        cli := micro.NewClient(
-                micro.CliConfig{},
-                micro.NewStaticLinker(":9090"),
-        )
-        defer   cli.Close()
-
-        type Arg struct {
-                A int
-                B int
-        }
-
-        var result int
-        rerr := cli.Pull("/p/divide", &Arg{
-                A: 10,
-                B: 2,
-        }, &result).Rerror()
-        if rerr != nil {
-                tp.Fatalf("%v", rerr)
-        }
-        tp.Infof("10/2=%d", result)
-        rerr = cli.Pull("/p/divide", &Arg{
-                A: 10,
-                B: 0,
-        }, &result).Rerror()
-        if rerr == nil {
-                tp.Fatalf("%v", rerr)
-        }
-        tp.Infof("test binding error: ok: %v", rerr)
-}
-```
+[示例详情](https://github.com/xiaoenai/tp-micro/tree/master/examples/binder)
 
 
-[更多](https://github.com/henrylee2cn/tp-micro/tree/master/samples)
+### 通信优化
+
+- SetPacketSizeLimit 设置包大小的上限，
+    如果 maxSize<=0，上限默认为最大 uint32
+
+        ```go
+        func SetPacketSizeLimit(maxPacketSize uint32)
+        ```
+
+- SetSocketKeepAlive 是否允许操作系统的发送TCP的keepalive探测包
+
+        ```go
+        func SetSocketKeepAlive(keepalive bool)
+        ```
+
+
+- SetSocketKeepAlivePeriod 设置操作系统的TCP发送keepalive探测包的频度
+
+        ```go
+        func SetSocketKeepAlivePeriod(d time.Duration)
+        ```
+
+- SetSocketNoDelay 是否禁用Nagle算法，禁用后将不在合并较小数据包进行批量发送，默认为禁用
+
+        ```go
+        func SetSocketNoDelay(_noDelay bool)
+        ```
+
+- SetSocketReadBuffer 设置操作系统的TCP读缓存区的大小
+
+        ```go
+        func SetSocketReadBuffer(bytes int)
+        ```
+
+- SetSocketWriteBuffer 设置操作系统的TCP写缓存区的大小
+
+        ```go
+        func SetSocketWriteBuffer(bytes int)
+        ```
+
+[More Usage](https://github.com/henrylee2cn/teleport)
+
 
 ## 开源协议
 
-Ant 项目采用商业应用友好的 [Apache2.0](https://github.com/xiaoenai/ant/raw/master/LICENSE) 协议发布
+Micro 项目采用商业应用友好的 [Apache2.0](https://github.com/xiaoenai/tp-micro/raw/master/LICENSE) 协议发布

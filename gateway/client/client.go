@@ -16,9 +16,9 @@ package client
 
 import (
 	"github.com/henrylee2cn/teleport/socket"
-	micro "github.com/henrylee2cn/tp-micro"
-	"github.com/henrylee2cn/tp-micro/discovery"
-	"github.com/henrylee2cn/tp-micro/discovery/etcd"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/discovery"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 
 var (

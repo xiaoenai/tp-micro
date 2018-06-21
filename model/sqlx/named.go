@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"unicode"
 
-	"github.com/xiaoenai/ants/model/sqlx/reflectx"
+	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
 )
 
 // NamedStmt is a prepared statement that executes named queries.  Prepare it

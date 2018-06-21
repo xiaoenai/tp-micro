@@ -18,10 +18,10 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
-	micro "github.com/henrylee2cn/tp-micro"
-	"github.com/henrylee2cn/tp-micro/discovery"
-	"github.com/xiaoenai/ants/gateway/client"
-	"github.com/xiaoenai/ants/gateway/logic"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/discovery"
+	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/gateway/logic"
 )
 
 var (

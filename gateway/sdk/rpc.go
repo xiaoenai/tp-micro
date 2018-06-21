@@ -20,10 +20,10 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
-	micro "github.com/henrylee2cn/tp-micro"
-	"github.com/henrylee2cn/tp-micro/discovery/etcd"
-	"github.com/xiaoenai/ants/gateway/client"
-	"github.com/xiaoenai/ants/gateway/types"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/gateway/types"
 )
 
 // Init initializes a common inner ant client.

@@ -2,8 +2,8 @@ package sdk
 
 import (
 	"testing"
-	// micro "github.com/henrylee2cn/tp-micro"
-	// "github.com/xiaoenai/ants/gateway/types"
+	// micro "github.com/xiaoenai/tp-micro"
+	// "github.com/xiaoenai/tp-micro/gateway/types"
 )
 
 // TestSdk test SDK.

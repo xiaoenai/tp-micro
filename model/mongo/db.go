@@ -13,7 +13,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/ants/model/redis"
+	"github.com/xiaoenai/tp-micro/model/redis"
 )
 
 // GO 1.9 alias

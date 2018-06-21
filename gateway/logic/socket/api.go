@@ -6,9 +6,9 @@ import (
 	_ "unsafe"
 
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/ants/gateway/logic"
-	"github.com/xiaoenai/ants/gateway/logic/hosts"
-	"github.com/xiaoenai/ants/gateway/types"
+	"github.com/xiaoenai/tp-micro/gateway/logic"
+	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
+	"github.com/xiaoenai/tp-micro/gateway/types"
 )
 
 // gw long connection controller.
@@ -22,7 +22,7 @@ func (g *gw) Hosts(*struct{}) (*types.GwHosts, *tp.Rerror) {
 }
 
 // totalConn returns the long connections total.
-//go:linkname totalConn github.com/xiaoenai/ants/gateway.TotalConn
+//go:linkname totalConn github.com/xiaoenai/tp-micro/gateway.TotalConn
 //go:nosplit
 func totalConn() int32 {
 	if outerPeer == nil {

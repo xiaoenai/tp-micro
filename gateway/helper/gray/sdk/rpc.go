@@ -3,11 +3,11 @@ package sdk
 import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
-	micro "github.com/henrylee2cn/tp-micro"
-	"github.com/henrylee2cn/tp-micro/discovery"
-	"github.com/henrylee2cn/tp-micro/discovery/etcd"
-	types "github.com/xiaoenai/ants/gateway/helper/gray/types"
-	gwLogic "github.com/xiaoenai/ants/gateway/logic"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/discovery"
+	"github.com/xiaoenai/tp-micro/model/etcd"
+	types "github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
+	gwLogic "github.com/xiaoenai/tp-micro/gateway/logic"
 )
 
 var _formalClient *micro.Client

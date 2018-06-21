@@ -10,8 +10,8 @@ import (
     "testing"
     "time"
 
-	"github.com/xiaoenai/ants/model/mysql"
-    "github.com/xiaoenai/ants/model/redis"
+	"github.com/xiaoenai/tp-micro/model/mysql"
+    "github.com/xiaoenai/tp-micro/model/redis"
 )
 
 type testTable struct {
