@@ -29,7 +29,7 @@ OPTIONS:
      --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-example: `micro gen -t ./__tp-micro__tpl__.go -p ./myant` or default `micro gen myant`
+example: `micro gen -t ./__tp-micro__tpl__.go -p ./myapp` or default `micro gen myapp`
 
 - template file `__tp-micro__tpl__.go` demo:
 
@@ -162,5 +162,5 @@ OPTIONS:
      --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
-example: `micro run -x .yaml -p myant` or `micro run`
+example: `micro run -x .yaml -p myapp` or `micro run`
 

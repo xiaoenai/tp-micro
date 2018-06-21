@@ -11,7 +11,9 @@ go version ≥ 1.9
 ```
 
 ```sh
-go get -u -f github.com/xiaoenai/tp-micro
+go get -u -f -d github.com/xiaoenai/tp-micro/...
+cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/micro
+go install
 ```
 
 ## 特性
@@ -115,18 +117,10 @@ func main() {
 [更多示例](https://github.com/xiaoenai/tp-micro/tree/master/examples)
 
 
-## 项目管理
+## 学习 `micro` 命令
 
 - 快速创建项目
 - 热编译模式运行项目
-
-### 安装ant命令行
-
-```sh
-go get -u -f -d github.com/xiaoenai/tp-micro/...
-cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/micro
-go install
-```
 
 ### 生成项目
 
@@ -144,7 +138,7 @@ OPTIONS:
      --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-example: `micro gen -t ./__tp-micro__tpl__.go -p ./myant` or default `micro gen myant`
+example: `micro gen -t ./__tp-micro__tpl__.go -p ./myapp` or default `micro gen myapp`
 
 - template file `__tp-micro__tpl__.go` demo:
 
@@ -277,7 +271,7 @@ OPTIONS:
      --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
-example: `micro run -x .yaml -p myant` or `micro run`
+example: `micro run -x .yaml -p myapp` or `micro run`
 
 [更多 Micro 命令](https://github.com/xiaoenai/tp-micro/tree/master/cmd/micro)
 

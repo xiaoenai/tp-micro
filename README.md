@@ -14,7 +14,9 @@ go version ≥ 1.9
 ```
 
 ```sh
-go get -u -f github.com/xiaoenai/tp-micro
+go get -u -f -d github.com/xiaoenai/tp-micro/...
+cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/micro
+go install
 ```
 
 ## Feature
@@ -117,20 +119,12 @@ func main() {
 
 [More Examples](https://github.com/xiaoenai/tp-micro/tree/master/examples)
 
-## Project Management
+## Learn `micro` Command
 
 Command micro is deployment tools of tp-micro frameware.
 
 - Quickly create a tp-micro project
 - Run tp-micro project with hot compilation
-
-### Install Micro Command
-
-```sh
-go get -u -f -d github.com/xiaoenai/tp-micro/...
-cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/micro
-go install
-```
 
 ### Generate project
 
@@ -148,7 +142,7 @@ OPTIONS:
      --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-example: `micro gen -t ./__tp-micro__tpl__.go -p ./myant` or default `micro gen myant`
+example: `micro gen -t ./__tp-micro__tpl__.go -p ./myapp` or default `micro gen myapp`
 
 - template file `__tp-micro__tpl__.go` demo:
 
@@ -281,7 +275,7 @@ OPTIONS:
      --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
-example: `micro run -x .yaml -p myant` or `micro run`
+example: `micro run -x .yaml -p myapp` or `micro run`
 
 [More Micro Command](https://github.com/xiaoenai/tp-micro/tree/master/cmd/micro)
 
