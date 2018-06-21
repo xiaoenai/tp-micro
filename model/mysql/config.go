@@ -1,6 +1,4 @@
-// Package model is a mysql ORM(Object Role Modeling) package with redis cache.
-
-package model
+package mysql
 
 import (
 	"fmt"

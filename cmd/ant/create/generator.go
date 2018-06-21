@@ -301,16 +301,16 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/henrylee2cn/tp-micro"
 	"github.com/henrylee2cn/tp-micro/discovery/etcd"
-	"github.com/xiaoenai/ants/model"
+	"github.com/xiaoenai/ants/model/mysql"
 	"github.com/xiaoenai/ants/model/redis"
 
-	mod "${import_prefix}/logic/model"
+	"${import_prefix}/logic/model"
 )
 
 type config struct {
 	Srv      micro.SrvConfig ` + "`yaml:\"srv\"`" + `
 	Etcd     etcd.EasyConfig ` + "`yaml:\"etcd\"`" + `
-	DB       model.Config    ` + "`yaml:\"db\"`" + `
+	DB       mysql.Config    ` + "`yaml:\"db\"`" + `
 	Redis    redis.Config    ` + "`yaml:\"redis\"`" + `
 	LogLevel string          ` + "`yaml:\"log_level\"`" + `
 }
@@ -324,7 +324,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 		c.LogLevel = "TRACE"
 	}
 	tp.SetLoggerLevel(c.LogLevel)
-	err = mod.Init(c.DB, c.Redis)
+	err = model.Init(c.DB, c.Redis)
 	if err != nil {
 		tp.Errorf("%v", err)
 	}
@@ -342,7 +342,7 @@ var cfg = &config{
 	Etcd: etcd.EasyConfig{
 		Endpoints: []string{"http://127.0.0.1:2379"},
 	},
-	DB: model.Config{
+	DB: mysql.Config{
 		Port: 3306,
 	},
 	Redis:    *redis.NewConfig(),
@@ -375,20 +375,20 @@ ${logic_api_define}
 	"logic/model/init.go": `package model
 
 import (
-	"github.com/xiaoenai/ants/model"
+	"github.com/xiaoenai/ants/model/mysql"
 	"github.com/xiaoenai/ants/model/redis"
 )
 
 // dbHandler preset DB handler
-var dbHandler = model.NewPreDB()
+var dbHandler = mysql.NewPreDB()
 
 // Init initializes the model packet.
-func Init(dbConfig model.Config, redisConfig redis.Config) error {
+func Init(dbConfig mysql.Config, redisConfig redis.Config) error {
 	return dbHandler.Init(&dbConfig, &redisConfig)
 }
 
 // GetDB returns the DB handler.
-func GetDB() *model.DB {
+func GetDB() *mysql.DB {
 	return dbHandler.DB
 }
 

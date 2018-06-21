@@ -12,7 +12,7 @@ import (
 	"github.com/xiaoenai/ants/gateway/helper/gray"
 	"github.com/xiaoenai/ants/gateway/logic"
 	"github.com/xiaoenai/ants/gateway/types"
-	"github.com/xiaoenai/ants/model"
+	"github.com/xiaoenai/ants/model/mysql"
 	"github.com/xiaoenai/ants/model/redis"
 )
 
@@ -21,7 +21,7 @@ type config struct {
 	GraySocketClient micro.CliConfig `yaml:"gray_socket_client"`
 	GrayEtcd         etcd.EasyConfig `yaml:"gray_etcd"`
 	Redis            redis.Config    `yaml:"redis"`
-	Mysql            model.Config    `yaml:"mysql"`
+	Mysql            mysql.Config    `yaml:"mysql"`
 }
 
 func (c *config) Reload(bind cfgo.BindFunc) error {
@@ -42,7 +42,7 @@ func main() {
 			Endpoints: []string{"http://127.0.0.1:2379"},
 		},
 		Redis: *redis.NewConfig(),
-		Mysql: *model.NewConfig(),
+		Mysql: *mysql.NewConfig(),
 	}
 	cfgo.AllowAppsShare(true)
 	cfgo.MustReg("gateway", &cfg)

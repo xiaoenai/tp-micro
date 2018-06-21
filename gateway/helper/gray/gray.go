@@ -16,7 +16,7 @@ import (
 	types "github.com/xiaoenai/ants/gateway/helper/gray/types"
 	gwLogic "github.com/xiaoenai/ants/gateway/logic"
 	gwTypes "github.com/xiaoenai/ants/gateway/types"
-	"github.com/xiaoenai/ants/model"
+	"github.com/xiaoenai/ants/model/mysql"
 	"github.com/xiaoenai/ants/model/redis"
 )
 
@@ -26,7 +26,7 @@ func SetGray(
 	biz *gwTypes.Business,
 	grayClientConfig micro.CliConfig,
 	grayEtcdConfig etcd.EasyConfig,
-	mysqlConfig model.Config,
+	mysqlConfig mysql.Config,
 	redisConfig redis.Config,
 	protoFunc socket.ProtoFunc,
 ) (grayClient *micro.Client, err error) {

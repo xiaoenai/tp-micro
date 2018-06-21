@@ -1,4 +1,4 @@
-package model_test
+package mysql_test
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/goutil"
-	"github.com/xiaoenai/ants/model"
+	"github.com/xiaoenai/ants/model/mysql"
 	"github.com/xiaoenai/ants/model/redis"
 	"github.com/xiaoenai/ants/model/sqlx"
 	"github.com/xiaoenai/ants/model/sqlx/reflectx"
@@ -42,7 +42,7 @@ func TestNamed(t *testing.T) {
 }
 
 func TestCacheDb(t *testing.T) {
-	dbConf, err := model.ReadConfig("test_db")
+	dbConf, err := mysql.ReadConfig("test_db")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestCacheDb(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	db, err := model.Connect(dbConf, redisConf)
+	db, err := mysql.Connect(dbConf, redisConf)
 	if err != nil {
 		t.Fatal(err)
 	}

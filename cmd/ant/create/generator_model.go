@@ -107,7 +107,7 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/goutil/coarsetime"
-	"github.com/xiaoenai/ants/model"
+	"github.com/xiaoenai/ants/model/mysql"
 	"github.com/xiaoenai/ants/model/sqlx"
 )
 
@@ -121,7 +121,7 @@ func (*{{.Name}}) TableName() string {
 var {{.LowerFirstName}}DB, _ = dbHandler.RegCacheableDB(new({{.Name}}), time.Hour*24, ` + "``" + `)
 
 // Get{{.Name}}DB returns the {{.Name}} DB handler.
-func Get{{.Name}}DB() *model.CacheableDB {
+func Get{{.Name}}DB() *mysql.CacheableDB {
 	return {{.LowerFirstName}}DB
 }
 
@@ -133,7 +133,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
+	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		var query string
 		if _{{.LowerFirstLetter}}.Id > 0 {
 			query = "INSERT INTO {{.NameSql}} (id,{{index .QuerySql 0}})VALUES(:id,{{index .QuerySql 1}});"
@@ -163,7 +163,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) (int64, 
 //  Update all fields except the primary key and the created_at key if _updateFields is empty.
 func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) error {
 	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
-	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
+	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		query := "UPDATE {{.NameSql}} SET "
 		if len(_updateFields) == 0 {
 			query += "{{.UpdateSql}} WHERE id=:id LIMIT 1;"
@@ -211,7 +211,7 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
+	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		query := "INSERT INTO {{.NameSql}} (id,{{index .QuerySql 0}})VALUES(:id,{{index .QuerySql 1}})" +
 			" ON DUPLICATE KEY UPDATE "
 		if len(_updateFields) == 0 {
@@ -245,7 +245,7 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 // NOTE:
 //  With cache layer.
 func Delete{{.Name}}ByPrimary(id int64, tx ...*sqlx.Tx) error {
-	err := {{.LowerFirstName}}DB.Callback(func(tx model.DbOrTx) error {
+	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE id=?;", id)
 		return err
 	}, tx...)
