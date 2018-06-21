@@ -1,4 +1,4 @@
-package mongodb
+package mongo
 
 import (
 	"encoding/json"
@@ -206,9 +206,9 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 			// check
 			if !cacheKey.isPriKey && !c.checkSecondCache(destStructPtr, fields, cacheKey.FieldValues) {
 				c.Cache.Del(cacheKey.Key)
-				return ErrNotFound
+			} else {
+				return nil
 			}
-			return nil
 		}
 	}
 
@@ -341,18 +341,16 @@ func (c *CacheableDB) DeleteCache(srcStructPtr Cacheable, fields ...string) erro
 	if err != nil {
 		return err
 	}
-
-	key := cacheKey.Key
-	if cacheKey.isPriKey {
-		return c.Cache.Del(key).Err()
-	}
-
+	var keys = []string{cacheKey.Key}
 	// secondary cache
-	key, err = c.createPrikey(srcStructPtr)
-	if err != nil {
-		return err
+	if !cacheKey.isPriKey {
+		// get first cache key
+		firstKey, err := c.Cache.Get(cacheKey.Key).Result()
+		if err == nil {
+			keys = append(keys, firstKey)
+		}
 	}
-	return errors.Merge(c.Cache.Del(key).Err(), c.Cache.Del(cacheKey.Key).Err())
+	return c.Cache.Del(keys...).Err()
 }
 
 func (c *CacheableDB) createPrikey(structPtr Cacheable) (string, error) {
