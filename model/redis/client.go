@@ -219,6 +219,11 @@ func NewClient(cfg *Config) (*Client, error) {
 	return c, nil
 }
 
+// Config returns config.
+func (c *Client) Config() *Config {
+	return c.cfg
+}
+
 // IsCluster returns whether it is a cluster.
 func (c *Client) IsCluster() bool {
 	return c.cfg.DeployType == TypeCluster

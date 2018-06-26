@@ -25,25 +25,30 @@ func NewPreDB() *PreDB {
 	}
 }
 
-// Init initialize *DB.
-func (p *PreDB) Init(mgoConfig *Config, redisConfig *redis.Config) (err error) {
+func (p *PreDB) Init(dbConfig *Config, redisConfig *redis.Config) (err error) {
 	var cache *redis.Client
-	if !mgoConfig.NoCache && redisConfig != nil {
+	if !dbConfig.NoCache && redisConfig != nil {
 		cache, err = redis.NewClient(redisConfig)
 		if err != nil {
 			return err
 		}
 	}
+	return p.Init2(dbConfig, cache)
+}
 
+// Init initialize *DB.
+func (p *PreDB) Init2(dbConfig *Config, redisCient *redis.Client) (err error) {
 	// connect to mongodb
-	db, err := mgo.DialWithInfo(mgoConfig.Source())
+	db, err := mgo.DialWithInfo(dbConfig.Source())
 	if err != nil {
 		return err
 	}
 	p.DB.Session = db
-	p.DB.mgoConfig = mgoConfig
-	p.DB.Cache = cache
-	p.DB.redisConfig = redisConfig
+	p.DB.dbConfig = dbConfig
+	if !dbConfig.NoCache && redisCient != nil {
+		p.DB.Cache = redisCient
+		p.DB.redisConfig = redisCient.Config()
+	}
 
 	for _, preFunc := range p.preFuncs {
 		if err = preFunc(); err != nil {

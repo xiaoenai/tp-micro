@@ -35,7 +35,11 @@ func (p *PreDB) Init(dbConfig *Config, redisConfig *redis.Config) (err error) {
 			return err
 		}
 	}
+	return p.Init2(dbConfig, cache)
+}
 
+// Init2 initialize *DB.
+func (p *PreDB) Init2(dbConfig *Config, redisCient *redis.Client) (err error) {
 	p.DB.DB, err = sqlx.Connect("mysql", dbConfig.Source())
 	if err != nil {
 		return err
@@ -45,8 +49,10 @@ func (p *PreDB) Init(dbConfig *Config, redisConfig *redis.Config) (err error) {
 	p.DB.SetConnMaxLifetime(time.Duration(dbConfig.ConnMaxLifetime) * time.Second)
 	p.DB.MapperFunc(goutil.SnakeString)
 	p.DB.dbConfig = dbConfig
-	p.DB.Cache = cache
-	p.DB.redisConfig = redisConfig
+	if !dbConfig.NoCache && redisCient != nil {
+		p.DB.Cache = redisCient
+		p.DB.redisConfig = redisCient.Config()
+	}
 
 	for _, preFunc := range p.preFuncs {
 		if err = preFunc(); err != nil {

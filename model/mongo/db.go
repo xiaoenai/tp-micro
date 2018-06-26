@@ -30,7 +30,7 @@ var (
 type DB struct {
 	*mgo.Session
 	Cache        *redis.Client
-	mgoConfig    *Config
+	dbConfig     *Config
 	redisConfig  *redis.Config
 	cacheableDBs map[string]*CacheableDB
 }
@@ -39,7 +39,7 @@ func (c *CacheableDB) getSession() (*mgo.Session, error) {
 	if c.DB.Session.Ping() != nil {
 		// Creating a maintenance socket pool for session
 		// connect to mongodb
-		session, err := mgo.DialWithInfo(c.DB.mgoConfig.Source())
+		session, err := mgo.DialWithInfo(c.DB.dbConfig.Source())
 		if err != nil {
 			return nil, err
 		}
@@ -73,11 +73,11 @@ func (d *DB) RegCacheableDB(ormStructPtr Cacheable, cacheExpiration time.Duratio
 	if _, ok := d.cacheableDBs[tableName]; ok {
 		return nil, fmt.Errorf("re-register cacheable table: %s", tableName)
 	}
-	if !d.mgoConfig.NoCache && d.Cache == nil {
+	if !d.dbConfig.NoCache && d.Cache == nil {
 		return nil, ErrCacheNil
 	}
 
-	module := redis.NewModule(d.mgoConfig.Database + ":" + tableName)
+	module := redis.NewModule(d.dbConfig.Database + ":" + tableName)
 	t := reflect.TypeOf(ormStructPtr)
 	c := &CacheableDB{
 		DB:        d,
@@ -170,7 +170,7 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 		return err
 	}
 
-	if c.DB.mgoConfig.NoCache {
+	if c.DB.dbConfig.NoCache {
 		// read db
 		return c.WitchCollection(func(collect *Collection) error {
 			return collect.Find(c.CreateGetQuery(cacheKey.FieldValues, fields...)).One(destStructPtr)
@@ -299,7 +299,7 @@ func (c *CacheableDB) getFirstCache(key string, destStructPtr Cacheable) (bool, 
 //  @destStructPtr must be a *struct type;
 //  If fields is empty, auto-use primary fields.
 func (c *CacheableDB) PutCache(srcStructPtr Cacheable, fields ...string) error {
-	if c.DB.mgoConfig.NoCache {
+	if c.DB.dbConfig.NoCache {
 		return nil
 	}
 	cacheKey, err := c.CreateCacheKey(srcStructPtr, fields...)
@@ -334,7 +334,7 @@ func (c *CacheableDB) PutCache(srcStructPtr Cacheable, fields ...string) error {
 //  @destStructPtr must be a *struct type;
 //  If fields is empty, auto-use primary fields.
 func (c *CacheableDB) DeleteCache(srcStructPtr Cacheable, fields ...string) error {
-	if c.DB.mgoConfig.NoCache {
+	if c.DB.dbConfig.NoCache {
 		return nil
 	}
 	cacheKey, err := c.CreateCacheKey(srcStructPtr, fields...)
@@ -390,6 +390,6 @@ func (c *CacheableDB) WitchCollection(s func(*Collection) error) error {
 			tp.Errorf("Mongodb close session err:%s", err)
 		}
 	}()
-	collection := c.DB.DB(c.DB.mgoConfig.Database).C(c.tableName)
+	collection := c.DB.DB(c.DB.dbConfig.Database).C(c.tableName)
 	return s(collection)
 }
