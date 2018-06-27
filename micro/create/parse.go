@@ -71,6 +71,7 @@ type (
 		name          string
 		fields        []*field
 		primaryFields []*field
+		uniqueFields  []*field
 		modelStyle    string // mysql, mongo
 		node          *ast.StructType
 	}
@@ -360,14 +361,18 @@ func (s *structType) initModel() {
 		s.rangeTags(func(tags *structtag.Tags, f *field, anonymous bool) bool {
 			tag, _ := tags.Get("json")
 			f.ModelName = tag.Name
-			_, err := tags.Get("pri")
+			tag, err := tags.Get("key")
 			if err == nil {
-				tags.Set(&structtag.Tag{
-					Key:  "pri",
-					Name: "",
-				})
-				s.primaryFields = append(s.primaryFields, f)
-				hasPrimary = true
+				if tag.Name == "pri" {
+					s.primaryFields = append(s.primaryFields, f)
+					hasPrimary = true
+				} else {
+					tags.Set(&structtag.Tag{
+						Key:  "key",
+						Name: "uni",
+					})
+					s.uniqueFields = append(s.uniqueFields, f)
+				}
 			}
 			return true
 		})
@@ -376,7 +381,7 @@ func (s *structType) initModel() {
 				Name:      "Id",
 				ModelName: "id",
 				Typ:       "int64",
-				tag:       "`" + `json:"id" pri:""` + "`",
+				tag:       "`" + `json:"id" key:"pri"` + "`",
 			})
 			s.primaryFields = append(s.primaryFields, s.fields[0])
 		}
@@ -390,6 +395,14 @@ func (s *structType) initModel() {
 					Key:  "bson",
 					Name: f.ModelName,
 				})
+				_, err := tags.Get("key")
+				if err == nil {
+					tags.Set(&structtag.Tag{
+						Key:  "key",
+						Name: "uni",
+					})
+					s.uniqueFields = append(s.uniqueFields, f)
+				}
 			} else if !hasObjectId {
 				hasObjectId = true
 				s.primaryFields = append(s.primaryFields, f)
@@ -403,8 +416,8 @@ func (s *structType) initModel() {
 					Name: "_id",
 				})
 				tags.Set(&structtag.Tag{
-					Key:  "pri",
-					Name: "",
+					Key:  "key",
+					Name: "pri",
 				})
 			}
 			return true
@@ -414,7 +427,7 @@ func (s *structType) initModel() {
 				Name:      "Id",
 				ModelName: "_id",
 				Typ:       "mongo.ObjectId",
-				tag:       "`" + `json:"_id" bson:"_id" pri:""` + "`",
+				tag:       "`" + `json:"_id" bson:"_id" key:"pri"` + "`",
 			})
 			s.primaryFields = append(s.primaryFields, s.fields[0])
 		}

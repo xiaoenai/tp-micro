@@ -8,7 +8,6 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/goutil/coarsetime"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/tp-micro/model/mysql"
@@ -36,8 +35,8 @@ func (*User) TableName() string {
 }
 
 func (_u *User) isZeroPrimaryKey() bool {
-	var id int64
-	if _u.Id != id {
+	var _id int64
+	if _u.Id != _id {
 		return false
 	}
 	return true
@@ -59,64 +58,16 @@ func InsertUser(_u *User, tx ...*sqlx.Tx) error {
 	if _u.CreatedAt == 0 {
 		_u.CreatedAt = _u.UpdatedAt
 	}
-	err := userDB.Callback(func(tx sqlx.DbOrTx) error {
+	return userDB.Callback(func(tx sqlx.DbOrTx) error {
 		var query string
 		if _u.isZeroPrimaryKey() {
 			query = "INSERT INTO `user` (`name`,`age`,`updated_at`,`created_at`)VALUES(:name,:age,:updated_at,:created_at);"
 		} else {
 			query = "INSERT INTO `user` (`id`,`name`,`age`,`updated_at`,`created_at`)VALUES(:id,:name,:age,:updated_at,:created_at);"
 		}
-		r, err := tx.NamedExec(query, _u)
-		if err != nil {
-			return err
-		}
-		id, err := r.LastInsertId()
-		if err != nil {
-			return err
-		}
-		_u.Id = id
-		return nil
-	}, tx...)
-	return err
-}
-
-// UpdateUserByPrimary update the User data in database by primary key.
-// NOTE:
-//  Primary key: 'id';
-//  With cache layer;
-//  _updateFields' members must be snake format;
-//  Automatic update updated_at field;
-//  Don't update the primary key and the created_at key;
-//  Update all fields except the primary key and the created_at key if _updateFields is empty.
-func UpdateUserByPrimary(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
-	_u.UpdatedAt = coarsetime.FloorTimeNow().Unix()
-	err := userDB.Callback(func(tx sqlx.DbOrTx) error {
-		query := "UPDATE `user` SET "
-		if len(_updateFields) == 0 {
-			query += "`name`=:name,`age`=:age,`updated_at`=:updated_at WHERE id=:id LIMIT 1;"
-		} else {
-			for _, s := range _updateFields {
-				if s == "updated_at" || s == "created_at" || s == "deleted_ts" || s == "id" {
-					continue
-				}
-				query += "`" + s + "`=:" + s + ","
-			}
-			if query[len(query)-1] != ',' {
-				return nil
-			}
-			query += "`updated_at`=:updated_at WHERE `id`:=id AND `deleted_ts`=0 LIMIT 1;"
-		}
 		_, err := tx.NamedExec(query, _u)
 		return err
 	}, tx...)
-	if err != nil {
-		return err
-	}
-	err = userDB.DeleteCache(_u)
-	if err != nil {
-		tp.Errorf("%s", err.Error())
-	}
-	return nil
 }
 
 // UpsertUser insert or update the User data by primary key.
@@ -125,10 +76,10 @@ func UpdateUserByPrimary(_u *User, _updateFields []string, tx ...*sqlx.Tx) error
 //  With cache layer;
 //  Insert data if the primary key is specified;
 //  Update data based on _updateFields if no primary key is specified;
-//  _updateFields' members must be snake format;
-//  Automatic update updated_at field;
-//  Don't update the primary key and the created_at key;
-//  Update all fields except the primary key and the created_at key if _updateFields is empty.
+//  _updateFields' members must be db field style (snake format);
+//  Automatic update 'updated_at' field;
+//  Don't update the primary keys, 'created_at' key and 'deleted_ts' key;
+//  Update all fields except the primary keys, 'created_at' key and 'deleted_ts' key, if _updateFields is empty.
 func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
 	if _u.UpdatedAt == 0 {
 		_u.UpdatedAt = coarsetime.FloorTimeNow().Unix()
@@ -163,6 +114,83 @@ func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
 	}, tx...)
 }
 
+// UpdateUserByPrimary update the User data in database by primary key.
+// NOTE:
+//  Primary key: 'id';
+//  With cache layer;
+//  _updateFields' members must be db field style (snake format);
+//  Automatic update 'updated_at' field;
+//  Don't update the primary keys, 'created_at' key and 'deleted_ts' key;
+//  Update all fields except the primary keys, 'created_at' key and 'deleted_ts' key, if _updateFields is empty.
+func UpdateUserByPrimary(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
+	_u.UpdatedAt = coarsetime.FloorTimeNow().Unix()
+	err := userDB.Callback(func(tx sqlx.DbOrTx) error {
+		query := "UPDATE `user` SET "
+		if len(_updateFields) == 0 {
+			query += "`name`=:name,`age`=:age,`updated_at`=:updated_at WHERE id=:id LIMIT 1;"
+		} else {
+			for _, s := range _updateFields {
+				if s == "updated_at" || s == "created_at" || s == "deleted_ts" || s == "id" {
+					continue
+				}
+				query += "`" + s + "`=:" + s + ","
+			}
+			if query[len(query)-1] != ',' {
+				return nil
+			}
+			query += "`updated_at`=:updated_at WHERE `id`:=id AND `deleted_ts`=0 LIMIT 1;"
+		}
+		_, err := tx.NamedExec(query, _u)
+		return err
+	}, tx...)
+	if err != nil {
+		return err
+	}
+	err = userDB.DeleteCache(_u)
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
+}
+
+// UpdateUserByName update the User data in database by 'name' unique key.
+// NOTE:
+//  With cache layer;
+//  _updateFields' members must be db field style (snake format);
+//  Automatic update 'updated_at' field;
+//  Don't update the primary keys, 'created_at' key and 'deleted_ts' key;
+//  Update all fields except the primary keys, 'name' unique key, 'created_at' key and 'deleted_ts' key, if _updateFields is empty.
+func UpdateUserByName(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
+	_u.UpdatedAt = coarsetime.FloorTimeNow().Unix()
+	err := userDB.Callback(func(tx sqlx.DbOrTx) error {
+		query := "UPDATE `user` SET "
+		if len(_updateFields) == 0 {
+			query += "`name`=:name,`age`=:age,`updated_at`=:updated_at WHERE id=:id LIMIT 1;"
+		} else {
+			for _, s := range _updateFields {
+				if s == "updated_at" || s == "created_at" || s == "deleted_ts" || s == "name" || s == "id" {
+					continue
+				}
+				query += "`" + s + "`=:" + s + ","
+			}
+			if query[len(query)-1] != ',' {
+				return nil
+			}
+			query += "`updated_at`=:updated_at WHERE `name`:=name AND `deleted_ts`=0 LIMIT 1;"
+		}
+		_, err := tx.NamedExec(query, _u)
+		return err
+	}, tx...)
+	if err != nil {
+		return err
+	}
+	err = userDB.DeleteCache(_u, "name")
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
+}
+
 // DeleteUserByPrimary delete a User data in database by primary key.
 // NOTE:
 //  Primary key: 'id';
@@ -188,9 +216,42 @@ func DeleteUserByPrimary(_id int64, deleteHard bool, tx ...*sqlx.Tx) error {
 	if err != nil {
 		return err
 	}
-	err = userDB.PutCache(&User{
+	err = userDB.DeleteCache(&User{
 		Id: _id,
 	})
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
+}
+
+// DeleteUserByName delete a User data in database by 'name' unique key.
+// NOTE:
+//  With cache layer.
+func DeleteUserByName(_name string, deleteHard bool, tx ...*sqlx.Tx) error {
+	var err error
+	if deleteHard {
+		// Immediately delete from the hard disk.
+		err = userDB.Callback(func(tx sqlx.DbOrTx) error {
+			_, err := tx.Exec("DELETE FROM `user` WHERE `name`=? AND `deleted_ts`=0;", _name)
+			return err
+		}, tx...)
+
+	} else {
+		// Delay delete from the hard disk.
+		ts := coarsetime.FloorTimeNow().Unix()
+		err = userDB.Callback(func(tx sqlx.DbOrTx) error {
+			_, err := tx.Exec("UPDATE `user` SET `updated_at`=?, `deleted_ts`=? WHERE `name`=? AND `deleted_ts`=0;", ts, ts, _name)
+			return err
+		}, tx...)
+	}
+
+	if err != nil {
+		return err
+	}
+	err = userDB.DeleteCache(&User{
+		Name: _name,
+	}, "name")
 	if err != nil {
 		tp.Errorf("%s", err.Error())
 	}
@@ -224,53 +285,29 @@ func GetUserByPrimary(_id int64) (*User, bool, error) {
 	}
 }
 
-// BindUserByFields query the User data from database by field keys, and bind it to _u.
+// GetUserByName query a User data from database by 'name' unique key.
 // NOTE:
 //  With cache layer;
-//  _fields' members should be snake format;
-//  Query by the primary key field if fields is empty;
 //  If @return bool=false error=nil, means the data is not exist.
-func BindUserByFields(_u *User, _fields ...string) (bool, error) {
-	_u.DeletedTs = 0
-	err := userDB.CacheGet(_u, goutil.SetToStrings(_fields, "deleted_ts")...)
-	switch err {
-	case nil:
-		if _u.CreatedAt == 0 {
-			return false, nil
-		}
-		return true, nil
-	case sql.ErrNoRows:
-		err2 := userDB.PutCache(_u)
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
-		return false, nil
-	default:
-		return false, err
+func GetUserByName(_name string) (*User, bool, error) {
+	var _u = &User{
+		Name: _name,
 	}
-}
-
-// BindUserByWhere query the User data from database by WHERE condition(whereNamedCond), and bind it to _u.
-// NOTE:
-//  With cache layer;
-//  If @return bool=false error=nil, means the data is not exist;
-//  whereNamedCond e.g. 'id=:id AND created_at>1520000000'.
-func BindUserByWhere(_u *User, whereNamedCond string) (bool, error) {
-	err := userDB.CacheGetByWhere(_u, insertZeroDeletedTsField(whereNamedCond))
+	err := userDB.CacheGet(_u, "name")
 	switch err {
 	case nil:
 		if _u.CreatedAt == 0 {
-			return false, nil
+			return nil, false, nil
 		}
-		return true, nil
+		return _u, true, nil
 	case sql.ErrNoRows:
-		err2 := userDB.PutCache(_u)
+		err2 := userDB.PutCache(_u, "name")
 		if err2 != nil {
 			tp.Errorf("%s", err2.Error())
 		}
-		return false, nil
+		return nil, false, nil
 	default:
-		return false, err
+		return nil, false, err
 	}
 }
 

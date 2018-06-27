@@ -58,7 +58,7 @@ type StatArg struct {
 
 // User user info
 type User struct {
-	Id   int64
-	Name string
+	Id   int64  `key:"pri"`
+	Name string `key:"uni"`
 	Age  int32
 }

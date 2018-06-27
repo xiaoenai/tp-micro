@@ -9,14 +9,16 @@ import (
 )
 
 // EmptyStruct alias of type struct {}
-type EmptyStruct = codec.PbEmpty // HomeResult home result
+type EmptyStruct = codec.PbEmpty
+
+// HomeResult home result
 type HomeResult struct {
 	Content string `json:"content"` // text
 }
 
 // DivideArg divide api arg
 type DivideArg struct {
-	Id mongo.ObjectId `json:"_id" bson:"_id" pri:""`
+	Id mongo.ObjectId `json:"_id" bson:"_id" key:"pri"`
 	// dividend
 	A float64 `json:"a" bson:"a"`
 	// divisor
@@ -39,8 +41,8 @@ type StatArg struct {
 
 // User user info
 type User struct {
-	Id        int64  `json:"id" pri:""`
-	Name      string `json:"name"`
+	Id        int64  `key:"pri" json:"id"`
+	Name      string `key:"uni" json:"name"`
 	Age       int32  `json:"age"`
 	UpdatedAt int64  `json:"updated_at"`
 	CreatedAt int64  `json:"created_at"`

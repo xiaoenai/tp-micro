@@ -26,6 +26,7 @@ type (
 		*structType
 		ModelStyle       string
 		PrimaryFields    []*field
+		UniqueFields     []*field
 		Fields           []*field
 		Doc              string
 		Name             string
@@ -231,6 +232,7 @@ func newModelString(s *structType) string {
 	model := &Model{
 		structType:    s,
 		PrimaryFields: s.primaryFields,
+		UniqueFields:  s.uniqueFields,
 		Fields:        s.fields,
 		Doc:           s.doc,
 		Name:          s.name,
