@@ -70,7 +70,7 @@ func insertZeroDeletedTsField(whereCond string) string {
 			i2 = strings.Index(whereCond, "Limit")
 		}
 	}
-	if i > i2 && i2 != -1 {
+	if i == -1 || (i > i2 && i2 != -1) {
 		i = i2
 	}
 	if i == -1 {

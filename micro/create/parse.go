@@ -709,7 +709,7 @@ func (t *tplInfo) getHandler(typ int8, f *ast.FuncType) (*handler, error) {
 	case *ast.Ident:
 		ok := t.hasType(ftype.Name)
 		if !ok {
-			return nil, fmt.Errorf("the type of method result should be pointer")
+			return nil, fmt.Errorf("the type of method result is not struct type")
 		}
 		h.result = ftype.Name
 	case *ast.StructType:
