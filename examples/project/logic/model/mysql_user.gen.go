@@ -127,7 +127,7 @@ func UpdateUserByPrimary(_u *User, _updateFields []string, tx ...*sqlx.Tx) error
 	err := userDB.Callback(func(tx sqlx.DbOrTx) error {
 		query := "UPDATE `user` SET "
 		if len(_updateFields) == 0 {
-			query += "`name`=:name,`age`=:age,`updated_at`=:updated_at WHERE id=:id LIMIT 1;"
+			query += "`name`=:name,`age`=:age,`updated_at`=:updated_at WHERE `id`=:id AND `deleted_ts`=0 LIMIT 1;"
 		} else {
 			for _, s := range _updateFields {
 				if s == "updated_at" || s == "created_at" || s == "deleted_ts" || s == "id" {
@@ -165,7 +165,7 @@ func UpdateUserByName(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
 	err := userDB.Callback(func(tx sqlx.DbOrTx) error {
 		query := "UPDATE `user` SET "
 		if len(_updateFields) == 0 {
-			query += "`name`=:name,`age`=:age,`updated_at`=:updated_at WHERE id=:id LIMIT 1;"
+			query += "`name`=:name,`age`=:age,`updated_at`=:updated_at WHERE `name`=:name AND `deleted_ts`=0 LIMIT 1;"
 		} else {
 			for _, s := range _updateFields {
 				if s == "updated_at" || s == "created_at" || s == "deleted_ts" || s == "name" || s == "id" {

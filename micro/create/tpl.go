@@ -404,7 +404,7 @@ func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields [
 	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		query := "UPDATE {{.NameSql}} SET "
 		if len(_updateFields) == 0 {
-			query += "{{.UpdateSql}} WHERE id=:id LIMIT 1;"
+			query += "{{.UpdateSql}} WHERE ` + "{{range $.PrimaryFields}}`{{.ModelName}}`=:{{.ModelName}} AND {{end}}`deleted_ts`=0" + ` LIMIT 1;"
 		} else {
 			for _, s := range _updateFields {
 				if s == "updated_at" || s == "created_at" || s == "deleted_ts"{{range .PrimaryFields}} || s == "{{.ModelName}}"{{end}} {
@@ -443,7 +443,7 @@ func Update{{$.Name}}By{{.Name}}(_{{$.LowerFirstLetter}} *{{$.Name}}, _updateFie
 	err := {{$.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		query := "UPDATE {{$.NameSql}} SET "
 		if len(_updateFields) == 0 {
-			query += "{{$.UpdateSql}} WHERE id=:id LIMIT 1;"
+			query += "{{$.UpdateSql}} WHERE ` + "`{{.ModelName}}`=:{{.ModelName}} AND `deleted_ts`=0" + ` LIMIT 1;"
 		} else {
 			for _, s := range _updateFields {
 				if s == "updated_at" || s == "created_at" || s == "deleted_ts" || s == "{{.ModelName}}"{{range $.PrimaryFields}} || s == "{{.ModelName}}"{{end}} {
