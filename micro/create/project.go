@@ -140,22 +140,32 @@ func (p *Project) genRouterFile() {
 }
 
 func (p *Project) genHandlerFile() {
-	s := p.tplInfo.PushHandlerString(func(h *handler) string {
-		var ctx = "ctx"
-		if len(h.group.name) > 0 {
-			ctx = firstLowerLetter(h.group.name) + ".PushCtx"
-		}
-		return fmt.Sprintf("return logic.%s(%s, arg)", h.fullName, ctx)
-	})
-	p.replaceWithLine("api/push_handler.gen.go", "${handler_api_define}", s)
-	s = p.tplInfo.PullHandlerString(func(h *handler) string {
-		var ctx = "ctx"
-		if len(h.group.name) > 0 {
-			ctx = firstLowerLetter(h.group.name) + ".PullCtx"
-		}
-		return fmt.Sprintf("return logic.%s(%s, arg)", h.fullName, ctx)
-	})
-	p.replaceWithLine("api/pull_handler.gen.go", "${handler_api_define}", s)
+	if len(p.tplInfo.PushHandlerList()) > 0 {
+		s := p.tplInfo.PushHandlerString(func(h *handler) string {
+			var ctx = "ctx"
+			if len(h.group.name) > 0 {
+				ctx = firstLowerLetter(h.group.name) + ".PushCtx"
+			}
+			return fmt.Sprintf("return logic.%s(%s, arg)", h.fullName, ctx)
+		})
+		p.replaceWithLine("api/push_handler.gen.go", "${handler_api_define}", s)
+	} else {
+		delete(p.codeFiles, "api/push_handler.gen.go")
+		os.Remove("api/push_handler.gen.go")
+	}
+	if len(p.tplInfo.PullHandlerList()) > 0 {
+		s := p.tplInfo.PullHandlerString(func(h *handler) string {
+			var ctx = "ctx"
+			if len(h.group.name) > 0 {
+				ctx = firstLowerLetter(h.group.name) + ".PullCtx"
+			}
+			return fmt.Sprintf("return logic.%s(%s, arg)", h.fullName, ctx)
+		})
+		p.replaceWithLine("api/pull_handler.gen.go", "${handler_api_define}", s)
+	} else {
+		delete(p.codeFiles, "api/pull_handler.gen.go")
+		os.Remove("api/pull_handler.gen.go")
+	}
 }
 
 func (p *Project) genLogicFile() {
