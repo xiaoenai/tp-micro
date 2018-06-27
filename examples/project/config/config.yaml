@@ -17,15 +17,23 @@ project:
     dial_timeout: 0s
     username: ""
     password: ""
-  db:
+  mysql:
     database: ""
     username: ""
     password: ""
     host: ""
-    port: 3306
+    port: 0
     max_idle_conns: 0
     max_open_conns: 0
     conn_max_lifetime: 0
+    no_cache: false
+  mongo:
+    addres: []
+    timeout: 0s
+    database: ""
+    username: ""
+    passward: ""
+    pool_limit: 0
     no_cache: false
   redis:
     deploy_type: single

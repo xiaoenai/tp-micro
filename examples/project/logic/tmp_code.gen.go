@@ -12,17 +12,17 @@ import (
 	// "github.com/xiaoenai/tp-micro/examples/project/rerrs"
 )
 
-// Home comment...
-func Home(ctx tp.PullCtx, arg *struct{}) (*args.HomeResult, *tp.Rerror) {
+// Stat handler
+func Stat(ctx tp.PushCtx, arg *args.StatArg) *tp.Rerror {
+	return nil
+}
+
+// Home handler
+func Home(ctx tp.PullCtx, arg *args.EmptyStruct) (*args.HomeResult, *tp.Rerror) {
 	return new(args.HomeResult), nil
 }
 
-// Math_Divide handler
+// Divide handler
 func Math_Divide(ctx tp.PullCtx, arg *args.DivideArg) (*args.DivideResult, *tp.Rerror) {
 	return new(args.DivideResult), nil
-}
-
-// Stat comment...
-func Stat(ctx tp.PushCtx, arg *args.StatArg) *tp.Rerror {
-	return nil
 }

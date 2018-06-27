@@ -10,8 +10,8 @@ import (
 	"github.com/xiaoenai/tp-micro/examples/project/logic"
 )
 
-// Home comment...
-func Home(ctx tp.PullCtx, arg *struct{}) (*args.HomeResult, *tp.Rerror) {
+// Home handler
+func Home(ctx tp.PullCtx, arg *args.EmptyStruct) (*args.HomeResult, *tp.Rerror) {
 	return logic.Home(ctx, arg)
 }
 
@@ -23,9 +23,4 @@ type Math struct {
 // Divide handler
 func (m *Math) Divide(arg *args.DivideArg) (*args.DivideResult, *tp.Rerror) {
 	return logic.Math_Divide(m.PullCtx, arg)
-}
-
-// Stat comment...
-func Stat(ctx tp.PushCtx, arg *args.StatArg) *tp.Rerror {
-	return logic.Stat(ctx, arg)
 }

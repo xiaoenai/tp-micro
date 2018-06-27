@@ -18,9 +18,13 @@ func Route(_root string, _router *tp.Router) {
 	// automatically generated router
 
 	// PULL APIs...
-	_group.RoutePullFunc(Home)
-	_group.RoutePull(new(Math))
+	{
+		_group.RoutePullFunc(Home)
+		_group.RoutePull(new(Math))
+	}
 
 	// PUSH APIs...
-	_group.RoutePushFunc(Stat)
+	{
+		_group.RoutePushFunc(Stat)
+	}
 }

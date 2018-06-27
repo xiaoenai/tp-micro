@@ -28,21 +28,21 @@ func InitWithClient(cli *micro.Client) {
 	client = cli
 }
 
-// Home comment...
-func Home(arg *struct{}, setting ...socket.PacketSetting) (*args.HomeResult, *tp.Rerror) {
+// Stat handler
+func Stat(arg *args.StatArg, setting ...socket.PacketSetting) *tp.Rerror {
+	return client.Push("/project/stat", arg, setting...)
+}
+
+// Home handler
+func Home(arg *args.EmptyStruct, setting ...socket.PacketSetting) (*args.HomeResult, *tp.Rerror) {
 	result := new(args.HomeResult)
 	rerr := client.Pull("/project/home", arg, result, setting...).Rerror()
 	return result, rerr
 }
 
-// Math_Divide handler
+// Divide handler
 func Math_Divide(arg *args.DivideArg, setting ...socket.PacketSetting) (*args.DivideResult, *tp.Rerror) {
 	result := new(args.DivideResult)
 	rerr := client.Pull("/project/math/divide", arg, result, setting...).Rerror()
 	return result, rerr
-}
-
-// Stat comment...
-func Stat(arg *args.StatArg, setting ...socket.PacketSetting) *tp.Rerror {
-	return client.Push("/project/stat", arg, setting...)
 }

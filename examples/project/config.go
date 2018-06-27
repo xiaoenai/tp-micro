@@ -8,6 +8,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/model/mongo"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/redis"
 
@@ -17,7 +18,8 @@ import (
 type config struct {
 	Srv      micro.SrvConfig `yaml:"srv"`
 	Etcd     etcd.EasyConfig `yaml:"etcd"`
-	DB       mysql.Config    `yaml:"db"`
+	Mysql    mysql.Config    `yaml:"mysql"`
+	Mongo    mongo.Config    `yaml:"mongo"`
 	Redis    redis.Config    `yaml:"redis"`
 	LogLevel string          `yaml:"log_level"`
 }
@@ -31,7 +33,18 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 		c.LogLevel = "TRACE"
 	}
 	tp.SetLoggerLevel(c.LogLevel)
-	err = model.Init(c.DB, c.Redis)
+	var (
+		mysqlConfig *mysql.Config
+		mongoConfig *mongo.Config
+		redisConfig = &c.Redis
+	)
+	if len(c.Mysql.Host) > 0 {
+		mysqlConfig = &c.Mysql
+	}
+	if len(c.Mongo.Addrs) > 0 {
+		mongoConfig = &c.Mongo
+	}
+	err = model.Init(mysqlConfig, mongoConfig, redisConfig)
 	if err != nil {
 		tp.Errorf("%v", err)
 	}
@@ -48,9 +61,6 @@ var cfg = &config{
 	},
 	Etcd: etcd.EasyConfig{
 		Endpoints: []string{"http://127.0.0.1:2379"},
-	},
-	DB: mysql.Config{
-		Port: 3306,
 	},
 	Redis:    *redis.NewConfig(),
 	LogLevel: "TRACE",

@@ -26,7 +26,13 @@ func TestSdk(t *testing.T) {
 	)
 
 	{
-		result, rerr := Home(new(struct{}))
+		rerr := Stat(new(args.StatArg))
+		if rerr != nil {
+			tp.Errorf("Stat: rerr: %v", rerr)
+		}
+	}
+	{
+		result, rerr := Home(new(args.EmptyStruct))
 		if rerr != nil {
 			tp.Errorf("Home: rerr: %v", rerr)
 		} else {
@@ -40,9 +46,5 @@ func TestSdk(t *testing.T) {
 		} else {
 			tp.Infof("Math_Divide: result: %#v", result)
 		}
-	}
-	{
-		rerr := Stat(new(args.StatArg))
-		tp.Infof("Stat: rerr: %v", rerr)
 	}
 }

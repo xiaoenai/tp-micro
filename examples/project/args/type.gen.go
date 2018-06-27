@@ -4,23 +4,33 @@
 package args
 
 import (
-	"github.com/xiaoenai/tp-micro/examples/project/logic/model"
+	"github.com/henrylee2cn/teleport/codec"
+	"github.com/xiaoenai/tp-micro/model/mongo"
 )
 
-// HomeResult home result
+// EmptyStruct alias of type struct {}
+type EmptyStruct = codec.PbEmpty // HomeResult home result
 type HomeResult struct {
 	Content string `json:"content"` // text
 }
 
-type (
-	// DivideArg divide api arg
-	DivideArg = model.DivideArg
-	// DivideResult divide api result
-	DivideResult struct {
-		// quotient
-		C float64 `json:"c"`
-	}
-)
+// DivideArg divide api arg
+type DivideArg struct {
+	Id mongo.ObjectId `json:"_id" bson:"_id" pri:""`
+	// dividend
+	A float64 `json:"a" bson:"a"`
+	// divisor
+	B         float64 `param:"<range: 0.01:100000>" json:"b" bson:"b"`
+	UpdatedAt int64   `json:"updated_at" bson:"updated_at"`
+	CreatedAt int64   `json:"created_at" bson:"created_at"`
+	DeletedTs int64   `json:"deleted_ts" bson:"deleted_ts"`
+}
+
+// DivideResult divide api result
+type DivideResult struct {
+	// quotient
+	C float64 `json:"c"`
+}
 
 // StatArg stat handler arg
 type StatArg struct {
@@ -28,4 +38,11 @@ type StatArg struct {
 }
 
 // User user info
-type User = model.User
+type User struct {
+	Id        int64  `json:"id" pri:""`
+	Name      string `json:"name"`
+	Age       int32  `json:"age"`
+	UpdatedAt int64  `json:"updated_at"`
+	CreatedAt int64  `json:"created_at"`
+	DeletedTs int64  `json:"deleted_ts"`
+}
