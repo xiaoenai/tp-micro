@@ -140,7 +140,7 @@ OPTIONS:
 
 example: `micro gen -p ./myapp` or default `micro gen myapp`
 
-- template file `__tp-micro__tpl__.go` demo:
+- 初始模版文件 `__tp-micro__tpl__.go`:
 
 ```go
 // package __TPL__ is the project template
@@ -160,10 +160,16 @@ type __API__PUSH__ interface {
     Stat(*StatArg)
 }
 
-// MODEL create model
-type __MODEL__ struct {
-    DivideArg
+// __MYSQL__MODEL__ create mysql model
+type __MYSQL__MODEL__ struct {
     User
+    Log
+    Device
+}
+
+// __MONGO__MODEL__ create mongodb model
+type __MONGO__MODEL__ struct {
+    Meta
 }
 
 // Math controller
@@ -199,9 +205,22 @@ type StatArg struct {
 
 // User user info
 type User struct {
-    Id   int64
-    Name string
+    Id   int64  `key:"pri"`
+    Name string `key:"uni"`
     Age  int32
+}
+
+type Log struct {
+    Text string
+}
+
+type Device struct {
+    UUID string `key:"pri"`
+}
+
+type Meta struct {
+    Hobby []string
+    Tags  []string
 }
 ```
 
@@ -231,7 +250,9 @@ type User struct {
 ├── logic
 │   ├── model
 │   │   ├── init.go
-│   │   ├── mongo_divide_arg.gen.go
+│   │   ├── mongo_meta.gen.go
+│   │   ├── mysql_device.gen.go
+│   │   ├── mysql_log.gen.go
 │   │   └── mysql_user.gen.go
 │   └── tmp_code.gen.go
 ├── main.go
@@ -244,11 +265,13 @@ type User struct {
     └── rpc_test.go
 ```
 
-说明：
+**说明：**
 
 - 如果 `__tp-micro__gen__.lock` 文件存在，`micro gen` 命令只覆盖带有 ".gen.go" 后缀的文件
 - 在自动生成的文件的文件名中增加 `.gen` 后缀进行标记
 - `tmp_code.gen.go` 是为了通过编译而生成的临时文件，项目完成后应该移除它
+- handler的参数和返回值必须是结构体类型
+- 你可以修改默认创建的模板文件 `__tp-micro__tpl __.go`，并再次运行 `micro gen` 命令来更新项目
 
 [生成的默认示例](https://github.com/xiaoenai/tp-micro/tree/master/examples/project)
 

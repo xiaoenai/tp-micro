@@ -28,6 +28,7 @@ type (
 		PrimaryFields    []*field
 		UniqueFields     []*field
 		Fields           []*field
+		IsDefaultPrimary bool
 		Doc              string
 		Name             string
 		SnakeName        string
@@ -230,14 +231,15 @@ func (p *Project) genModelFile() {
 
 func newModelString(s *structType) string {
 	model := &Model{
-		structType:    s,
-		PrimaryFields: s.primaryFields,
-		UniqueFields:  s.uniqueFields,
-		Fields:        s.fields,
-		Doc:           s.doc,
-		Name:          s.name,
-		ModelStyle:    s.modelStyle,
-		SnakeName:     goutil.SnakeString(s.name),
+		structType:       s,
+		PrimaryFields:    s.primaryFields,
+		UniqueFields:     s.uniqueFields,
+		IsDefaultPrimary: s.isDefaultPrimary,
+		Fields:           s.fields,
+		Doc:              s.doc,
+		Name:             s.name,
+		ModelStyle:       s.modelStyle,
+		SnakeName:        goutil.SnakeString(s.name),
 	}
 	model.LowerFirstLetter = strings.ToLower(model.Name[:1])
 	model.LowerFirstName = model.LowerFirstLetter + model.Name[1:]

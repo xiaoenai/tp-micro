@@ -67,13 +67,14 @@ type (
 		mongo []*structType
 	}
 	structType struct {
-		doc           string
-		name          string
-		fields        []*field
-		primaryFields []*field
-		uniqueFields  []*field
-		modelStyle    string // mysql, mongo
-		node          *ast.StructType
+		doc              string
+		name             string
+		fields           []*field
+		primaryFields    []*field
+		uniqueFields     []*field
+		isDefaultPrimary bool
+		modelStyle       string // mysql, mongo
+		node             *ast.StructType
 	}
 	field struct {
 		Name      string
@@ -385,6 +386,9 @@ func (s *structType) initModel() {
 			})
 			s.primaryFields = append(s.primaryFields, s.fields[0])
 		}
+		if len(s.primaryFields) == 1 && s.primaryFields[0].Typ == "int64" {
+			s.isDefaultPrimary = true
+		}
 
 	case "mongo":
 		var hasObjectId bool
@@ -430,6 +434,9 @@ func (s *structType) initModel() {
 				tag:       "`" + `json:"_id" bson:"_id" key:"pri"` + "`",
 			})
 			s.primaryFields = append(s.primaryFields, s.fields[0])
+		}
+		if len(s.primaryFields) == 1 && s.primaryFields[0].Typ == "mongo.ObjectId" {
+			s.isDefaultPrimary = true
 		}
 	}
 }

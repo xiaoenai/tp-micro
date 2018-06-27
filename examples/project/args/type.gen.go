@@ -18,14 +18,10 @@ type HomeResult struct {
 
 // DivideArg divide api arg
 type DivideArg struct {
-	Id mongo.ObjectId `json:"_id" bson:"_id" key:"pri"`
 	// dividend
-	A float64 `json:"a" bson:"a"`
+	A float64 `json:"a"`
 	// divisor
-	B         float64 `param:"<range: 0.01:100000>" json:"b" bson:"b"`
-	UpdatedAt int64   `json:"updated_at" bson:"updated_at"`
-	CreatedAt int64   `json:"created_at" bson:"created_at"`
-	DeletedTs int64   `json:"deleted_ts" bson:"deleted_ts"`
+	B float64 `param:"<range: 0.01:100000>" json:"b"`
 }
 
 // DivideResult divide api result
@@ -47,4 +43,31 @@ type User struct {
 	UpdatedAt int64  `json:"updated_at"`
 	CreatedAt int64  `json:"created_at"`
 	DeletedTs int64  `json:"deleted_ts"`
+}
+
+// Log comment...
+type Log struct {
+	Id        int64  `json:"id" key:"pri"`
+	Text      string `json:"text"`
+	UpdatedAt int64  `json:"updated_at"`
+	CreatedAt int64  `json:"created_at"`
+	DeletedTs int64  `json:"deleted_ts"`
+}
+
+// Device comment...
+type Device struct {
+	UUID      string `key:"pri" json:"uuid"`
+	UpdatedAt int64  `json:"updated_at"`
+	CreatedAt int64  `json:"created_at"`
+	DeletedTs int64  `json:"deleted_ts"`
+}
+
+// Meta comment...
+type Meta struct {
+	Id        mongo.ObjectId `json:"_id" bson:"_id" key:"pri"`
+	Hobby     []string       `json:"hobby" bson:"hobby"`
+	Tags      []string       `json:"tags" bson:"tags"`
+	UpdatedAt int64          `json:"updated_at" bson:"updated_at"`
+	CreatedAt int64          `json:"created_at" bson:"created_at"`
+	DeletedTs int64          `json:"deleted_ts" bson:"deleted_ts"`
 }

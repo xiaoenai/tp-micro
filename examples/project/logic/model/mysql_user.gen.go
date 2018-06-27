@@ -53,19 +53,25 @@ func GetUserDB() *mysql.CacheableDB {
 // NOTE:
 //  Primary key: 'id';
 //  Without cache layer.
-func InsertUser(_u *User, tx ...*sqlx.Tx) error {
+func InsertUser(_u *User, tx ...*sqlx.Tx) (int64, error) {
 	_u.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 	if _u.CreatedAt == 0 {
 		_u.CreatedAt = _u.UpdatedAt
 	}
-	return userDB.Callback(func(tx sqlx.DbOrTx) error {
-		var query string
-		if _u.isZeroPrimaryKey() {
+	return _u.Id, userDB.Callback(func(tx sqlx.DbOrTx) error {
+		var (
+			query            string
+			isZeroPrimaryKey = _u.isZeroPrimaryKey()
+		)
+		if isZeroPrimaryKey {
 			query = "INSERT INTO `user` (`name`,`age`,`updated_at`,`created_at`)VALUES(:name,:age,:updated_at,:created_at);"
 		} else {
 			query = "INSERT INTO `user` (`id`,`name`,`age`,`updated_at`,`created_at`)VALUES(:id,:name,:age,:updated_at,:created_at);"
 		}
-		_, err := tx.NamedExec(query, _u)
+		r, err := tx.NamedExec(query, _u)
+		if isZeroPrimaryKey {
+			_u.Id, err = r.LastInsertId()
+		}
 		return err
 	}, tx...)
 }
@@ -80,16 +86,19 @@ func InsertUser(_u *User, tx ...*sqlx.Tx) error {
 //  Automatic update 'updated_at' field;
 //  Don't update the primary keys, 'created_at' key and 'deleted_ts' key;
 //  Update all fields except the primary keys, 'created_at' key and 'deleted_ts' key, if _updateFields is empty.
-func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
+func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) (int64, error) {
 	if _u.UpdatedAt == 0 {
 		_u.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 	}
 	if _u.CreatedAt == 0 {
 		_u.CreatedAt = _u.UpdatedAt
 	}
-	return userDB.Callback(func(tx sqlx.DbOrTx) error {
-		var query string
-		if _u.isZeroPrimaryKey() {
+	return _u.Id, userDB.Callback(func(tx sqlx.DbOrTx) error {
+		var (
+			query            string
+			isZeroPrimaryKey = _u.isZeroPrimaryKey()
+		)
+		if isZeroPrimaryKey {
 			query = "INSERT INTO `user` (`name`,`age`,`updated_at`,`created_at`)VALUES(:name,:age,:updated_at,:created_at)"
 		} else {
 			query = "INSERT INTO `user` (`id`,`name`,`age`,`updated_at`,`created_at`)VALUES(:id,:name,:age,:updated_at,:created_at)"
@@ -109,7 +118,13 @@ func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
 			}
 			query += "`updated_at`=VALUES(`updated_at`),`deleted_ts`=0;"
 		}
-		_, err := tx.NamedExec(query, _u)
+		r, err := tx.NamedExec(query, _u)
+		if isZeroPrimaryKey {
+			rowsAffected, err := r.RowsAffected()
+			if err == nil && rowsAffected == 1 {
+				_u.Id, err = r.LastInsertId()
+			}
+		}
 		return err
 	}, tx...)
 }

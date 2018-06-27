@@ -18,11 +18,13 @@ type __API__PUSH__ interface {
 // __MYSQL__MODEL__ create mysql model
 type __MYSQL__MODEL__ struct {
 	User
+	Log
+	Device
 }
 
 // __MONGO__MODEL__ create mongodb model
 type __MONGO__MODEL__ struct {
-	DivideArg
+	Meta
 }
 
 // Math controller
@@ -61,4 +63,17 @@ type User struct {
 	Id   int64  `key:"pri"`
 	Name string `key:"uni"`
 	Age  int32
+}
+
+type Log struct {
+	Text string
+}
+
+type Device struct {
+	UUID string `key:"pri"`
+}
+
+type Meta struct {
+	Hobby []string
+	Tags  []string
 }

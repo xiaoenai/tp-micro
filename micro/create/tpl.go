@@ -330,20 +330,27 @@ func Get{{.Name}}DB() *mysql.CacheableDB {
 // NOTE:
 //  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
 //  Without cache layer.
-func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) error {
+func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .IsDefaultPrimary}}int64,{{end}}error) {
 	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	return {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
-		var query string
-		if _{{.LowerFirstLetter}}.isZeroPrimaryKey() {
+	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}.Id,{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+		var (
+			query string
+			isZeroPrimaryKey=_{{.LowerFirstLetter}}.isZeroPrimaryKey()
+		)
+		if isZeroPrimaryKey {
 			query = "INSERT INTO {{.NameSql}} ({{index .QuerySql 0}})VALUES({{index .QuerySql 1}});"
 		} else {
 			query = "INSERT INTO {{.NameSql}} ({{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}})VALUES({{range .PrimaryFields}}:{{.ModelName}},{{end}}{{index .QuerySql 1}});"
 		}
-		_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
-		return err
+		{{if .IsDefaultPrimary}}r, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		if isZeroPrimaryKey {
+			_{{.LowerFirstLetter}}.Id, err = r.LastInsertId()
+		}
+		{{else}}_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		{{end}}return err
 	}, tx...)
 }
 
@@ -357,16 +364,19 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) error {
 //  Automatic update 'updated_at' field;
 //  Don't update the primary keys, 'created_at' key and 'deleted_ts' key;
 //  Update all fields except the primary keys, 'created_at' key and 'deleted_ts' key, if _updateFields is empty.
-func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) error {
+func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) ({{if .IsDefaultPrimary}}int64,{{end}}error) {
 	if _{{.LowerFirstLetter}}.UpdatedAt == 0 {
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow().Unix()
 	}
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	return {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
-		var query string
-		if _{{.LowerFirstLetter}}.isZeroPrimaryKey() {
+	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}.Id,{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+		var (
+			query string
+			isZeroPrimaryKey=_{{.LowerFirstLetter}}.isZeroPrimaryKey()
+		)
+		if isZeroPrimaryKey {
 			query = "INSERT INTO {{.NameSql}} ({{index .QuerySql 0}})VALUES({{index .QuerySql 1}})"
 		} else {
 			query = "INSERT INTO {{.NameSql}} ({{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}})VALUES({{range .PrimaryFields}}:{{.ModelName}},{{end}}{{index .QuerySql 1}})"
@@ -386,8 +396,15 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 			}
 			query += ` + "\"`updated_at`=VALUES(`updated_at`),`deleted_ts`=0;\"" + `
 		}
-		_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
-		return err
+		{{if .IsDefaultPrimary}}r, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		if isZeroPrimaryKey {
+			rowsAffected, err := r.RowsAffected()
+			if err == nil && rowsAffected == 1 {
+				_{{.LowerFirstLetter}}.Id, err = r.LastInsertId()
+			}
+		}
+		{{else}}_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		{{end}}return err
 	}, tx...)
 }
 

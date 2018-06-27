@@ -144,7 +144,7 @@ OPTIONS:
 
 example: `micro gen -p ./myapp` or default `micro gen myapp`
 
-- template file `__tp-micro__tpl__.go` demo:
+- The initial template file `__tp-micro__tpl__.go`:
 
 ```go
 // package __TPL__ is the project template
@@ -164,10 +164,16 @@ type __API__PUSH__ interface {
     Stat(*StatArg)
 }
 
-// MODEL create model
-type __MODEL__ struct {
-    DivideArg
+// __MYSQL__MODEL__ create mysql model
+type __MYSQL__MODEL__ struct {
     User
+    Log
+    Device
+}
+
+// __MONGO__MODEL__ create mongodb model
+type __MONGO__MODEL__ struct {
+    Meta
 }
 
 // Math controller
@@ -203,9 +209,22 @@ type StatArg struct {
 
 // User user info
 type User struct {
-    Id   int64
-    Name string
+    Id   int64  `key:"pri"`
+    Name string `key:"uni"`
     Age  int32
+}
+
+type Log struct {
+    Text string
+}
+
+type Device struct {
+    UUID string `key:"pri"`
+}
+
+type Meta struct {
+    Hobby []string
+    Tags  []string
 }
 ```
 
@@ -235,7 +254,9 @@ type User struct {
 ├── logic
 │   ├── model
 │   │   ├── init.go
-│   │   ├── mongo_divide_arg.gen.go
+│   │   ├── mongo_meta.gen.go
+│   │   ├── mysql_device.gen.go
+│   │   ├── mysql_log.gen.go
 │   │   └── mysql_user.gen.go
 │   └── tmp_code.gen.go
 ├── main.go
@@ -248,11 +269,13 @@ type User struct {
     └── rpc_test.go
 ```
 
-Desc:
+**Desc:**
 
 - This `micro gen` command only covers files with the ".gen.go" suffix if the `__tp-micro__gen__.lock` file exists
 - Add `.gen` suffix to the file name of the automatically generated file
 - `tmp_code.gen.go` is temporary code used to ensure successful compilation!<br>When the project is completed, it should be removed!
+- The type of handler's parameter and result must be struct!
+- You can modify the created template file `__tp-micro__tpl__.go`, and run the `micro gen` command again to update the project
 
 [Generated Default Sample](https://github.com/xiaoenai/tp-micro/tree/master/examples/project)
 
