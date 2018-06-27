@@ -167,28 +167,20 @@ func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
 // NOTE:
 //  Primary key: 'id';
 //  With cache layer.
-func DeleteUserByPrimary(_id int64, delayDeleteHard time.Duration, tx ...*sqlx.Tx) error {
+func DeleteUserByPrimary(_id int64, deleteHard bool, tx ...*sqlx.Tx) error {
 	var err error
-	if delayDeleteHard == 0 {
+	if deleteHard {
 		// Immediately delete from the hard disk.
 		err = userDB.Callback(func(tx sqlx.DbOrTx) error {
 			_, err := tx.Exec("DELETE FROM `user` WHERE `id`=? AND `deleted_ts`=0;", _id)
 			return err
 		}, tx...)
 
-	} else if delayDeleteHard < 0 {
-		// Never delete from the hard disk.
-		err = userDB.Callback(func(tx sqlx.DbOrTx) error {
-			_, err := tx.Exec("UPDATE `user` SET `updated_at`=?, `deleted_ts`=-1 WHERE `id`=? AND `deleted_ts`=0;", coarsetime.FloorTimeNow().Unix(), _id)
-			return err
-		}, tx...)
-
 	} else {
 		// Delay delete from the hard disk.
-		updatedAt := coarsetime.FloorTimeNow().Unix()
-		deletedTs := updatedAt + int64(delayDeleteHard/time.Second)
+		ts := coarsetime.FloorTimeNow().Unix()
 		err = userDB.Callback(func(tx sqlx.DbOrTx) error {
-			_, err := tx.Exec("UPDATE `user` SET `updated_at`=?, `deleted_ts`=? WHERE `id`=? AND `deleted_ts`=0;", updatedAt, deletedTs, _id)
+			_, err := tx.Exec("UPDATE `user` SET `updated_at`=?, `deleted_ts`=? WHERE `id`=? AND `deleted_ts`=0;", ts, ts, _id)
 			return err
 		}, tx...)
 	}
@@ -264,7 +256,7 @@ func BindUserByFields(_u *User, _fields ...string) (bool, error) {
 //  If @return bool=false error=nil, means the data is not exist;
 //  whereNamedCond e.g. 'id=:id AND created_at>1520000000'.
 func BindUserByWhere(_u *User, whereNamedCond string) (bool, error) {
-	err := userDB.CacheGetByWhere(_u, whereNamedCond+" AND `deleted_ts`=0")
+	err := userDB.CacheGetByWhere(_u, insertZeroDeletedTsField(whereNamedCond))
 	switch err {
 	case nil:
 		if _u.CreatedAt == 0 {
@@ -288,7 +280,7 @@ func BindUserByWhere(_u *User, whereNamedCond string) (bool, error) {
 //  If @return bool=false error=nil, means the data is not exist.
 func GetUserByWhere(whereCond string, arg ...interface{}) (*User, bool, error) {
 	var _u = new(User)
-	err := userDB.Get(_u, "SELECT `id`,`name`,`age`,`updated_at`,`created_at` FROM `user` WHERE "+whereCond+" AND `deleted_ts`=0 LIMIT 1;", arg...)
+	err := userDB.Get(_u, "SELECT `id`,`name`,`age`,`updated_at`,`created_at` FROM `user` WHERE "+insertZeroDeletedTsField(whereCond)+" LIMIT 1;", arg...)
 	switch err {
 	case nil:
 		return _u, true, nil
@@ -304,7 +296,7 @@ func GetUserByWhere(whereCond string, arg ...interface{}) (*User, bool, error) {
 //  Without cache layer.
 func SelectUserByWhere(whereCond string, arg ...interface{}) ([]*User, error) {
 	var objs = new([]*User)
-	err := userDB.Select(objs, "SELECT `id`,`name`,`age`,`updated_at`,`created_at` FROM `user` WHERE "+whereCond+" AND `deleted_ts`=0", arg...)
+	err := userDB.Select(objs, "SELECT `id`,`name`,`age`,`updated_at`,`created_at` FROM `user` WHERE "+insertZeroDeletedTsField(whereCond), arg...)
 	return *objs, err
 }
 
@@ -313,6 +305,6 @@ func SelectUserByWhere(whereCond string, arg ...interface{}) ([]*User, error) {
 //  Without cache layer.
 func CountUserByWhere(whereCond string, arg ...interface{}) (int64, error) {
 	var count int64
-	err := userDB.Get(&count, "SELECT count(1) FROM `user` WHERE "+whereCond+" AND `deleted_ts`=0", arg...)
+	err := userDB.Get(&count, "SELECT count(1) FROM `user` WHERE "+insertZeroDeletedTsField(whereCond), arg...)
 	return count, err
 }

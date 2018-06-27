@@ -1,6 +1,8 @@
 package model
 
 import (
+	"strings"
+
 	"github.com/xiaoenai/tp-micro/model/mongo"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/redis"
@@ -49,4 +51,30 @@ func GetMongoDB() *mongo.DB {
 // GetRedis returns the redis client.
 func GetRedis() *redis.Client {
 	return redisClient
+}
+
+func insertZeroDeletedTsField(whereCond string) string {
+	whereCond = strings.TrimSpace(whereCond)
+	whereCond = strings.TrimRight(whereCond, ";")
+	i := strings.Index(whereCond, "OFFSET")
+	if i == -1 {
+		i = strings.Index(whereCond, "offset")
+		if i == -1 {
+			i = strings.Index(whereCond, "Offset")
+		}
+	}
+	i2 := strings.Index(whereCond, "LIMIT")
+	if i2 == -1 {
+		i2 = strings.Index(whereCond, "limit")
+		if i2 == -1 {
+			i2 = strings.Index(whereCond, "Limit")
+		}
+	}
+	if i > i2 && i2 != -1 {
+		i = i2
+	}
+	if i == -1 {
+		return whereCond + " AND `deleted_ts`=0"
+	}
+	return whereCond[:i] + " AND `deleted_ts`=0 " + whereCond[i:]
 }

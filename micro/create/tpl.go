@@ -96,6 +96,8 @@ func init() {
 	"logic/model/init.go": `package model
 
 import (
+	"strings"
+
 	"github.com/xiaoenai/tp-micro/model/mongo"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/redis"
@@ -144,7 +146,34 @@ func GetMongoDB() *mongo.DB {
 // GetRedis returns the redis client.
 func GetRedis() *redis.Client {
 	return redisClient
-}`,
+}
+
+func insertZeroDeletedTsField(whereCond string)string{
+	whereCond=strings.TrimSpace(whereCond)
+	whereCond=strings.TrimRight(whereCond,";")
+	i:=strings.Index(whereCond,"OFFSET")
+	if i==-1{
+		i=strings.Index(whereCond,"offset")
+		if i==-1{
+			i=strings.Index(whereCond,"Offset")
+		}
+	}
+	i2:=strings.Index(whereCond,"LIMIT")
+	if i2==-1{
+		i2=strings.Index(whereCond,"limit")
+		if i2==-1{
+			i2=strings.Index(whereCond,"Limit")
+		}
+	}
+	if i>i2 && i2!=-1 {
+		i=i2
+	}
+	if i==-1{
+		return	whereCond+" ` + "AND `deleted_ts`" + `=0"
+	}
+	return whereCond[:i]+" ` + "AND `deleted_ts`" + `=0 "+whereCond[i:]
+}
+`,
 
 	"args/type.gen.go": `package args
 import (${import_list}
@@ -249,10 +278,6 @@ func TestSdk(t *testing.T) {
 	)
 	${rpc_call_test_define}}
 `}
-
-const mongoModelTpl = `package model
-// TODO
-`
 
 const mysqlModelTpl = `package model
 
@@ -419,28 +444,20 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 // NOTE:
 //  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
 //  With cache layer.
-func Delete{{.Name}}ByPrimary({{range .PrimaryFields}}_{{.ModelName}} {{.Typ}}, {{end}}delayDeleteHard time.Duration, tx ...*sqlx.Tx) error {
+func Delete{{.Name}}ByPrimary({{range .PrimaryFields}}_{{.ModelName}} {{.Typ}}, {{end}}deleteHard bool, tx ...*sqlx.Tx) error {
 	var err error
-	if delayDeleteHard == 0{
+	if deleteHard {
 		// Immediately delete from the hard disk.
 		err = {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 				_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE {{range .PrimaryFields}}` + "`{{.ModelName}}`=? AND {{end}}`deleted_ts`=0;" + `", {{range .PrimaryFields}}_{{.ModelName}}, {{end}})
 				return err
 			}, tx...)
 
-	}else if delayDeleteHard < 0{
-		// Never delete from the hard disk.
-		err = {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
-			_, err := tx.Exec("UPDATE {{.NameSql}} SET ` + "`updated_at`=?, `deleted_ts`=-1" + ` WHERE {{range .PrimaryFields}}` + "`{{.ModelName}}`=? AND {{end}}`deleted_ts`=0;" + `",coarsetime.FloorTimeNow().Unix(), {{range .PrimaryFields}}_{{.ModelName}}, {{end}})
-			return err
-		}, tx...)
-
-	}else{
+	}else {
 		// Delay delete from the hard disk.
-		updatedAt := coarsetime.FloorTimeNow().Unix()
-		deletedTs := updatedAt+int64(delayDeleteHard/time.Second)
+		ts := coarsetime.FloorTimeNow().Unix()
 		err = {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
-			_, err := tx.Exec("UPDATE {{.NameSql}} SET ` + "`updated_at`=?, `deleted_ts`=?" + ` WHERE {{range .PrimaryFields}}` + "`{{.ModelName}}`=? AND {{end}}`deleted_ts`=0;" + `", updatedAt, deletedTs, {{range .PrimaryFields}}_{{.ModelName}}, {{end}})
+			_, err := tx.Exec("UPDATE {{.NameSql}} SET ` + "`updated_at`=?, `deleted_ts`=?" + ` WHERE {{range .PrimaryFields}}` + "`{{.ModelName}}`=? AND {{end}}`deleted_ts`=0;" + `", ts, ts, {{range .PrimaryFields}}_{{.ModelName}}, {{end}})
 			return err
 		}, tx...)
 	}
@@ -516,7 +533,7 @@ func Bind{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string)
 //  If @return bool=false error=nil, means the data is not exist;
 //  whereNamedCond e.g. 'id=:id AND created_at>1520000000'.
 func Bind{{.Name}}ByWhere(_{{.LowerFirstLetter}} *{{.Name}}, whereNamedCond string) (bool, error) {
-	err := {{.LowerFirstName}}DB.CacheGetByWhere(_{{.LowerFirstLetter}}, whereNamedCond+" AND ` + "`deleted_ts`=0" + `")
+	err := {{.LowerFirstName}}DB.CacheGetByWhere(_{{.LowerFirstLetter}}, insertZeroDeletedTsField(whereNamedCond))
 	switch err {
 	case nil:
 		if _{{.LowerFirstLetter}}.CreatedAt == 0 {
@@ -540,7 +557,7 @@ func Bind{{.Name}}ByWhere(_{{.LowerFirstLetter}} *{{.Name}}, whereNamedCond stri
 //  If @return bool=false error=nil, means the data is not exist.
 func Get{{.Name}}ByWhere(whereCond string, arg ...interface{}) (*{{.Name}}, bool, error) {
 	var _{{.LowerFirstLetter}} = new({{.Name}})
-	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT {{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond+" AND ` + "`deleted_ts`=0" + ` LIMIT 1;", arg...)
+	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT {{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+insertZeroDeletedTsField(whereCond)+ " LIMIT 1;", arg...)
 	switch err {
 	case nil:
 		return _{{.LowerFirstLetter}}, true, nil
@@ -556,7 +573,7 @@ func Get{{.Name}}ByWhere(whereCond string, arg ...interface{}) (*{{.Name}}, bool
 //  Without cache layer.
 func Select{{.Name}}ByWhere(whereCond string, arg ...interface{}) ([]*{{.Name}}, error) {
 	var objs = new([]*{{.Name}})
-	err := {{.LowerFirstName}}DB.Select(objs, "SELECT {{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+whereCond+" AND ` + "`deleted_ts`=0" + `", arg...)
+	err := {{.LowerFirstName}}DB.Select(objs, "SELECT {{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+insertZeroDeletedTsField(whereCond), arg...)
 	return *objs, err
 }
 
@@ -565,6 +582,10 @@ func Select{{.Name}}ByWhere(whereCond string, arg ...interface{}) ([]*{{.Name}},
 //  Without cache layer.
 func Count{{.Name}}ByWhere(whereCond string, arg ...interface{}) (int64, error) {
 	var count int64
-	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(1) FROM {{.NameSql}} WHERE "+whereCond+" AND ` + "`deleted_ts`=0" + `", arg...)
+	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(1) FROM {{.NameSql}} WHERE "+insertZeroDeletedTsField(whereCond), arg...)
 	return count, err
 }`
+
+const mongoModelTpl = `package model
+// TODO
+`
