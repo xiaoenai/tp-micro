@@ -5,11 +5,13 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/xiaoenai/tp-micro/micro/create"
 	"github.com/xiaoenai/tp-micro/micro/info"
 	"github.com/xiaoenai/tp-micro/micro/run/fsnotify"
 )
@@ -61,12 +63,19 @@ func checkTMPFile(name string) bool {
 	return false
 }
 
-var (
-	eventTime = make(map[string]int64)
-)
-
 func rewatch() {
-	go rerun()
+	rerun()
+
+	time.Sleep(time.Second * 2)
+
+	var eventTime = make(map[string]int64)
+	filepath.Walk("./", func(retpath string, f os.FileInfo, err error) error {
+		if err != nil || f.IsDir() || checkTMPFile(retpath) || !checkIfWatchExt(retpath) {
+			return nil
+		}
+		eventTime[retpath] = f.ModTime().Unix()
+		return nil
+	})
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -99,12 +108,14 @@ func rewatch() {
 			if t := eventTime[e.Name]; mt == t {
 				isbuild = false
 			}
-
 			eventTime[e.Name] = mt
 
 			if isbuild {
 				tp.Printf("%s", e.String())
 				watcher.Close()
+				if strings.HasSuffix(e.Name, create.MicroTpl) {
+					create.CreateProject()
+				}
 				go rewatch()
 				return
 			}

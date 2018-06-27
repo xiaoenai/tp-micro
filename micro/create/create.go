@@ -11,10 +11,10 @@ import (
 	"github.com/xiaoenai/tp-micro/micro/info"
 )
 
-const (
-	defMicroTpl     = "__tp-micro__tpl__.go"
-	defMicroGenLock = "__tp-micro__gen__.lock"
-)
+// MicroTpl template file name
+const MicroTpl = "__tp-micro__tpl__.go"
+
+const microGenLock = "__tp-micro__gen__.lock"
 
 // CreateProject creates a project.
 func CreateProject() {
@@ -27,14 +27,14 @@ func CreateProject() {
 	}
 
 	// creates base files
-	if !goutil.FileExists(defMicroGenLock) {
+	if !goutil.FileExists(microGenLock) {
 		tpl.Create()
 	}
 
 	// read temptale file
-	b, err := ioutil.ReadFile(defMicroTpl)
+	b, err := ioutil.ReadFile(MicroTpl)
 	if err != nil {
-		b = test.MustAsset(defMicroTpl)
+		b = test.MustAsset(MicroTpl)
 	}
 
 	// new project code
@@ -42,7 +42,7 @@ func CreateProject() {
 	proj.Generator()
 
 	// write template file
-	f, err := os.OpenFile(defMicroTpl, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
+	f, err := os.OpenFile(MicroTpl, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		tp.Fatalf("[micro] Create files error: %v", err)
 	}

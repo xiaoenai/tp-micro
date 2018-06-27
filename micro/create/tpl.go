@@ -1,6 +1,6 @@
 package create
 
-var codeFiles = map[string]string{
+var tplFiles = map[string]string{
 	"main.go": `package main
 
 import (
