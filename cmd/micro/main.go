@@ -19,10 +19,10 @@ package main
 import (
 	"os"
 
-	"github.com/xiaoenai/tp-micro/cmd/micro/create"
-	"github.com/xiaoenai/tp-micro/cmd/micro/info"
-	"github.com/xiaoenai/tp-micro/cmd/micro/run"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli"
+	"github.com/xiaoenai/tp-micro/micro/create"
+	"github.com/xiaoenai/tp-micro/micro/info"
+	"github.com/xiaoenai/tp-micro/micro/run"
 )
 
 func main() {
@@ -38,17 +38,13 @@ func main() {
 		Usage: "Generate a tp-micro project",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  "template, t",
-				Usage: "The template for code generation(relative/absolute)",
-			},
-			cli.StringFlag{
 				Name:  "app_path, p",
 				Usage: "The path(relative/absolute) of the project",
 			},
 		},
 		Before: initProject,
 		Action: func(c *cli.Context) error {
-			create.CreateProject(c.String("template"))
+			create.CreateProject()
 			return nil
 		},
 	}

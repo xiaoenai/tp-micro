@@ -142,7 +142,7 @@ OPTIONS:
      --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-example: `micro gen -t ./__tp-micro__tpl__.go -p ./myapp` or default `micro gen myapp`
+example: `micro gen -p ./myapp` or default `micro gen myapp`
 
 - template file `__tp-micro__tpl__.go` demo:
 

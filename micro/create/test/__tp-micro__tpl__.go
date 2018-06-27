@@ -15,10 +15,14 @@ type __API__PUSH__ interface {
 	Stat(*StatArg)
 }
 
-// MODEL create model
-type __MODEL__ struct {
-	DivideArg
+// __MYSQL__MODEL__ create mysql model
+type __MYSQL__MODEL__ struct {
 	User
+}
+
+// __MONGO__MODEL__ create mongodb model
+type __MONGO__MODEL__ struct {
+	DivideArg
 }
 
 // Math controller

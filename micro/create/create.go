@@ -3,13 +3,12 @@ package create
 import (
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/cmd/micro/create/test"
-	"github.com/xiaoenai/tp-micro/cmd/micro/create/tpl"
-	"github.com/xiaoenai/tp-micro/cmd/micro/info"
+	"github.com/xiaoenai/tp-micro/micro/create/test"
+	"github.com/xiaoenai/tp-micro/micro/create/tpl"
+	"github.com/xiaoenai/tp-micro/micro/info"
 )
 
 const (
@@ -18,33 +17,11 @@ const (
 )
 
 // CreateProject creates a project.
-func CreateProject(tplFile string) {
+func CreateProject() {
 	tp.Infof("Generating project: %s", info.ProjPath())
 
-	// read temptale file
-	var noTplFile = len(tplFile) == 0
-	if noTplFile {
-		tplFile = defMicroTpl
-	}
-
-	absTplFile, err := filepath.Abs(tplFile)
-	if err != nil {
-		tp.Fatalf("[micro] Invalid template file: %s", tplFile)
-	}
-
-	b, err := ioutil.ReadFile(absTplFile)
-	if err != nil {
-		if !noTplFile {
-			tp.Fatalf("[micro] Write project files failed: %v", err)
-		} else {
-			b = test.MustAsset(defMicroTpl)
-		}
-	}
-
-	// creates project
-
 	os.MkdirAll(info.AbsPath(), os.FileMode(0755))
-	err = os.Chdir(info.AbsPath())
+	err := os.Chdir(info.AbsPath())
 	if err != nil {
 		tp.Fatalf("[micro] Jump working directory failed: %v", err)
 	}
@@ -54,9 +31,14 @@ func CreateProject(tplFile string) {
 		tpl.Create()
 	}
 
+	// read temptale file
+	b, err := ioutil.ReadFile(defMicroTpl)
+	if err != nil {
+		b = test.MustAsset(defMicroTpl)
+	}
+
 	// new project code
 	proj := NewProject(b)
-	proj.Prepare()
 	proj.Generator()
 
 	// write template file
