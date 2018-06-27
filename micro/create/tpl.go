@@ -313,8 +313,8 @@ func (*{{.Name}}) TableName() string {
 }
 
 func (_{{.LowerFirstLetter}} *{{.Name}}) isZeroPrimaryKey() bool {
-	{{range .PrimaryFields}}var {{.ModelName}} {{.Typ}}
-	if _{{$.LowerFirstLetter}}.{{.Name}}!={{.ModelName}}{
+	{{range .PrimaryFields}}var _{{.ModelName}} {{.Typ}}
+	if _{{$.LowerFirstLetter}}.{{.Name}}!=_{{.ModelName}}{
 		return false
 	}
 	{{end}}return true

@@ -233,7 +233,7 @@ func (t *tplInfo) collectStructs() {
 					name: structName,
 					doc:  addSlash(doc),
 					node: x,
-				}.init(),
+				}.init(t),
 			)
 		}
 		return true
@@ -288,10 +288,12 @@ func (t *tplInfo) collectAliasTypes() {
 			if x.Type == nil {
 				continue
 			}
-			_, ok = x.Type.(*ast.Ident)
-			if !ok {
+			switch x.Type.(type) {
+			case *ast.Ident, *ast.SelectorExpr:
+			default:
 				continue
 			}
+
 			aliasName = x.Name.Name
 
 			if s := x.Doc.Text(); s != "" {
@@ -453,7 +455,7 @@ func (s *structType) isInvildName() bool {
 	}
 }
 
-func (s structType) init() *structType {
+func (s structType) init(t *tplInfo) *structType {
 	if !s.isInvildName() {
 		tp.Fatalf("[micro] Unexported struct name: %s", s.name)
 	}
@@ -465,11 +467,12 @@ func (s structType) init() *structType {
 				tp.Fatalf("[micro] Unexported field name: %s.%s", s.name, f.Name)
 			}
 		}
-		if se, ok := v.Type.(*ast.StarExpr); ok {
-			f.Typ = "*" + se.X.(*ast.Ident).Name
-		} else {
-			f.Typ = v.Type.(*ast.Ident).Name
-		}
+		f.Typ = t.getCodeBlock(v.Type)
+		// if se, ok := v.Type.(*ast.StarExpr); ok {
+		// 	f.Typ = "*" + se.X.(*ast.Ident).Name
+		// } else {
+		// 	f.Typ = v.Type.(*ast.Ident).Name
+		// }
 		if len(f.Name) == 0 {
 			f.anonymous = true
 			f.Name = strings.TrimPrefix(f.Typ, "*")
@@ -650,7 +653,7 @@ func (t *tplInfo) collectApis(r *router, i *ast.InterfaceType) bool {
 			}
 			h, err := t.getHandler(r.typ, n)
 			if err != nil {
-				tp.Fatalf("[micro] %s: %s", funcName, err.Error())
+				tp.Fatalf("[micro] %s.%s: %s", r.name, funcName, err.Error())
 			}
 			h.name = funcName
 			h.group = r
@@ -728,7 +731,7 @@ var emptyStructType = &aliasType{
 }
 
 func (a *aliasType) String() string {
-	return fmt.Sprintf("%stype %s", a.doc, a.text)
+	return fmt.Sprintf("%stype %s\n", a.doc, a.text)
 }
 
 func (r *router) handlerList() []*handler {
