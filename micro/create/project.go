@@ -113,7 +113,8 @@ func (p *Project) Generator() {
 // generate all codes
 func (p *Project) gen() {
 	p.genMainFile()
-	p.genTypesFile()
+	p.genConstFile()
+	p.genTypeFile()
 	p.genRouterFile()
 	p.genHandlerFile()
 	p.genLogicFile()
@@ -126,7 +127,21 @@ func (p *Project) genMainFile() {
 	p.replace("config.go", "${service_api_prefix}", goutil.SnakeString(p.Name))
 }
 
-func (p *Project) genTypesFile() {
+func (p *Project) genConstFile() {
+	var text string
+	for _, s := range p.tplInfo.models.mysql {
+		name := s.name + "Sql"
+		text += fmt.Sprintf(
+			"// %s the statement to create '%s' mysql table\n"+
+				"const %s string = ``\n",
+			name, goutil.SnakeString(s.name),
+			name,
+		)
+	}
+	p.replaceWithLine("args/const.gen.go", "${const_list}", text)
+}
+
+func (p *Project) genTypeFile() {
 	p.replaceWithLine("args/type.gen.go", "${import_list}", p.tplInfo.TypeImportString())
 	p.replaceWithLine("args/type.gen.go", "${type_define_list}", p.tplInfo.TypesString())
 }

@@ -5,7 +5,6 @@ package model
 
 import (
 	"database/sql"
-	"time"
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
@@ -29,6 +28,16 @@ func ToArgsDevice(_d *Device) *args.Device {
 	return (*args.Device)(unsafe.Pointer(_d))
 }
 
+// ToDeviceSlice converts to []*Device type.
+func ToDeviceSlice(a []*args.Device) []*Device {
+	return *(*[]*Device)(unsafe.Pointer(&a))
+}
+
+// ToArgsDeviceSlice converts to []*args.Device type.
+func ToArgsDeviceSlice(a []*Device) []*args.Device {
+	return *(*[]*args.Device)(unsafe.Pointer(&a))
+}
+
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
 func (*Device) TableName() string {
 	return "device"
@@ -42,7 +51,7 @@ func (_d *Device) isZeroPrimaryKey() bool {
 	return true
 }
 
-var deviceDB, _ = mysqlHandler.RegCacheableDB(new(Device), time.Hour*24, ``)
+var deviceDB, _ = mysqlHandler.RegCacheableDB(new(Device), cacheExpire, args.DeviceSql)
 
 // GetDeviceDB returns the Device DB handler.
 func GetDeviceDB() *mysql.CacheableDB {

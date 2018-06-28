@@ -5,7 +5,6 @@ package model
 
 import (
 	"database/sql"
-	"time"
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
@@ -29,6 +28,16 @@ func ToArgsLog(_l *Log) *args.Log {
 	return (*args.Log)(unsafe.Pointer(_l))
 }
 
+// ToLogSlice converts to []*Log type.
+func ToLogSlice(a []*args.Log) []*Log {
+	return *(*[]*Log)(unsafe.Pointer(&a))
+}
+
+// ToArgsLogSlice converts to []*args.Log type.
+func ToArgsLogSlice(a []*Log) []*args.Log {
+	return *(*[]*args.Log)(unsafe.Pointer(&a))
+}
+
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
 func (*Log) TableName() string {
 	return "log"
@@ -42,7 +51,7 @@ func (_l *Log) isZeroPrimaryKey() bool {
 	return true
 }
 
-var logDB, _ = mysqlHandler.RegCacheableDB(new(Log), time.Hour*24, ``)
+var logDB, _ = mysqlHandler.RegCacheableDB(new(Log), cacheExpire, args.LogSql)
 
 // GetLogDB returns the Log DB handler.
 func GetLogDB() *mysql.CacheableDB {

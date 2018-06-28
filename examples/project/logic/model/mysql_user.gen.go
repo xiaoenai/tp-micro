@@ -5,7 +5,6 @@ package model
 
 import (
 	"database/sql"
-	"time"
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
@@ -29,6 +28,16 @@ func ToArgsUser(_u *User) *args.User {
 	return (*args.User)(unsafe.Pointer(_u))
 }
 
+// ToUserSlice converts to []*User type.
+func ToUserSlice(a []*args.User) []*User {
+	return *(*[]*User)(unsafe.Pointer(&a))
+}
+
+// ToArgsUserSlice converts to []*args.User type.
+func ToArgsUserSlice(a []*User) []*args.User {
+	return *(*[]*args.User)(unsafe.Pointer(&a))
+}
+
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
 func (*User) TableName() string {
 	return "user"
@@ -42,7 +51,7 @@ func (_u *User) isZeroPrimaryKey() bool {
 	return true
 }
 
-var userDB, _ = mysqlHandler.RegCacheableDB(new(User), time.Hour*24, ``)
+var userDB, _ = mysqlHandler.RegCacheableDB(new(User), cacheExpire, args.UserSql)
 
 // GetUserDB returns the User DB handler.
 func GetUserDB() *mysql.CacheableDB {
