@@ -677,6 +677,7 @@ import (
 	"time"
 	"unsafe"
 
+	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/model/mongo"
 
@@ -721,24 +722,38 @@ func Get{{.Name}}DB() *mongo.CacheableDB {
 //  Insert data if the primary key is specified;
 //  Update data based on _updateFields if no primary key is specified;
 func Upsert{{.Name}}(selector, updater mongo.M) error {
-	nowTime := coarsetime.FloorTimeNow().Unix()
-	if updater["created_at"].(float64) == 0 {
-		updater["created_at"] = nowTime
-	} else {
-		delete(updater, "created_at")
-	}
-	updater["updated_at"] = nowTime
+	updater["updated_at"] = coarsetime.FloorTimeNow().Unix()
 	return {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
 		_, err := col.Upsert(selector, mongo.M{"$set": updater})
 		return err
 	})
 }
 
+// Get{{.Name}}ByFields query a Ext data from database by WHERE field.
+// NOTE:
+//  Without cache layer;
+//  If @return error!=nil, means the database error.
+func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) (bool, error) {
+	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}}, _fields...)
+	switch err {
+	case nil:
+		return true, nil
+	case mongo.ErrNotFound:
+		err2 := {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
+		if err2 != nil {
+			tp.Errorf("%s", err2.Error())
+		}
+		return false, nil
+	default:
+		return false, err
+	}
+}
+
 // Get{{.Name}}ByWhere query a Ext data from database by WHERE condition.
 // NOTE:
 //  Without cache layer;
 //  If @return error!=nil, means the database error.
-func GetExtByWhere(query mongo.M) (*{{.Name}}, bool, error) {
+func Get{{.Name}}ByWhere(query mongo.M) (*{{.Name}}, bool, error) {
 	_{{.LowerFirstLetter}} := &{{.Name}}{}
 	err := {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
 		return col.Find(query).One(_e)
