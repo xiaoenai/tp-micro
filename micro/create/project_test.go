@@ -11,17 +11,18 @@ func TestGenerator(t *testing.T) {
 	info.Init("test")
 	proj := NewProject([]byte(src))
 	proj.gen()
-	t.Logf("main.go:\n%s", codeFiles["main.go"])
-	t.Logf("config.go:\n%s", codeFiles["config.go"])
-	t.Logf("args/type.gen.go:\n%s", codeFiles["args/type.gen.go"])
-	t.Logf("logic/tmp_code.gen.go:\n%s", codeFiles["logic/tmp_code.gen.go"])
-	t.Logf("logic/model/init.go:\n%s", codeFiles["logic/model/init.go"])
-	t.Logf("api/pull_handler.gen.go:\n%s", codeFiles["api/pull_handler.gen.go"])
-	t.Logf("api/push_handler.gen.go:\n%s", codeFiles["api/push_handler.gen.go"])
-	t.Logf("api/router.gen.go:\n%s", codeFiles["api/router.gen.go"])
-	t.Logf("sdk/rpc.gen.go:\n%s", codeFiles["sdk/rpc.gen.go"])
-	t.Logf("sdk/rpc_test.gen.go:\n%s", codeFiles["sdk/rpc.gen_test.go"])
-	for k, v := range codeFiles {
+	t.Logf("main.go:\n%s", proj.codeFiles["main.go"])
+	t.Logf("config.go:\n%s", proj.codeFiles["config.go"])
+	t.Logf("args/const.gen.go:\n%s", proj.codeFiles["args/const.gen.go"])
+	t.Logf("args/type.gen.go:\n%s", proj.codeFiles["args/type.gen.go"])
+	t.Logf("logic/tmp_code.gen.go:\n%s", proj.codeFiles["logic/tmp_code.gen.go"])
+	t.Logf("logic/model/init.go:\n%s", proj.codeFiles["logic/model/init.go"])
+	t.Logf("api/pull_handler.gen.go:\n%s", proj.codeFiles["api/pull_handler.gen.go"])
+	t.Logf("api/push_handler.gen.go:\n%s", proj.codeFiles["api/push_handler.gen.go"])
+	t.Logf("api/router.gen.go:\n%s", proj.codeFiles["api/router.gen.go"])
+	t.Logf("sdk/rpc.gen.go:\n%s", proj.codeFiles["sdk/rpc.gen.go"])
+	t.Logf("sdk/rpc_test.gen.go:\n%s", proj.codeFiles["sdk/rpc.gen_test.go"])
+	for k, v := range proj.codeFiles {
 		if strings.HasPrefix(k, "logic/model") {
 			t.Logf("%s:\n%s", k, v)
 		}
@@ -48,11 +49,13 @@ type __API__PUSH__ interface {
 // __MYSQL__MODEL__ create mysql model
 type __MYSQL__MODEL__ struct {
 	User
+	Log
+	Device
 }
 
 // __MONGO__MODEL__ create mongodb model
 type __MONGO__MODEL__ struct {
-	DivideArg
+	Meta
 }
 
 // Math controller
@@ -88,8 +91,21 @@ type StatArg struct {
 
 // User user info
 type User struct {
-	Id   int64
-	Name string
+	Id   int64  ` + "`key:\"pri\"`" + `
+	Name string ` + "`key:\"uni\"`" + `
 	Age  int32
+}
+
+type Log struct {
+	Text string
+}
+
+type Device struct {
+	UUID string ` + "`key:\"pri\"`" + `
+}
+
+type Meta struct {
+	Hobby []string
+	Tags  []string
 }
 `

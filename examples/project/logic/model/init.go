@@ -2,6 +2,7 @@ package model
 
 import (
 	"strings"
+	"time"
 
 	"github.com/xiaoenai/tp-micro/model/mongo"
 	"github.com/xiaoenai/tp-micro/model/mysql"
@@ -14,10 +15,14 @@ var mysqlHandler = mysql.NewPreDB()
 // mongoHandler preset mongo DB handler
 var mongoHandler = mongo.NewPreDB()
 
-var redisClient *redis.Client
+var (
+	redisClient *redis.Client
+	cacheExpire time.Duration
+)
 
 // Init initializes the model packet.
-func Init(mysqlConfig *mysql.Config, mongoConfig *mongo.Config, redisConfig *redis.Config) error {
+func Init(mysqlConfig *mysql.Config, mongoConfig *mongo.Config, redisConfig *redis.Config, _cacheExpire time.Duration) error {
+	cacheExpire = _cacheExpire
 	var err error
 	if redisConfig != nil {
 		redisClient, err = redis.NewClient(redisConfig)

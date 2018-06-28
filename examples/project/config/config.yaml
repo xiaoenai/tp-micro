@@ -43,4 +43,5 @@ project:
       addrs: []
     pool_size_per_node: 0
     idle_timeout: 0
+  cache_expire: 24h0m0s
   log_level: TRACE

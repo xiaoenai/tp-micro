@@ -42,6 +42,7 @@ type config struct {
 	Mysql    mysql.Config    ` + "`yaml:\"mysql\"`" + `
 	Mongo    mongo.Config    ` + "`yaml:\"mongo\"`" + `
 	Redis    redis.Config    ` + "`yaml:\"redis\"`" + `
+	CacheExpire time.Duration` + "`yaml:\"cache_expire\"`" + `
 	LogLevel string          ` + "`yaml:\"log_level\"`" + `
 }
 
@@ -49,6 +50,9 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	err := bind()
 	if err != nil {
 		return err
+	}
+	if c.CacheExpire <= 0 {
+		c.CacheExpire = time.Hour*24
 	}
 	if len(c.LogLevel) == 0 {
 		c.LogLevel = "TRACE"
@@ -65,7 +69,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	if len(c.Mongo.Addrs)>0{
 		mongoConfig=&c.Mongo
 	}
-	err = model.Init(mysqlConfig, mongoConfig, redisConfig)
+	err = model.Init(mysqlConfig, mongoConfig, redisConfig, c.CacheExpire)
 	if err != nil {
 		tp.Errorf("%v", err)
 	}
@@ -84,6 +88,7 @@ var cfg = &config{
 		Endpoints: []string{"http://127.0.0.1:2379"},
 	},
 	Redis:    *redis.NewConfig(),
+	CacheExpire: time.Hour*24,
 	LogLevel: "TRACE",
 }
 
@@ -97,6 +102,7 @@ func init() {
 
 import (
 	"strings"
+	"time"
 
 	"github.com/xiaoenai/tp-micro/model/mongo"
 	"github.com/xiaoenai/tp-micro/model/mysql"
@@ -109,10 +115,15 @@ var mysqlHandler = mysql.NewPreDB()
 // mongoHandler preset mongo DB handler
 var mongoHandler = mongo.NewPreDB()
 
-var redisClient *redis.Client
+var (
+	redisClient *redis.Client
+	cacheExpire time.Duration
+)
+
 
 // Init initializes the model packet.
-func Init(mysqlConfig *mysql.Config, mongoConfig *mongo.Config, redisConfig *redis.Config) error {
+func Init(mysqlConfig *mysql.Config, mongoConfig *mongo.Config, redisConfig *redis.Config, _cacheExpire time.Duration) error {
+	cacheExpire=_cacheExpire
 	var err error
 	if redisConfig != nil {
 		redisClient, err = redis.NewClient(redisConfig)
@@ -173,6 +184,10 @@ func insertZeroDeletedTsField(whereCond string)string{
 	}
 	return whereCond[:i]+" ` + "AND `deleted_ts`" + `=0 "+whereCond[i:]
 }
+`,
+
+	"args/const.gen.go": `package args
+${const_list}
 `,
 
 	"args/type.gen.go": `package args
@@ -283,7 +298,6 @@ const mysqlModelTpl = `package model
 
 import (
 	"database/sql"
-	"time"
 	"unsafe"
 
 	tp "github.com/henrylee2cn/teleport"
@@ -306,6 +320,16 @@ func ToArgs{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *args.{{.Name}} {
 	return (*args.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
 }
 
+// To{{.Name}}Slice converts to []*{{.Name}} type.
+func To{{.Name}}Slice(a []*args.{{.Name}}) []*{{.Name}} {
+	return *(*[]*{{.Name}})(unsafe.Pointer(&a))
+}
+
+// ToArgs{{.Name}}Slice converts to []*args.{{.Name}} type.
+func ToArgs{{.Name}}Slice(a []*{{.Name}}) []*args.{{.Name}} {
+	return *(*[]*args.{{.Name}})(unsafe.Pointer(&a))
+}
+
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
 func (*{{.Name}}) TableName() string {
 	return "{{.SnakeName}}"
@@ -319,7 +343,7 @@ func (_{{.LowerFirstLetter}} *{{.Name}}) isZeroPrimaryKey() bool {
 	{{end}}return true
 }
 
-var {{.LowerFirstName}}DB, _ = mysqlHandler.RegCacheableDB(new({{.Name}}), time.Hour*24, ` + "``" + `)
+var {{.LowerFirstName}}DB, _ = mysqlHandler.RegCacheableDB(new({{.Name}}), cacheExpire, ` + "args.{{.Name}}Sql" + `)
 
 // Get{{.Name}}DB returns the {{.Name}} DB handler.
 func Get{{.Name}}DB() *mysql.CacheableDB {
@@ -335,7 +359,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .I
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}.Id,{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		var (
 			query string
 			isZeroPrimaryKey=_{{.LowerFirstLetter}}.isZeroPrimaryKey()
@@ -347,7 +371,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .I
 		}
 		{{if .IsDefaultPrimary}}r, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
 		if isZeroPrimaryKey {
-			_{{.LowerFirstLetter}}.Id, err = r.LastInsertId()
+			_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}}, err = r.LastInsertId()
 		}
 		{{else}}_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
 		{{end}}return err
@@ -371,7 +395,7 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}.Id,{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		var (
 			query string
 			isZeroPrimaryKey=_{{.LowerFirstLetter}}.isZeroPrimaryKey()
@@ -400,7 +424,7 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 		if isZeroPrimaryKey {
 			rowsAffected, err := r.RowsAffected()
 			if err == nil && rowsAffected == 1 {
-				_{{.LowerFirstLetter}}.Id, err = r.LastInsertId()
+				_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}}, err = r.LastInsertId()
 			}
 		}
 		{{else}}_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})

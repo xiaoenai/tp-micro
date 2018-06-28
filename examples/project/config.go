@@ -16,18 +16,22 @@ import (
 )
 
 type config struct {
-	Srv      micro.SrvConfig `yaml:"srv"`
-	Etcd     etcd.EasyConfig `yaml:"etcd"`
-	Mysql    mysql.Config    `yaml:"mysql"`
-	Mongo    mongo.Config    `yaml:"mongo"`
-	Redis    redis.Config    `yaml:"redis"`
-	LogLevel string          `yaml:"log_level"`
+	Srv         micro.SrvConfig `yaml:"srv"`
+	Etcd        etcd.EasyConfig `yaml:"etcd"`
+	Mysql       mysql.Config    `yaml:"mysql"`
+	Mongo       mongo.Config    `yaml:"mongo"`
+	Redis       redis.Config    `yaml:"redis"`
+	CacheExpire time.Duration   `yaml:"cache_expire"`
+	LogLevel    string          `yaml:"log_level"`
 }
 
 func (c *config) Reload(bind cfgo.BindFunc) error {
 	err := bind()
 	if err != nil {
 		return err
+	}
+	if c.CacheExpire <= 0 {
+		c.CacheExpire = time.Hour * 24
 	}
 	if len(c.LogLevel) == 0 {
 		c.LogLevel = "TRACE"
@@ -44,7 +48,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	if len(c.Mongo.Addrs) > 0 {
 		mongoConfig = &c.Mongo
 	}
-	err = model.Init(mysqlConfig, mongoConfig, redisConfig)
+	err = model.Init(mysqlConfig, mongoConfig, redisConfig, c.CacheExpire)
 	if err != nil {
 		tp.Errorf("%v", err)
 	}
@@ -62,8 +66,9 @@ var cfg = &config{
 	Etcd: etcd.EasyConfig{
 		Endpoints: []string{"http://127.0.0.1:2379"},
 	},
-	Redis:    *redis.NewConfig(),
-	LogLevel: "TRACE",
+	Redis:       *redis.NewConfig(),
+	CacheExpire: time.Hour * 24,
+	LogLevel:    "TRACE",
 }
 
 func init() {
