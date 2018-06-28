@@ -267,7 +267,53 @@ func newModelString(s *structType) string {
 	return ""
 }
 
-func (mod *Model) mongoString() string { return mongoModelTpl }
+func (mod *Model) mongoString() string {
+	mod.NameSql = fmt.Sprintf("`%s`", mod.SnakeName)
+	mod.QuerySql = [2]string{}
+	mod.UpdateSql = ""
+	mod.UpsertSqlSuffix = ""
+
+	var (
+		fields               []string
+		querySql1, querySql2 string
+	)
+	for _, field := range mod.fields {
+		fields = append(fields, field.ModelName)
+	}
+	var primaryFields []string
+	var primaryFieldMap = make(map[string]bool)
+	for _, field := range mod.PrimaryFields {
+		primaryFields = append(primaryFields, field.ModelName)
+		primaryFieldMap[field.ModelName] = true
+	}
+	for _, field := range fields {
+		if field == "deleted_ts" || primaryFieldMap[field] {
+			continue
+		}
+		querySql1 += fmt.Sprintf("`%s`,", field)
+		querySql2 += fmt.Sprintf(":%s,", field)
+		if field == "created_at" {
+			continue
+		}
+		mod.UpdateSql += fmt.Sprintf("`%s`=:%s,", field, field)
+		mod.UpsertSqlSuffix += fmt.Sprintf("`%s`=VALUES(`%s`),", field, field)
+	}
+	mod.QuerySql = [2]string{querySql1[:len(querySql1)-1], querySql2[:len(querySql2)-1]}
+	mod.UpdateSql = mod.UpdateSql[:len(mod.UpdateSql)-1]
+	mod.UpsertSqlSuffix = mod.UpsertSqlSuffix[:len(mod.UpsertSqlSuffix)-1] + ";"
+
+	m, err := template.New("").Parse(mongoModelTpl)
+	if err != nil {
+		tp.Fatalf("[micro] model string: %v", err)
+	}
+	buf := bytes.NewBuffer(nil)
+	err = m.Execute(buf, mod)
+	if err != nil {
+		tp.Fatalf("[micro] model string: %v", err)
+	}
+	s := strings.Replace(buf.String(), "&lt;", "<", -1)
+	return strings.Replace(s, "&gt;", ">", -1)
+}
 
 func (mod *Model) mysqlString() string {
 	mod.NameSql = fmt.Sprintf("`%s`", mod.SnakeName)
