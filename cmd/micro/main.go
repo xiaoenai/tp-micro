@@ -79,7 +79,80 @@ func main() {
 		},
 	}
 
-	app.Commands = []cli.Command{newCom, runCom}
+	// added mysql model struct code to project template
+	tplCom := cli.Command{
+		Name:  "tpl",
+		Usage: "Added mysql model struct code to project template",
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "app_path, p",
+				Usage: "The path(relative/absolute) of the project",
+			},
+			cli.StringFlag{
+				Name:  "host",
+				Value: "localhost",
+				Usage: "mysql host ip",
+			},
+			cli.StringFlag{
+				Name:  "port",
+				Value: "3306",
+				Usage: "mysql host port",
+			},
+			cli.StringFlag{
+				Name:  "username, user",
+				Value: "root",
+				Usage: "mysql username",
+			},
+			cli.StringFlag{
+				Name:  "password, pwd",
+				Value: "",
+				Usage: "mysql password",
+			},
+			cli.StringFlag{
+				Name:  "db",
+				Value: "test",
+				Usage: "mysql database",
+			},
+			cli.StringSliceFlag{
+				Name:  "table",
+				Usage: "mysql table",
+			},
+			cli.StringFlag{
+				Name:  "ssh_user",
+				Value: "",
+				Usage: "ssh user",
+			},
+			cli.StringFlag{
+				Name:  "ssh_host",
+				Value: "",
+				Usage: "ssh host ip",
+			},
+			cli.StringFlag{
+				Name:  "ssh_port",
+				Value: "",
+				Usage: "ssh host port",
+			},
+		},
+		Before: initProject,
+		Action: func(c *cli.Context) error {
+			create.AddTableStructToTpl(create.ConnConfig{
+				MysqlConfig: create.MysqlConfig{
+					Host:     c.String("host"),
+					Port:     c.String("port"),
+					User:     c.String("user"),
+					Password: c.String("password"),
+					Db:       c.String("db"),
+				},
+				Tables:  c.StringSlice("table"),
+				SshHost: c.String("ssh_host"),
+				SshPort: c.String("ssh_port"),
+				SshUser: c.String("ssh_user"),
+			})
+			return nil
+		},
+	}
+
+	app.Commands = []cli.Command{newCom, runCom, tplCom}
 	app.Run(os.Args)
 }
 
