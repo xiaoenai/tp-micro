@@ -30,7 +30,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	if err != nil {
 		return err
 	}
-	if c.CacheExpire <= 0 {
+	if c.CacheExpire == 0 {
 		c.CacheExpire = time.Hour * 24
 	}
 	if len(c.LogLevel) == 0 {
