@@ -13,6 +13,7 @@ func TestGenerator(t *testing.T) {
 	proj.gen()
 	t.Logf("main.go:\n%s", proj.codeFiles["main.go"])
 	t.Logf("config.go:\n%s", proj.codeFiles["config.go"])
+	t.Logf("args/const.gen.go:\n%s", proj.codeFiles["args/const.gen.go"])
 	t.Logf("args/type.gen.go:\n%s", proj.codeFiles["args/type.gen.go"])
 	t.Logf("logic/tmp_code.gen.go:\n%s", proj.codeFiles["logic/tmp_code.gen.go"])
 	t.Logf("logic/model/init.go:\n%s", proj.codeFiles["logic/model/init.go"])
