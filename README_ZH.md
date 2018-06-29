@@ -297,6 +297,33 @@ OPTIONS:
 
 example: `micro run -x .yaml -p myapp` or `micro run`
 
+### 添加数据模型
+
+从 mysql 数据库表单添加相应结构体到项目模板文件。
+
+`micro tpl` command help:
+
+ ```
+ NAME:
+   micro tpl - Add mysql model struct code to project template
+
+USAGE:
+   micro tpl [command options] [arguments...]
+
+OPTIONS:
+   --app_path value, -p value      The path(relative/absolute) of the project
+   --host value                    mysql host ip (default: "localhost")
+   --port value                    mysql host port (default: "3306")
+   --username value, --user value  mysql username (default: "root")
+   --password value, --pwd value   mysql password
+   --db value                      mysql database (default: "test")
+   --table value                   mysql table
+   --ssh_user value                ssh user
+   --ssh_host value                ssh host ip
+   --ssh_port value                ssh host port
+ ```
+
+
 [更多 Micro 命令](https://github.com/xiaoenai/tp-micro/tree/master/cmd/micro)
 
 

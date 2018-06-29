@@ -301,6 +301,33 @@ OPTIONS:
 
 example: `micro run -x .yaml -p myapp` or `micro run`
 
+### Add model
+
+Add mysql model struct code to project template.
+
+`micro tpl` command help:
+
+ ```
+ NAME:
+   micro tpl - Add mysql model struct code to project template
+
+USAGE:
+   micro tpl [command options] [arguments...]
+
+OPTIONS:
+   --app_path value, -p value      The path(relative/absolute) of the project
+   --host value                    mysql host ip (default: "localhost")
+   --port value                    mysql host port (default: "3306")
+   --username value, --user value  mysql username (default: "root")
+   --password value, --pwd value   mysql password
+   --db value                      mysql database (default: "test")
+   --table value                   mysql table
+   --ssh_user value                ssh user
+   --ssh_host value                ssh host ip
+   --ssh_port value                ssh host port
+ ```
+
+
 [More Micro Command](https://github.com/xiaoenai/tp-micro/tree/master/cmd/micro)
 
 ## Usage

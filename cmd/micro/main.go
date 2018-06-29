@@ -79,10 +79,10 @@ func main() {
 		},
 	}
 
-	// added mysql model struct code to project template
+	// add mysql model struct code to project template
 	tplCom := cli.Command{
 		Name:  "tpl",
-		Usage: "Added mysql model struct code to project template",
+		Usage: "Add mysql model struct code to project template",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "app_path, p",
