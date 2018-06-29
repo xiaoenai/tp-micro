@@ -19,13 +19,13 @@ import (
 
 const (
 	// API_PULL_ROUTER name of the interface used to register the pull route in the template
-	API_PULL_ROUTER = "__API__PULL__"
+	API_PULL_ROUTER = "__API_PULL__"
 	// API_PUSH_ROUTER name of the interface used to register the push route in the template
-	API_PUSH_ROUTER = "__API__PUSH__"
+	API_PUSH_ROUTER = "__API_PUSH__"
 	// MYSQL_MODEL name of the struct used to create mysql model
-	MYSQL_MODEL = "__MYSQL__MODEL__"
+	MYSQL_MODEL = "__MYSQL_MODEL__"
 	// MONGO_MODEL name of the struct used to create mongo model
-	MONGO_MODEL = "__MONGO__MODEL__"
+	MONGO_MODEL = "__MONGO_MODEL__"
 )
 
 const (
@@ -38,6 +38,7 @@ type (
 		src               []byte
 		fileSet           *token.FileSet
 		astFile           *ast.File
+		doc               string
 		pullRouter        *router
 		pushRouter        *router
 		models            *models
@@ -86,9 +87,11 @@ type (
 		comment   string
 	}
 	aliasType struct {
-		doc  string
-		name string
-		text string
+		doc         string
+		name        string
+		text        string
+		rawTypeName string
+		rawStruct   *structType
 	}
 )
 
@@ -102,6 +105,7 @@ func newTplInfo(tplBytes []byte) *tplInfo {
 		src:               tplBytes,
 		fileSet:           fset,
 		astFile:           file,
+		doc:               addSlash(file.Doc.Text()),
 		pullRouter:        &router{typ: pullType},
 		pushRouter:        &router{typ: pushType},
 		models:            new(models),
@@ -253,12 +257,31 @@ func (t *tplInfo) lookupAliasType(name string) (*aliasType, bool) {
 	return nil, false
 }
 
+func (t *tplInfo) lookupStructType(name string) (*structType, bool) {
+	s, ok := t.realStructTypeMap[name]
+	return s, ok
+}
+
 func (t *tplInfo) hasType(name string) bool {
-	_, ok := t.realStructTypeMap[name]
+	_, ok := t.lookupStructType(name)
 	if !ok {
 		_, ok = t.lookupAliasType(name)
 	}
 	return ok
+}
+
+func (t *tplInfo) lookupTypeFields(name string) ([]*field, bool) {
+	s, ok := t.lookupStructType(name)
+	if ok {
+		return s.fields, true
+	}
+	a, ok := t.lookupAliasType(name)
+	if ok {
+		if a.rawStruct != nil {
+			return a.rawStruct.fields, true
+		}
+	}
+	return nil, false
 }
 
 func (t *tplInfo) collectAliasTypes() {
@@ -306,8 +329,10 @@ func (t *tplInfo) collectAliasTypes() {
 				doc:  addSlash(doc),
 				text: t.getCodeBlock(spec),
 			}
+			a.rawTypeName = a.text[strings.LastIndex(strings.TrimSpace(strings.Split(a.text, "//")[0]), " ")+1:]
+			a.rawStruct = t.realStructTypeMap[strings.TrimLeft(a.rawTypeName, "*")]
 			if a.doc == "" {
-				a.doc = fmt.Sprintf("// %s alias of type %s\n", a.name, a.text[strings.LastIndex(a.text, " ")+1:])
+				a.doc = fmt.Sprintf("// %s alias of type %s\n", a.name, a.rawTypeName)
 			}
 			t.aliasTypes = append(
 				t.aliasTypes,

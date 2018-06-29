@@ -114,7 +114,7 @@ func rewatch() {
 				tp.Printf("%s", e.String())
 				watcher.Close()
 				if strings.HasSuffix(e.Name, create.MicroTpl) {
-					create.CreateProject()
+					create.CreateProject(false, false)
 				}
 				go rewatch()
 				return

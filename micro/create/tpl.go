@@ -1,5 +1,98 @@
 package create
 
+const __tpl__ = `// Command __PROJ_NAME__ is the tp-micro service project.
+// The framework reference: https://github.com/xiaoenai/tp-micro
+package __TPL__
+
+// __API_PULL__ register PULL router
+type __API_PULL__ interface {
+	// Home handler
+	Home(*struct{}) *HomeResult
+	// Math controller
+	Math
+}
+
+// __API_PUSH__ register PUSH router:
+//  /stat
+type __API_PUSH__ interface {
+	Stat(*StatArg)
+}
+
+// __MYSQL_MODEL__ create mysql model
+type __MYSQL_MODEL__ struct {
+	User
+	Log
+	Device
+}
+
+// __MONGO_MODEL__ create mongodb model
+type __MONGO_MODEL__ struct {
+	Meta
+}
+
+// Math controller
+type Math interface {
+	// Divide handler
+	Divide(*DivideArg) *DivideResult
+}
+
+// HomeResult home result
+type HomeResult struct {
+	Content string // text
+}
+
+type (
+	// DivideArg divide api arg
+	DivideArg struct {
+		// dividend
+		A float64
+		// divisor
+		B float64 ` + "`param:\"<range: 0.01:100000>\"`" + `
+	}
+	// DivideResult divide api result
+	DivideResult struct {
+		// quotient
+		C float64
+	}
+)
+
+// StatArg stat handler arg
+type StatArg struct {
+	Ts int64 // timestamps
+}
+
+// User user info
+type User struct {
+	Id   int64  ` + "`key:\"pri\"`" + `
+	Name string ` + "`key:\"uni\"`" + `
+	Age  int32
+}
+
+type Log struct {
+	Text string
+}
+
+type Device struct {
+	UUID string ` + "`key:\"pri\"`" + `
+}
+
+type Meta struct {
+	Hobby []string
+	Tags  []string
+}
+`
+
+const __readme__ = `# ${PROJ_NAME}
+
+${readme}
+
+<br>
+
+*This is a project created by ` + "`micro gen`" + ` command.*
+
+*[About Micro Command](https://github.com/xiaoenai/tp-micro/tree/master/cmd/micro)*
+`
+
 var tplFiles = map[string]string{
 	"main.go": `package main
 
@@ -800,11 +893,11 @@ func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) 
 func Get{{.Name}}ByWhere(query mongo.M) (*{{.Name}}, bool, error) {
 	_{{.LowerFirstLetter}} := &{{.Name}}{}
 	err := {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
-		return col.Find(query).One(_e)
+		return col.Find(query).One(_{{.LowerFirstLetter}})
 	})
 	switch err {
 	case nil:
-		return _e, true, nil
+		return _{{.LowerFirstLetter}}, true, nil
 	case mongo.ErrNotFound:
 		return nil, false, nil
 	default:

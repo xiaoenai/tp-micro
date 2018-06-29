@@ -1,29 +1,29 @@
 // package __TPL__ is the project template
 package __TPL__
 
-// __API__PULL__ register PULL router:
+// __API_PULL__ register PULL router:
 //  /home
 //  /math/divide
-type __API__PULL__ interface {
+type __API_PULL__ interface {
 	Home(*struct{}) *HomeResult
 	Math
 }
 
-// __API__PUSH__ register PUSH router:
+// __API_PUSH__ register PUSH router:
 //  /stat
-type __API__PUSH__ interface {
+type __API_PUSH__ interface {
 	Stat(*StatArg)
 }
 
-// __MYSQL__MODEL__ create mysql model
-type __MYSQL__MODEL__ struct {
+// __MYSQL_MODEL__ create mysql model
+type __MYSQL_MODEL__ struct {
 	User
 	Log
 	Device
 }
 
-// __MONGO__MODEL__ create mongodb model
-type __MONGO__MODEL__ struct {
+// __MONGO_MODEL__ create mongodb model
+type __MONGO_MODEL__ struct {
 	Meta
 }
 

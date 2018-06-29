@@ -2,16 +2,19 @@ package create
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"go/format"
 	"html/template"
 	"os"
 	"path"
+	"regexp"
+	"strconv"
 	"strings"
+	"unsafe"
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create/tpl"
 	"github.com/xiaoenai/tp-micro/micro/info"
 )
 
@@ -83,7 +86,18 @@ func mustMkdirAll(dir string) {
 	}
 }
 
-func (p *Project) Generator() {
+func hasGenSuffix(name string) bool {
+	switch name {
+	case "README.md", ".gitignore", "main.go", "config.go", "args/const.go",
+		"args/var.go", "args/type.go", "api/handler.go", "api/router.go",
+		"sdk/rpc.go", "sdk/rpc_test.go", "logic/model/init.go":
+		return false
+	default:
+		return true
+	}
+}
+
+func (p *Project) Generator(force, newdoc bool) {
 	p.gen()
 	// make all directorys
 	mustMkdirAll("args")
@@ -91,22 +105,24 @@ func (p *Project) Generator() {
 	mustMkdirAll("logic/model")
 	mustMkdirAll("sdk")
 	// write files
-	notFirst := goutil.FileExists(microGenLock)
-	if !notFirst {
-		tpl.RestoreAsset("./", microGenLock)
-	}
 	for k, v := range p.codeFiles {
-		if notFirst && (k == "main.go" || k == "config.go" || k == "logic/model/init.go") {
+		if !force && !hasGenSuffix(k) {
 			continue
 		}
+		realName := info.ProjPath() + "/" + k
 		f, err := os.OpenFile(k, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		if err != nil {
-			tp.Fatalf("[micro] Create files error: %v", err)
+			tp.Fatalf("[micro] create %s error: %v", realName, err)
 		}
 		b := formatSource(goutil.StringToBytes(v))
 		f.Write(b)
 		f.Close()
-		fmt.Printf("generate %s\n", info.ProjPath()+"/"+k)
+		fmt.Printf("generate %s\n", realName)
+	}
+
+	// gen and write README.md
+	if newdoc {
+		p.genAndWriteReadmeFile()
 	}
 }
 
@@ -120,6 +136,132 @@ func (p *Project) gen() {
 	p.genLogicFile()
 	p.genSdkFile()
 	p.genModelFile()
+}
+
+func (p *Project) genAndWriteReadmeFile() {
+	f, err := os.OpenFile("./README.md", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		tp.Fatalf("[micro] create README.md error: %v", err)
+	}
+	f.WriteString(p.genReadme())
+	f.Close()
+	fmt.Printf("generate %s\n", info.ProjPath()+"/README.md")
+}
+
+func commentToHtml(txt string) string {
+	return strings.TrimLeft(strings.Replace(txt, "// ", "<br>", -1), "<br>")
+}
+
+func (p *Project) genReadme() string {
+	var text string
+	text += commentToHtml(p.tplInfo.doc)
+	text += "\n"
+	text += "## API Desc\n\n"
+	for _, h := range p.tplInfo.HandlerList() {
+		text += fmt.Sprintf("### %s\n\n%s\n\n", h.fullName, p.handlerDesc(h))
+	}
+	r := strings.Replace(__readme__, "${PROJ_NAME}", info.ProjName(), -1)
+	r = strings.Replace(r, "${readme}", text, 1)
+	return r
+}
+
+func (p *Project) handlerDesc(h *handler) string {
+	rootGroup := goutil.SnakeString(p.Name)
+	uri := path.Join("/", rootGroup, h.uri)
+	var text string
+	text += commentToHtml(h.doc) + "\n"
+	text += fmt.Sprintf("- URI:\n\t```\n\t%s\n\t```\n", uri)
+
+	var fn = func(name string, txt string) {
+		fields, _ := p.tplInfo.lookupTypeFields(name)
+		if len(fields) == 0 {
+			text += fmt.Sprintf("- %s:\n", txt)
+		} else {
+			text += fmt.Sprintf("- %s:\n", txt)
+			jsonStr := p.fieldsJson(fields)
+			var dst bytes.Buffer
+			json.Indent(&dst, []byte(jsonStr), "\t", "\t")
+			jsonStr = p.replaceCommentJson(dst.String())
+			text += fmt.Sprintf("\t```json\n\t%s\n\t```\n", jsonStr)
+		}
+	}
+
+	fn(h.arg, "REQUEST")
+	fn(h.result, "RESULT")
+
+	return text
+}
+
+var ptrStringRegexp = regexp.MustCompile(`(\$\d+)":.*[,\n]{1}`)
+
+func (p *Project) replaceCommentJson(s string) string {
+	a := ptrStringRegexp.FindAllStringSubmatch(s, -1)
+	for _, ss := range a {
+		sub := strings.Replace(ss[0], ss[1], "", 1)
+		ptr, _ := strconv.Atoi(ss[1][1:])
+		doc := (*field)(unsafe.Pointer(uintptr(ptr))).doc
+		doc = strings.TrimSpace(strings.Replace(doc, "\n//", "", -1))
+		if sub[len(sub)-1] == ',' {
+			s = strings.Replace(s, ss[0], sub+"\t"+doc, 1)
+		} else {
+			s = strings.Replace(s, ss[0], sub[:len(sub)-1]+"\t"+doc+"\n", 1)
+		}
+	}
+	return s
+}
+
+func (p *Project) fieldsJson(fs []*field) string {
+	if len(fs) == 0 {
+		return ""
+	}
+	var text string
+	text += "{"
+	for _, f := range fs {
+		fieldName := f.ModelName
+		if len(fieldName) == 0 {
+			fieldName = goutil.SnakeString(f.Name)
+		}
+		t := strings.Replace(f.Typ, "*", "", -1)
+		var isSlice bool
+		if strings.HasPrefix(t, "[]") {
+			t = strings.TrimPrefix(t, "[]")
+			isSlice = true
+		}
+		v, ok := baseTypeToJsonValue(t)
+		if ok {
+			if isSlice {
+				text += fmt.Sprintf(`"%s$%d":[%s],`, fieldName, uintptr(unsafe.Pointer(f)), v)
+			} else {
+				text += fmt.Sprintf(`"%s$%d":%s,`, fieldName, uintptr(unsafe.Pointer(f)), v)
+			}
+			continue
+		}
+		if ffs, ok := p.tplInfo.lookupTypeFields(t); ok {
+			if isSlice {
+				text += fmt.Sprintf(`"%s":[%s],`, fieldName, p.fieldsJson(ffs))
+			} else {
+				text += fmt.Sprintf(`"%s":%s,`, fieldName, p.fieldsJson(ffs))
+			}
+			continue
+		}
+	}
+	text = strings.TrimRight(text, ",") + "}"
+	return text
+}
+
+func baseTypeToJsonValue(t string) (string, bool) {
+	if t == "bool" {
+		return "false", true
+	} else if t == "string" {
+		return `""`, true
+	} else if strings.HasPrefix(t, "int") {
+		return "-1", true
+	} else if strings.HasPrefix(t, "uint") {
+		return "1", true
+	} else if strings.HasPrefix(t, "float") {
+		return "1.000000", true
+	}
+	return "", false
 }
 
 func (p *Project) genMainFile() {

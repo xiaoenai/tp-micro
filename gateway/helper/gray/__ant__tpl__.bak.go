@@ -1,8 +1,8 @@
 // package __TPL__ is the project template
 package __TPL__
 
-// __API__PULL__ register PULL router:
-type __API__PULL__ interface {
+// __API_PULL__ register PULL router:
+type __API_PULL__ interface {
 	// IsGray check whether the service should use grayscale based on the uid.
 	IsGray(*IsGrayArgs) *IsGrayResult
 	// Get get the rule of gray.

@@ -12,7 +12,6 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create/test"
 	"github.com/xiaoenai/tp-micro/micro/info"
 	"golang.org/x/crypto/ssh"
 )
@@ -71,11 +70,11 @@ func AddTableStructToTpl(cfg ConnConfig) {
 	// read temptale file
 	b, err := ioutil.ReadFile(MicroTpl)
 	if err != nil {
-		b = test.MustAsset(MicroTpl)
+		b = []byte(strings.Replace(__tpl__, "__PROJ_NAME__", info.ProjName(), -1))
 	}
 	b = formatSource(b)
 	b = bytes.Replace(b, []byte{'\r', '\n'}, []byte{'\n'}, -1)
-	p := []byte("\ntype __MYSQL__MODEL__ struct {\n")
+	p := []byte("\ntype __MYSQL_MODEL__ struct {\n")
 	var i, j int
 	i = bytes.Index(b, p)
 	if i == -1 {
@@ -157,6 +156,7 @@ func parseTable(db *sql.DB, tableName string) (tb *structType, hasTimeImport boo
 	if err != nil {
 		return
 	}
+	defer row.Close()
 	tb = new(structType)
 	tb.modelStyle = "mysql"
 	tb.name = goutil.CamelString(tableName)

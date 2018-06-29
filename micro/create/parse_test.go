@@ -1,7 +1,6 @@
 package create
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -12,7 +11,7 @@ import (
 )
 import f "fmt"
 
-type __API__PULL__ interface {
+type __API_PULL__ interface {
 	// Stat doc
 	Stat(X) *struct{}// Stat comment
 	// Math doc
@@ -46,7 +45,7 @@ type (
 	}
 )
 
-type __API__PUSH__ interface {
+type __API_PUSH__ interface {
 	Stat(*StatArg)
 }
 
@@ -55,12 +54,12 @@ type StatArg struct {
 	Ts int64 // timestamps
 }
 
-type __MYSQL__MODEL__ struct {
+type __MYSQL_MODEL__ struct {
 	DivideResult
 	StatArg
 }
 
-type __MONGO__MODEL__ struct {
+type __MONGO_MODEL__ struct {
 	A
 }
 
@@ -91,12 +90,4 @@ func TestParse(t *testing.T) {
 	for _, m := range tInfo.models.mongo {
 		t.Logf("mongo:\n%v", m)
 	}
-}
-
-func jsonString(v interface{}) string {
-	b, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-	return string(b)
 }

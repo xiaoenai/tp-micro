@@ -1,5 +1,70 @@
 # project
 
-This is a project created by `micro gen` command.
+package __TPL__ is the project template
 
-[About Micro Command](https://github.com/xiaoenai/tp-micro/tree/master/cmd/micro)
+## API Desc
+
+### Stat
+
+Stat handler
+
+- URI:
+	```
+	/project/stat
+	```
+- REQUEST:
+	```json
+	{
+		"ts": -1	
+	}
+	```
+- RESULT:
+
+
+### Home
+
+Home handler
+
+- URI:
+	```
+	/project/home
+	```
+- REQUEST:
+- RESULT:
+	```json
+	{
+		"content": ""	
+	}
+	```
+
+
+### Math_Divide
+
+Divide handler
+
+- URI:
+	```
+	/project/math/divide
+	```
+- REQUEST:
+	```json
+	{
+		"a": 1.000000,	// dividend
+		"b": 1.000000	// divisor
+	}
+	```
+- RESULT:
+	```json
+	{
+		"c": 1.000000	// quotient
+	}
+	```
+
+
+
+
+<br>
+
+*This is a project created by `micro gen` command.*
+
+*[About Micro Command](https://github.com/xiaoenai/tp-micro/tree/master/cmd/micro)*
