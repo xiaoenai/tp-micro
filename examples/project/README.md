@@ -15,7 +15,7 @@ Stat handler
 - REQUEST:
 	```json
 	{
-		"ts": -1	
+		"ts": -1	// timestamps
 	}
 	```
 - RESULT:
@@ -33,7 +33,7 @@ Home handler
 - RESULT:
 	```json
 	{
-		"content": ""	
+		"content": ""	// text
 	}
 	```
 

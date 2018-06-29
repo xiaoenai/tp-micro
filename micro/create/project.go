@@ -199,7 +199,11 @@ func (p *Project) replaceCommentJson(s string) string {
 	for _, ss := range a {
 		sub := strings.Replace(ss[0], ss[1], "", 1)
 		ptr, _ := strconv.Atoi(ss[1][1:])
-		doc := (*field)(unsafe.Pointer(uintptr(ptr))).doc
+		f := (*field)(unsafe.Pointer(uintptr(ptr)))
+		doc := f.doc
+		if len(doc) == 0 {
+			doc = f.comment
+		}
 		doc = strings.TrimSpace(strings.Replace(doc, "\n//", "", -1))
 		if sub[len(sub)-1] == ',' {
 			s = strings.Replace(s, ss[0], sub+"\t"+doc, 1)
