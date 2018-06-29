@@ -716,6 +716,26 @@ func Get{{.Name}}DB() *mongo.CacheableDB {
 	return {{.LowerFirstName}}DB
 }
 
+{{range .UniqueFields}}
+// Upsert{{$.Name}}By{{.Name}} update the {{$.Name}} data in database by '{{.ModelName}}' unique key.
+// NOTE:
+//  With cache layer;
+//  _updateFields' members must be db field style (snake format);
+func Upsert{{$.Name}}By{{.Name}}(_{{$.LowerFirstLetter}} *{{$.Name}}, updater mongo.M) error {
+	selector := mongo.M{"{{.ModelName}}": _{{$.LowerFirstLetter}}.{{.Name}}}
+	err := Upsert{{$.Name}}(selector, updater)
+	if err == nil {
+		// Del cache
+		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
+		if err2 != nil {
+			tp.Errorf("DeleteCache -> err:%s", err2)
+		}
+	}
+
+	return err
+}
+{{end}}
+
 // Upsert{{.Name}} insert or update the {{.Name}} data by selector and updater.
 // NOTE:
 //  With cache layer;
