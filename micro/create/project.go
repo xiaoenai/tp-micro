@@ -228,8 +228,12 @@ func (p *Project) fieldsJson(fs []*field) string {
 		t := strings.Replace(f.Typ, "*", "", -1)
 		var isSlice bool
 		if strings.HasPrefix(t, "[]") {
-			t = strings.TrimPrefix(t, "[]")
-			isSlice = true
+			if t == "[]byte" {
+				t = "string"
+			} else {
+				t = strings.TrimPrefix(t, "[]")
+				isSlice = true
+			}
 		}
 		v, ok := baseTypeToJsonValue(t)
 		if ok {
@@ -256,14 +260,14 @@ func (p *Project) fieldsJson(fs []*field) string {
 func baseTypeToJsonValue(t string) (string, bool) {
 	if t == "bool" {
 		return "false", true
-	} else if t == "string" {
+	} else if t == "string" || t == "[]byte" || t == "time.Time" {
 		return `""`, true
-	} else if strings.HasPrefix(t, "int") {
-		return "-1", true
-	} else if strings.HasPrefix(t, "uint") {
-		return "1", true
+	} else if strings.HasPrefix(t, "int") || t == "rune" {
+		return "-0", true
+	} else if strings.HasPrefix(t, "uint") || t == "byte" {
+		return "0", true
 	} else if strings.HasPrefix(t, "float") {
-		return "1.000000", true
+		return "-0.000000", true
 	}
 	return "", false
 }
