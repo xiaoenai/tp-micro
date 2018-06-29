@@ -721,8 +721,11 @@ func Get{{.Name}}DB() *mongo.CacheableDB {
 // NOTE:
 //  With cache layer;
 //  _updateFields' members must be db field style (snake format);
-func Upsert{{$.Name}}By{{.Name}}(_{{$.LowerFirstLetter}} *{{$.Name}}, updater mongo.M) error {
-	selector := mongo.M{"{{.ModelName}}": _{{$.LowerFirstLetter}}.{{.Name}}}
+func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error {
+	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
+		{{.Name}}: {{.ModelName}},
+	}
+	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}}
 	err := Upsert{{$.Name}}(selector, updater)
 	if err == nil {
 		// Del cache
@@ -749,7 +752,28 @@ func Upsert{{.Name}}(selector, updater mongo.M) error {
 	})
 }
 
-// Get{{.Name}}ByFields query a Ext data from database by WHERE field.
+{{range .UniqueFields}}
+// Get{{$.Name}}By{{.Name}} query a {{$.Name}} data from database by '{{.ModelName}}' condition.
+// NOTE:
+//  Without cache layer;
+//  If @return error!=nil, means the database error.
+func Get{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error) {
+	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
+		{{.Name}}: {{.ModelName}},
+	}
+	exists, err := Get{{$.Name}}ByFields(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
+	if err != nil {
+		return nil, false, err
+	}
+	if !exists {
+		return nil, false, nil
+	}
+
+	return _{{$.LowerFirstLetter}}, true, nil
+}
+{{end}}
+
+// Get{{.Name}}ByFields query a {{.Name}} data from database by WHERE field.
 // NOTE:
 //  Without cache layer;
 //  If @return error!=nil, means the database error.
@@ -769,7 +793,7 @@ func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) 
 	}
 }
 
-// Get{{.Name}}ByWhere query a Ext data from database by WHERE condition.
+// Get{{.Name}}ByWhere query a {{.Name}} data from database by WHERE condition.
 // NOTE:
 //  Without cache layer;
 //  If @return error!=nil, means the database error.
