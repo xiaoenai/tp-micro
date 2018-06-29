@@ -15,7 +15,7 @@ Stat handler
 - REQUEST:
 	```json
 	{
-		"ts": -1	// timestamps
+		"ts": -0	// timestamps
 	}
 	```
 - RESULT:
@@ -49,14 +49,14 @@ Divide handler
 - REQUEST:
 	```json
 	{
-		"a": 1.000000,	// dividend
-		"b": 1.000000	// divisor
+		"a": -0.000000,	// dividend
+		"b": -0.000000	// divisor
 	}
 	```
 - RESULT:
 	```json
 	{
-		"c": 1.000000	// quotient
+		"c": -0.000000	// quotient
 	}
 	```
 
