@@ -8,18 +8,8 @@ gateway:
     tls_key_file: ""
     allow_cross: true
   outer_socket_server:
-    tls_cert_file: ""
-    tls_key_file: ""
-    default_session_age: 0s
-    default_context_age: 0s
-    slow_comet_duration: 0s
-    default_body_codec: ""
-    print_detail: true
-    count_time: true
     network: ""
     listen_address: 0.0.0.0:5020
-    enable_heartbeat: true
-  inner_socket_server:
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s
@@ -28,10 +18,22 @@ gateway:
     default_body_codec: ""
     print_detail: true
     count_time: true
+    enable_heartbeat: true
+  inner_socket_server:
     network: ""
     listen_address: 0.0.0.0:5030
+    tls_cert_file: ""
+    tls_key_file: ""
+    default_session_age: 0s
+    default_context_age: 0s
+    slow_comet_duration: 0s
+    default_body_codec: ""
+    print_detail: true
+    count_time: true
     enable_heartbeat: true
   inner_socket_client:
+    network: ""
+    local_ip: ""
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s
@@ -43,7 +45,6 @@ gateway:
     default_body_codec: ""
     print_detail: false
     count_time: false
-    network: ""
     heartbeat_second: 60
     sess_max_quota: 0
     sess_max_idle_duration: 0s
