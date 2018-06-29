@@ -17,6 +17,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// ConnConfig connection config
 type ConnConfig struct {
 	MysqlConfig
 	Tables  []string
@@ -25,6 +26,21 @@ type ConnConfig struct {
 	SshUser string
 }
 
+// MysqlConfig config
+type MysqlConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Db       string
+}
+
+// ConnString returns the connection string.
+func (c MysqlConfig) ConnString() string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", c.User, c.Password, c.Host, c.Port, c.Db)
+}
+
+// AddTableStructToTpl adds struct to tpl
 func AddTableStructToTpl(cfg ConnConfig) {
 	if len(cfg.Tables) == 0 {
 		return
@@ -38,7 +54,7 @@ func AddTableStructToTpl(cfg ConnConfig) {
 	var db *sql.DB
 	var err error
 	if cfg.SshHost != "" {
-		db, err = NewMysqlDbInSSH(cfg.SshHost+":"+cfg.SshPort, cfg.SshUser, &cfg.MysqlConfig)
+		db, err = newMysqlDbInSSH(cfg.SshHost+":"+cfg.SshPort, cfg.SshUser, &cfg.MysqlConfig)
 	} else {
 		db, err = sql.Open("mysql", cfg.MysqlConfig.ConnString())
 	}
@@ -83,31 +99,27 @@ func AddTableStructToTpl(cfg ConnConfig) {
 	var structString string
 	var m = make(map[string]bool)
 	var appendTimePackage bool
-
 	for _, tabName := range cfg.Tables {
-		table, err := ParseTable(db, &TableConfig{
-			TableName: tabName,
-			fieldsMap: make(map[string]string, 0),
-		})
+		tb, hasTimeImport, err := parseTable(db, tabName)
 		if err != nil {
 			tp.Fatalf("[micro] parse table: %s", err.Error())
 		}
-		name := goutil.CamelString(table.name)
-		if m[name] {
+		if m[tb.name] {
 			continue
 		}
-		m[name] = true
-		field := "\t" + name + "\n"
-		if !strings.Contains(sub, field) {
-			text = text[:j] + field + text[j:]
-			j += len(field)
+		tb.initModel()
+		fieldLine := "\t" + tb.name + "\n"
+		if !strings.Contains(sub, fieldLine) {
+			text = text[:j] + fieldLine + text[j:]
+			j += len(fieldLine)
 		}
-
-		if !strings.Contains(text, "type "+name+" struct {") {
-			structString += "\n" + table.String() + "\n"
-			appendTimePackage = appendTimePackage || table.timeImport
+		if !strings.Contains(text, "type "+tb.name+" struct {") {
+			structString += "\n" + tb.String() + "\n"
+			appendTimePackage = appendTimePackage || hasTimeImport
 		}
+		m[tb.name] = true
 	}
+
 	if len(structString) > 0 {
 		fmt.Printf(
 			"Added mysql model struct code:\n%s",
@@ -140,152 +152,78 @@ func AddTableStructToTpl(cfg ConnConfig) {
 	tp.Infof("Added mysql model struct code to project template!")
 }
 
-//-----------------------------------------------table parser-------------------------------------------------//
-type Table struct {
-	name       string
-	Fields     []string
-	Types      []string
-	Flags      []string
-	timeImport bool
-}
-
-func (t *Table) String() string {
-	buf := strings.Builder{}
-	buf.WriteString("type ")
-	buf.WriteString(goutil.CamelString(t.name) + " ")
-	buf.WriteString("struct { \n")
-	for i := range t.Fields {
-		buf.WriteString(goutil.CamelString(t.Fields[i]))
-		buf.WriteByte(' ')
-		buf.WriteString(t.Types[i])
-		buf.WriteByte(' ')
-		buf.WriteString(t.Flags[i])
-		buf.WriteByte('\n')
+func parseTable(db *sql.DB, tableName string) (tb *structType, hasTimeImport bool, err error) {
+	row, err := db.Query("desc `" + tableName + "`")
+	if err != nil {
+		return
 	}
-	buf.WriteString("}")
-	return buf.String()
-}
+	tb = new(structType)
+	tb.modelStyle = "mysql"
+	tb.name = goutil.CamelString(tableName)
+	var updatedAt, createdAt, deletedTs bool
+	for row.Next() {
+		var (
+			f         = new(field)
+			modelType string
+			key       string
+			discard   interface{}
+		)
+		if err = row.Scan(&f.ModelName, &modelType, &discard, &key, &discard, &discard); err != nil {
+			return
+		}
+		if containsAny(modelType, "bigint", "timestamp") {
+			f.Typ = "int64"
+		} else if containsAny(modelType, "tinyint(1)") {
+			f.Typ = "bool"
+		} else if containsAny(modelType, "int") {
+			f.Typ = "int32"
+		} else if containsAny(modelType, "float", "double") {
+			f.Typ = "float64"
+		} else if containsAny(modelType, "char", "text", "decimal") {
+			f.Typ = "string"
+		} else if containsAny(modelType, "time", "date", "year") {
+			f.Typ = "time.Time"
+			hasTimeImport = true
+		} else {
+			f.Typ = "[]byte"
+		}
+		switch k := strings.ToLower(key); k {
+		case "pri", "uni":
+			f.tag = fmt.Sprintf("`json:\"%s\" key:\"%s\"`", f.ModelName, key)
+		default:
+			f.tag = fmt.Sprintf("`json:\"%s\"`", f.ModelName)
+		}
+		f.Name = goutil.CamelString(f.ModelName)
+		tb.fields = append(tb.fields, f)
 
-// func (t *Table) InsertAllStr() string {
-// 	buf := strings.Builder{}
-// 	buf.WriteString("INSERT INTO ")
-// 	buf.WriteString(t.name + " (`")
-// 	buf.WriteString(strings.Join(t.Fields, "`, `"))
-// 	buf.WriteString("`) VALUES (:")
-// 	buf.WriteString(strings.Join(t.Fields, ", :"))
-// 	buf.WriteString(");")
-// 	return buf.String()
-// }
-
-// func (t *Table) SelectAllByWhereStr() string {
-// 	buf := strings.Builder{}
-// 	buf.WriteString("SELECT `")
-// 	buf.WriteString(strings.Join(t.Fields, "`, `"))
-// 	buf.WriteString("` FROM " + t.name)
-// 	buf.WriteString(" WHERE ")
-// 	return buf.String()
-
-// }
-// func (t *Table) UpdateAllStr() string {
-// 	buf := strings.Builder{}
-// 	buf.WriteString("UPDATE " + t.name + " SET ")
-// 	for i, v := range t.Fields {
-// 		buf.WriteString(" `" + v + "`=:" + v)
-// 		if i != len(t.Fields)-1 {
-// 			buf.WriteString(", ")
-// 		}
-// 	}
-// 	buf.WriteString(" WHERE ")
-// 	return buf.String()
-// }
-
-type TableConfig struct {
-	TableName string
-	fieldsMap map[string]string
-}
-
-func (c *TableConfig) AddFieldsMap(k, v string) *TableConfig {
-	c.fieldsMap[k] = c.fieldsMap[v]
-	return c
-}
-
-func (c *TableConfig) MergeFieldsMap(m map[string]string) {
-	for k, v := range m {
-		c.fieldsMap[k] = v
+		updatedAt = updatedAt || isDefaultField(f, "UpdatedAt", "int64")
+		createdAt = createdAt || isDefaultField(f, "CreatedAt", "int64")
+		deletedTs = deletedTs || isDefaultField(f, "DeletedTs", "int64")
 	}
+	if !(updatedAt && createdAt && deletedTs) {
+		tp.Warnf("Generated struct fields is not in conformity with the table fields: %s", tableName)
+	}
+	newTabName := goutil.SnakeString(tb.name)
+	if newTabName != tableName {
+		tp.Warnf("Generated table name is not in conformity with the table name: new: %s, raw: %s", newTabName, tableName)
+	}
+	return
 }
 
-func (c *TableConfig) FieldsContains(v string) bool {
-	if _, ok := c.fieldsMap[v]; ok {
-		return true
+func isDefaultField(f *field, fieldName string, fieldType string) bool {
+	return f.Name == fieldName && f.Typ == fieldType
+}
+
+func containsAny(s string, substr ...string) bool {
+	for _, sub := range substr {
+		if strings.Contains(s, sub) {
+			return true
+		}
 	}
 	return false
 }
 
-func (c *TableConfig) Fields(v string) string {
-	if k, ok := c.fieldsMap[v]; ok {
-		return k
-	}
-	return "interface{}"
-}
-
-func NewTableConfig(table string) *TableConfig {
-	return &TableConfig{TableName: table}
-}
-
-func ParseTable(db *sql.DB, cfg *TableConfig) (*Table, error) {
-	tb := new(Table)
-	row, err := db.Query("desc `" + cfg.TableName + "`")
-	if err != nil {
-		return nil, err
-	}
-	tb.name = cfg.TableName
-	for row.Next() {
-		var Field, Type string
-		var tmp interface{}
-		if err := row.Scan(&Field, &Type, &tmp, &tmp, &tmp, &tmp); err != nil {
-			return nil, err
-		}
-		f := Field
-		tb.Fields = append(tb.Fields, f)
-		var t string
-		if cfg.FieldsContains(Type) {
-			t = cfg.Fields(Type)
-		} else if strings.Contains(Type, "bigint") {
-			t = "int64"
-		} else if strings.Contains(Type, "tinyint(1)") {
-			t = "bool"
-		} else if strings.Contains(Type, "int") {
-			t = "int32"
-		} else if strings.Contains(Type, "char") {
-			t = "string"
-		} else if strings.Contains(Type, "datetime") {
-			t = "time.Time"
-			tb.timeImport = true
-		} else {
-			t = "interface{}"
-		}
-		tb.Types = append(tb.Types, t)
-		g := " `json:\"" + Field + "\"`"
-		tb.Flags = append(tb.Flags, g)
-	}
-	return tb, nil
-}
-
-//-----------------------------------------------ssh driver-------------------------------------------------//
-type MysqlConfig struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	Db       string
-}
-
-func (c MysqlConfig) ConnString() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", c.User, c.Password, c.Host, c.Port, c.Db)
-}
-
-func PublicKeyFile(file string) ssh.AuthMethod {
+func publicKeyFile(file string) ssh.AuthMethod {
 	buffer, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil
@@ -298,31 +236,31 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 	return ssh.PublicKeys(key)
 }
 
-func SshConfig(user string) *ssh.ClientConfig {
+func sshConfig(user string) *ssh.ClientConfig {
 	sshConfig := &ssh.ClientConfig{
 		User: user,
 		Auth: []ssh.AuthMethod{
-			PublicKeyFile(os.Getenv("HOME") + "/.ssh/id_rsa"),
+			publicKeyFile(os.Getenv("HOME") + "/.ssh/id_rsa"),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	return sshConfig
 }
 
-type ViaSSHDialer struct {
+type viaSSHDialer struct {
 	client *ssh.Client
 }
 
-func (self *ViaSSHDialer) Dial(addr string) (net.Conn, error) {
+func (self *viaSSHDialer) Dial(addr string) (net.Conn, error) {
 	return self.client.Dial("tcp", addr)
 }
 
-func NewMysqlDbInSSH(host, user string, cfg *MysqlConfig) (*sql.DB, error) {
-	sshcon, err := ssh.Dial("tcp", host, SshConfig(user))
+func newMysqlDbInSSH(host, user string, cfg *MysqlConfig) (*sql.DB, error) {
+	sshcon, err := ssh.Dial("tcp", host, sshConfig(user))
 	if err != nil {
 		return nil, err
 	}
-	mysql.RegisterDial("tcp", (&ViaSSHDialer{sshcon}).Dial)
+	mysql.RegisterDial("tcp", (&viaSSHDialer{sshcon}).Dial)
 
 	db, err := sql.Open("mysql", cfg.ConnString())
 	if err != nil {
