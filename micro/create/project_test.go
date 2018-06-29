@@ -11,8 +11,6 @@ func TestGenerator(t *testing.T) {
 	info.Init("test")
 	proj := NewProject([]byte(src))
 	proj.gen()
-	t.Logf("main.go:\n%s", tplFiles["main.go"])
-	t.Logf("config.go:\n%s", proj.codeFiles["config.go"])
 	t.Logf("main.go:\n%s", proj.codeFiles["main.go"])
 	t.Logf("config.go:\n%s", proj.codeFiles["config.go"])
 	t.Logf("args/type.gen.go:\n%s", proj.codeFiles["args/type.gen.go"])
