@@ -655,40 +655,39 @@ func main() {
 - SetPacketSizeLimit 设置包大小的上限，
     如果 maxSize<=0，上限默认为最大 uint32
 
-        ```go
-        func SetPacketSizeLimit(maxPacketSize uint32)
-        ```
+```go
+func SetPacketSizeLimit(maxPacketSize uint32)
+```
 
 - SetSocketKeepAlive 是否允许操作系统的发送TCP的keepalive探测包
 
-        ```go
-        func SetSocketKeepAlive(keepalive bool)
-        ```
-
+```go
+func SetSocketKeepAlive(keepalive bool)
+```
 
 - SetSocketKeepAlivePeriod 设置操作系统的TCP发送keepalive探测包的频度
 
-        ```go
-        func SetSocketKeepAlivePeriod(d time.Duration)
-        ```
+```go
+func SetSocketKeepAlivePeriod(d time.Duration)
+```
 
 - SetSocketNoDelay 是否禁用Nagle算法，禁用后将不在合并较小数据包进行批量发送，默认为禁用
 
-        ```go
-        func SetSocketNoDelay(_noDelay bool)
-        ```
+```go
+func SetSocketNoDelay(_noDelay bool)
+```
 
 - SetSocketReadBuffer 设置操作系统的TCP读缓存区的大小
 
-        ```go
-        func SetSocketReadBuffer(bytes int)
-        ```
+```go
+func SetSocketReadBuffer(bytes int)
+```
 
 - SetSocketWriteBuffer 设置操作系统的TCP写缓存区的大小
 
-        ```go
-        func SetSocketWriteBuffer(bytes int)
-        ```
+```go
+func SetSocketWriteBuffer(bytes int)
+```
 
 [More Usage](https://github.com/henrylee2cn/teleport)
 
