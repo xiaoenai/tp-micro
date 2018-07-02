@@ -653,45 +653,45 @@ func main() {
 - SetPacketSizeLimit sets max packet size.
   If maxSize<=0, set it to max uint32.
 
-    ```go
-    func SetPacketSizeLimit(maxPacketSize uint32)
-    ```
+```go
+func SetPacketSizeLimit(maxPacketSize uint32)
+```
 
 - SetSocketKeepAlive sets whether the operating system should send
   keepalive messages on the connection.
 
-    ```go
-    func SetSocketKeepAlive(keepalive bool)
-    ```
+```go
+func SetSocketKeepAlive(keepalive bool)
+```
 
 - SetSocketKeepAlivePeriod sets period between keep alives.
 
-    ```go
-    func SetSocketKeepAlivePeriod(d time.Duration)
-    ```
+```go
+func SetSocketKeepAlivePeriod(d time.Duration)
+```
 
 - SetSocketNoDelay controls whether the operating system should delay
   packet transmission in hopes of sending fewer packets (Nagle's
   algorithm).  The default is true (no delay), meaning that data is
   sent as soon as possible after a Write.
 
-    ```go
-    func SetSocketNoDelay(_noDelay bool)
-    ```
+```go
+func SetSocketNoDelay(_noDelay bool)
+```
 
 - SetSocketReadBuffer sets the size of the operating system's
   receive buffer associated with the connection.
 
-    ```go
-    func SetSocketReadBuffer(bytes int)
-    ```
+```go
+func SetSocketReadBuffer(bytes int)
+```
 
 - SetSocketWriteBuffer sets the size of the operating system's
   transmit buffer associated with the connection.
 
-    ```go
-    func SetSocketWriteBuffer(bytes int)
-    ```
+```go
+func SetSocketWriteBuffer(bytes int)
+```
 
 [More Usage](https://github.com/henrylee2cn/teleport)
 
