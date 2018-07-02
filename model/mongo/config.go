@@ -9,7 +9,7 @@ import (
 
 // Config mongodb setting
 type Config struct {
-	Addrs    []string      `yaml:"addres"`
+	Addrs    []string      `yaml:"addrs"`
 	Timeout  time.Duration `yaml:"timeout"`
 	Database string        `yaml:"database"`
 	// Username and Password inform the credentials for the initial authentication
