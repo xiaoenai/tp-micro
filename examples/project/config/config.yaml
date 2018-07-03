@@ -28,7 +28,7 @@ project:
     conn_max_lifetime: 0
     no_cache: false
   mongo:
-    addres: []
+    addrs: []
     timeout: 0s
     database: ""
     username: ""

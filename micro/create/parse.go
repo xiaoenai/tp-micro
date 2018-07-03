@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/henrylee2cn/goutil"
-
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/tp-micro/micro/create/structtag"
 )
