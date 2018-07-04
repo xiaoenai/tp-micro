@@ -28,7 +28,7 @@ type cfg struct {
 }
 
 var (
-	rerrEtcdError = micro.RerrServerError.Copy().SetMessage("Etcd Error")
+	rerrEtcdError = micro.RerrInternalServerError.Copy().SetMessage("Etcd Error")
 	rerrNotFound  = micro.RerrNotFound.Copy().SetDetail("Config is not exist")
 )
 

@@ -76,7 +76,7 @@ func getSalt(m goutil.Map) (uint64, bool) {
 	return 0, false
 }
 
-var rerrServerError = micro.RerrServerError.Copy().SetDetail("Agent Error")
+var rerrServerError = micro.RerrInternalServerError.Copy().SetDetail("Agent Error")
 
 func newServerRerror(detail string) *tp.Rerror {
 	return rerrServerError.Copy().SetDetail(detail)

@@ -8,8 +8,8 @@ var (
 	RerrClientClosed = tp.NewRerror(100, "client is closed", "")
 	// RerrInvalidParameter: Invalid Parameter
 	RerrInvalidParameter = tp.NewRerror(tp.CodeBadPacket, "Invalid Parameter", "")
-	// RerrServerError: System is busy, please try again later
-	RerrServerError = tp.NewRerror(tp.CodeInternalServerError, "System is busy, please try again later", "")
+	// RerrInternalServerError: System is busy, please try again later
+	RerrInternalServerError = tp.NewRerror(tp.CodeInternalServerError, "System is busy, please try again later", "")
 	// RerrNotFound: Not Found
 	RerrNotFound = tp.NewRerror(tp.CodeNotFound, "Not Found", "")
 	// RerrNotOnline: User is not online
