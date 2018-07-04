@@ -5,9 +5,9 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
+	micro "github.com/xiaoenai/tp-micro"
 
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic/model"
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray/rerrs"
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
 )
 
@@ -23,7 +23,7 @@ var (
 func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Rerror) {
 	g, exist, err := model.GetGrayMatchByUri(args.Uri)
 	if err != nil {
-		return nil, rerrs.RerrServerError.Copy().SetDetail(err.Error())
+		return nil, micro.RerrServerError.Copy().SetDetail(err.Error())
 	}
 	if !exist {
 		return notGrayResult, nil
@@ -33,7 +33,7 @@ func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Rerror) {
 	if !ok {
 		re, err = regexp.Compile(g.Regexp)
 		if err != nil {
-			return nil, rerrs.RerrServerError.Copy().SetDetail(err.Error())
+			return nil, micro.RerrServerError.Copy().SetDetail(err.Error())
 		}
 		regexpCache.Store(g.Regexp, re)
 	} else {
@@ -49,10 +49,10 @@ func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Rerror) {
 func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Rerror) {
 	g, exist, err := model.GetGrayMatchByUri(args.Uri)
 	if err != nil {
-		return nil, rerrs.RerrServerError.Copy().SetDetail(err.Error())
+		return nil, micro.RerrServerError.Copy().SetDetail(err.Error())
 	}
 	if !exist {
-		return nil, rerrs.RerrNotFound
+		return nil, micro.RerrNotFound
 	}
 	return g, nil
 }
@@ -61,7 +61,7 @@ func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Rerror) {
 func Delete(args *types.DeleteArgs) (*struct{}, *tp.Rerror) {
 	err := model.DeleteGrayMatchByUri(args.Uri)
 	if err != nil {
-		return nil, rerrs.RerrServerError.Copy().SetDetail(err.Error())
+		return nil, micro.RerrServerError.Copy().SetDetail(err.Error())
 	}
 	return new(struct{}), nil
 }
@@ -72,7 +72,7 @@ func Set(args *types.SetArgs) (*struct{}, *tp.Rerror) {
 	if !ok {
 		re, err := regexp.Compile(args.Regexp)
 		if err != nil {
-			return nil, rerrs.RerrInvalidParameter.Copy().SetDetail(err.Error())
+			return nil, micro.RerrInvalidParameter.Copy().SetDetail(err.Error())
 		}
 		regexpCache.Store(args.Regexp, re)
 	}
@@ -82,7 +82,7 @@ func Set(args *types.SetArgs) (*struct{}, *tp.Rerror) {
 		Regexp: args.Regexp,
 	})
 	if err != nil {
-		return nil, rerrs.RerrServerError.Copy().SetDetail(err.Error())
+		return nil, micro.RerrServerError.Copy().SetDetail(err.Error())
 	}
 	return new(struct{}), nil
 }

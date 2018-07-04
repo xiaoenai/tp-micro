@@ -8,6 +8,7 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/utils"
+	micro "github.com/xiaoenai/tp-micro"
 )
 
 // CtxMeta the metadata method sets of context
@@ -200,7 +201,7 @@ func Render(ctxMeta CtxMeta, tmplName string, data interface{}) ([]byte, *tp.Rer
 	err := t.ExecuteTemplate(buf, tmplName, data)
 	tLocker.RUnlock()
 	if err != nil {
-		return nil, tp.NewRerror(tp.CodeInternalServerError, "Template Rendering Failed", err.Error())
+		return nil, micro.RerrRenderFailed.Copy().SetDetail(err.Error())
 	}
 	return buf.Bytes(), nil
 }

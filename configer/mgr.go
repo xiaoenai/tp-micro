@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	tp "github.com/henrylee2cn/teleport"
+	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 
@@ -26,10 +27,15 @@ type cfg struct {
 	tp.PullCtx
 }
 
+var (
+	rerrEtcdError = micro.RerrServerError.Copy().SetMessage("Etcd Error")
+	rerrNotFound  = micro.RerrNotFound.Copy().SetDetail("Config is not exist")
+)
+
 func (c *cfg) List(*struct{}) ([]string, *tp.Rerror) {
 	resp, err := mgr.etcdClient.Get(context.TODO(), KEY_PREFIX, etcd.WithPrefix())
 	if err != nil {
-		return nil, tp.NewRerror(100500, "Etcd Error", err.Error())
+		return nil, rerrEtcdError.Copy().SetDetail(err.Error())
 	}
 	var r = make([]string, len(resp.Kvs))
 	for i, kv := range resp.Kvs {
@@ -42,10 +48,10 @@ func (c *cfg) Get(*struct{}) (string, *tp.Rerror) {
 	key := c.Query().Get("config-key")
 	resp, err := mgr.etcdClient.Get(context.TODO(), key)
 	if err != nil {
-		return "", tp.NewRerror(100500, "Etcd Error", err.Error())
+		return "", rerrEtcdError.Copy().SetDetail(err.Error())
 	}
 	if len(resp.Kvs) == 0 {
-		return "", tp.NewRerror(100404, "Not Found", "Config is not exist")
+		return "", rerrNotFound
 	}
 	n := new(Node)
 	json.Unmarshal(resp.Kvs[0].Value, n)
@@ -67,7 +73,7 @@ func (c *cfg) Update(cfgKv *ConfigKV) (*struct{}, *tp.Rerror) {
 		Config:      cfgKv.Value,
 	}).String())
 	if err != nil {
-		return nil, tp.NewRerror(100500, "Etcd Error", err.Error())
+		return nil, rerrEtcdError.Copy().SetDetail(err.Error())
 	}
 	return nil, nil
 }

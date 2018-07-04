@@ -182,7 +182,7 @@ func getServiceInfo(value []byte) *ServiceInfo {
 func (l *linker) Select(uriPath string, exclude map[string]struct{}) (string, *tp.Rerror) {
 	iface, exist := l.uriPaths.Load(uriPath)
 	if !exist {
-		return "", micro.NotFoundService
+		return "", micro.RerrNotFound
 	}
 	nodes := iface.(goutil.Map)
 	var addr string
@@ -194,7 +194,7 @@ func (l *linker) Select(uriPath string, exclude map[string]struct{}) (string, *t
 			}
 		}
 	}
-	return "", micro.NotFoundService
+	return "", micro.RerrNotFound
 }
 
 // WatchOffline pushs service node offline notification.

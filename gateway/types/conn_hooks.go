@@ -19,6 +19,7 @@ import (
 	"github.com/henrylee2cn/teleport/plugin"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/valyala/fasthttp"
+	micro "github.com/xiaoenai/tp-micro"
 )
 
 // SocketHooks TCP socket connecting event hooks
@@ -64,14 +65,10 @@ func (d *defSocketHooks) OnLogoff(tp.BaseSession) *tp.Rerror {
 	return nil
 }
 
-var (
-	rerrNotOnline = tp.NewRerror(404, "Not Found", "User is not online")
-)
-
 func (d *defSocketHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror) {
 	sess, ok := peer.GetSession(uid)
 	if !ok {
-		return nil, rerrNotOnline
+		return nil, micro.RerrNotOnline
 	}
 	return sess, nil
 }

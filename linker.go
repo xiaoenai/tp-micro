@@ -18,9 +18,6 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 )
 
-// NotFoundService error: not found service in linker.
-var NotFoundService = tp.NewRerror(tp.CodeNotFound, "Not Found Service", "not found service")
-
 // Linker linker for client.
 type Linker interface {
 	// Select selects a service address by URI path.

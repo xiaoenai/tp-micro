@@ -12,6 +12,7 @@ import (
 	"github.com/henrylee2cn/goutil/coarsetime"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin"
+	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/gateway/client"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
@@ -60,10 +61,6 @@ type agentHandler struct {
 	redisWithPublishCmd  *redis.Client
 }
 
-var (
-	rerrNotOnline = tp.NewRerror(404, "Not Found", "User is not online")
-)
-
 func newSalt(m goutil.Map) uint64 {
 	salt := uint64(uintptr(unsafe.Pointer(&m)))
 	m.Store("agent_salt", salt)
@@ -79,7 +76,7 @@ func getSalt(m goutil.Map) (uint64, bool) {
 	return 0, false
 }
 
-var rerrServerError = tp.NewRerror(500, "System is busy, please try again later", "Agent Error")
+var rerrServerError = micro.RerrServerError.Copy().SetDetail("Agent Error")
 
 func newServerRerror(detail string) *tp.Rerror {
 	return rerrServerError.Copy().SetDetail(detail)
@@ -91,7 +88,7 @@ func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp
 		return sess, nil
 	}
 	enforceKickOffline(sessionId, true)
-	return nil, rerrNotOnline
+	return nil, micro.RerrNotOnline
 }
 
 func (*agentHandler) PreWritePush(tp.WriteCtx) *tp.Rerror {

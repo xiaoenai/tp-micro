@@ -95,6 +95,8 @@ func (c *circuitBreaker) start() {
 	}
 }
 
+var notFoundService = RerrNotFound.Copy().SetDetail("not found service")
+
 func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Rerror) {
 	var (
 		uriPath = getUriPath(uri)
@@ -102,7 +104,7 @@ func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Rerror) {
 		s       *cliSession
 		exclude map[string]struct{}
 		cnt     = c.linker.Len(uriPath)
-		rerr    = NotFoundService
+		rerr    = notFoundService
 	)
 	for i := cnt; i > 0; i-- {
 		addr, rerr = c.linker.Select(uriPath, exclude)
