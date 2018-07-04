@@ -816,28 +816,30 @@ func (r *router) handlerString(ctnFn func(*handler) string) string {
 		ctxField = "tp.PushCtx"
 	}
 	var text string
-	var firstParam = "ctx " + ctxField
-	if len(r.name) > 0 {
-		text = fmt.Sprintf("%stype %s struct{\n%s\n}\n\n", r.doc, r.name, ctxField)
-		firstParam = fmt.Sprintf("%s *%s", firstLowerLetter(r.name), r.name)
-	}
-	var secondParam, resultParam string
-	for _, h := range r.handlers {
-		secondParam = fmt.Sprintf("arg *args.%s", h.arg)
-		resultParam = "*tp.Rerror"
-		if len(h.result) > 0 {
-			resultParam = fmt.Sprintf("(*args.%s,%s)", h.result, resultParam)
-		}
+	if len(r.handlers) > 0 {
+		var firstParam = "ctx " + ctxField
 		if len(r.name) > 0 {
-			text += fmt.Sprintf(
-				"%sfunc(%s)%s(%s)%s{\n%s\n}\n\n",
-				h.doc, firstParam, h.name, secondParam, resultParam, strings.TrimSpace(ctnFn(h)),
-			)
-		} else {
-			text += fmt.Sprintf(
-				"%sfunc %s(%s,%s)%s{\n%s\n}\n\n",
-				h.doc, h.name, firstParam, secondParam, resultParam, strings.TrimSpace(ctnFn(h)),
-			)
+			text = fmt.Sprintf("%stype %s struct{\n%s\n}\n\n", r.doc, r.name, ctxField)
+			firstParam = fmt.Sprintf("%s *%s", firstLowerLetter(r.name), r.name)
+		}
+		var secondParam, resultParam string
+		for _, h := range r.handlers {
+			secondParam = fmt.Sprintf("arg *args.%s", h.arg)
+			resultParam = "*tp.Rerror"
+			if len(h.result) > 0 {
+				resultParam = fmt.Sprintf("(*args.%s,%s)", h.result, resultParam)
+			}
+			if len(r.name) > 0 {
+				text += fmt.Sprintf(
+					"%sfunc(%s)%s(%s)%s{\n%s\n}\n\n",
+					h.doc, firstParam, h.name, secondParam, resultParam, strings.TrimSpace(ctnFn(h)),
+				)
+			} else {
+				text += fmt.Sprintf(
+					"%sfunc %s(%s,%s)%s{\n%s\n}\n\n",
+					h.doc, h.name, firstParam, secondParam, resultParam, strings.TrimSpace(ctnFn(h)),
+				)
+			}
 		}
 	}
 	for _, child := range r.children {
