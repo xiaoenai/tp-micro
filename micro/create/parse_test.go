@@ -74,7 +74,9 @@ type A struct{
 // X A alias
 type X = A
 
-type Y X  
+type Y X
+
+type E struct{}
 `))
 
 func TestParse(t *testing.T) {

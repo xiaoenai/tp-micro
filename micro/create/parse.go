@@ -114,6 +114,11 @@ func newTplInfo(tplBytes []byte) *tplInfo {
 
 func (t *tplInfo) Parse() *tplInfo {
 	t.parseImports()
+	ok := t.hasType(emptyStructType.name)
+	if ok {
+		tp.Fatalf("[micro] Keep structure name cannot be used: %s", emptyStructType.name)
+	}
+	t.aliasTypes = append(t.aliasTypes, emptyStructType)
 	t.collectStructs()
 	t.collectAliasTypes()
 	t.collectIfaces()
@@ -232,6 +237,26 @@ func (t *tplInfo) collectStructs() {
 				continue
 			}
 
+			if len(x.Fields.List) == 0 {
+				switch structName {
+				case MYSQL_MODEL, MONGO_MODEL:
+				default:
+					if goutil.IsExportedName(structName) {
+						a := &aliasType{
+							doc:  addSlash(doc),
+							name: structName,
+							text: fmt.Sprintf("%s = codec.PbEmpty", structName),
+						}
+						a.rawTypeName = a.text[strings.LastIndex(strings.TrimSpace(strings.Split(a.text, "//")[0]), " ")+1:]
+						if a.doc == "" {
+							a.doc = fmt.Sprintf("// %s alias of type %s\n", a.name, a.rawTypeName)
+						}
+						t.aliasTypes = append(t.aliasTypes, a)
+					}
+					return true
+				}
+			}
+
 			t.realStructTypes = append(
 				t.realStructTypes,
 				structType{
@@ -284,11 +309,6 @@ func (t *tplInfo) lookupTypeFields(name string) ([]*field, bool) {
 }
 
 func (t *tplInfo) collectAliasTypes() {
-	ok := t.hasType(emptyStructType.name)
-	if ok {
-		tp.Fatalf("[micro] Keep structure name cannot be used: %s", emptyStructType.name)
-	}
-	t.aliasTypes = append(t.aliasTypes, emptyStructType)
 	collectAliasTypes := func(n ast.Node) bool {
 		decl, ok := n.(ast.Decl)
 		if !ok {
