@@ -252,30 +252,39 @@ func GetRedis() *redis.Client {
 	return redisClient
 }
 
-func insertZeroDeletedTsField(whereCond string)string{
-	whereCond=strings.TrimSpace(whereCond)
-	whereCond=strings.TrimRight(whereCond,";")
-	i:=strings.Index(whereCond,"OFFSET")
-	if i==-1{
-		i=strings.Index(whereCond,"offset")
-		if i==-1{
-			i=strings.Index(whereCond,"Offset")
+func index(s string, sub ...string) int {
+	var i, ii int
+	for _, ss := range sub {
+		ii = strings.Index(s, ss)
+		if ii != -1 && (ii < i || i == -1) {
+			i = ii
 		}
 	}
-	i2:=strings.Index(whereCond,"LIMIT")
-	if i2==-1{
-		i2=strings.Index(whereCond,"limit")
-		if i2==-1{
-			i2=strings.Index(whereCond,"Limit")
-		}
+	return i
+}
+
+func insertZeroDeletedTsField(whereCond string) string {
+	whereCond = strings.TrimSpace(whereCond)
+	whereCond = strings.TrimRight(whereCond, ";")
+	i := index(
+		whereCond,
+		"` + "`" + `deleted_ts` + "`" + `",
+		" deleted_ts",
+	)
+	if i != -1 {
+		return whereCond
 	}
-	if i==-1 || (i>i2 && i2!=-1) {
-		i=i2
+	i = index(
+		whereCond,
+		"ORDER BY", "order by",
+		"GROUP BY", "group by",
+		"OFFSET", "offset",
+		"LIMIT", "limit",
+	)
+	if i == -1 {
+		return whereCond + " AND ` + "`" + `deleted_ts` + "`" + `=0"
 	}
-	if i==-1 {
-		return	whereCond+" ` + "AND `deleted_ts`" + `=0"
-	}
-	return whereCond[:i]+" ` + "AND `deleted_ts`" + `=0 "+whereCond[i:]
+	return whereCond[:i] + " AND ` + "`" + `deleted_ts` + "`" + `=0 " + whereCond[i:]
 }
 `,
 
