@@ -549,7 +549,7 @@ func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields [
 			if query[len(query)-1] != ',' {
 				return nil
 			}
-			query += ` + "\"`updated_at`=:updated_at WHERE {{range .PrimaryFields}}`{{.ModelName}}`:={{.ModelName}} AND {{end}}`deleted_ts`=0 LIMIT 1;\"" + `
+			query += ` + "\"`updated_at`=:updated_at WHERE {{range .PrimaryFields}}`{{.ModelName}}`=:{{.ModelName}} AND {{end}}`deleted_ts`=0 LIMIT 1;\"" + `
 		}
 		_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
 		return err
@@ -588,7 +588,7 @@ func Update{{$.Name}}By{{.Name}}(_{{$.LowerFirstLetter}} *{{$.Name}}, _updateFie
 			if query[len(query)-1] != ',' {
 				return nil
 			}
-			query += ` + "\"`updated_at`=:updated_at WHERE `{{.ModelName}}`:={{.ModelName}} AND `deleted_ts`=0 LIMIT 1;\"" + `
+			query += ` + "\"`updated_at`=:updated_at WHERE `{{.ModelName}}`=:{{.ModelName}} AND `deleted_ts`=0 LIMIT 1;\"" + `
 		}
 		_, err := tx.NamedExec(query, _{{$.LowerFirstLetter}})
 		return err

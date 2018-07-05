@@ -153,7 +153,7 @@ func UpdateDeviceByPrimary(_d *Device, _updateFields []string, tx ...*sqlx.Tx) e
 			if query[len(query)-1] != ',' {
 				return nil
 			}
-			query += "`updated_at`=:updated_at WHERE `uuid`:=uuid AND `deleted_ts`=0 LIMIT 1;"
+			query += "`updated_at`=:updated_at WHERE `uuid`=:uuid AND `deleted_ts`=0 LIMIT 1;"
 		}
 		_, err := tx.NamedExec(query, _d)
 		return err

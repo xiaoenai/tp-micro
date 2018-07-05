@@ -162,7 +162,7 @@ func UpdateLogByPrimary(_l *Log, _updateFields []string, tx ...*sqlx.Tx) error {
 			if query[len(query)-1] != ',' {
 				return nil
 			}
-			query += "`updated_at`=:updated_at WHERE `id`:=id AND `deleted_ts`=0 LIMIT 1;"
+			query += "`updated_at`=:updated_at WHERE `id`=:id AND `deleted_ts`=0 LIMIT 1;"
 		}
 		_, err := tx.NamedExec(query, _l)
 		return err
