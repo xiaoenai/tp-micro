@@ -253,7 +253,7 @@ func (t *tplInfo) collectStructs() {
 						}
 						t.aliasTypes = append(t.aliasTypes, a)
 					}
-					return true
+					continue
 				}
 			}
 
