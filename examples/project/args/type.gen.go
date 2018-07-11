@@ -32,7 +32,7 @@ type DivideResult struct {
 
 // StatArg stat handler arg
 type StatArg struct {
-	Ts int64 `json:"ts"` // timestamps
+	Ts int64 `param:"<query:ts>" json:"ts"` // timestamps
 }
 
 // User user info

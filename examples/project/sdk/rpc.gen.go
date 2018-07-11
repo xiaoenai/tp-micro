@@ -4,6 +4,8 @@
 package sdk
 
 import (
+	"fmt"
+
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
@@ -13,6 +15,7 @@ import (
 	"github.com/xiaoenai/tp-micro/examples/project/args"
 )
 
+var _ = fmt.Sprintf
 var client *micro.Client
 
 // Init initializes client with configs.
@@ -30,7 +33,7 @@ func InitWithClient(cli *micro.Client) {
 
 // Stat handler
 func Stat(arg *args.StatArg, setting ...socket.PacketSetting) *tp.Rerror {
-	return client.Push("/project/stat", arg, setting...)
+	return client.Push(fmt.Sprintf("/project/stat?ts=%v", arg.Ts), arg, setting...)
 }
 
 // Home handler

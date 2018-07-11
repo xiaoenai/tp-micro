@@ -170,7 +170,15 @@ func (p *Project) handlerDesc(h *handler) string {
 	uri := path.Join("/", rootGroup, h.uri)
 	var text string
 	text += commentToHtml(h.doc) + "\n"
-	text += fmt.Sprintf("- URI:\n\t```\n\t%s\n\t```\n", uri)
+	var queryParam string
+	if len(h.queryParams) > 0 {
+		queryParam = "?"
+		for _, param := range h.queryParams {
+			queryParam = fmt.Sprintf("%s%s={%s}&", queryParam, param.queryName, param.queryName)
+		}
+		queryParam = strings.TrimRight(queryParam, "&")
+	}
+	text += fmt.Sprintf("- URI:\n\t```\n\t%s%s\n\t```\n", uri, queryParam)
 
 	var fn = func(name string, txt string) {
 		fields, _ := p.tplInfo.lookupTypeFields(name)
@@ -221,6 +229,9 @@ func (p *Project) fieldsJson(fs []*field) string {
 	var text string
 	text += "{"
 	for _, f := range fs {
+		if f.isQuery {
+			continue
+		}
 		fieldName := f.ModelName
 		if len(fieldName) == 0 {
 			fieldName = goutil.SnakeString(f.Name)
@@ -358,12 +369,24 @@ func (p *Project) genSdkFile() {
 	for _, h := range p.tplInfo.HandlerList() {
 		name := h.fullName
 		uri := path.Join("/", goutil.SnakeString(p.Name), h.uri)
+		if len(h.queryParams) > 0 {
+			uri += "?"
+			var params []string
+			for _, param := range h.queryParams {
+				uri = fmt.Sprintf("%s%s=%%v&", uri, param.queryName)
+				params = append(params, "arg."+param.Name)
+			}
+			uri = strings.TrimRight(uri, "&")
+			uri = fmt.Sprintf(`fmt.Sprintf("%s",%s)`, uri, strings.Join(params, ","))
+		} else {
+			uri = fmt.Sprintf("%q", uri)
+		}
 		switch h.group.typ {
 		case pullType:
 			s1 += fmt.Sprintf(
 				"%sfunc %s(arg *args.%s, setting ...socket.PacketSetting)(*args.%s,*tp.Rerror){\n"+
 					"result := new(args.%s)\n"+
-					"rerr := client.Pull(\"%s\", arg, result, setting...).Rerror()\n"+
+					"rerr := client.Pull(%s, arg, result, setting...).Rerror()\n"+
 					"return result, rerr\n}\n",
 				h.doc, name, h.arg, h.result,
 				h.result,
@@ -379,7 +402,7 @@ func (p *Project) genSdkFile() {
 		case pushType:
 			s1 += fmt.Sprintf(
 				"%sfunc %s(arg *args.%s, setting ...socket.PacketSetting)*tp.Rerror{\n"+
-					"return client.Push(\"%s\", arg, setting...)\n}\n",
+					"return client.Push(%s, arg, setting...)\n}\n",
 				h.doc, name, h.arg,
 				uri,
 			)

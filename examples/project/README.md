@@ -1,6 +1,7 @@
 # project
 
-package __TPL__ is the project template
+Command project is the tp-micro service project.
+<br>The framework reference: https://github.com/xiaoenai/tp-micro
 
 ## API Desc
 
@@ -10,13 +11,11 @@ Stat handler
 
 - URI:
 	```
-	/project/stat
+	/project/stat?ts={ts}
 	```
 - REQUEST:
 	```json
-	{
-		"ts": -0	// timestamps
-	}
+	{}
 	```
 - RESULT:
 

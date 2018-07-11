@@ -9,6 +9,7 @@ import (
 	"go/parser"
 	"go/token"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/henrylee2cn/goutil"
@@ -54,13 +55,14 @@ type (
 		children []*router
 	}
 	handler struct {
-		uri      string
-		group    *router
-		doc      string
-		name     string
-		fullName string
-		arg      string
-		result   string
+		uri         string
+		queryParams []*field
+		group       *router
+		doc         string
+		name        string
+		fullName    string
+		arg         string
+		result      string
 	}
 	models struct {
 		mysql []*structType
@@ -80,6 +82,8 @@ type (
 		Name      string
 		ModelName string
 		Typ       string
+		isQuery   bool
+		queryName string
 		anonymous bool
 		tag       string
 		doc       string
@@ -548,6 +552,10 @@ func (s structType) init(t *tplInfo) *structType {
 		f.comment = addSlash(v.Comment.Text())
 		if v.Tag != nil {
 			f.tag = v.Tag.Value
+			f.queryName, f.isQuery = getQueryField(f.tag)
+			if len(f.queryName) == 0 {
+				f.queryName = goutil.SnakeString(f.Name)
+			}
 		}
 		s.fields = append(s.fields, f)
 	}
@@ -558,6 +566,19 @@ func (s structType) init(t *tplInfo) *structType {
 		s.doc = fmt.Sprintf("// %s comment...\n", s.name)
 	}
 	return &s
+}
+
+var queryRegexp = regexp.MustCompile("<\\s*query\\s*(:[^:]*)?>")
+
+func getQueryField(tag string) (queryName string, isQuery bool) {
+	a := queryRegexp.FindStringSubmatch(tag)
+	if len(a) != 2 {
+		return
+	}
+	isQuery = true
+	queryName = strings.TrimLeft(a[1], ":")
+	queryName = strings.TrimSpace(queryName)
+	return
 }
 
 func (s *structType) rangeTags(fns ...func(tags *structtag.Tags, f *field, anonymous bool) bool) {
@@ -757,6 +778,13 @@ func (t *tplInfo) getHandler(typ int8, f *ast.FuncType) (*handler, error) {
 			return nil, fmt.Errorf("the type of method parameter should be clearly defined")
 		}
 		h.arg = ftype.Name
+		if fields, ok := t.lookupTypeFields(ftype.Name); ok {
+			for _, v := range fields {
+				if v.isQuery {
+					h.queryParams = append(h.queryParams, v)
+				}
+			}
+		}
 	case *ast.StructType:
 		if len(ftype.Fields.List) != 0 {
 			return nil, fmt.Errorf("the type of method parameter should be clearly defined")

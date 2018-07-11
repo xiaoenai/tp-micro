@@ -1,11 +1,12 @@
-// package __TPL__ is the project template
+// Command project is the tp-micro service project.
+// The framework reference: https://github.com/xiaoenai/tp-micro
 package __TPL__
 
-// __API_PULL__ register PULL router:
-//  /home
-//  /math/divide
+// __API_PULL__ register PULL router
 type __API_PULL__ interface {
+	// Home handler
 	Home(*struct{}) *HomeResult
+	// Math controller
 	Math
 }
 
@@ -55,7 +56,7 @@ type (
 
 // StatArg stat handler arg
 type StatArg struct {
-	Ts int64 // timestamps
+	Ts int64 `param:"<query:ts>"` // timestamps
 }
 
 // User user info

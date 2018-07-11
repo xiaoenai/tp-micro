@@ -58,7 +58,7 @@ type (
 
 // StatArg stat handler arg
 type StatArg struct {
-	Ts int64 // timestamps
+	Ts int64 ` + "`param:\"<query:ts>\"`" + ` // timestamps
 }
 
 // User user info
@@ -348,6 +348,8 @@ func Route(_root string, _router *tp.Router) {
 
 	"sdk/rpc.gen.go": `package sdk
 import (
+	"fmt"
+
 	micro "github.com/xiaoenai/tp-micro"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
@@ -356,6 +358,8 @@ import (
 
 	"${import_prefix}/args"
 )
+
+var _ = fmt.Sprintf
 var client *micro.Client
 // Init initializes client with configs.
 func Init(cliConfig micro.CliConfig, etcdConfing etcd.EasyConfig) {
