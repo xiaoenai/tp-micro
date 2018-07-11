@@ -568,7 +568,7 @@ func (s structType) init(t *tplInfo) *structType {
 	return &s
 }
 
-var queryRegexp = regexp.MustCompile("<\\s*query\\s*(:[^:]*)?>")
+var queryRegexp = regexp.MustCompile("<\\s*query\\s*(:[^:>]*)?>")
 
 func getQueryField(tag string) (queryName string, isQuery bool) {
 	a := queryRegexp.FindStringSubmatch(tag)
