@@ -76,10 +76,10 @@ func getSalt(m goutil.Map) (uint64, bool) {
 	return 0, false
 }
 
-var rerrServerError = micro.RerrInternalServerError.Copy().SetDetail("Agent Error")
+var rerrServerError = micro.RerrInternalServerError.Copy().SetReason("Agent Error")
 
 func newServerRerror(detail string) *tp.Rerror {
-	return rerrServerError.Copy().SetDetail(detail)
+	return rerrServerError.Copy().SetReason(detail)
 }
 
 func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp.Rerror) {

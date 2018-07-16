@@ -201,7 +201,7 @@ func Render(ctxMeta CtxMeta, tmplName string, data interface{}) ([]byte, *tp.Rer
 	err := t.ExecuteTemplate(buf, tmplName, data)
 	tLocker.RUnlock()
 	if err != nil {
-		return nil, micro.RerrRenderFailed.Copy().SetDetail(err.Error())
+		return nil, micro.RerrRenderFailed.Copy().SetReason(err.Error())
 	}
 	return buf.Bytes(), nil
 }

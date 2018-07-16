@@ -150,7 +150,7 @@ func (s *Server) SetBindErrorFunc(fn binder.ErrorFunc) {
 		return
 	}
 	s.binder.SetErrorFunc(func(handlerName, paramName, reason string) *tp.Rerror {
-		return RerrInvalidParameter.Copy().SetDetail(
+		return RerrInvalidParameter.Copy().SetReason(
 			fmt.Sprintf(`{"handler": %q, "param": %q, "reason": %q}`, handlerName, paramName, reason),
 		)
 	})

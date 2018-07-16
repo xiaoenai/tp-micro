@@ -74,7 +74,7 @@ func (r *requestHandler) handle() {
 	start := time.Now()
 	defer func() {
 		if p := recover(); p != nil {
-			r.replyError(rerrInternalServerError.Copy().SetDetail(fmt.Sprint(p)))
+			r.replyError(rerrInternalServerError.Copy().SetReason(fmt.Sprint(p)))
 		}
 		r.runlog(start, &label, goutil.BytesToString(query.Peek(SEQ)), bodyBytes, &reply)
 	}()

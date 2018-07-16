@@ -29,13 +29,13 @@ type cfg struct {
 
 var (
 	rerrEtcdError = micro.RerrInternalServerError.Copy().SetMessage("Etcd Error")
-	rerrNotFound  = micro.RerrNotFound.Copy().SetDetail("Config is not exist")
+	rerrNotFound  = micro.RerrNotFound.Copy().SetReason("Config is not exist")
 )
 
 func (c *cfg) List(*struct{}) ([]string, *tp.Rerror) {
 	resp, err := mgr.etcdClient.Get(context.TODO(), KEY_PREFIX, etcd.WithPrefix())
 	if err != nil {
-		return nil, rerrEtcdError.Copy().SetDetail(err.Error())
+		return nil, rerrEtcdError.Copy().SetReason(err.Error())
 	}
 	var r = make([]string, len(resp.Kvs))
 	for i, kv := range resp.Kvs {
@@ -48,7 +48,7 @@ func (c *cfg) Get(*struct{}) (string, *tp.Rerror) {
 	key := c.Query().Get("config-key")
 	resp, err := mgr.etcdClient.Get(context.TODO(), key)
 	if err != nil {
-		return "", rerrEtcdError.Copy().SetDetail(err.Error())
+		return "", rerrEtcdError.Copy().SetReason(err.Error())
 	}
 	if len(resp.Kvs) == 0 {
 		return "", rerrNotFound
@@ -73,7 +73,7 @@ func (c *cfg) Update(cfgKv *ConfigKV) (*struct{}, *tp.Rerror) {
 		Config:      cfgKv.Value,
 	}).String())
 	if err != nil {
-		return nil, rerrEtcdError.Copy().SetDetail(err.Error())
+		return nil, rerrEtcdError.Copy().SetReason(err.Error())
 	}
 	return nil, nil
 }

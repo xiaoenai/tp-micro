@@ -95,7 +95,7 @@ func (c *circuitBreaker) start() {
 	}
 }
 
-var notFoundService = RerrNotFound.Copy().SetDetail("not found service")
+var notFoundService = RerrNotFound.Copy().SetReason("not found service")
 
 func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Rerror) {
 	var (
