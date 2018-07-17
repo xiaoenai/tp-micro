@@ -167,6 +167,21 @@ type Meta struct {
 
 [Generated Default Sample](https://github.com/xiaoenai/tp-micro/tree/master/examples/project)
 
+## Create README.md(only)
+
+`micro newdoc` command help:
+
+```
+NAME:
+   micro newdoc - Generate a tp-micro project README.md
+
+USAGE:
+   micro newdoc [command options] [arguments...]
+
+OPTIONS:
+   --app_path value, -p value  The path(relative/absolute) of the project
+```
+
 ## Run project
 
 `micro run` command help:

@@ -276,6 +276,21 @@ type Meta struct {
 
 [生成的默认示例](https://github.com/xiaoenai/tp-micro/tree/master/examples/project)
 
+### 只创建 README.md
+
+`micro newdoc` command help:
+
+```
+NAME:
+   micro newdoc - Generate a tp-micro project README.md
+
+USAGE:
+   micro newdoc [command options] [arguments...]
+
+OPTIONS:
+   --app_path value, -p value  The path(relative/absolute) of the project
+```
+
 ### 热编译运行
 
 `micro run` 命令帮助：
