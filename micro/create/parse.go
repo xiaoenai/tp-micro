@@ -352,6 +352,8 @@ func (t *tplInfo) collectAliasTypes() {
 				doc:  addSlash(doc),
 				text: t.getCodeBlock(spec),
 			}
+			txtArr := strings.Split(a.text, "\n")
+			a.text = txtArr[len(txtArr)-1]
 			a.rawTypeName = a.text[strings.LastIndex(strings.TrimSpace(strings.Split(a.text, "//")[0]), " ")+1:]
 			a.rawStruct = t.realStructTypeMap[strings.TrimLeft(a.rawTypeName, "*")]
 			if a.doc == "" {
