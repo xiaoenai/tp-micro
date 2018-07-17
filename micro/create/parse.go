@@ -925,9 +925,11 @@ func joinName(a, b string) string {
 	if a == "" {
 		return b
 	}
+	a = strings.ToUpper(a[:1]) + a[1:]
 	if b == "" {
 		return a
 	}
+	b = strings.ToUpper(b[:1]) + b[1:]
 	return a + "_" + b
 }
 
