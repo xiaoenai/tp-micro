@@ -55,3 +55,35 @@ func CreateProject(force, newdoc bool) {
 
 	tp.Infof("Completed code generation!")
 }
+
+// CreateDoc creates a project doc.
+func CreateDoc() {
+	tp.Infof("Generating README.md: %s", info.ProjPath())
+
+	os.MkdirAll(info.AbsPath(), os.FileMode(0755))
+	err := os.Chdir(info.AbsPath())
+	if err != nil {
+		tp.Fatalf("[micro] Jump working directory failed: %v", err)
+	}
+
+	// read temptale file
+	b, err := ioutil.ReadFile(MicroTpl)
+	if err != nil {
+		b = []byte(strings.Replace(__tpl__, "__PROJ_NAME__", info.ProjName(), -1))
+	}
+
+	// new project code
+	proj := NewProject(b)
+	proj.gen()
+	proj.genAndWriteReadmeFile()
+
+	// write template file
+	f, err := os.OpenFile(MicroTpl, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		tp.Fatalf("[micro] Create files error: %v", err)
+	}
+	defer f.Close()
+	f.Write(formatSource(b))
+
+	tp.Infof("Completed README.md generation!")
+}

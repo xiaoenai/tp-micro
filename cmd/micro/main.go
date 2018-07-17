@@ -57,6 +57,23 @@ func main() {
 		},
 	}
 
+	// new a README.md
+	newdocCom := cli.Command{
+		Name:  "newdoc",
+		Usage: "Generate a tp-micro project README.md",
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "app_path, p",
+				Usage: "The path(relative/absolute) of the project",
+			},
+		},
+		Before: initProject,
+		Action: func(c *cli.Context) error {
+			create.CreateDoc()
+			return nil
+		},
+	}
+
 	// run a project
 	runCom := cli.Command{
 		Name:  "run",
@@ -160,7 +177,7 @@ func main() {
 		},
 	}
 
-	app.Commands = []cli.Command{newCom, runCom, tplCom}
+	app.Commands = []cli.Command{newCom, newdocCom, runCom, tplCom}
 	app.Run(os.Args)
 }
 
