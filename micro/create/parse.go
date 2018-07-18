@@ -719,6 +719,9 @@ func (t *tplInfo) collectApis(r *router, i *ast.InterfaceType) bool {
 	for _, f := range i.Methods.List {
 		switch n := f.Type.(type) {
 		case *ast.Ident:
+			if n.Obj == nil {
+				continue
+			}
 			x := n.Obj.Decl.(*ast.TypeSpec)
 			child := new(router)
 			child.name = x.Name.Name
