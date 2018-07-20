@@ -14,7 +14,8 @@ import (
 // MicroTpl template file name
 const MicroTpl = "__tp-micro__tpl__.go"
 
-const microGenLock = "__tp-micro__gen__.lock"
+// MicroGenLock the file is used to markup generated project
+const MicroGenLock = "__tp-micro__gen__.lock"
 
 // CreateProject creates a project.
 func CreateProject(force, newdoc bool) {
@@ -26,7 +27,7 @@ func CreateProject(force, newdoc bool) {
 		tp.Fatalf("[micro] Jump working directory failed: %v", err)
 	}
 
-	force = force || !goutil.FileExists(microGenLock)
+	force = force || !goutil.FileExists(MicroGenLock)
 
 	// creates base files
 	if force {
@@ -51,7 +52,7 @@ func CreateProject(force, newdoc bool) {
 	defer f.Close()
 	f.Write(formatSource(b))
 
-	tpl.RestoreAsset("./", microGenLock)
+	tpl.RestoreAsset("./", MicroGenLock)
 
 	tp.Infof("Completed code generation!")
 }
