@@ -476,7 +476,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .I
 			query = "INSERT INTO {{.NameSql}} ({{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}})VALUES({{range .PrimaryFields}}:{{.ModelName}},{{end}}{{index .QuerySql 1}});"
 		}
 		{{if .IsDefaultPrimary}}r, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
-		if isZeroPrimaryKey {
+		if isZeroPrimaryKey && err==nil {
 			_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}}, err = r.LastInsertId()
 		}
 		{{else}}_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
@@ -527,8 +527,9 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 			query += ` + "\"`updated_at`=VALUES(`updated_at`),`deleted_ts`=0;\"" + `
 		}
 		{{if .IsDefaultPrimary}}r, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
-		if isZeroPrimaryKey {
-			rowsAffected, err := r.RowsAffected()
+		if isZeroPrimaryKey && err==nil {
+			var rowsAffected int64
+			rowsAffected, err = r.RowsAffected()
 			if err == nil && rowsAffected == 1 {
 				_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}}, err = r.LastInsertId()
 			}

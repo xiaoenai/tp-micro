@@ -78,7 +78,7 @@ func InsertUser(_u *User, tx ...*sqlx.Tx) (int64, error) {
 			query = "INSERT INTO `user` (`id`,`name`,`age`,`updated_at`,`created_at`)VALUES(:id,:name,:age,:updated_at,:created_at);"
 		}
 		r, err := tx.NamedExec(query, _u)
-		if isZeroPrimaryKey {
+		if isZeroPrimaryKey && err == nil {
 			_u.Id, err = r.LastInsertId()
 		}
 		return err
@@ -128,8 +128,9 @@ func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) (int64, error)
 			query += "`updated_at`=VALUES(`updated_at`),`deleted_ts`=0;"
 		}
 		r, err := tx.NamedExec(query, _u)
-		if isZeroPrimaryKey {
-			rowsAffected, err := r.RowsAffected()
+		if isZeroPrimaryKey && err == nil {
+			var rowsAffected int64
+			rowsAffected, err = r.RowsAffected()
 			if err == nil && rowsAffected == 1 {
 				_u.Id, err = r.LastInsertId()
 			}

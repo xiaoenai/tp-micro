@@ -78,7 +78,7 @@ func InsertLog(_l *Log, tx ...*sqlx.Tx) (int64, error) {
 			query = "INSERT INTO `log` (`id`,`text`,`updated_at`,`created_at`)VALUES(:id,:text,:updated_at,:created_at);"
 		}
 		r, err := tx.NamedExec(query, _l)
-		if isZeroPrimaryKey {
+		if isZeroPrimaryKey && err == nil {
 			_l.Id, err = r.LastInsertId()
 		}
 		return err
@@ -128,8 +128,9 @@ func UpsertLog(_l *Log, _updateFields []string, tx ...*sqlx.Tx) (int64, error) {
 			query += "`updated_at`=VALUES(`updated_at`),`deleted_ts`=0;"
 		}
 		r, err := tx.NamedExec(query, _l)
-		if isZeroPrimaryKey {
-			rowsAffected, err := r.RowsAffected()
+		if isZeroPrimaryKey && err == nil {
+			var rowsAffected int64
+			rowsAffected, err = r.RowsAffected()
 			if err == nil && rowsAffected == 1 {
 				_l.Id, err = r.LastInsertId()
 			}
