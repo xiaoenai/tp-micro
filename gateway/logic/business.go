@@ -61,7 +61,7 @@ func HttpHooks() types.HttpHooks {
 }
 
 // ProxySelector returns proxy caller by label.
-func ProxySelector(label *proxy.ProxyLabel) proxy.Caller {
+func ProxySelector(label *proxy.ProxyLabel) proxy.Forwarder {
 	return globalBusiness.ProxySelector(label)
 }
 

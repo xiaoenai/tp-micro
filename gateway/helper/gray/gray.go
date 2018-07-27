@@ -48,7 +48,7 @@ func SetGray(
 	grayClient.SetProtoFunc(protoFunc)
 
 	biz.InnerServerPlugins = append(biz.InnerServerPlugins, new(innerServerPlugin))
-	biz.ProxySelector = func(label *proxy.ProxyLabel) proxy.Caller {
+	biz.ProxySelector = func(label *proxy.ProxyLabel) proxy.Forwarder {
 		idx := strings.Index(label.Uri, "?")
 		var uri string
 		if idx != -1 {

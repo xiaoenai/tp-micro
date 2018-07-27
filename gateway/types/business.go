@@ -29,7 +29,7 @@ type Business struct {
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks
 	// ProxySelector returns proxy caller by label.
-	ProxySelector func(*proxy.ProxyLabel) proxy.Caller
+	ProxySelector func(*proxy.ProxyLabel) proxy.Forwarder
 	// InnerServerPlugins inner server plugins
 	InnerServerPlugins []tp.Plugin
 }
@@ -57,8 +57,8 @@ func (biz *Business) Init() {
 }
 
 // DefaultProxySelector creates a new default proxy caller selector.
-func DefaultProxySelector() func(*proxy.ProxyLabel) proxy.Caller {
-	return func(*proxy.ProxyLabel) proxy.Caller {
+func DefaultProxySelector() func(*proxy.ProxyLabel) proxy.Forwarder {
+	return func(*proxy.ProxyLabel) proxy.Forwarder {
 		return client.DynamicClient()
 	}
 }
