@@ -20,7 +20,7 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
-	sess "github.com/henrylee2cn/tp-ext/mod-cliSession"
+	sess "github.com/henrylee2cn/teleport/mixer/clientsession"
 )
 
 const (

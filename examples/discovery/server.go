@@ -28,14 +28,14 @@ func main() {
 	))
 	{
 		group := srv.SubRoute("group")
-		group.RoutePull(new(Home))
+		group.RouteCall(new(Home))
 	}
 	srv.ListenAndServe()
 }
 
 // Home controller
 type Home struct {
-	tp.PullCtx
+	tp.CallCtx
 }
 
 // Test handler

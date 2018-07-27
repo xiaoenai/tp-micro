@@ -43,6 +43,6 @@ func main() {
 			etcdClient,
 		),
 	)
-	srv.RoutePull(configer.PullCtrl())
+	srv.RouteCall(configer.CallCtrl())
 	srv.ListenAndServe()
 }

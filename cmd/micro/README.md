@@ -37,10 +37,10 @@ example: `micro gen -p ./myapp` or default `micro gen myapp`
 // package __TPL__ is the project template
 package __TPL__
 
-// __API_PULL__ register PULL router:
+// __API_CALL__ register CALL router:
 //  /home
 //  /math/divide
-type __API_PULL__ interface {
+type __API_CALL__ interface {
     Home(*struct{}) *HomeResult
     Math
 }
@@ -124,7 +124,7 @@ type Meta struct {
 ├── __tp-micro__tpl__.go
 ├── api
 │   ├── handler.go
-│   ├── pull_handler.gen.go
+│   ├── call_handler.gen.go
 │   ├── push_handler.gen.go
 │   ├── router.gen.go
 │   └── router.go

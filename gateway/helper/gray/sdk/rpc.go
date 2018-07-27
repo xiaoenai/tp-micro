@@ -28,27 +28,27 @@ func InitWithClient(formalClient *micro.Client) {
 // IsGray check whether the service should use grayscale based on the uid.
 func IsGray(args *types.IsGrayArgs, setting ...socket.PacketSetting) (*types.IsGrayResult, *tp.Rerror) {
 	reply := new(types.IsGrayResult)
-	rerr := _formalClient.Pull("/gw/"+gwLogic.ApiVersion()+"/gray/is_gray", args, reply, setting...).Rerror()
+	rerr := _formalClient.Call("/gw/"+gwLogic.ApiVersion()+"/gray/is_gray", args, reply, setting...).Rerror()
 	return reply, rerr
 }
 
 // Get get the rule of gray.
 func Get(args *types.GetArgs, setting ...socket.PacketSetting) (*types.GrayMatch, *tp.Rerror) {
 	reply := new(types.GrayMatch)
-	rerr := _formalClient.Pull("/gw/"+gwLogic.ApiVersion()+"/gray/get", args, reply, setting...).Rerror()
+	rerr := _formalClient.Call("/gw/"+gwLogic.ApiVersion()+"/gray/get", args, reply, setting...).Rerror()
 	return reply, rerr
 }
 
 // Delete delete the rule of gray.
 func Delete(args *types.DeleteArgs, setting ...socket.PacketSetting) (*struct{}, *tp.Rerror) {
 	reply := new(struct{})
-	rerr := _formalClient.Pull("/gw/"+gwLogic.ApiVersion()+"/gray/delete", args, reply, setting...).Rerror()
+	rerr := _formalClient.Call("/gw/"+gwLogic.ApiVersion()+"/gray/delete", args, reply, setting...).Rerror()
 	return reply, rerr
 }
 
 // Set insert or update the regular expression for matching the URI.
 func Set(args *types.SetArgs, setting ...socket.PacketSetting) (*struct{}, *tp.Rerror) {
 	reply := new(struct{})
-	rerr := _formalClient.Pull("/gw/"+gwLogic.ApiVersion()+"/gray/set", args, reply, setting...).Rerror()
+	rerr := _formalClient.Call("/gw/"+gwLogic.ApiVersion()+"/gray/set", args, reply, setting...).Rerror()
 	return reply, rerr
 }

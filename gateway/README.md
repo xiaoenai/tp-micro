@@ -30,7 +30,7 @@ func main() {
 
 - TCP long connection gateway
     * Required authorization
-    * Use the first packet of the connection to carry authorization information:<br>Package type `PULL`, URI `/auth/verify`, BodyType `s`, Body `access token string`
+    * Use the first packet of the connection to carry authorization information:<br>Package type `CALL`, URI `/auth/verify`, BodyType `s`, Body `access token string`
 
 ### RequestID
 

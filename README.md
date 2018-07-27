@@ -57,7 +57,7 @@ type Arg struct {
 
 // P handler
 type P struct {
-    tp.PullCtx
+    tp.CallCtx
 }
 
 // Divide divide API
@@ -69,7 +69,7 @@ func main() {
     srv := micro.NewServer(micro.SrvConfig{
         ListenAddress: ":9090",
     })
-    srv.RoutePull(new(P))
+    srv.RouteCall(new(P))
     srv.ListenAndServe()
 }
 ```
@@ -97,7 +97,7 @@ func main() {
     }
 
     var result int
-    rerr := cli.Pull("/p/divide", &Arg{
+    rerr := cli.Call("/p/divide", &Arg{
         A: 10,
         B: 2,
     }, &result).Rerror()
@@ -105,7 +105,7 @@ func main() {
         tp.Fatalf("%v", rerr)
     }
     tp.Infof("10/2=%d", result)
-    rerr = cli.Pull("/p/divide", &Arg{
+    rerr = cli.Call("/p/divide", &Arg{
         A: 10,
         B: 0,
     }, &result).Rerror()
@@ -149,10 +149,10 @@ example: `micro gen -p ./myapp` or default `micro gen myapp`
 // package __TPL__ is the project template
 package __TPL__
 
-// __API_PULL__ register PULL router:
+// __API_CALL__ register CALL router:
 //  /home
 //  /math/divide
-type __API_PULL__ interface {
+type __API_CALL__ interface {
     Home(*struct{}) *HomeResult
     Math
 }
@@ -236,7 +236,7 @@ type Meta struct {
 ├── __tp-micro__tpl__.go
 ├── api
 │   ├── handler.go
-│   ├── pull_handler.gen.go
+│   ├── call_handler.gen.go
 │   ├── push_handler.gen.go
 │   ├── router.gen.go
 │   └── router.go
@@ -362,11 +362,11 @@ var peer2 = tp.NewPeer(tp.PeerConfig{})
 var sess, err = peer2.Dial("127.0.0.1:8080")
 ```
 
-### Pull-Controller-Struct API template
+### Call-Controller-Struct API template
 
 ```go
 type Aaa struct {
-    tp.PullCtx
+    tp.CallCtx
 }
 func (x *Aaa) XxZz(arg *<T>) (<T>, *tp.Rerror) {
     ...
@@ -377,17 +377,17 @@ func (x *Aaa) XxZz(arg *<T>) (<T>, *tp.Rerror) {
 - register it to root router:
 
 ```go
-// register the pull route: /aaa/xx_zz
-peer.RoutePull(new(Aaa))
+// register the call route: /aaa/xx_zz
+peer.RouteCall(new(Aaa))
 
-// or register the pull route: /xx_zz
-peer.RoutePullFunc((*Aaa).XxZz)
+// or register the call route: /xx_zz
+peer.RouteCallFunc((*Aaa).XxZz)
 ```
 
-### Pull-Handler-Function API template
+### Call-Handler-Function API template
 
 ```go
-func XxZz(ctx tp.PullCtx, arg *<T>) (<T>, *tp.Rerror) {
+func XxZz(ctx tp.CallCtx, arg *<T>) (<T>, *tp.Rerror) {
     ...
     return r, nil
 }
@@ -396,8 +396,8 @@ func XxZz(ctx tp.PullCtx, arg *<T>) (<T>, *tp.Rerror) {
 - register it to root router:
 
 ```go
-// register the pull route: /xx_zz
-peer.RoutePullFunc(XxZz)
+// register the call route: /xx_zz
+peer.RouteCallFunc(XxZz)
 ```
 
 ### Push-Controller-Struct API template
@@ -439,10 +439,10 @@ func YyZz(ctx tp.PushCtx, arg *<T>) *tp.Rerror {
 peer.RoutePushFunc(YyZz)
 ```
 
-### Unknown-Pull-Handler-Function API template
+### Unknown-Call-Handler-Function API template
 
 ```go
-func XxxUnknownPull (ctx tp.UnknownPullCtx) (interface{}, *tp.Rerror) {
+func XxxUnknownCall (ctx tp.UnknownCallCtx) (interface{}, *tp.Rerror) {
     ...
     return r, nil
 }
@@ -451,8 +451,8 @@ func XxxUnknownPull (ctx tp.UnknownPullCtx) (interface{}, *tp.Rerror) {
 - register it to root router:
 
 ```go
-// register the unknown pull route: /*
-peer.SetUnknownPull(XxxUnknownPull)
+// register the unknown call route: /*
+peer.SetUnknownCall(XxxUnknownCall)
 ```
 
 ### Unknown-Push-Handler-Function API template
@@ -493,7 +493,7 @@ func NewIgnoreCase() *ignoreCase {
 type ignoreCase struct{}
 
 var (
-    _ tp.PostReadPullHeaderPlugin = new(ignoreCase)
+    _ tp.PostReadCallHeaderPlugin = new(ignoreCase)
     _ tp.PostReadPushHeaderPlugin = new(ignoreCase)
 )
 
@@ -501,7 +501,7 @@ func (i *ignoreCase) Name() string {
     return "ignoreCase"
 }
 
-func (i *ignoreCase) PostReadPullHeader(ctx tp.ReadCtx) *tp.Rerror {
+func (i *ignoreCase) PostReadCallHeader(ctx tp.ReadCtx) *tp.Rerror {
     // Dynamic transformation path is lowercase
     ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
     return nil
@@ -520,11 +520,11 @@ func (i *ignoreCase) PostReadPushHeader(ctx tp.ReadCtx) *tp.Rerror {
 // add router group
 group := peer.SubRoute("test")
 // register to test group
-group.RoutePull(new(Aaa), NewIgnoreCase())
-peer.RoutePullFunc(XxZz, NewIgnoreCase())
+group.RouteCall(new(Aaa), NewIgnoreCase())
+peer.RouteCallFunc(XxZz, NewIgnoreCase())
 group.RoutePush(new(Bbb))
 peer.RoutePushFunc(YyZz)
-peer.SetUnknownPull(XxxUnknownPull)
+peer.SetUnknownCall(XxxUnknownCall)
 peer.SetUnknownPush(XxxUnknownPush)
 ```
 
@@ -538,7 +538,7 @@ type SrvConfig struct {
     TlsCertFile       string        `yaml:"tls_cert_file"        ini:"tls_cert_file"        comment:"TLS certificate file path"`
     TlsKeyFile        string        `yaml:"tls_key_file"         ini:"tls_key_file"         comment:"TLS key file path"`
     DefaultSessionAge time.Duration `yaml:"default_session_age"  ini:"default_session_age"  comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
-    DefaultContextAge time.Duration `yaml:"default_context_age"  ini:"default_context_age"  comment:"Default PULL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+    DefaultContextAge time.Duration `yaml:"default_context_age"  ini:"default_context_age"  comment:"Default CALL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
     SlowCometDuration time.Duration `yaml:"slow_comet_duration"  ini:"slow_comet_duration"  comment:"Slow operation alarm threshold; ns,µs,ms,s ..."`
     DefaultBodyCodec  string        `yaml:"default_body_codec"   ini:"default_body_codec"   comment:"Default body codec type id"`
     PrintDetail       bool          `yaml:"print_detail"         ini:"print_detail"         comment:"Is print body and metadata or not"`
@@ -553,7 +553,7 @@ type CliConfig struct {
     TlsCertFile         string               `yaml:"tls_cert_file"          ini:"tls_cert_file"          comment:"TLS certificate file path"`
     TlsKeyFile          string               `yaml:"tls_key_file"           ini:"tls_key_file"           comment:"TLS key file path"`
     DefaultSessionAge   time.Duration        `yaml:"default_session_age"    ini:"default_session_age"    comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
-    DefaultContextAge   time.Duration        `yaml:"default_context_age"    ini:"default_context_age"    comment:"Default PULL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+    DefaultContextAge   time.Duration        `yaml:"default_context_age"    ini:"default_context_age"    comment:"Default CALL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
     DefaultDialTimeout  time.Duration        `yaml:"default_dial_timeout"   ini:"default_dial_timeout"   comment:"Default maximum duration for dialing; for client role; ns,µs,ms,s,m,h"`
     RedialTimes         int                  `yaml:"redial_times"           ini:"redial_times"           comment:"The maximum times of attempts to redial, after the connection has been unexpectedly broken; for client role"`
     Failover            int                  `yaml:"failover"               ini:"failover"               comment:"The maximum times of failover"`
@@ -640,7 +640,7 @@ type (
 
 // P handler
 type P struct {
-    tp.PullCtx
+    tp.CallCtx
 }
 
 // Divide divide API
@@ -655,7 +655,7 @@ func main() {
         EnableHeartbeat: true,
     })
     group := srv.SubRoute("/static")
-    group.RoutePull(new(P))
+    group.RouteCall(new(P))
     srv.ListenAndServe()
 }
 ```

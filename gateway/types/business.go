@@ -16,7 +16,7 @@ package types
 
 import (
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/proxy"
 	"github.com/xiaoenai/tp-micro/gateway/client"
 )
 
@@ -29,7 +29,7 @@ type Business struct {
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks
 	// ProxySelector returns proxy caller by label.
-	ProxySelector func(*plugin.ProxyLabel) plugin.Caller
+	ProxySelector func(*proxy.ProxyLabel) proxy.Caller
 	// InnerServerPlugins inner server plugins
 	InnerServerPlugins []tp.Plugin
 }
@@ -57,8 +57,8 @@ func (biz *Business) Init() {
 }
 
 // DefaultProxySelector creates a new default proxy caller selector.
-func DefaultProxySelector() func(*plugin.ProxyLabel) plugin.Caller {
-	return func(*plugin.ProxyLabel) plugin.Caller {
+func DefaultProxySelector() func(*proxy.ProxyLabel) proxy.Caller {
+	return func(*proxy.ProxyLabel) proxy.Caller {
 		return client.DynamicClient()
 	}
 }

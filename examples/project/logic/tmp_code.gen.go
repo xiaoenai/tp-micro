@@ -18,11 +18,11 @@ func Stat(ctx tp.PushCtx, arg *args.StatArg) *tp.Rerror {
 }
 
 // Home handler
-func Home(ctx tp.PullCtx, arg *args.EmptyStruct) (*args.HomeResult, *tp.Rerror) {
+func Home(ctx tp.CallCtx, arg *args.EmptyStruct) (*args.HomeResult, *tp.Rerror) {
 	return new(args.HomeResult), nil
 }
 
 // Divide handler
-func Math_Divide(ctx tp.PullCtx, arg *args.DivideArg) (*args.DivideResult, *tp.Rerror) {
+func Math_Divide(ctx tp.CallCtx, arg *args.DivideArg) (*args.DivideResult, *tp.Rerror) {
 	return new(args.DivideResult), nil
 }

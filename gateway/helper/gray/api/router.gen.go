@@ -17,9 +17,9 @@ func Route(root string, router *tp.Router) {
 
 	// automatically generated router
 
-	// PULL APIs...
-	group.RoutePullFunc(IsGray)
-	group.RoutePullFunc(Get)
-	group.RoutePullFunc(Delete)
-	group.RoutePullFunc(Set)
+	// CALL APIs...
+	group.RouteCallFunc(IsGray)
+	group.RouteCallFunc(Get)
+	group.RouteCallFunc(Delete)
+	group.RouteCallFunc(Set)
 }

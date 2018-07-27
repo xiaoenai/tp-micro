@@ -25,12 +25,12 @@ func init() {
 }
 
 // Home HTML home page
-func Home(ctx tp.PullCtx, args *struct{}) ([]byte, *tp.Rerror) {
+func Home(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Rerror) {
 	return html.Render(ctx, "home", "Home Page Test!")
 }
 
 // Home2 HTML home page
-func Home2(ctx tp.PullCtx, args *struct{}) ([]byte, *tp.Rerror) {
+func Home2(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Rerror) {
 	return nil, helper.Redirect(ctx, 302, "http://localhost:5000/home")
 }
 
@@ -42,7 +42,7 @@ type Args struct {
 
 // Math handler
 type Math struct {
-	tp.PullCtx
+	tp.CallCtx
 }
 
 // Divide divide API
@@ -62,8 +62,8 @@ func main() {
 			Endpoints: []string{"http://127.0.0.1:2379"},
 		},
 	))
-	srv.RoutePullFunc(Home)
-	srv.RoutePullFunc(Home2)
-	srv.RoutePull(new(Math))
+	srv.RouteCallFunc(Home)
+	srv.RouteCallFunc(Home2)
+	srv.RouteCall(new(Math))
 	srv.ListenAndServe()
 }

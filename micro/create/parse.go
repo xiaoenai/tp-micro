@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	// API_PULL_ROUTER name of the interface used to register the pull route in the template
-	API_PULL_ROUTER = "__API_PULL__"
+	// API_CALL_ROUTER name of the interface used to register the call route in the template
+	API_CALL_ROUTER = "__API_CALL__"
 	// API_PUSH_ROUTER name of the interface used to register the push route in the template
 	API_PUSH_ROUTER = "__API_PUSH__"
 	// MYSQL_MODEL name of the struct used to create mysql model
@@ -29,7 +29,7 @@ const (
 )
 
 const (
-	pullType int8 = 0
+	callType int8 = 0
 	pushType int8 = 1
 )
 
@@ -39,7 +39,7 @@ type (
 		fileSet           *token.FileSet
 		astFile           *ast.File
 		doc               string
-		pullRouter        *router
+		callRouter        *router
 		pushRouter        *router
 		models            *models
 		realStructTypes   []*structType
@@ -109,7 +109,7 @@ func newTplInfo(tplBytes []byte) *tplInfo {
 		fileSet:           fset,
 		astFile:           file,
 		doc:               addSlash(file.Doc.Text()),
-		pullRouter:        &router{typ: pullType},
+		callRouter:        &router{typ: callType},
 		pushRouter:        &router{typ: pushType},
 		models:            new(models),
 		realStructTypeMap: make(map[string]*structType),
@@ -145,11 +145,11 @@ func (t *tplInfo) TypesString() string {
 	return a
 }
 
-func (t *tplInfo) PullHandlerString(ctnFn func(*handler) string) string {
+func (t *tplInfo) CallHandlerString(ctnFn func(*handler) string) string {
 	if ctnFn == nil {
 		ctnFn = func(*handler) string { return "return nil,nil" }
 	}
-	return t.pullRouter.handlerString(ctnFn)
+	return t.callRouter.handlerString(ctnFn)
 }
 
 func (t *tplInfo) PushHandlerString(ctnFn func(*handler) string) string {
@@ -160,22 +160,22 @@ func (t *tplInfo) PushHandlerString(ctnFn func(*handler) string) string {
 }
 
 func (t *tplInfo) HandlerList() []*handler {
-	return append(t.pushRouter.handlerList(), t.pullRouter.handlerList()...)
+	return append(t.pushRouter.handlerList(), t.callRouter.handlerList()...)
 }
 
 func (t *tplInfo) PushHandlerList() []*handler {
 	return t.pushRouter.handlerList()
 }
 
-func (t *tplInfo) PullHandlerList() []*handler {
-	return t.pullRouter.handlerList()
+func (t *tplInfo) CallHandlerList() []*handler {
+	return t.callRouter.handlerList()
 }
 
 func (t *tplInfo) RouterString(groupName string) string {
 	var text string
-	text += "\n// PULL APIs...\n"
+	text += "\n// CALL APIs...\n"
 	text += "{\n"
-	text += t.pullRouter.routerString(groupName, "", "")
+	text += t.callRouter.routerString(groupName, "", "")
 	text += "}\n"
 	text += "\n// PUSH APIs...\n"
 	text += "{\n"
@@ -684,7 +684,7 @@ func getStructFieldNames(v []*structType) (a []string) {
 }
 
 func (t *tplInfo) collectIfaces() {
-	var pullIface, pushIface *ast.InterfaceType
+	var callIface, pushIface *ast.InterfaceType
 	ast.Inspect(t.astFile, func(n ast.Node) bool {
 		var e ast.Expr
 		var ifaceName string
@@ -701,14 +701,14 @@ func (t *tplInfo) collectIfaces() {
 			return true
 		}
 		switch ifaceName {
-		case API_PULL_ROUTER:
-			pullIface = x
+		case API_CALL_ROUTER:
+			callIface = x
 		case API_PUSH_ROUTER:
 			pushIface = x
 		}
 		return true
 	})
-	t.collectApis(t.pullRouter, pullIface)
+	t.collectApis(t.callRouter, callIface)
 	t.collectApis(t.pushRouter, pushIface)
 }
 
@@ -763,7 +763,7 @@ func (t *tplInfo) getHandler(typ int8, f *ast.FuncType) (*handler, error) {
 	}
 	var numResults int
 	switch typ {
-	case pullType:
+	case callType:
 		numResults = 1
 	case pushType:
 		numResults = 0
@@ -800,7 +800,7 @@ func (t *tplInfo) getHandler(typ int8, f *ast.FuncType) (*handler, error) {
 	if numResults == 0 {
 		return h, nil
 	}
-	// pull handler has result
+	// call handler has result
 	ft = f.Results.List[0].Type
 	if se, ok := ft.(*ast.StarExpr); ok {
 		ft = se.X
@@ -843,8 +843,8 @@ func (r *router) handlerList() []*handler {
 func (r *router) handlerString(ctnFn func(*handler) string) string {
 	var ctxField string
 	switch r.typ {
-	case pullType:
-		ctxField = "tp.PullCtx"
+	case callType:
+		ctxField = "tp.CallCtx"
 	case pushType:
 		ctxField = "tp.PushCtx"
 	}
@@ -884,12 +884,12 @@ func (r *router) handlerString(ctnFn func(*handler) string) string {
 func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) string {
 	var regFunc, regStruct string
 	switch r.typ {
-	case pullType:
-		regFunc = groupName + ".RoutePullFunc"
-		regStruct = groupName + ".RoutePull"
+	case callType:
+		regFunc = groupName + ".RouteCallFunc"
+		regStruct = groupName + ".RouteCall"
 	case pushType:
 		regFunc = groupName + ".RoutePushFunc"
-		regStruct = groupName + ".RoutePull"
+		regStruct = groupName + ".RouteCall"
 	}
 	var text, subGroupName string
 	if len(r.name) > 0 {

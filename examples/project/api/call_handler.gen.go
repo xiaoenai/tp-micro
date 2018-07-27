@@ -11,16 +11,16 @@ import (
 )
 
 // Home handler
-func Home(ctx tp.PullCtx, arg *args.EmptyStruct) (*args.HomeResult, *tp.Rerror) {
+func Home(ctx tp.CallCtx, arg *args.EmptyStruct) (*args.HomeResult, *tp.Rerror) {
 	return logic.Home(ctx, arg)
 }
 
 // Math controller
 type Math struct {
-	tp.PullCtx
+	tp.CallCtx
 }
 
 // Divide handler
 func (m *Math) Divide(arg *args.DivideArg) (*args.DivideResult, *tp.Rerror) {
-	return logic.Math_Divide(m.PullCtx, arg)
+	return logic.Math_Divide(m.CallCtx, arg)
 }

@@ -42,7 +42,7 @@ func SetApiVersion(apiVersion string) {
 // GwHosts returns the gateway host list.
 func GwHosts(setting ...socket.PacketSetting) (*types.GwHosts, *tp.Rerror) {
 	var reply = new(types.GwHosts)
-	rerr := client.DynamicClient().Pull("/gw"+_apiVersion+"/hosts", nil, reply, setting...).Rerror()
+	rerr := client.DynamicClient().Call("/gw"+_apiVersion+"/hosts", nil, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -52,7 +52,7 @@ func GwHosts(setting ...socket.PacketSetting) (*types.GwHosts, *tp.Rerror) {
 // SocketTotal returns the long connections total of the remote server.
 func SocketTotal(srvAddr string, setting ...socket.PacketSetting) (*types.SocketTotalReply, *tp.Rerror) {
 	var reply = new(types.SocketTotalReply)
-	rerr := client.StaticClient(srvAddr).Pull("/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Rerror()
+	rerr := client.StaticClient(srvAddr).Call("/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -62,7 +62,7 @@ func SocketTotal(srvAddr string, setting ...socket.PacketSetting) (*types.Socket
 // SocketPush pushes message to the specified user.
 func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...socket.PacketSetting) (*types.SocketPushReply, *tp.Rerror) {
 	var reply = new(types.SocketPushReply)
-	rerr := client.StaticClient(srvAddr).Pull("/gw"+_apiVersion+"/socket_push", args, reply, setting...).Rerror()
+	rerr := client.StaticClient(srvAddr).Call("/gw"+_apiVersion+"/socket_push", args, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -72,7 +72,7 @@ func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...socket.Pa
 // SocketMpush multi-push messages to the specified users.
 func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...socket.PacketSetting) (*types.SocketMpushReply, *tp.Rerror) {
 	var reply = new(types.SocketMpushReply)
-	rerr := client.StaticClient(srvAddr).Pull("/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Rerror()
+	rerr := client.StaticClient(srvAddr).Call("/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}

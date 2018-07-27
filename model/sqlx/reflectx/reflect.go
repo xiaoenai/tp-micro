@@ -305,11 +305,11 @@ func parseName(field reflect.StructField, tagName string, mapFunc, tagMapFunc ma
 		return "", fieldName
 	}
 
-	// at this point we're fairly sure that we have a tag, so lets pull it out
+	// at this point we're fairly sure that we have a tag, so lets call it out
 	tag = field.Tag.Get(tagName)
 
 	// if we have a mapper function, call it on the whole tag
-	// XXX: this is a change from the old version, which pulled out the name
+	// XXX: this is a change from the old version, which called out the name
 	// before the tagMapFunc could be run, but I think this is the right way
 	if tagMapFunc != nil {
 		tag = tagMapFunc(tag)

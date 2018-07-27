@@ -18,7 +18,7 @@ import (
 	"strings"
 
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/auth"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 )
 
@@ -29,7 +29,7 @@ var (
 )
 
 var (
-	_ tp.PostReadPullBodyPlugin = socketConnTabPlugin
+	_ tp.PostReadCallBodyPlugin = socketConnTabPlugin
 	_ tp.PostReadPushBodyPlugin = socketConnTabPlugin
 	_ tp.PostDisconnectPlugin   = socketConnTabPlugin
 )
@@ -38,7 +38,7 @@ func (c *socketConnTab) Name() string {
 	return "SocketConnTab"
 }
 
-func (c *socketConnTab) authAndLogon(authInfo string, sess plugin.AuthSession) *tp.Rerror {
+func (c *socketConnTab) authAndLogon(authInfo string, sess auth.AuthSession) *tp.Rerror {
 	token, rerr := logic.AuthFunc()(authInfo)
 	if rerr != nil {
 		return rerr
@@ -54,7 +54,7 @@ func (c *socketConnTab) authAndLogon(authInfo string, sess plugin.AuthSession) *
 	return rerr
 }
 
-func (c *socketConnTab) PostReadPullBody(ctx tp.ReadCtx) *tp.Rerror {
+func (c *socketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Rerror {
 	_appendQuery, _ := ctx.Swap().Load(socketConnTabPlugin)
 	appendQuery, _ := _appendQuery.(string)
 	u := ctx.UriObject()
@@ -64,7 +64,7 @@ func (c *socketConnTab) PostReadPullBody(ctx tp.ReadCtx) *tp.Rerror {
 }
 
 func (c *socketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Rerror {
-	return c.PostReadPullBody(ctx)
+	return c.PostReadCallBody(ctx)
 }
 
 func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {

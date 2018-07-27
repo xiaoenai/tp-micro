@@ -8,7 +8,7 @@ import (
 	"time"
 
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/proxy"
 	"github.com/henrylee2cn/teleport/utils"
 )
 
@@ -18,7 +18,7 @@ var (
 	slowCometDuration time.Duration = math.MaxInt64
 )
 
-func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, seq string, inputBody []byte, outputBody *[]byte) {
+func (r *requestHandler) runlog(startTime time.Time, label *proxy.ProxyLabel, seq string, inputBody []byte, outputBody *[]byte) {
 	var addr = r.ctx.RemoteAddr().String()
 	if label.RealIp != "" && label.RealIp != addr {
 		addr += "(real: " + label.RealIp + ")"
@@ -38,7 +38,7 @@ func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, s
 		costTimeStr = "-"
 	}
 
-	printFunc("PULL<- %s %s %s %q\nRECV(%s)\nSEND(%s)", addr, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
+	printFunc("CALL<- %s %s %s %q\nRECV(%s)\nSEND(%s)", addr, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
 }
 
 func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bool) []byte {

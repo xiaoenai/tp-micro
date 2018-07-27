@@ -22,7 +22,7 @@ func main() {
 	}
 
 	var result int
-	rerr := cli.Pull("/static/p/divide?x=testquery_x&xy_z=testquery_xy_z", &Arg{
+	rerr := cli.Call("/static/p/divide?x=testquery_x&xy_z=testquery_xy_z", &Arg{
 		A: 10,
 		B: 2,
 	}, &result).Rerror()
@@ -34,7 +34,7 @@ func main() {
 	}
 	tp.Printf("test 10/2=%d", result)
 
-	rerr = cli.Pull("/static/p/divide?x=testquery_x&xy_z=testquery_xy_z", &Arg{
+	rerr = cli.Call("/static/p/divide?x=testquery_x&xy_z=testquery_xy_z", &Arg{
 		A: 10,
 		B: 0,
 	}, &result).Rerror()
@@ -46,7 +46,7 @@ func main() {
 	}
 	tp.Printf("test 10/0:%v", rerr)
 
-	rerr = cli.Pull("/static/p/divide", &Arg{
+	rerr = cli.Call("/static/p/divide", &Arg{
 		A: 10,
 		B: 5,
 	}, &result).Rerror()

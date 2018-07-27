@@ -23,7 +23,7 @@ import (
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/proxy"
 	"github.com/valyala/fasthttp"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
@@ -59,7 +59,7 @@ func (r *requestHandler) handle() {
 	var query = r.ctx.QueryArgs()
 	var bodyBytes = ctx.Request.Body()
 	var reply []byte
-	var label plugin.ProxyLabel
+	var label proxy.ProxyLabel
 	label.Uri = goutil.BytesToString(ctx.Path())
 
 	// set real ip
@@ -140,13 +140,13 @@ func (r *requestHandler) handle() {
 		label.Uri += "?" + query.String()
 	}
 
-	pullcmd := logic.
+	callcmd := logic.
 		ProxySelector(&label).
-		Pull(label.Uri, bodyBytes, &reply, settings...)
+		Call(label.Uri, bodyBytes, &reply, settings...)
 
 	// fail
-	if rerr := pullcmd.Rerror(); rerr != nil {
-		pullcmd.InputMeta().VisitAll(func(key, value []byte) {
+	if rerr := callcmd.Rerror(); rerr != nil {
+		callcmd.InputMeta().VisitAll(func(key, value []byte) {
 			k := goutil.BytesToString(key)
 			v := goutil.BytesToString(value)
 			ctx.Response.Header.Add(k, v)
@@ -158,7 +158,7 @@ func (r *requestHandler) handle() {
 	// succ
 
 	var hasRespContentType bool
-	pullcmd.InputMeta().VisitAll(func(key, value []byte) {
+	callcmd.InputMeta().VisitAll(func(key, value []byte) {
 		k := goutil.BytesToString(key)
 		v := goutil.BytesToString(value)
 		if k == "Content-Type" {
@@ -171,7 +171,7 @@ func (r *requestHandler) handle() {
 	if !hasRespContentType {
 		ctx.Response.Header.Add(
 			"Content-Type",
-			GetContentType(pullcmd.InputBodyCodec(), contentType),
+			GetContentType(callcmd.InputBodyCodec(), contentType),
 		)
 	}
 	ctx.SetBody(reply)

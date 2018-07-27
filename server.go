@@ -22,9 +22,9 @@ import (
 
 	"github.com/henrylee2cn/cfgo"
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/plugin/binder"
+	"github.com/henrylee2cn/teleport/plugin/heartbeat"
 	"github.com/henrylee2cn/teleport/socket"
-	binder "github.com/henrylee2cn/tp-ext/plugin-binder"
-	heartbeat "github.com/henrylee2cn/tp-ext/plugin-heartbeat"
 )
 
 // SrvConfig server config
@@ -37,7 +37,7 @@ type SrvConfig struct {
 	TlsCertFile       string        `yaml:"tls_cert_file"        ini:"tls_cert_file"        comment:"TLS certificate file path"`
 	TlsKeyFile        string        `yaml:"tls_key_file"         ini:"tls_key_file"         comment:"TLS key file path"`
 	DefaultSessionAge time.Duration `yaml:"default_session_age"  ini:"default_session_age"  comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
-	DefaultContextAge time.Duration `yaml:"default_context_age"  ini:"default_context_age"  comment:"Default PULL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+	DefaultContextAge time.Duration `yaml:"default_context_age"  ini:"default_context_age"  comment:"Default CALL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
 	SlowCometDuration time.Duration `yaml:"slow_comet_duration"  ini:"slow_comet_duration"  comment:"Slow operation alarm threshold; ns,µs,ms,s ..."`
 	DefaultBodyCodec  string        `yaml:"default_body_codec"   ini:"default_body_codec"   comment:"Default body codec type id"`
 	PrintDetail       bool          `yaml:"print_detail"         ini:"print_detail"         comment:"Is print body and metadata or not"`
@@ -156,7 +156,7 @@ func (s *Server) SetBindErrorFunc(fn binder.ErrorFunc) {
 	})
 }
 
-// Router returns the root router of pull or push handlers.
+// Router returns the root router of call or push handlers.
 func (s *Server) Router() *tp.Router {
 	return s.peer.Router()
 }
@@ -166,14 +166,14 @@ func (s *Server) SubRoute(pathPrefix string, plugin ...tp.Plugin) *tp.SubRouter 
 	return s.peer.SubRoute(pathPrefix, plugin...)
 }
 
-// RoutePull registers PULL handlers, and returns the paths.
-func (s *Server) RoutePull(ctrlStruct interface{}, plugin ...tp.Plugin) []string {
-	return s.peer.RoutePull(ctrlStruct, plugin...)
+// RouteCall registers CALL handlers, and returns the paths.
+func (s *Server) RouteCall(ctrlStruct interface{}, plugin ...tp.Plugin) []string {
+	return s.peer.RouteCall(ctrlStruct, plugin...)
 }
 
-// RoutePullFunc registers PULL handler, and returns the path.
-func (s *Server) RoutePullFunc(pullHandleFunc interface{}, plugin ...tp.Plugin) string {
-	return s.peer.RoutePullFunc(pullHandleFunc, plugin...)
+// RouteCallFunc registers CALL handler, and returns the path.
+func (s *Server) RouteCallFunc(callHandleFunc interface{}, plugin ...tp.Plugin) string {
+	return s.peer.RouteCallFunc(callHandleFunc, plugin...)
 }
 
 // RoutePush registers PUSH handlers, and returns the paths.
@@ -186,10 +186,10 @@ func (s *Server) RoutePushFunc(pushHandleFunc interface{}, plugin ...tp.Plugin) 
 	return s.peer.RoutePushFunc(pushHandleFunc, plugin...)
 }
 
-// SetUnknownPull sets the default handler,
-// which is called when no handler for PULL is found.
-func (s *Server) SetUnknownPull(fn func(tp.UnknownPullCtx) (interface{}, *tp.Rerror), plugin ...tp.Plugin) {
-	s.peer.SetUnknownPull(fn, plugin...)
+// SetUnknownCall sets the default handler,
+// which is called when no handler for CALL is found.
+func (s *Server) SetUnknownCall(fn func(tp.UnknownCallCtx) (interface{}, *tp.Rerror), plugin ...tp.Plugin) {
+	s.peer.SetUnknownCall(fn, plugin...)
 }
 
 // SetUnknownPush sets the default handler,

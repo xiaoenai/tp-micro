@@ -90,7 +90,7 @@ func TestNamedContextQueries(t *testing.T) {
 		_, err = ns.ExecContext(ctx, js)
 		test.Error(err)
 
-		// Make sure we can pull him out again
+		// Make sure we can call him out again
 		p2 := Person{}
 		db.GetContext(ctx, &p2, db.Rebind("SELECT * FROM person WHERE email=?"), js.Email)
 		if p2.Email != js.Email {

@@ -32,19 +32,19 @@ func main() {
 	)
 	defer cli.Close()
 	var reply = new(pb.PbTest)
-	rerr := cli.Pull(
+	rerr := cli.Call(
 		"/group/home/test",
 		&pb.PbTest{A: 10, B: 2},
 		reply,
 	).Rerror()
 	if rerr != nil {
-		tp.Errorf("pull error: %v", rerr)
+		tp.Errorf("call error: %v", rerr)
 	} else {
-		tp.Infof("pull reply: %v", reply)
+		tp.Infof("call reply: %v", reply)
 	}
 
 	// test heartbeat
 	time.Sleep(10e9)
-	cli.UsePullHeartbeat()
+	cli.UseCallHeartbeat()
 	time.Sleep(10e9)
 }

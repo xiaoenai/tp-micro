@@ -517,7 +517,7 @@ func TestNamedQueryContext(t *testing.T) {
 			t.Fatal(err, db.DriverName())
 		}
 
-		// Checks that a person pulled out of the db matches the one we put in
+		// Checks that a person called out of the db matches the one we put in
 		check := func(t *testing.T, rows *Rows) {
 			jp = JSONPerson{}
 			for rows.Next() {
@@ -1137,7 +1137,7 @@ func TestEmbeddedMapsContext(t *testing.T) {
 	RunWithSchemaContext(context.Background(), schema, t, func(ctx context.Context, db *DB, t *testing.T) {
 		messages := []Message{
 			{"Hello, World", PropertyMap{"one": "1", "two": "2"}},
-			{"Thanks, Joy", PropertyMap{"pull": "request"}},
+			{"Thanks, Joy", PropertyMap{"call": "request"}},
 		}
 		q1 := `INSERT INTO message (string, properties) VALUES (:string, :properties);`
 		for _, m := range messages {

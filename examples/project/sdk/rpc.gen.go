@@ -39,13 +39,13 @@ func Stat(arg *args.StatArg, setting ...socket.PacketSetting) *tp.Rerror {
 // Home handler
 func Home(arg *args.EmptyStruct, setting ...socket.PacketSetting) (*args.HomeResult, *tp.Rerror) {
 	result := new(args.HomeResult)
-	rerr := client.Pull("/project/home", arg, result, setting...).Rerror()
+	rerr := client.Call("/project/home", arg, result, setting...).Rerror()
 	return result, rerr
 }
 
 // Divide handler
 func Math_Divide(arg *args.DivideArg, setting ...socket.PacketSetting) (*args.DivideResult, *tp.Rerror) {
 	result := new(args.DivideResult)
-	rerr := client.Pull("/project/math/divide", arg, result, setting...).Rerror()
+	rerr := client.Call("/project/math/divide", arg, result, setting...).Rerror()
 	return result, rerr
 }

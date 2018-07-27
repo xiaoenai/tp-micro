@@ -13,7 +13,7 @@ import (
 
 // gw long connection controller.
 type gw struct {
-	tp.PullCtx
+	tp.CallCtx
 }
 
 // Hosts returns the gateway seriver hosts.

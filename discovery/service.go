@@ -21,7 +21,7 @@ import (
 	"time"
 
 	tp "github.com/henrylee2cn/teleport"
-	heartbeat "github.com/henrylee2cn/tp-ext/plugin-heartbeat"
+	heartbeat "github.com/henrylee2cn/teleport/plugin/heartbeat"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 

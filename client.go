@@ -20,9 +20,9 @@ import (
 
 	"github.com/henrylee2cn/cfgo"
 	tp "github.com/henrylee2cn/teleport"
+	sess "github.com/henrylee2cn/teleport/mixer/clientsession"
+	"github.com/henrylee2cn/teleport/plugin/heartbeat"
 	"github.com/henrylee2cn/teleport/socket"
-	sess "github.com/henrylee2cn/tp-ext/mod-cliSession"
-	heartbeat "github.com/henrylee2cn/tp-ext/plugin-heartbeat"
 )
 
 type (
@@ -36,7 +36,7 @@ type (
 		TlsCertFile         string               `yaml:"tls_cert_file"          ini:"tls_cert_file"          comment:"TLS certificate file path"`
 		TlsKeyFile          string               `yaml:"tls_key_file"           ini:"tls_key_file"           comment:"TLS key file path"`
 		DefaultSessionAge   time.Duration        `yaml:"default_session_age"    ini:"default_session_age"    comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
-		DefaultContextAge   time.Duration        `yaml:"default_context_age"    ini:"default_context_age"    comment:"Default PULL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+		DefaultContextAge   time.Duration        `yaml:"default_context_age"    ini:"default_context_age"    comment:"Default CALL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
 		DefaultDialTimeout  time.Duration        `yaml:"default_dial_timeout"   ini:"default_dial_timeout"   comment:"Default maximum duration for dialing; for client role; ns,µs,ms,s,m,h"`
 		RedialTimes         int                  `yaml:"redial_times"           ini:"redial_times"           comment:"The maximum times of attempts to redial, after the connection has been unexpectedly broken; for client role"`
 		Failover            int                  `yaml:"failover"               ini:"failover"               comment:"The maximum times of failover"`
@@ -187,9 +187,9 @@ func (c *Client) PluginContainer() *tp.PluginContainer {
 	return c.peer.PluginContainer()
 }
 
-// UsePullHeartbeat uses PULL method to ping.
-func (c *Client) UsePullHeartbeat() {
-	c.heartbeatPing.UsePull()
+// UseCallHeartbeat uses CALL method to ping.
+func (c *Client) UseCallHeartbeat() {
+	c.heartbeatPing.UseCall()
 }
 
 // UsePushHeartbeat uses PUSH method to ping.
@@ -212,82 +212,82 @@ func (c *Client) RoutePushFunc(pushHandleFunc interface{}, plugin ...tp.Plugin) 
 	return c.peer.RoutePushFunc(pushHandleFunc, plugin...)
 }
 
-// AsyncPull sends a packet and receives reply asynchronously.
+// AsyncCall sends a packet and receives reply asynchronously.
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure;
 //  Do not support failover to try again.
-func (c *Client) AsyncPull(
+func (c *Client) AsyncCall(
 	uri string,
 	arg interface{},
 	result interface{},
-	pullCmdChan chan<- tp.PullCmd,
+	callCmdChan chan<- tp.CallCmd,
 	setting ...socket.PacketSetting,
-) tp.PullCmd {
-	if pullCmdChan == nil {
-		pullCmdChan = make(chan tp.PullCmd, 10) // buffered.
+) tp.CallCmd {
+	if callCmdChan == nil {
+		callCmdChan = make(chan tp.CallCmd, 10) // buffered.
 	} else {
-		// If caller passes pullCmdChan != nil, it must arrange that
-		// pullCmdChan has enough buffer for the number of simultaneous
+		// If caller passes callCmdChan != nil, it must arrange that
+		// callCmdChan has enough buffer for the number of simultaneous
 		// RPCs that will be using that channel. If the channel
 		// is totally unbuffered, it's best not to run at all.
-		if cap(pullCmdChan) == 0 {
-			tp.Panicf("*Client.AsyncPull(): pullCmdChan channel is unbuffered")
+		if cap(callCmdChan) == 0 {
+			tp.Panicf("*Client.AsyncCall(): callCmdChan channel is unbuffered")
 		}
 	}
 	select {
 	case <-c.closeCh:
-		pullCmd := tp.NewFakePullCmd(uri, arg, result, RerrClientClosed)
-		pullCmdChan <- pullCmd
-		return pullCmd
+		callCmd := tp.NewFakeCallCmd(uri, arg, result, RerrClientClosed)
+		callCmdChan <- callCmd
+		return callCmd
 	default:
 	}
 
 	cliSess, rerr := c.circuitBreaker.selectSession(uri)
 	if rerr != nil {
-		pullCmd := tp.NewFakePullCmd(uri, arg, result, rerr)
-		pullCmdChan <- pullCmd
-		return pullCmd
+		callCmd := tp.NewFakeCallCmd(uri, arg, result, rerr)
+		callCmdChan <- callCmd
+		return callCmd
 	}
-	pullCmd := cliSess.AsyncPull(uri, arg, result, pullCmdChan, setting...)
-	cliSess.feedback(!tp.IsConnRerror(pullCmd.Rerror()))
-	return pullCmd
+	callCmd := cliSess.AsyncCall(uri, arg, result, callCmdChan, setting...)
+	cliSess.feedback(!tp.IsConnRerror(callCmd.Rerror()))
+	return callCmd
 }
 
-// Pull sends a packet and receives reply.
+// Call sends a packet and receives reply.
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func (c *Client) Pull(uri string, arg interface{}, result interface{}, setting ...socket.PacketSetting) tp.PullCmd {
+func (c *Client) Call(uri string, arg interface{}, result interface{}, setting ...socket.PacketSetting) tp.CallCmd {
 	select {
 	case <-c.closeCh:
-		return tp.NewFakePullCmd(uri, arg, result, RerrClientClosed)
+		return tp.NewFakeCallCmd(uri, arg, result, RerrClientClosed)
 	default:
 	}
 	var (
 		cliSess     *cliSession
-		pullCmd     tp.PullCmd
+		callCmd     tp.CallCmd
 		rerr        *tp.Rerror
 		healthy     bool
-		pullCmdChan = make(chan tp.PullCmd, 1)
+		callCmdChan = make(chan tp.CallCmd, 1)
 	)
 	for i := 0; i < c.maxTry; i++ {
 		cliSess, rerr = c.circuitBreaker.selectSession(uri)
 		if rerr != nil {
-			return tp.NewFakePullCmd(uri, arg, result, rerr)
+			return tp.NewFakeCallCmd(uri, arg, result, rerr)
 		}
-		cliSess.AsyncPull(uri, arg, result, pullCmdChan, setting...)
-		pullCmd = <-pullCmdChan
-		healthy = !tp.IsConnRerror(pullCmd.Rerror())
+		cliSess.AsyncCall(uri, arg, result, callCmdChan, setting...)
+		callCmd = <-callCmdChan
+		healthy = !tp.IsConnRerror(callCmd.Rerror())
 		cliSess.feedback(healthy)
 		if healthy {
-			return pullCmd
+			return callCmd
 		}
 		if i > 0 {
-			tp.Debugf("the %dth failover is triggered because: %s", i, pullCmd.Rerror().String())
+			tp.Debugf("the %dth failover is triggered because: %s", i, callCmd.Rerror().String())
 		}
 	}
-	return pullCmd
+	return callCmd
 }
 
 // Push sends a packet, but do not receives reply.

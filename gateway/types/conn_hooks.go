@@ -16,7 +16,7 @@ package types
 
 import (
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/auth"
 	"github.com/henrylee2cn/teleport/socket"
 	"github.com/valyala/fasthttp"
 	micro "github.com/xiaoenai/tp-micro"
@@ -25,7 +25,7 @@ import (
 // SocketHooks TCP socket connecting event hooks
 type SocketHooks interface {
 	// OnLogon is called when the client goes online.
-	OnLogon(plugin.AuthSession, AccessToken) *tp.Rerror
+	OnLogon(auth.AuthSession, AccessToken) *tp.Rerror
 	// OnLogoff is called when the client goes offline.
 	OnLogoff(tp.BaseSession) *tp.Rerror
 	// GetSession returns session from peer by uid.
@@ -56,7 +56,7 @@ func DefaultSocketHooks() SocketHooks {
 
 type defSocketHooks struct{}
 
-func (d *defSocketHooks) OnLogon(sess plugin.AuthSession, accessToken AccessToken) *tp.Rerror {
+func (d *defSocketHooks) OnLogon(sess auth.AuthSession, accessToken AccessToken) *tp.Rerror {
 	sess.SetId(accessToken.SessionId())
 	return nil
 }

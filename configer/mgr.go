@@ -18,13 +18,13 @@ func InitMgr(etcdClient *etcd.Client) {
 	mgr.etcdClient = etcdClient
 }
 
-// PullCtrl returns a new PULL controller.
-func PullCtrl() interface{} {
+// CallCtrl returns a new CALL controller.
+func CallCtrl() interface{} {
 	return new(cfg)
 }
 
 type cfg struct {
-	tp.PullCtx
+	tp.CallCtx
 }
 
 var (

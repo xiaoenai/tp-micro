@@ -17,10 +17,10 @@ func Route(_root string, _router *tp.Router) {
 
 	// automatically generated router
 
-	// PULL APIs...
+	// CALL APIs...
 	{
-		_group.RoutePullFunc(Home)
-		_group.RoutePull(new(Math))
+		_group.RouteCallFunc(Home)
+		_group.RouteCall(new(Math))
 	}
 
 	// PUSH APIs...

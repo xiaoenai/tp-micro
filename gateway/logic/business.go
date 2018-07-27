@@ -16,7 +16,7 @@ package logic
 
 import (
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/proxy"
 	"github.com/xiaoenai/tp-micro/gateway/types"
 )
 
@@ -61,7 +61,7 @@ func HttpHooks() types.HttpHooks {
 }
 
 // ProxySelector returns proxy caller by label.
-func ProxySelector(label *plugin.ProxyLabel) plugin.Caller {
+func ProxySelector(label *proxy.ProxyLabel) proxy.Caller {
 	return globalBusiness.ProxySelector(label)
 }
 

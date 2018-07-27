@@ -20,7 +20,7 @@ type (
 
 // P handler
 type P struct {
-	tp.PullCtx
+	tp.CallCtx
 }
 
 // Divide divide API
@@ -35,6 +35,6 @@ func main() {
 		EnableHeartbeat: true,
 	})
 	group := srv.SubRoute("/static")
-	group.RoutePull(new(P))
+	group.RouteCall(new(P))
 	srv.ListenAndServe()
 }

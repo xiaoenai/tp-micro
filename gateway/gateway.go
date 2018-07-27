@@ -20,7 +20,6 @@ import (
 	_ "unsafe"
 
 	"github.com/henrylee2cn/teleport/socket"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/gateway/client"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
@@ -28,6 +27,7 @@ import (
 	long "github.com/xiaoenai/tp-micro/gateway/logic/socket"
 	"github.com/xiaoenai/tp-micro/gateway/sdk"
 	"github.com/xiaoenai/tp-micro/gateway/types"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 
 // Run the gateway main program.
@@ -48,7 +48,7 @@ func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 
 	// protocol
 	if protoFunc == nil {
-		protoFunc = socket.NewFastProtoFunc
+		protoFunc = socket.NewRawProtoFunc
 	}
 
 	// client

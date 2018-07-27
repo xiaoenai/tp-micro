@@ -4,7 +4,7 @@ import (
 	"time"
 
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/auth"
 	micro "github.com/xiaoenai/tp-micro"
 )
 
@@ -15,7 +15,7 @@ func main() {
 			HeartbeatSecond: 4,
 		},
 		micro.NewStaticLinker(":5020"),
-		plugin.LaunchAuth(generateAuthInfo),
+		auth.LaunchAuth(generateAuthInfo),
 	)
 
 	var arg = &struct {
@@ -28,7 +28,7 @@ func main() {
 
 	var reply int
 
-	rerr := cli.Pull("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
+	rerr := cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
 	if rerr != nil {
 		tp.Fatalf("%v", rerr)
 	}
@@ -38,7 +38,7 @@ func main() {
 	time.Sleep(time.Second * 10)
 
 	arg.B = 5
-	rerr = cli.Pull("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
+	rerr = cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
 	if rerr != nil {
 		tp.Fatalf("%v", rerr)
 	}

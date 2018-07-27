@@ -11,7 +11,7 @@ import (
 	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/goutil/coarsetime"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/auth"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/gateway/client"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
@@ -95,7 +95,7 @@ func (*agentHandler) PreWritePush(tp.WriteCtx) *tp.Rerror {
 	return nil
 }
 
-func (h *agentHandler) OnLogon(sess plugin.AuthSession, accessToken types.AccessToken) *tp.Rerror {
+func (h *agentHandler) OnLogon(sess auth.AuthSession, accessToken types.AccessToken) *tp.Rerror {
 	sessionId := accessToken.SessionId()
 	// check or remove old session
 	_, rerr := kickOffline(sessionId, true)
@@ -238,7 +238,7 @@ func kickOffline(sessionId string, checkLocal bool) (succ bool, rerr *tp.Rerror)
 	// Try to delete the session from the remote gateway.
 	var reply types.SocketKickReply
 	rerr = client.StaticClient(agent.InnerGw).
-		Pull(kickUri, types.SocketKickArgs{SessionId: sessionId}, &reply).
+		Call(kickUri, types.SocketKickArgs{SessionId: sessionId}, &reply).
 		Rerror()
 	if reply.Existed {
 		return true, nil

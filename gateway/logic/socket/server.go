@@ -16,7 +16,8 @@ package socket
 
 import (
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	"github.com/henrylee2cn/teleport/plugin/auth"
+	"github.com/henrylee2cn/teleport/plugin/proxy"
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
@@ -32,9 +33,9 @@ var (
 func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc) {
 	outerServer := micro.NewServer(
 		outerSrvCfg,
-		plugin.VerifyAuth(socketConnTabPlugin.authAndLogon),
+		auth.VerifyAuth(socketConnTabPlugin.authAndLogon),
 		socketConnTabPlugin,
-		plugin.Proxy(logic.ProxySelector),
+		proxy.Proxy(logic.ProxySelector),
 		preWritePushPlugin(),
 	)
 
@@ -55,11 +56,11 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc)
 	{
 		verGroup := gwGroup.SubRoute(logic.ApiVersion())
 		{
-			verGroup.RoutePullFunc((*gw).Hosts)
-			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketTotal))
-			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketPush))
-			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketMpush))
-			discoveryService.ExcludeApi(verGroup.RoutePullFunc((*gw).SocketKick))
+			verGroup.RouteCallFunc((*gw).Hosts)
+			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketTotal))
+			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketPush))
+			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketMpush))
+			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketKick))
 		}
 	}
 

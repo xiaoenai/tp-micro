@@ -329,18 +329,18 @@ func (p *Project) genHandlerFile() {
 		delete(p.codeFiles, "api/push_handler.gen.go")
 		os.Remove("api/push_handler.gen.go")
 	}
-	if len(p.tplInfo.PullHandlerList()) > 0 {
-		s := p.tplInfo.PullHandlerString(func(h *handler) string {
+	if len(p.tplInfo.CallHandlerList()) > 0 {
+		s := p.tplInfo.CallHandlerString(func(h *handler) string {
 			var ctx = "ctx"
 			if len(h.group.name) > 0 {
-				ctx = firstLowerLetter(h.group.name) + ".PullCtx"
+				ctx = firstLowerLetter(h.group.name) + ".CallCtx"
 			}
 			return fmt.Sprintf("return logic.%s(%s, arg)", h.fullName, ctx)
 		})
-		p.replaceWithLine("api/pull_handler.gen.go", "${handler_api_define}", s)
+		p.replaceWithLine("api/call_handler.gen.go", "${handler_api_define}", s)
 	} else {
-		delete(p.codeFiles, "api/pull_handler.gen.go")
-		os.Remove("api/pull_handler.gen.go")
+		delete(p.codeFiles, "api/call_handler.gen.go")
+		os.Remove("api/call_handler.gen.go")
 	}
 }
 
@@ -349,9 +349,9 @@ func (p *Project) genLogicFile() {
 	for _, h := range p.tplInfo.HandlerList() {
 		name := h.fullName
 		switch h.group.typ {
-		case pullType:
+		case callType:
 			s += fmt.Sprintf(
-				"%sfunc %s(ctx tp.PullCtx,arg *args.%s)(*args.%s,*tp.Rerror){\nreturn new(args.%s),nil\n}\n\n",
+				"%sfunc %s(ctx tp.CallCtx,arg *args.%s)(*args.%s,*tp.Rerror){\nreturn new(args.%s),nil\n}\n\n",
 				h.doc, name, h.arg, h.result, h.result,
 			)
 		case pushType:
@@ -382,11 +382,11 @@ func (p *Project) genSdkFile() {
 			uri = fmt.Sprintf("%q", uri)
 		}
 		switch h.group.typ {
-		case pullType:
+		case callType:
 			s1 += fmt.Sprintf(
 				"%sfunc %s(arg *args.%s, setting ...socket.PacketSetting)(*args.%s,*tp.Rerror){\n"+
 					"result := new(args.%s)\n"+
-					"rerr := client.Pull(%s, arg, result, setting...).Rerror()\n"+
+					"rerr := client.Call(%s, arg, result, setting...).Rerror()\n"+
 					"return result, rerr\n}\n",
 				h.doc, name, h.arg, h.result,
 				h.result,
