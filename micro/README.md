@@ -1,6 +1,6 @@
 # Command micro
 
-A deployment tools for [TP-Micro](https://github.com/xiaoenai/tp-micro) micro service framework.
+A deployment tools for [TP-Micro](https://github.com/xiaoenai/tp-micro/tree/v2) micro service framework.
 
 ## Feature
 
@@ -8,4 +8,3 @@ A deployment tools for [TP-Micro](https://github.com/xiaoenai/tp-micro) micro se
 - Run tp-micro project with hot compilation
 
 **NOTE:** The type of handler's parameter and result must be struct!
-

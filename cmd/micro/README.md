@@ -165,7 +165,7 @@ type Meta struct {
 - The type of handler's parameter and result must be struct!
 - You can modify the created template file `__tp-micro__tpl__.go`, and run the `micro gen` command again to update the project
 
-[Generated Default Sample](https://github.com/xiaoenai/tp-micro/tree/master/examples/project)
+[Generated Default Sample](https://github.com/xiaoenai/tp-micro/tree/v2/examples/project)
 
 ## Create README.md(only)
 
