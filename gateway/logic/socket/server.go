@@ -15,6 +15,8 @@
 package socket
 
 import (
+	"net"
+
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/auth"
 	"github.com/henrylee2cn/teleport/plugin/proxy"
@@ -26,12 +28,22 @@ import (
 )
 
 var (
-	outerPeer tp.Peer
+	outerPeer   tp.Peer
+	outerServer *micro.Server
 )
+
+// OuterServeConn serves connetion.
+func OuterServeConn(conn net.Conn) {
+	sess, err := outerServer.ServeConn(conn)
+	if err != nil {
+		tp.Errorf("Serve net.Conn error: %v", err)
+	}
+	<-sess.CloseNotify()
+}
 
 // Serve starts TCP gateway service.
 func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc) {
-	outerServer := micro.NewServer(
+	outerServer = micro.NewServer(
 		outerSrvCfg,
 		auth.VerifyAuth(socketConnTabPlugin.authAndLogon),
 		socketConnTabPlugin,

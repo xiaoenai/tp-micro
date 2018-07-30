@@ -79,6 +79,9 @@ func Serve(srvCfg HttpSrvConfig) {
 		if err != nil {
 			tp.Fatalf("%v", err)
 		}
+		gwWsUri = "/gw/" + logic.ApiVersion() + "/wss"
+	} else {
+		gwWsUri = "/gw/" + logic.ApiVersion() + "/ws"
 	}
 
 	lis, err := tp.NewInheritListener("tcp", srvCfg.ListenAddress, tlsConfig)
@@ -93,7 +96,8 @@ func Serve(srvCfg HttpSrvConfig) {
 		network = "https"
 	}
 	addr := lis.Addr().String()
-	tp.Printf("register http handler: %s", gwHostsUri)
+	tp.Printf("register HTTP handler: %s", gwHostsUri)
+	tp.Printf("register WEB-SOCKET handler: %s", gwWsUri)
 	tp.Printf("listen ok (network:%s, addr:%s)", network, addr)
 
 	err = (&fasthttp.Server{

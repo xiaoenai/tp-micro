@@ -18,8 +18,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"sync"
 	"time"
 
+	ws "github.com/fasthttp-contrib/websocket"
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
@@ -27,6 +30,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
+	"github.com/xiaoenai/tp-micro/gateway/logic/socket"
 )
 
 const (
@@ -50,8 +54,74 @@ type requestHandler struct {
 
 var rerrInternalServerError = tp.NewRerror(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
 
+var (
+	gwWsUri    string
+	wsUpgrader = ws.Custom(wsHandler, 4096, 4096)
+)
+
+type wsFastHttpConn struct {
+	*ws.Conn
+	rio, wio    sync.Mutex
+	frameReader io.Reader
+}
+
+// Read reads data from the connection.
+// Read can be made to time out and return an Error with Timeout() == true
+// after a fixed time limit; see SetDeadline and SetReadDeadline.
+func (w *wsFastHttpConn) Read(msg []byte) (n int, err error) {
+	w.rio.Lock()
+	defer w.rio.Unlock()
+again:
+	if w.frameReader == nil {
+		_, w.frameReader, err = w.Conn.NextReader()
+		if err != nil {
+			return 0, err
+		}
+		if w.frameReader == nil {
+			goto again
+		}
+	}
+	n, err = w.frameReader.Read(msg)
+	if err == io.EOF {
+		w.frameReader = nil
+		goto again
+	}
+	return n, err
+}
+
+// Write implements the io.Writer interface:
+// it writes data as a frame to the WebSocket connection.
+func (w *wsFastHttpConn) Write(msg []byte) (n int, err error) {
+	w.wio.Lock()
+	defer w.wio.Unlock()
+	err = w.Conn.WriteMessage(ws.TextMessage, msg)
+	return len(msg), err
+}
+
+// SetDeadline sets the connection's network read & write deadlines.
+func (w *wsFastHttpConn) SetDeadline(t time.Time) error {
+	err := w.Conn.SetReadDeadline(t)
+	if err != nil {
+		return err
+	}
+	return w.Conn.SetWriteDeadline(t)
+}
+
+func wsHandler(conn *ws.Conn) {
+	socket.OuterServeConn(&wsFastHttpConn{Conn: conn})
+}
+
 func (r *requestHandler) handle() {
 	var ctx = r.ctx
+	var uri = goutil.BytesToString(ctx.Path())
+	// websocket
+	if uri == gwWsUri {
+		err := wsUpgrader.Upgrade(ctx)
+		if err != nil {
+			tp.Debugf("upgrade websocket fail: %s", err.Error())
+		}
+		return
+	}
 	var h = r.Header()
 	var contentType = goutil.BytesToString(h.ContentType())
 	var bodyCodec = GetBodyCodec(contentType, codec.ID_PLAIN)
@@ -60,7 +130,7 @@ func (r *requestHandler) handle() {
 	var bodyBytes = ctx.Request.Body()
 	var reply []byte
 	var label proxy.ProxyLabel
-	label.Uri = goutil.BytesToString(ctx.Path())
+	label.Uri = uri
 
 	// set real ip
 	if xRealIp := h.Peek("X-Real-IP"); len(xRealIp) > 0 {
