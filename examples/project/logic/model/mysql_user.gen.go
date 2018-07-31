@@ -308,10 +308,6 @@ func GetUserByPrimary(_id int64) (*User, bool, error) {
 		}
 		return _u, true, nil
 	case sql.ErrNoRows:
-		err2 := userDB.PutCache(_u)
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
 		return nil, false, nil
 	default:
 		return nil, false, err
@@ -334,10 +330,6 @@ func GetUserByName(_name string) (*User, bool, error) {
 		}
 		return _u, true, nil
 	case sql.ErrNoRows:
-		err2 := userDB.PutCache(_u, "name")
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
 		return nil, false, nil
 	default:
 		return nil, false, err

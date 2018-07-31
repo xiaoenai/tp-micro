@@ -8,7 +8,6 @@ import (
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/tp-micro/model/mongo"
 
 	"github.com/xiaoenai/tp-micro/examples/project/args"
@@ -70,10 +69,6 @@ func GetMetaByFields(_m *Meta, _fields ...string) (bool, error) {
 	case nil:
 		return true, nil
 	case mongo.ErrNotFound:
-		err2 := metaDB.PutCache(_m)
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
 		return false, nil
 	default:
 		return false, err

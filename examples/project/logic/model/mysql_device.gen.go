@@ -227,10 +227,6 @@ func GetDeviceByPrimary(_uuid string) (*Device, bool, error) {
 		}
 		return _d, true, nil
 	case sql.ErrNoRows:
-		err2 := deviceDB.PutCache(_d)
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
 		return nil, false, nil
 	default:
 		return nil, false, err

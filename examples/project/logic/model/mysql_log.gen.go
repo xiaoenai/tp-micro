@@ -237,10 +237,6 @@ func GetLogByPrimary(_id int64) (*Log, bool, error) {
 		}
 		return _l, true, nil
 	case sql.ErrNoRows:
-		err2 := logDB.PutCache(_l)
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
 		return nil, false, nil
 	default:
 		return nil, false, err
