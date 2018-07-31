@@ -484,7 +484,6 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .I
 	}, tx...)
 }
 
-
 // Upsert{{.Name}} insert or update the {{.Name}} data by primary key.
 // NOTE:
 //  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
@@ -713,10 +712,6 @@ func Get{{.Name}}ByPrimary({{range .PrimaryFields}}_{{.ModelName}} {{.Typ}}, {{e
 		}
 		return _{{.LowerFirstLetter}}, true, nil
 	case sql.ErrNoRows:
-		err2 := {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
 		return nil, false, nil
 	default:
 		return nil, false, err
@@ -740,10 +735,6 @@ func Get{{$.Name}}By{{.Name}}(_{{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, erro
 		}
 		return _{{$.LowerFirstLetter}}, true, nil
 	case sql.ErrNoRows:
-		err2 := {{$.LowerFirstName}}DB.PutCache(_{{$.LowerFirstLetter}},"{{.ModelName}}")
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
 		return nil, false, nil
 	default:
 		return nil, false, err
@@ -793,7 +784,6 @@ import (
 	"time"
 	"unsafe"
 
-	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/model/mongo"
 
@@ -899,10 +889,6 @@ func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) 
 	case nil:
 		return true, nil
 	case mongo.ErrNotFound:
-		err2 := {{.LowerFirstName}}DB.PutCache(_{{.LowerFirstLetter}})
-		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
-		}
 		return false, nil
 	default:
 		return false, err
