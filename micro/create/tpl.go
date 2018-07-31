@@ -786,9 +786,12 @@ import (
 
 	"github.com/henrylee2cn/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/model/mongo"
+	tp "github.com/henrylee2cn/teleport"
 
 	"${import_prefix}/args"
 )
+
+var _ = tp.Errorf
 
 {{.Doc}}type {{.Name}} args.{{.Name}}
 

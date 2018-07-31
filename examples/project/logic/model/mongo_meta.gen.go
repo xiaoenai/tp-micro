@@ -8,10 +8,13 @@ import (
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
+	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/tp-micro/model/mongo"
 
 	"github.com/xiaoenai/tp-micro/examples/project/args"
 )
+
+var _ = tp.Errorf
 
 // Meta comment...
 type Meta args.Meta
