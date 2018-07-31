@@ -102,7 +102,7 @@ func UpsertLog(_l *Log, _updateFields []string, tx ...*sqlx.Tx) (int64, error) {
 	if _l.CreatedAt == 0 {
 		_l.CreatedAt = _l.UpdatedAt
 	}
-	return _l.Id, logDB.Callback(func(tx sqlx.DbOrTx) error {
+	err := logDB.Callback(func(tx sqlx.DbOrTx) error {
 		var (
 			query            string
 			isZeroPrimaryKey = _l.isZeroPrimaryKey()
@@ -131,12 +131,20 @@ func UpsertLog(_l *Log, _updateFields []string, tx ...*sqlx.Tx) (int64, error) {
 		if isZeroPrimaryKey && err == nil {
 			var rowsAffected int64
 			rowsAffected, err = r.RowsAffected()
-			if err == nil && rowsAffected == 1 {
+			if rowsAffected == 1 {
 				_l.Id, err = r.LastInsertId()
 			}
 		}
 		return err
 	}, tx...)
+	if err != nil {
+		return _l.Id, err
+	}
+	err = logDB.DeleteCache(_l)
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return _l.Id, nil
 }
 
 // UpdateLogByPrimary update the Log data in database by primary key.

@@ -59,7 +59,7 @@ func GetRedis() *redis.Client {
 }
 
 func index(s string, sub ...string) int {
-	var i, ii int
+	var i, ii = -1, -1
 	for _, ss := range sub {
 		ii = strings.Index(s, ss)
 		if ii != -1 && (ii < i || i == -1) {
