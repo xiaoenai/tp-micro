@@ -102,7 +102,7 @@ func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) (int64, error)
 	if _u.CreatedAt == 0 {
 		_u.CreatedAt = _u.UpdatedAt
 	}
-	return _u.Id, userDB.Callback(func(tx sqlx.DbOrTx) error {
+	err := userDB.Callback(func(tx sqlx.DbOrTx) error {
 		var (
 			query            string
 			isZeroPrimaryKey = _u.isZeroPrimaryKey()
@@ -131,12 +131,20 @@ func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) (int64, error)
 		if isZeroPrimaryKey && err == nil {
 			var rowsAffected int64
 			rowsAffected, err = r.RowsAffected()
-			if err == nil && rowsAffected == 1 {
+			if rowsAffected == 1 {
 				_u.Id, err = r.LastInsertId()
 			}
 		}
 		return err
 	}, tx...)
+	if err != nil {
+		return _u.Id, err
+	}
+	err = userDB.DeleteCache(_u)
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return _u.Id, nil
 }
 
 // UpdateUserByPrimary update the User data in database by primary key.

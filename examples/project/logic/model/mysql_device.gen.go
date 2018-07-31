@@ -99,7 +99,7 @@ func UpsertDevice(_d *Device, _updateFields []string, tx ...*sqlx.Tx) error {
 	if _d.CreatedAt == 0 {
 		_d.CreatedAt = _d.UpdatedAt
 	}
-	return deviceDB.Callback(func(tx sqlx.DbOrTx) error {
+	err := deviceDB.Callback(func(tx sqlx.DbOrTx) error {
 		var (
 			query            string
 			isZeroPrimaryKey = _d.isZeroPrimaryKey()
@@ -127,6 +127,14 @@ func UpsertDevice(_d *Device, _updateFields []string, tx ...*sqlx.Tx) error {
 		_, err := tx.NamedExec(query, _d)
 		return err
 	}, tx...)
+	if err != nil {
+		return err
+	}
+	err = deviceDB.DeleteCache(_d)
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
 }
 
 // UpdateDeviceByPrimary update the Device data in database by primary key.

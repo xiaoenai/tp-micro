@@ -253,7 +253,7 @@ func GetRedis() *redis.Client {
 }
 
 func index(s string, sub ...string) int {
-	var i, ii int
+	var i, ii = -1, -1
 	for _, ss := range sub {
 		ii = strings.Index(s, ss)
 		if ii != -1 && (ii < i || i == -1) {
@@ -484,6 +484,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .I
 	}, tx...)
 }
 
+
 // Upsert{{.Name}} insert or update the {{.Name}} data by primary key.
 // NOTE:
 //  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
@@ -501,7 +502,7 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 	if _{{.LowerFirstLetter}}.CreatedAt == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
-	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
 		var (
 			query string
 			isZeroPrimaryKey=_{{.LowerFirstLetter}}.isZeroPrimaryKey()
@@ -530,13 +531,21 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 		if isZeroPrimaryKey && err==nil {
 			var rowsAffected int64
 			rowsAffected, err = r.RowsAffected()
-			if err == nil && rowsAffected == 1 {
+			if rowsAffected == 1 {
 				_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}}, err = r.LastInsertId()
 			}
 		}
 		{{else}}_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
 		{{end}}return err
 	}, tx...)
+	if err != nil {
+		return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}err
+	}
+	err = {{.LowerFirstName}}DB.DeleteCache(_{{.LowerFirstLetter}})
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}nil
 }
 
 // Update{{.Name}}ByPrimary update the {{.Name}} data in database by primary key.
