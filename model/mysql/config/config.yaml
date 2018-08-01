@@ -1,0 +1,19 @@
+test_db:
+  database: test
+  username: root
+  password: ""
+  host: 127.0.0.1
+  port: 3306
+  max_idle_conns: 0
+  max_open_conns: 0
+  conn_max_lifetime: 0
+  no_cache: false
+
+test_redis:
+  deploy_type: single
+  for_single:
+    addr: 127.0.0.1:6379
+  for_cluster:
+    addrs: []
+  pool_size_per_node: 0
+  idle_timeout: 0
