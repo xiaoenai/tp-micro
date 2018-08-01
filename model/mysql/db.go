@@ -334,24 +334,26 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 	// to lock or get first cache
 	c.Cache.LockCallback("lock_"+key, func() {
 		var b []byte
-	FIRST:
-		if gettedFirstCacheKey {
-			exist, err = c.getFirstCache(key, destStructPtr)
-			if exist {
-				err = nil
-				return
-			}
-			if err != nil {
-				return
-			}
-		} else {
-			b, err = c.Cache.Get(key).Bytes()
-			if err == nil {
-				key = goutil.BytesToString(b)
-				gettedFirstCacheKey = true
-				goto FIRST
-			} else if !redis.IsRedisNil(err) {
-				return
+		if !exist {
+		FIRST:
+			if gettedFirstCacheKey {
+				exist, err = c.getFirstCache(key, destStructPtr)
+				if exist {
+					err = nil
+					return
+				}
+				if err != nil {
+					return
+				}
+			} else {
+				b, err = c.Cache.Get(key).Bytes()
+				if err == nil {
+					key = goutil.BytesToString(b)
+					gettedFirstCacheKey = true
+					goto FIRST
+				} else if !redis.IsRedisNil(err) {
+					return
+				}
 			}
 		}
 
