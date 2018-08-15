@@ -33,7 +33,8 @@ func InitWithClient(cli *micro.Client) {
 
 // Stat handler
 func Stat(arg *args.StatArg, setting ...socket.PacketSetting) *tp.Rerror {
-	return client.Push(fmt.Sprintf("/project/stat?ts=%v", arg.Ts), arg, setting...)
+	setting = append(setting, tp.WithQuery("ts", fmt.Sprintf("%v", arg.Ts)))
+	return client.Push("/project/stat", arg, setting...)
 }
 
 // Home handler
