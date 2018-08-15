@@ -369,27 +369,31 @@ func (p *Project) genSdkFile() {
 	for _, h := range p.tplInfo.HandlerList() {
 		name := h.fullName
 		uri := path.Join("/", goutil.SnakeString(p.Name), h.uri)
-		if len(h.queryParams) > 0 {
-			uri += "?"
-			var params []string
-			for _, param := range h.queryParams {
-				uri = fmt.Sprintf("%s%s=%%v&", uri, param.queryName)
-				params = append(params, "arg."+param.Name)
+		var settingString string
+		for _, param := range h.queryParams {
+			if strings.HasPrefix(param.Typ, "[") {
+				settingString += fmt.Sprintf("for _,v:=range arg.%s{\n%s}\n",
+					param.Name,
+					fmt.Sprintf("setting=append(setting,tp.WithQuery(\"%s\",fmt.Sprintf(\"%%v\",v)))\n", param.queryName),
+				)
+			} else {
+				settingString += fmt.Sprintf("setting=append(setting,tp.WithQuery(\"%s\",fmt.Sprintf(\"%%v\",arg.%s)))\n",
+					param.queryName,
+					param.Name,
+				)
 			}
-			uri = strings.TrimRight(uri, "&")
-			uri = fmt.Sprintf(`fmt.Sprintf("%s",%s)`, uri, strings.Join(params, ","))
-		} else {
-			uri = fmt.Sprintf("%q", uri)
 		}
+
 		switch h.group.typ {
 		case pullType:
 			s1 += fmt.Sprintf(
 				"%sfunc %s(arg *args.%s, setting ...socket.PacketSetting)(*args.%s,*tp.Rerror){\n"+
-					"result := new(args.%s)\n"+
-					"rerr := client.Pull(%s, arg, result, setting...).Rerror()\n"+
+					"result := new(args.%s)\n"+"%s"+
+					"rerr := client.Pull(\"%s\", arg, result, setting...).Rerror()\n"+
 					"return result, rerr\n}\n",
 				h.doc, name, h.arg, h.result,
 				h.result,
+				settingString,
 				uri,
 			)
 			s2 += fmt.Sprintf(
@@ -401,9 +405,10 @@ func (p *Project) genSdkFile() {
 			)
 		case pushType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(arg *args.%s, setting ...socket.PacketSetting)*tp.Rerror{\n"+
-					"return client.Push(%s, arg, setting...)\n}\n",
+				"%sfunc %s(arg *args.%s, setting ...socket.PacketSetting)*tp.Rerror{\n"+"%s"+
+					"return client.Push(\"%s\", arg, setting...)\n}\n",
 				h.doc, name, h.arg,
+				settingString,
 				uri,
 			)
 			s2 += fmt.Sprintf(
@@ -415,8 +420,8 @@ func (p *Project) genSdkFile() {
 			)
 		}
 	}
-	p.replaceWithLine("sdk/rpc.gen.go", "${rpc_call_define}", s1)
-	p.replaceWithLine("sdk/rpc.gen_test.go", "${rpc_call_test_define}", s2)
+	p.replaceWithLine("sdk/rpc.gen.go", "${rpc_pull_define}", s1)
+	p.replaceWithLine("sdk/rpc.gen_test.go", "${rpc_pull_test_define}", s2)
 }
 
 func (p *Project) genModelFile() {

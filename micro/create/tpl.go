@@ -372,7 +372,7 @@ func Init(cliConfig micro.CliConfig, etcdConfing etcd.EasyConfig) {
 func InitWithClient(cli *micro.Client) {
 	client = cli
 }
-${rpc_call_define}
+${rpc_pull_define}
 `,
 
 	"sdk/rpc.gen_test.go": `package sdk
@@ -397,7 +397,7 @@ func TestSdk(t *testing.T) {
 			Endpoints: []string{"http://127.0.0.1:2379"},
 		},
 	)
-	${rpc_call_test_define}}
+	${rpc_pull_test_define}}
 `}
 
 const mysqlModelTpl = `package model
