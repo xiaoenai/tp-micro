@@ -232,7 +232,7 @@ func GetLogByPrimary(_id int64) (*Log, bool, error) {
 	err := logDB.CacheGet(_l)
 	switch err {
 	case nil:
-		if _l.CreatedAt == 0 {
+		if _l.CreatedAt == 0 || _l.DeletedTs != 0 {
 			return nil, false, nil
 		}
 		return _l, true, nil

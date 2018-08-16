@@ -707,7 +707,7 @@ func Get{{.Name}}ByPrimary({{range .PrimaryFields}}_{{.ModelName}} {{.Typ}}, {{e
 	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}})
 	switch err {
 	case nil:
-		if _{{.LowerFirstLetter}}.CreatedAt == 0 {
+		if _{{.LowerFirstLetter}}.CreatedAt == 0 || _{{.LowerFirstLetter}}.DeletedTs != 0{
 			return nil, false, nil
 		}
 		return _{{.LowerFirstLetter}}, true, nil
@@ -730,7 +730,7 @@ func Get{{$.Name}}By{{.Name}}(_{{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, erro
 	err := {{$.LowerFirstName}}DB.CacheGet(_{{$.LowerFirstLetter}},"{{.ModelName}}")
 	switch err {
 	case nil:
-		if _{{$.LowerFirstLetter}}.CreatedAt == 0 {
+		if _{{$.LowerFirstLetter}}.CreatedAt == 0 || _{{$.LowerFirstLetter}}.DeletedTs != 0{
 			return nil, false, nil
 		}
 		return _{{$.LowerFirstLetter}}, true, nil
@@ -864,7 +864,7 @@ func Upsert{{.Name}}(selector, updater mongo.M) error {
 {{range .UniqueFields}}
 // Get{{$.Name}}By{{.Name}} query a {{$.Name}} data from database by '{{.ModelName}}' condition.
 // NOTE:
-//  Without cache layer;
+//  With cache layer;
 //  If @return error!=nil, means the database error.
 func Get{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error) {
 	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
@@ -884,7 +884,7 @@ func Get{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error
 
 // Get{{.Name}}ByFields query a {{.Name}} data from database by WHERE field.
 // NOTE:
-//  Without cache layer;
+//  With cache layer;
 //  If @return error!=nil, means the database error.
 func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) (bool, error) {
 	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}}, _fields...)
