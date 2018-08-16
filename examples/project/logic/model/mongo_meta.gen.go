@@ -64,7 +64,7 @@ func UpsertMeta(selector, updater mongo.M) error {
 
 // GetMetaByFields query a Meta data from database by WHERE field.
 // NOTE:
-//  Without cache layer;
+//  With cache layer;
 //  If @return error!=nil, means the database error.
 func GetMetaByFields(_m *Meta, _fields ...string) (bool, error) {
 	err := metaDB.CacheGet(_m, _fields...)

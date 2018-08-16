@@ -222,7 +222,7 @@ func GetDeviceByPrimary(_uuid string) (*Device, bool, error) {
 	err := deviceDB.CacheGet(_d)
 	switch err {
 	case nil:
-		if _d.CreatedAt == 0 {
+		if _d.CreatedAt == 0 || _d.DeletedTs != 0 {
 			return nil, false, nil
 		}
 		return _d, true, nil

@@ -303,7 +303,7 @@ func GetUserByPrimary(_id int64) (*User, bool, error) {
 	err := userDB.CacheGet(_u)
 	switch err {
 	case nil:
-		if _u.CreatedAt == 0 {
+		if _u.CreatedAt == 0 || _u.DeletedTs != 0 {
 			return nil, false, nil
 		}
 		return _u, true, nil
@@ -325,7 +325,7 @@ func GetUserByName(_name string) (*User, bool, error) {
 	err := userDB.CacheGet(_u, "name")
 	switch err {
 	case nil:
-		if _u.CreatedAt == 0 {
+		if _u.CreatedAt == 0 || _u.DeletedTs != 0 {
 			return nil, false, nil
 		}
 		return _u, true, nil
