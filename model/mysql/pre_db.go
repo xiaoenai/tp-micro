@@ -7,6 +7,7 @@ import (
 	"github.com/henrylee2cn/goutil"
 	"github.com/xiaoenai/tp-micro/model/redis"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
+	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
 )
 
 // PreDB preset *DB
@@ -47,7 +48,8 @@ func (p *PreDB) Init2(dbConfig *Config, redisCient *redis.Client) (err error) {
 	p.DB.SetMaxOpenConns(dbConfig.MaxOpenConns)
 	p.DB.SetMaxIdleConns(dbConfig.MaxIdleConns)
 	p.DB.SetConnMaxLifetime(time.Duration(dbConfig.ConnMaxLifetime) * time.Second)
-	p.DB.MapperFunc(goutil.SnakeString)
+	// p.DB.MapperFunc(goutil.SnakeString)
+	p.DB.Mapper = reflectx.NewMapperFunc("json", goutil.SnakeString)
 	p.DB.dbConfig = dbConfig
 	if !dbConfig.NoCache && redisCient != nil {
 		p.DB.Cache = redisCient
