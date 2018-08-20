@@ -405,7 +405,7 @@ func (c *CacheableDB) createGetQueryByWhere(whereCond string) string {
 	for _, col := range c.cols {
 		queryAll += " `" + col + "`,"
 	}
-	return queryAll[:len(queryAll)-1] + " FROM " + c.tableName + " WHERE " + whereCond + " LIMIT 1;"
+	return queryAll[:len(queryAll)-1] + " FROM `" + c.tableName + "` WHERE " + whereCond + " LIMIT 1;"
 }
 
 // CacheGetByWhere selects one row by the whereNamedCond.
