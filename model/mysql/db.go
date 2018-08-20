@@ -268,7 +268,7 @@ func (c *CacheableDB) CreateGetQuery(whereFields ...string) string {
 	for _, col := range c.cols {
 		queryAll += " `" + col + "`,"
 	}
-	queryAll = queryAll[:len(queryAll)-1] + " FROM " + c.tableName + " WHERE"
+	queryAll = queryAll[:len(queryAll)-1] + " FROM `" + c.tableName + "` WHERE"
 	for _, col := range whereFields {
 		queryAll += " `" + col + "`=? AND"
 	}
