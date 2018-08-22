@@ -1,7 +1,7 @@
 project:
   srv:
     network: ""
-    listen_address: :9090
+    listen_address: :0
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s
