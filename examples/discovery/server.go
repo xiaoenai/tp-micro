@@ -17,7 +17,7 @@ func main() {
 
 	cfg := micro.SrvConfig{
 		DefaultBodyCodec: "protobuf",
-		ListenAddress:    ":9090",
+		ListenAddress:    ":",
 		EnableHeartbeat:  true,
 	}
 	srv := micro.NewServer(cfg, discovery.ServicePlugin(

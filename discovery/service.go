@@ -18,6 +18,7 @@ package discovery
 
 import (
 	"context"
+	"net"
 	"time"
 
 	tp "github.com/henrylee2cn/teleport"
@@ -67,14 +68,18 @@ func ServicePlugin(hostport string, etcdConfig etcd.EasyConfig, excludeApis ...s
 // excludeApis must not be registered to etcd.
 func ServicePluginFromEtcd(hostport string, etcdClient *etcd.Client, excludeApis ...string) *Service {
 	s := &Service{
-		hostport:    hostport,
-		serviceKey:  createServiceKey(hostport),
 		client:      etcdClient,
 		serviceInfo: new(ServiceInfo),
 	}
+	s.resetHostPort(hostport)
 	s.ExcludeApi(heartbeat.HeartbeatUri)
 	s.ExcludeApi(excludeApis...)
 	return s
+}
+
+func (s *Service) resetHostPort(hostport string) {
+	s.hostport = hostport
+	s.serviceKey = createServiceKey(hostport)
 }
 
 // Etcd returns the etcd client.
@@ -99,7 +104,15 @@ func (s *Service) PostReg(handler *tp.Handler) error {
 }
 
 // PostListen adds serviceInfo, and starts etcd keep alive.
-func (s *Service) PostListen() error {
+func (s *Service) PostListen(addr net.Addr) error {
+	host, port, err := net.SplitHostPort(s.hostport)
+	if err != nil {
+		return err
+	}
+	if port == "" || port == "0" {
+		_, port, _ = net.SplitHostPort(addr.String())
+		s.resetHostPort(net.JoinHostPort(host, port))
+	}
 L:
 	for _, api := range s.allApis {
 		for _, a := range s.excludeApis {

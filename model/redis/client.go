@@ -157,6 +157,7 @@ type (
 	RedisCmdable       = redis.Cmdable
 	SliceCmd           = redis.SliceCmd
 	StatusCmd          = redis.StatusCmd
+	Cmder              = redis.Cmder
 	IntCmd             = redis.IntCmd
 	DurationCmd        = redis.DurationCmd
 	BoolCmd            = redis.BoolCmd
