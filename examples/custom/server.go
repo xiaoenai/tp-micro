@@ -5,10 +5,10 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/gateway/helper/agent"
 	"github.com/xiaoenai/tp-micro/helper"
 	html "github.com/xiaoenai/tp-micro/helper/mod-html"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/model/redis"
 )
 
@@ -67,7 +67,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 func main() {
 	cfg := config{
 		Srv: micro.SrvConfig{
-			ListenAddress:   ":9090",
+			ListenAddress:   ":0",
 			EnableHeartbeat: true,
 			PrintDetail:     true,
 		},

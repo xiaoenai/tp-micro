@@ -88,7 +88,7 @@ server:
     default_context_age: 0s
     default_session_age: 0s
     enable_heartbeat: true
-    listen_address: :9090
+    listen_address: :0
     network: ""
     print_detail: false
     slow_comet_duration: 0s

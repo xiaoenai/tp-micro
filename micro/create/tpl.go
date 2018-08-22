@@ -171,7 +171,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 
 var cfg = &config{
 	Srv: micro.SrvConfig{
-		ListenAddress:     ":9090",
+		ListenAddress:     ":0",
 		EnableHeartbeat:   true,
 		PrintDetail:       true,
 		CountTime:         true,
