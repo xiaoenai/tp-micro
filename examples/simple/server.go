@@ -4,9 +4,9 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/helper"
 	html "github.com/xiaoenai/tp-micro/helper/mod-html"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 
 func init() {
@@ -52,7 +52,7 @@ func (m *Math) Divide(args *Args) (int, *tp.Rerror) {
 
 func main() {
 	cfg := micro.SrvConfig{
-		ListenAddress:   ":9090",
+		ListenAddress:   ":",
 		EnableHeartbeat: true,
 		PrintDetail:     true,
 	}
