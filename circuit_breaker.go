@@ -20,7 +20,6 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
-	sess "github.com/henrylee2cn/teleport/mixer/clientsession"
 )
 
 const (
@@ -41,7 +40,7 @@ const (
 type (
 	circuitBreaker struct {
 		linker          Linker
-		newSessionFunc  func(addr string) *cliSession
+		newSessionFunc  func(addr string) (*cliSession, *tp.Rerror)
 		sessLib         goutil.Map
 		closeCh         chan struct{}
 		enableBreak     bool
@@ -58,7 +57,7 @@ type (
 		halfOpenTesing bool
 		rwmu           sync.RWMutex
 		circuitBreaker *circuitBreaker
-		*sess.CliSession
+		tp.Session
 	}
 )
 
@@ -67,7 +66,7 @@ func newCircuitBreaker(
 	errorPercentage int,
 	breakDuration time.Duration,
 	linker Linker,
-	newFn func(string) *sess.CliSession,
+	newFn func(string) (tp.Session, *tp.Rerror),
 ) *circuitBreaker {
 	c := &circuitBreaker{
 		linker:          linker,
@@ -77,13 +76,17 @@ func newCircuitBreaker(
 		breakDuration:   breakDuration,
 		closeCh:         make(chan struct{}),
 	}
-	c.newSessionFunc = func(addr string) *cliSession {
+	c.newSessionFunc = func(addr string) (*cliSession, *tp.Rerror) {
+		sess, rerr := newFn(addr)
+		if rerr != nil {
+			return nil, rerr
+		}
 		return &cliSession{
 			addr:           addr,
-			CliSession:     newFn(addr),
+			Session:        sess,
 			status:         closedStatus,
 			circuitBreaker: c,
-		}
+		}, nil
 	}
 	return c
 }
@@ -113,7 +116,11 @@ func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Rerror) {
 		}
 		_s, ok := c.sessLib.Load(addr)
 		if !ok {
-			s = c.newSessionFunc(addr)
+			s, rerr = c.newSessionFunc(addr)
+			if rerr != nil {
+				exclude[addr] = struct{}{}
+				continue
+			}
 			c.sessLib.Store(addr, s)
 			return s, nil
 		}
@@ -204,7 +211,7 @@ func (c *circuitBreaker) watchOffline() {
 		if c.enableBreak && s.halfOpenTimer != nil {
 			s.halfOpenTimer.Stop()
 		}
-		tp.Go(s.Close)
+		tp.Go(func() { s.Close() })
 	}
 }
 
