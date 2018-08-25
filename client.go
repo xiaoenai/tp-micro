@@ -21,7 +21,6 @@ import (
 	"github.com/henrylee2cn/cfgo"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
-	sess "github.com/henrylee2cn/tp-ext/mod-cliSession"
 	heartbeat "github.com/henrylee2cn/tp-ext/plugin-heartbeat"
 )
 
@@ -31,23 +30,21 @@ type (
 	//  yaml tag is used for github.com/henrylee2cn/cfgo
 	//  ini tag is used for github.com/henrylee2cn/ini
 	CliConfig struct {
-		Network             string               `yaml:"network"                ini:"network"                comment:"Network; tcp, tcp4, tcp6, unix or unixpacket"`
-		LocalIP             string               `yaml:"local_ip"               ini:"local_ip"               comment:"Local IP"`
-		TlsCertFile         string               `yaml:"tls_cert_file"          ini:"tls_cert_file"          comment:"TLS certificate file path"`
-		TlsKeyFile          string               `yaml:"tls_key_file"           ini:"tls_key_file"           comment:"TLS key file path"`
-		DefaultSessionAge   time.Duration        `yaml:"default_session_age"    ini:"default_session_age"    comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
-		DefaultContextAge   time.Duration        `yaml:"default_context_age"    ini:"default_context_age"    comment:"Default PULL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
-		DefaultDialTimeout  time.Duration        `yaml:"default_dial_timeout"   ini:"default_dial_timeout"   comment:"Default maximum duration for dialing; for client role; ns,µs,ms,s,m,h"`
-		RedialTimes         int                  `yaml:"redial_times"           ini:"redial_times"           comment:"The maximum times of attempts to redial, after the connection has been unexpectedly broken; for client role"`
-		Failover            int                  `yaml:"failover"               ini:"failover"               comment:"The maximum times of failover"`
-		SlowCometDuration   time.Duration        `yaml:"slow_comet_duration"    ini:"slow_comet_duration"    comment:"Slow operation alarm threshold; ns,µs,ms,s ..."`
-		DefaultBodyCodec    string               `yaml:"default_body_codec"     ini:"default_body_codec"     comment:"Default body codec type id"`
-		PrintDetail         bool                 `yaml:"print_detail"           ini:"print_detail"           comment:"Is print body and metadata or not"`
-		CountTime           bool                 `yaml:"count_time"             ini:"count_time"             comment:"Is count cost time or not"`
-		HeartbeatSecond     int                  `yaml:"heartbeat_second"       ini:"heartbeat_second"       comment:"When the heartbeat interval(second) is greater than 0, heartbeat is enabled; if it's smaller than 3, change to 3 default"`
-		SessMaxQuota        int                  `yaml:"sess_max_quota"         ini:"sess_max_quota"         comment:"The maximum number of sessions in the connection pool"`
-		SessMaxIdleDuration time.Duration        `yaml:"sess_max_idle_duration" ini:"sess_max_idle_duration" comment:"The maximum time period for the idle session in the connection pool; ns,µs,ms,s,m,h"`
-		CircuitBreaker      CircuitBreakerConfig `yaml:"circuit_breaker" ini:"circuit_breaker" comment:"Circuit breaker config"`
+		Network            string               `yaml:"network"                ini:"network"                comment:"Network; tcp, tcp4, tcp6, unix or unixpacket"`
+		LocalIP            string               `yaml:"local_ip"               ini:"local_ip"               comment:"Local IP"`
+		TlsCertFile        string               `yaml:"tls_cert_file"          ini:"tls_cert_file"          comment:"TLS certificate file path"`
+		TlsKeyFile         string               `yaml:"tls_key_file"           ini:"tls_key_file"           comment:"TLS key file path"`
+		DefaultSessionAge  time.Duration        `yaml:"default_session_age"    ini:"default_session_age"    comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+		DefaultContextAge  time.Duration        `yaml:"default_context_age"    ini:"default_context_age"    comment:"Default PULL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
+		DefaultDialTimeout time.Duration        `yaml:"default_dial_timeout"   ini:"default_dial_timeout"   comment:"Default maximum duration for dialing; for client role; ns,µs,ms,s,m,h"`
+		RedialTimes        int                  `yaml:"redial_times"           ini:"redial_times"           comment:"The maximum times of attempts to redial, after the connection has been unexpectedly broken; for client role"`
+		Failover           int                  `yaml:"failover"               ini:"failover"               comment:"The maximum times of failover"`
+		SlowCometDuration  time.Duration        `yaml:"slow_comet_duration"    ini:"slow_comet_duration"    comment:"Slow operation alarm threshold; ns,µs,ms,s ..."`
+		DefaultBodyCodec   string               `yaml:"default_body_codec"     ini:"default_body_codec"     comment:"Default body codec type id"`
+		PrintDetail        bool                 `yaml:"print_detail"           ini:"print_detail"           comment:"Is print body and metadata or not"`
+		CountTime          bool                 `yaml:"count_time"             ini:"count_time"             comment:"Is count cost time or not"`
+		HeartbeatSecond    int                  `yaml:"heartbeat_second"       ini:"heartbeat_second"       comment:"When the heartbeat interval(second) is greater than 0, heartbeat is enabled; if it's smaller than 3, change to 3 default"`
+		CircuitBreaker     CircuitBreakerConfig `yaml:"circuit_breaker" ini:"circuit_breaker" comment:"Circuit breaker config"`
 	}
 	// CircuitBreakerConfig circuit breaker config
 	CircuitBreakerConfig struct {
@@ -72,12 +69,6 @@ func (c *CliConfig) Check() error {
 	}
 	if len(c.LocalIP) == 0 {
 		c.LocalIP = "0.0.0.0"
-	}
-	if c.SessMaxQuota <= 0 {
-		c.SessMaxQuota = 100
-	}
-	if c.SessMaxIdleDuration <= 0 {
-		c.SessMaxIdleDuration = time.Minute * 3
 	}
 	if c.Failover < 0 {
 		c.Failover = 0
@@ -113,15 +104,13 @@ func (c *CliConfig) peerConfig() tp.PeerConfig {
 
 // Client client peer
 type Client struct {
-	peer                tp.Peer
-	circuitBreaker      *circuitBreaker
-	protoFunc           socket.ProtoFunc
-	sessMaxQuota        int
-	sessMaxIdleDuration time.Duration
-	closeCh             chan struct{}
-	closeMu             sync.Mutex
-	maxTry              int
-	heartbeatPing       heartbeat.Ping
+	peer           tp.Peer
+	circuitBreaker *circuitBreaker
+	protoFunc      socket.ProtoFunc
+	closeCh        chan struct{}
+	closeMu        sync.Mutex
+	maxTry         int
+	heartbeatPing  heartbeat.Ping
 }
 
 // NewClient creates a client peer.
@@ -143,27 +132,19 @@ func NewClient(cfg CliConfig, linker Linker, globalLeftPlugin ...tp.Plugin) *Cli
 		}
 	}
 	cli := &Client{
-		peer:                peer,
-		protoFunc:           socket.DefaultProtoFunc(),
-		sessMaxQuota:        cfg.SessMaxQuota,
-		sessMaxIdleDuration: cfg.SessMaxIdleDuration,
-		closeCh:             make(chan struct{}),
-		maxTry:              cfg.Failover + 1,
-		heartbeatPing:       heartbeatPing,
+		peer:          peer,
+		protoFunc:     socket.DefaultProtoFunc(),
+		closeCh:       make(chan struct{}),
+		maxTry:        cfg.Failover + 1,
+		heartbeatPing: heartbeatPing,
 	}
 	cli.circuitBreaker = newCircuitBreaker(
 		cfg.CircuitBreaker.Enable,
 		cfg.CircuitBreaker.ErrorPercentage,
 		cfg.CircuitBreaker.BreakDuration,
 		linker,
-		func(addr string) *sess.CliSession {
-			return sess.New(
-				peer,
-				addr,
-				cli.sessMaxQuota,
-				cli.sessMaxIdleDuration,
-				cli.protoFunc,
-			)
+		func(addr string) (tp.Session, *tp.Rerror) {
+			return cli.peer.Dial(addr, cli.protoFunc)
 		})
 	cli.circuitBreaker.start()
 	return cli

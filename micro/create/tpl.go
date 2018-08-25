@@ -375,20 +375,20 @@ func InitWithClient(cli *micro.Client) {
 ${rpc_pull_define}
 `,
 
-	"sdk/rpc.gen_test.go": `package sdk
+	"sdk/rpc.gen_test.go": `package sdk_test
 import (
-	"testing"
+	"fmt"
 
 	micro "github.com/xiaoenai/tp-micro"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 
 	"${import_prefix}/args"
+	"${import_prefix}/sdk"
 )
 
-// TestSdk test SDK.
-func TestSdk(t *testing.T) {
-	Init(
+func init(){
+	sdk.Init(
 		micro.CliConfig{
 			Failover:        3,
 			HeartbeatSecond: 4,
@@ -397,8 +397,11 @@ func TestSdk(t *testing.T) {
 			Endpoints: []string{"http://127.0.0.1:2379"},
 		},
 	)
-	${rpc_pull_test_define}}
-`}
+}
+
+${rpc_pull_test_define}
+`,
+}
 
 const mysqlModelTpl = `package model
 
