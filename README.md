@@ -23,7 +23,7 @@ go install
 - Support auto service-discovery
 - Supports custom service linker
 - Support load balancing
-- Support NIO and connection pool
+- Support Asynchronous multiplexing IO
 - Support custom protocol
 - Support custom body codec
 - Support plug-in expansion
