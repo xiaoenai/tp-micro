@@ -397,10 +397,11 @@ func (p *Project) genSdkFile() {
 				uri,
 			)
 			s2 += fmt.Sprintf(
-				"{\n"+
-					"result, rerr :=%s(new(args.%s))\n"+
+				"func Example%s(){\n"+
+					"result, rerr :=sdk.%[1]s(&args.%s{})\n"+
 					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n} else {\ntp.Infof(\"%s: result: %%#v\", result)\n}\n"+
-					"}\n",
+					"fmt.Printf(\"\")\n// Output:\n"+
+					"}\n\n",
 				name, h.arg, name, name,
 			)
 		case pushType:
@@ -412,10 +413,11 @@ func (p *Project) genSdkFile() {
 				uri,
 			)
 			s2 += fmt.Sprintf(
-				"{\n"+
-					"rerr :=%s(new(args.%s))\n"+
+				"func Example%s(){\n"+
+					"rerr :=sdk.%[1]s(&args.%s{})\n"+
 					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n}\n"+
-					"}\n",
+					"fmt.Printf(\"\")\n// Output:\n"+
+					"}\n\n",
 				name, h.arg, name,
 			)
 		}
