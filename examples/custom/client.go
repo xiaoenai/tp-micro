@@ -26,7 +26,7 @@ func main() {
 	// test push
 	cli.RoutePushFunc(push)
 	for msg := range c {
-		// 业务
+		// your business
 		tp.Infof("received: %v", msg)
 	}
 }

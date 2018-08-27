@@ -115,7 +115,7 @@ func main() {
 	// test pushing, when the client progress is existed.
 	gwSdk.Init("v1", cfg.Cli, nil, p.Etcd())
 	for i := 0; ; i++ {
-		tp.Infof("test pushing after 10s(when the client progress is existed)")
+		tp.Infof("test pushing msg after 10s")
 		time.Sleep(time.Second * 10)
 		push([]string{"client-auth-info-12345"}, &Args{A: i, B: i})
 	}
