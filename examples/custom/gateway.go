@@ -60,7 +60,7 @@ func main() {
 	}
 
 	go func() {
-		t := time.NewTicker(time.Second)
+		t := time.NewTicker(time.Second * 10)
 		for {
 			<-t.C
 			tp.Infof("total conn: %d", gateway.TotalConn())

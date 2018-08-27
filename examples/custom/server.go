@@ -1,11 +1,17 @@
 package main
 
 import (
+	"encoding/json"
+	"time"
+
 	"github.com/henrylee2cn/cfgo"
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/codec"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/gateway/helper/agent"
+	gwSdk "github.com/xiaoenai/tp-micro/gateway/sdk"
+	gwTypes "github.com/xiaoenai/tp-micro/gateway/types"
 	"github.com/xiaoenai/tp-micro/helper"
 	html "github.com/xiaoenai/tp-micro/helper/mod-html"
 	"github.com/xiaoenai/tp-micro/model/etcd"
@@ -55,6 +61,7 @@ func (m *Math) Divide(args *Args) (int, *tp.Rerror) {
 
 type config struct {
 	Srv   micro.SrvConfig
+	Cli   micro.CliConfig
 	Etcd  etcd.EasyConfig
 	Redis redis.Config
 }
@@ -71,6 +78,7 @@ func main() {
 			EnableHeartbeat: true,
 			PrintDetail:     true,
 		},
+		Cli: micro.CliConfig{},
 		Etcd: etcd.EasyConfig{
 			Endpoints: []string{"http://127.0.0.1:2379"},
 		},
@@ -84,6 +92,7 @@ func main() {
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
+
 	tp.Go(func() {
 		agentNewsChan := agent.Subscribe()
 		for news := range agentNewsChan {
@@ -92,12 +101,59 @@ func main() {
 			)
 		}
 	})
-	srv := micro.NewServer(cfg.Srv, discovery.ServicePlugin(
+
+	p := discovery.ServicePlugin(
 		cfg.Srv.InnerIpPort(),
 		cfg.Etcd,
-	))
+	)
+	srv := micro.NewServer(cfg.Srv, p)
 	srv.RouteCallFunc(Home)
 	srv.RouteCallFunc(Home2)
 	srv.RouteCall(new(Math))
-	srv.ListenAndServe()
+	go srv.ListenAndServe()
+
+	// test pushing, when the client progress is existed.
+	gwSdk.Init("v1", cfg.Cli, nil, p.Etcd())
+	for i := 0; ; i++ {
+		tp.Infof("test pushing after 10s(when the client progress is existed)")
+		time.Sleep(time.Second * 10)
+		push([]string{"client-auth-info-12345"}, &Args{A: i, B: i})
+	}
+	select {}
+}
+
+func push(uids []string, args *Args) {
+	agts, rerr := agent.QueryAgent(uids)
+	if rerr != nil {
+		tp.Errorf("push fail: %v", rerr)
+	}
+	for _, agt := range agts.Agents {
+		if agt.IsOffline {
+			continue
+		}
+		addr := agt.GetInnerGw()
+		target := []*gwTypes.MpushTarget{
+			{
+				SessionId:       agt.GetSessionId(),
+				AdditionalQuery: "testpush=ok",
+			},
+		}
+		targetUri := "/push"
+		msgBytes, _ := json.Marshal(args)
+		_, rerr := gwSdk.SocketMpush(
+			addr,
+			&gwTypes.SocketMpushArgs{
+				Target:    target,
+				Uri:       targetUri,
+				Body:      msgBytes,
+				BodyCodec: codec.ID_JSON,
+			},
+			tp.WithBodyCodec(codec.ID_JSON),
+		)
+		if rerr != nil {
+			tp.Errorf("push fail: %v", rerr)
+		} else {
+			tp.Infof("push ok")
+		}
+	}
 }

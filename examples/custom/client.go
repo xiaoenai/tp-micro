@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/auth"
 	micro "github.com/xiaoenai/tp-micro"
@@ -17,37 +15,36 @@ func main() {
 		micro.NewStaticLinker(":5020"),
 		auth.LaunchAuth(generateAuthInfo),
 	)
-
-	var arg = &struct {
-		A int
-		B int
-	}{
-		A: 10,
-		B: 2,
-	}
-
+	// test call
 	var reply int
-
-	rerr := cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
+	rerr := cli.Call("/math/divide?access_token=sdfghj", Msg{A: 10, B: 2}, &reply).Rerror()
 	if rerr != nil {
 		tp.Fatalf("%v", rerr)
 	}
 	tp.Infof("10/2=%d", reply)
 
-	tp.Debugf("waiting for 10s...")
-	time.Sleep(time.Second * 10)
-
-	arg.B = 5
-	rerr = cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
-	if rerr != nil {
-		tp.Fatalf("%v", rerr)
+	// test push
+	cli.RoutePushFunc(push)
+	for msg := range c {
+		// 业务
+		tp.Infof("received: %v", msg)
 	}
-	tp.Infof("10/5=%d", reply)
-
-	tp.Debugf("waiting for 10s...")
-	time.Sleep(time.Second * 10)
 }
 
 func generateAuthInfo() string {
 	return "client-auth-info-12345"
+}
+
+var c = make(msgChan, 1000)
+
+type msgChan chan *Msg
+
+type Msg struct {
+	A int
+	B int
+}
+
+func push(ctx tp.PushCtx, arg *Msg) *tp.Rerror {
+	c <- arg
+	return nil
 }
