@@ -37,7 +37,6 @@ type (
 		DefaultSessionAge  time.Duration        `yaml:"default_session_age"    ini:"default_session_age"    comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
 		DefaultContextAge  time.Duration        `yaml:"default_context_age"    ini:"default_context_age"    comment:"Default CALL or PUSH context max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
 		DefaultDialTimeout time.Duration        `yaml:"default_dial_timeout"   ini:"default_dial_timeout"   comment:"Default maximum duration for dialing; for client role; ns,µs,ms,s,m,h"`
-		RedialTimes        int                  `yaml:"redial_times"           ini:"redial_times"           comment:"The maximum times of attempts to redial, after the connection has been unexpectedly broken; for client role"`
 		Failover           int                  `yaml:"failover"               ini:"failover"               comment:"The maximum times of failover"`
 		SlowCometDuration  time.Duration        `yaml:"slow_comet_duration"    ini:"slow_comet_duration"    comment:"Slow operation alarm threshold; ns,µs,ms,s ..."`
 		DefaultBodyCodec   string               `yaml:"default_body_codec"     ini:"default_body_codec"     comment:"Default body codec type id"`
@@ -92,7 +91,7 @@ func (c *CliConfig) peerConfig() tp.PeerConfig {
 		DefaultSessionAge:  c.DefaultSessionAge,
 		DefaultContextAge:  c.DefaultContextAge,
 		DefaultDialTimeout: c.DefaultDialTimeout,
-		RedialTimes:        int32(c.RedialTimes),
+		RedialTimes:        1,
 		SlowCometDuration:  c.SlowCometDuration,
 		DefaultBodyCodec:   c.DefaultBodyCodec,
 		PrintDetail:        c.PrintDetail,
