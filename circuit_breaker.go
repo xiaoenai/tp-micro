@@ -105,8 +105,8 @@ func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Rerror) {
 		uriPath = getUriPath(uri)
 		addr    string
 		s       *cliSession
-		exclude map[string]struct{}
 		cnt     = c.linker.Len(uriPath)
+		exclude = make(map[string]struct{}, cnt)
 		rerr    = notFoundService
 	)
 	for i := cnt; i > 0; i-- {
@@ -128,9 +128,6 @@ func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Rerror) {
 		// circuit breaker check
 		if !c.enableBreak || s.check() {
 			return s, nil
-		}
-		if exclude == nil {
-			exclude = make(map[string]struct{}, cnt)
 		}
 		exclude[addr] = struct{}{}
 	}
