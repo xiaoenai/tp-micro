@@ -399,7 +399,7 @@ func (p *Project) genSdkFile() {
 			s2 += fmt.Sprintf(
 				"func Example%s(){\n"+
 					"result, rerr :=sdk.%[1]s(&args.%s{})\n"+
-					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n} else {\ntp.Infof(\"%s: result: %%#v\", result)\n}\n"+
+					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%s\", toJsonBytes(rerr))\n} else {\ntp.Infof(\"%s: result: %%s\", toJsonBytes(result))\n}\n"+
 					"fmt.Printf(\"\")\n// Output:\n"+
 					"}\n\n",
 				name, h.arg, name, name,
@@ -415,7 +415,7 @@ func (p *Project) genSdkFile() {
 			s2 += fmt.Sprintf(
 				"func Example%s(){\n"+
 					"rerr :=sdk.%[1]s(&args.%s{})\n"+
-					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%v\", rerr)\n}\n"+
+					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%s\", toJsonBytes(rerr))\n}\n"+
 					"fmt.Printf(\"\")\n// Output:\n"+
 					"}\n\n",
 				name, h.arg, name,

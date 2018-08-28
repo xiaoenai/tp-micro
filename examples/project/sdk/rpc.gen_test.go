@@ -4,6 +4,7 @@
 package sdk_test
 
 import (
+	"encoding/json"
 	"fmt"
 
 	tp "github.com/henrylee2cn/teleport"
@@ -26,10 +27,15 @@ func init() {
 	)
 }
 
+func toJsonBytes(i interface{}) []byte {
+	b, _ := json.MarshalIndent(i, "", "  ")
+	return b
+}
+
 func ExampleStat() {
 	rerr := sdk.Stat(&args.StatArg{})
 	if rerr != nil {
-		tp.Errorf("Stat: rerr: %v", rerr)
+		tp.Errorf("Stat: rerr: %s", toJsonBytes(rerr))
 	}
 	fmt.Printf("")
 	// Output:
@@ -38,9 +44,9 @@ func ExampleStat() {
 func ExampleHome() {
 	result, rerr := sdk.Home(&args.EmptyStruct{})
 	if rerr != nil {
-		tp.Errorf("Home: rerr: %v", rerr)
+		tp.Errorf("Home: rerr: %s", toJsonBytes(rerr))
 	} else {
-		tp.Infof("Home: result: %#v", result)
+		tp.Infof("Home: result: %s", toJsonBytes(result))
 	}
 	fmt.Printf("")
 	// Output:
@@ -49,9 +55,9 @@ func ExampleHome() {
 func ExampleMath_Divide() {
 	result, rerr := sdk.Math_Divide(&args.DivideArg{})
 	if rerr != nil {
-		tp.Errorf("Math_Divide: rerr: %v", rerr)
+		tp.Errorf("Math_Divide: rerr: %s", toJsonBytes(rerr))
 	} else {
-		tp.Infof("Math_Divide: result: %#v", result)
+		tp.Infof("Math_Divide: result: %s", toJsonBytes(result))
 	}
 	fmt.Printf("")
 	// Output:

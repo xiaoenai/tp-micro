@@ -378,6 +378,7 @@ ${rpc_call_define}
 	"sdk/rpc.gen_test.go": `package sdk_test
 import (
 	"fmt"
+	"encoding/json"
 
 	micro "github.com/xiaoenai/tp-micro"
 	tp "github.com/henrylee2cn/teleport"
@@ -397,6 +398,11 @@ func init(){
 			Endpoints: []string{"http://127.0.0.1:2379"},
 		},
 	)
+}
+
+func toJsonBytes(i interface{}) []byte {
+	b, _ := json.MarshalIndent(i, "", "  ")
+	return b
 }
 
 ${rpc_call_test_define}
