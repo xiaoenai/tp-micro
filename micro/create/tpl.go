@@ -377,8 +377,8 @@ ${rpc_call_define}
 
 	"sdk/rpc.gen_test.go": `package sdk_test
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 
 	micro "github.com/xiaoenai/tp-micro"
 	tp "github.com/henrylee2cn/teleport"
