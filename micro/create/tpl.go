@@ -782,7 +782,7 @@ func Select{{.Name}}ByWhere(whereCond string, arg ...interface{}) ([]*{{.Name}},
 //  Without cache layer.
 func Count{{.Name}}ByWhere(whereCond string, arg ...interface{}) (int64, error) {
 	var count int64
-	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(1) FROM {{.NameSql}} WHERE "+insertZeroDeletedTsField(whereCond), arg...)
+	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(*) FROM {{.NameSql}} WHERE "+insertZeroDeletedTsField(whereCond), arg...)
 	return count, err
 }
 `

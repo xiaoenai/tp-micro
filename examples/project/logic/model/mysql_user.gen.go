@@ -367,6 +367,6 @@ func SelectUserByWhere(whereCond string, arg ...interface{}) ([]*User, error) {
 //  Without cache layer.
 func CountUserByWhere(whereCond string, arg ...interface{}) (int64, error) {
 	var count int64
-	err := userDB.Get(&count, "SELECT count(1) FROM `user` WHERE "+insertZeroDeletedTsField(whereCond), arg...)
+	err := userDB.Get(&count, "SELECT count(*) FROM `user` WHERE "+insertZeroDeletedTsField(whereCond), arg...)
 	return count, err
 }
