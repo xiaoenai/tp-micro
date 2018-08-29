@@ -264,6 +264,6 @@ func SelectDeviceByWhere(whereCond string, arg ...interface{}) ([]*Device, error
 //  Without cache layer.
 func CountDeviceByWhere(whereCond string, arg ...interface{}) (int64, error) {
 	var count int64
-	err := deviceDB.Get(&count, "SELECT count(1) FROM `device` WHERE "+insertZeroDeletedTsField(whereCond), arg...)
+	err := deviceDB.Get(&count, "SELECT count(*) FROM `device` WHERE "+insertZeroDeletedTsField(whereCond), arg...)
 	return count, err
 }

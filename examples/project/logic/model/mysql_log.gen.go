@@ -274,6 +274,6 @@ func SelectLogByWhere(whereCond string, arg ...interface{}) ([]*Log, error) {
 //  Without cache layer.
 func CountLogByWhere(whereCond string, arg ...interface{}) (int64, error) {
 	var count int64
-	err := logDB.Get(&count, "SELECT count(1) FROM `log` WHERE "+insertZeroDeletedTsField(whereCond), arg...)
+	err := logDB.Get(&count, "SELECT count(*) FROM `log` WHERE "+insertZeroDeletedTsField(whereCond), arg...)
 	return count, err
 }
