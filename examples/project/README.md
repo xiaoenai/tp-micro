@@ -13,9 +13,11 @@ Stat handler
 - REQ-QUERY:
 	- `ts={int64}`	// timestamps
 - REQ-BODY:
+
 	```json
 	{}
 	```
+
 - RESULT:
 
 
@@ -27,11 +29,13 @@ Home handler
 - REQ-QUERY:
 - REQ-BODY:
 - RESULT:
+
 	```json
 	{
 		"content": ""	// {string} // text
 	}
 	```
+
 
 
 ### Math_Divide
@@ -41,18 +45,22 @@ Divide handler
 - URI: `/project/math/divide`
 - REQ-QUERY:
 - REQ-BODY:
+
 	```json
 	{
 		"a": -0.000000,	// {float64} // dividend
 		"b": -0.000000	// {float64} // divisor
 	}
 	```
+
 - RESULT:
+
 	```json
 	{
 		"c": -0.000000	// {float64} // quotient
 	}
 	```
+
 
 
 
