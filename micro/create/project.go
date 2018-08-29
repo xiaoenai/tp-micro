@@ -197,7 +197,7 @@ func (p *Project) handlerDesc(h *handler) string {
 			var dst bytes.Buffer
 			json.Indent(&dst, []byte(jsonStr), "\t", "\t")
 			jsonStr = p.replaceCommentJson(dst.String())
-			text += fmt.Sprintf("\t```json\n\t%s\n\t```\n", jsonStr)
+			text += fmt.Sprintf("\n\t```js\n\t%s\n\t```\n\n", jsonStr)
 		}
 	}
 
