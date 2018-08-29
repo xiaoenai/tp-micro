@@ -14,7 +14,7 @@ Stat handler
 	- `ts={int64}`	// timestamps
 - REQ-BODY:
 
-	```json
+	```js
 	{}
 	```
 
@@ -30,7 +30,7 @@ Home handler
 - REQ-BODY:
 - RESULT:
 
-	```json
+	```js
 	{
 		"content": ""	// {string} // text
 	}
@@ -46,7 +46,7 @@ Divide handler
 - REQ-QUERY:
 - REQ-BODY:
 
-	```json
+	```js
 	{
 		"a": -0.000000,	// {float64} // dividend
 		"b": -0.000000	// {float64} // divisor
@@ -55,7 +55,7 @@ Divide handler
 
 - RESULT:
 
-	```json
+	```js
 	{
 		"c": -0.000000	// {float64} // quotient
 	}
