@@ -9,11 +9,10 @@ Command project is the tp-micro service project.
 
 Stat handler
 
-- URI:
-	```
-	/project/stat?ts={ts}
-	```
-- REQUEST:
+- URI: `/project/stat`
+- REQ-QUERY:
+	- `ts={int64}`	// timestamps
+- REQ-BODY:
 	```json
 	{}
 	```
@@ -24,15 +23,13 @@ Stat handler
 
 Home handler
 
-- URI:
-	```
-	/project/home
-	```
-- REQUEST:
+- URI: `/project/home`
+- REQ-QUERY:
+- REQ-BODY:
 - RESULT:
 	```json
 	{
-		"content": ""	// text
+		"content": ""	// {string} // text
 	}
 	```
 
@@ -41,21 +38,19 @@ Home handler
 
 Divide handler
 
-- URI:
-	```
-	/project/math/divide
-	```
-- REQUEST:
+- URI: `/project/math/divide`
+- REQ-QUERY:
+- REQ-BODY:
 	```json
 	{
-		"a": -0.000000,	// dividend
-		"b": -0.000000	// divisor
+		"a": -0.000000,	// {float64} // dividend
+		"b": -0.000000	// {float64} // divisor
 	}
 	```
 - RESULT:
 	```json
 	{
-		"c": -0.000000	// quotient
+		"c": -0.000000	// {float64} // quotient
 	}
 	```
 

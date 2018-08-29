@@ -170,15 +170,22 @@ func (p *Project) handlerDesc(h *handler) string {
 	uri := path.Join("/", rootGroup, h.uri)
 	var text string
 	text += commentToHtml(h.doc) + "\n"
-	var queryParam string
-	if len(h.queryParams) > 0 {
-		queryParam = "?"
-		for _, param := range h.queryParams {
-			queryParam = fmt.Sprintf("%s%s={%s}&", queryParam, param.queryName, param.queryName)
+
+	text += fmt.Sprintf("- URI: `%s`\n", uri)
+
+	queryParam := "- REQ-QUERY:\n"
+	for _, param := range h.queryParams {
+		doc := param.doc
+		if len(doc) == 0 {
+			doc = param.comment
 		}
-		queryParam = strings.TrimRight(queryParam, "&")
+		doc = strings.TrimSpace(strings.Replace(doc, "\n//", "", -1))
+		if len(doc) > 0 {
+			doc = "\t" + doc
+		}
+		queryParam += fmt.Sprintf("\t- `%s={%s}`%s\n", param.queryName, param.Typ, doc)
 	}
-	text += fmt.Sprintf("- URI:\n\t```\n\t%s%s\n\t```\n", uri, queryParam)
+	text += queryParam
 
 	var fn = func(name string, txt string) {
 		fields, _ := p.tplInfo.lookupTypeFields(name)
@@ -194,7 +201,7 @@ func (p *Project) handlerDesc(h *handler) string {
 		}
 	}
 
-	fn(h.arg, "REQUEST")
+	fn(h.arg, "REQ-BODY")
 	fn(h.result, "RESULT")
 
 	return text
@@ -214,9 +221,9 @@ func (p *Project) replaceCommentJson(s string) string {
 		}
 		doc = strings.TrimSpace(strings.Replace(doc, "\n//", "", -1))
 		if sub[len(sub)-1] == ',' {
-			s = strings.Replace(s, ss[0], sub+"\t"+doc, 1)
+			s = strings.Replace(s, ss[0], sub+"\t// {"+f.Typ+"} "+doc, 1)
 		} else {
-			s = strings.Replace(s, ss[0], sub[:len(sub)-1]+"\t"+doc+"\n", 1)
+			s = strings.Replace(s, ss[0], sub[:len(sub)-1]+"\t// {"+f.Typ+"} "+doc+"\n", 1)
 		}
 	}
 	return s
