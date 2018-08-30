@@ -269,9 +269,9 @@ func (t *Tag) HasOption(opt string) bool {
 func (t *Tag) String() string {
 	options := strings.Join(t.Options, ",")
 	if options != "" {
-		return fmt.Sprintf(`%s:"%s,%s"`, t.Key, t.Name, options)
+		return fmt.Sprintf(`%s:%q`, t.Key, t.Name+","+options)
 	}
-	return fmt.Sprintf(`%s:"%s"`, t.Key, t.Name)
+	return fmt.Sprintf(`%s:%q`, t.Key, t.Name)
 }
 
 // GoString implements the fmt.GoStringer interface
