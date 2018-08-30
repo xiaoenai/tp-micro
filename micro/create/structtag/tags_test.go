@@ -151,6 +151,20 @@ func TestParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "tag value of the complex",
+			tag:  `json:"foo" param:"<regexp:^[1-9]\\d*$>"`,
+			exp: []*Tag{
+				{
+					Key:  "json",
+					Name: "foo",
+				},
+				{
+					Key:  "param",
+					Name: "<regexp:^[1-9]\\d*$>",
+				},
+			},
+		},
 	}
 
 	for _, ts := range test {
