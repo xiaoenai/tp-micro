@@ -12,30 +12,30 @@ import (
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/examples/project/sdk"
 )
 
 // Log comment...
-type Log args.Log
+type Log sdk.Log
 
 // ToLog converts to *Log type.
-func ToLog(_l *args.Log) *Log {
+func ToLog(_l *sdk.Log) *Log {
 	return (*Log)(unsafe.Pointer(_l))
 }
 
-// ToArgsLog converts to *args.Log type.
-func ToArgsLog(_l *Log) *args.Log {
-	return (*args.Log)(unsafe.Pointer(_l))
+// ToSdkLog converts to *sdk.Log type.
+func ToSdkLog(_l *Log) *sdk.Log {
+	return (*sdk.Log)(unsafe.Pointer(_l))
 }
 
 // ToLogSlice converts to []*Log type.
-func ToLogSlice(a []*args.Log) []*Log {
+func ToLogSlice(a []*sdk.Log) []*Log {
 	return *(*[]*Log)(unsafe.Pointer(&a))
 }
 
-// ToArgsLogSlice converts to []*args.Log type.
-func ToArgsLogSlice(a []*Log) []*args.Log {
-	return *(*[]*args.Log)(unsafe.Pointer(&a))
+// ToSdkLogSlice converts to []*sdk.Log type.
+func ToSdkLogSlice(a []*Log) []*sdk.Log {
+	return *(*[]*sdk.Log)(unsafe.Pointer(&a))
 }
 
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
@@ -51,7 +51,7 @@ func (_l *Log) isZeroPrimaryKey() bool {
 	return true
 }
 
-var logDB, _ = mysqlHandler.RegCacheableDB(new(Log), cacheExpire, args.LogSql)
+var logDB, _ = mysqlHandler.RegCacheableDB(new(Log), cacheExpire, sdk.LogSql)
 
 // GetLogDB returns the Log DB handler.
 func GetLogDB() *mysql.CacheableDB {

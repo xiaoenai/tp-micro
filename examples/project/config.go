@@ -12,7 +12,7 @@ import (
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/redis"
 
-	"github.com/xiaoenai/tp-micro/examples/project/logic/model"
+	"github.com/xiaoenai/tp-micro/examples/project/internal/model"
 )
 
 type config struct {

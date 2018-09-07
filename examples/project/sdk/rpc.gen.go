@@ -11,8 +11,6 @@ import (
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/model/etcd"
-
-	"github.com/xiaoenai/tp-micro/examples/project/args"
 )
 
 var _ = fmt.Sprintf
@@ -32,21 +30,21 @@ func InitWithClient(cli *micro.Client) {
 }
 
 // Stat handler
-func Stat(arg *args.StatArg, setting ...socket.PacketSetting) *tp.Rerror {
+func Stat(arg *StatArg, setting ...socket.PacketSetting) *tp.Rerror {
 	setting = append(setting, tp.WithQuery("ts", fmt.Sprintf("%v", arg.Ts)))
 	return client.Push("/project/stat", arg, setting...)
 }
 
 // Home handler
-func Home(arg *args.EmptyStruct, setting ...socket.PacketSetting) (*args.HomeResult, *tp.Rerror) {
-	result := new(args.HomeResult)
+func Home(arg *EmptyStruct, setting ...socket.PacketSetting) (*HomeResult, *tp.Rerror) {
+	result := new(HomeResult)
 	rerr := client.Call("/project/home", arg, result, setting...).Rerror()
 	return result, rerr
 }
 
 // Divide handler
-func Math_Divide(arg *args.DivideArg, setting ...socket.PacketSetting) (*args.DivideResult, *tp.Rerror) {
-	result := new(args.DivideResult)
+func Math_Divide(arg *DivideArg, setting ...socket.PacketSetting) (*DivideResult, *tp.Rerror) {
+	result := new(DivideResult)
 	rerr := client.Call("/project/math/divide", arg, result, setting...).Rerror()
 	return result, rerr
 }

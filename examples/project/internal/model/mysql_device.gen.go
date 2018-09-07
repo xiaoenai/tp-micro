@@ -12,30 +12,30 @@ import (
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/examples/project/sdk"
 )
 
 // Device comment...
-type Device args.Device
+type Device sdk.Device
 
 // ToDevice converts to *Device type.
-func ToDevice(_d *args.Device) *Device {
+func ToDevice(_d *sdk.Device) *Device {
 	return (*Device)(unsafe.Pointer(_d))
 }
 
-// ToArgsDevice converts to *args.Device type.
-func ToArgsDevice(_d *Device) *args.Device {
-	return (*args.Device)(unsafe.Pointer(_d))
+// ToSdkDevice converts to *sdk.Device type.
+func ToSdkDevice(_d *Device) *sdk.Device {
+	return (*sdk.Device)(unsafe.Pointer(_d))
 }
 
 // ToDeviceSlice converts to []*Device type.
-func ToDeviceSlice(a []*args.Device) []*Device {
+func ToDeviceSlice(a []*sdk.Device) []*Device {
 	return *(*[]*Device)(unsafe.Pointer(&a))
 }
 
-// ToArgsDeviceSlice converts to []*args.Device type.
-func ToArgsDeviceSlice(a []*Device) []*args.Device {
-	return *(*[]*args.Device)(unsafe.Pointer(&a))
+// ToSdkDeviceSlice converts to []*sdk.Device type.
+func ToSdkDeviceSlice(a []*Device) []*sdk.Device {
+	return *(*[]*sdk.Device)(unsafe.Pointer(&a))
 }
 
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
@@ -51,7 +51,7 @@ func (_d *Device) isZeroPrimaryKey() bool {
 	return true
 }
 
-var deviceDB, _ = mysqlHandler.RegCacheableDB(new(Device), cacheExpire, args.DeviceSql)
+var deviceDB, _ = mysqlHandler.RegCacheableDB(new(Device), cacheExpire, sdk.DeviceSql)
 
 // GetDeviceDB returns the Device DB handler.
 func GetDeviceDB() *mysql.CacheableDB {

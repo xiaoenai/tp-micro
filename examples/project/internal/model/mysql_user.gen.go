@@ -12,30 +12,30 @@ import (
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/examples/project/sdk"
 )
 
 // User user info
-type User args.User
+type User sdk.User
 
 // ToUser converts to *User type.
-func ToUser(_u *args.User) *User {
+func ToUser(_u *sdk.User) *User {
 	return (*User)(unsafe.Pointer(_u))
 }
 
-// ToArgsUser converts to *args.User type.
-func ToArgsUser(_u *User) *args.User {
-	return (*args.User)(unsafe.Pointer(_u))
+// ToSdkUser converts to *sdk.User type.
+func ToSdkUser(_u *User) *sdk.User {
+	return (*sdk.User)(unsafe.Pointer(_u))
 }
 
 // ToUserSlice converts to []*User type.
-func ToUserSlice(a []*args.User) []*User {
+func ToUserSlice(a []*sdk.User) []*User {
 	return *(*[]*User)(unsafe.Pointer(&a))
 }
 
-// ToArgsUserSlice converts to []*args.User type.
-func ToArgsUserSlice(a []*User) []*args.User {
-	return *(*[]*args.User)(unsafe.Pointer(&a))
+// ToSdkUserSlice converts to []*sdk.User type.
+func ToSdkUserSlice(a []*User) []*sdk.User {
+	return *(*[]*sdk.User)(unsafe.Pointer(&a))
 }
 
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
@@ -51,7 +51,7 @@ func (_u *User) isZeroPrimaryKey() bool {
 	return true
 }
 
-var userDB, _ = mysqlHandler.RegCacheableDB(new(User), cacheExpire, args.UserSql)
+var userDB, _ = mysqlHandler.RegCacheableDB(new(User), cacheExpire, sdk.UserSql)
 
 // GetUserDB returns the User DB handler.
 func GetUserDB() *mysql.CacheableDB {

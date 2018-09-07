@@ -1,4 +1,4 @@
-package rerrs
+package sdk
 
 import (
 	tp "github.com/henrylee2cn/teleport"

@@ -3,8 +3,6 @@ package main
 import (
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
-
-	"github.com/xiaoenai/tp-micro/examples/project/api"
 )
 
 func main() {
@@ -12,6 +10,6 @@ func main() {
 		cfg.Srv,
 		discovery.ServicePlugin(cfg.Srv.InnerIpPort(), cfg.Etcd),
 	)
-	api.Route("/project", srv.Router())
+	route("/project", srv.Router())
 	srv.ListenAndServe()
 }
