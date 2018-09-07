@@ -857,10 +857,10 @@ func (r *router) handlerString(ctnFn func(*handler) string) string {
 		}
 		var secondParam, resultParam string
 		for _, h := range r.handlers {
-			secondParam = fmt.Sprintf("arg *args.%s", h.arg)
+			secondParam = fmt.Sprintf("arg *sdk.%s", h.arg)
 			resultParam = "*tp.Rerror"
 			if len(h.result) > 0 {
-				resultParam = fmt.Sprintf("(*args.%s,%s)", h.result, resultParam)
+				resultParam = fmt.Sprintf("(*sdk.%s,%s)", h.result, resultParam)
 			}
 			if len(r.name) > 0 {
 				text += fmt.Sprintf(
@@ -900,7 +900,7 @@ func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) strin
 				h.fullName = joinName(fullNamePrefix, h.name)
 				h.uri = path.Join("/", uriPrefix, tp.ToUriPath(h.name))
 			}
-			text += fmt.Sprintf("%s(new(%s))\n", regStruct, r.name)
+			text += fmt.Sprintf("%s(new(handler.%s))\n", regStruct, r.name)
 		}
 		if len(r.children) > 0 {
 			subGroupName = "_" + firstLowerLetter(r.name) + r.name[1:]
@@ -915,7 +915,7 @@ func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) strin
 		for _, h := range r.handlers {
 			h.fullName = joinName(fullNamePrefix, h.name)
 			h.uri = path.Join("/", fullNamePrefix, uriPrefix, tp.ToUriPath(h.name))
-			text += fmt.Sprintf("%s(%s)\n", regFunc, h.name)
+			text += fmt.Sprintf("%s(handler.%s)\n", regFunc, h.name)
 		}
 		for _, child := range r.children {
 			text += child.routerString(groupName, fullNamePrefix, uriPrefix)

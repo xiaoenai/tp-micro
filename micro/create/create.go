@@ -7,7 +7,6 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create/tpl"
 	"github.com/xiaoenai/tp-micro/micro/info"
 )
 
@@ -28,16 +27,22 @@ func CreateProject(force, newdoc bool) {
 	}
 
 	force = force || !goutil.FileExists(MicroGenLock)
-
-	// creates base files
 	if force {
-		tpl.Create()
+		mustMkdirAll("internal/handler")
+		mustMkdirAll("internal/model")
+		mustMkdirAll("sdk")
+		ioutil.WriteFile(
+			".gitignore",
+			[]byte(strings.Replace(__gitignore__, "${PROJ_NAME}", info.ProjName(), -1)),
+			os.FileMode(0665),
+		)
+		ioutil.WriteFile("sdk/rerr.go", []byte(__rerr__), os.FileMode(0665))
 	}
 
 	// read temptale file
 	b, err := ioutil.ReadFile(MicroTpl)
 	if err != nil {
-		b = []byte(strings.Replace(__tpl__, "__PROJ_NAME__", info.ProjName(), -1))
+		b = []byte(strings.Replace(__tpl__, "${PROJ_NAME}", info.ProjName(), -1))
 	}
 
 	// new project code
@@ -52,7 +57,7 @@ func CreateProject(force, newdoc bool) {
 	defer f.Close()
 	f.Write(formatSource(b))
 
-	tpl.RestoreAsset("./", MicroGenLock)
+	ioutil.WriteFile(MicroGenLock, []byte(__genlock__), os.FileMode(0665))
 
 	tp.Infof("Completed code generation!")
 }
@@ -70,7 +75,7 @@ func CreateDoc() {
 	// read temptale file
 	b, err := ioutil.ReadFile(MicroTpl)
 	if err != nil {
-		b = []byte(strings.Replace(__tpl__, "__PROJ_NAME__", info.ProjName(), -1))
+		b = []byte(strings.Replace(__tpl__, "${PROJ_NAME}", info.ProjName(), -1))
 	}
 
 	// new project code
