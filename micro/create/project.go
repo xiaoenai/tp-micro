@@ -309,12 +309,12 @@ func (p *Project) genRouterFile() {
 }
 
 func (p *Project) genHandlerFile() {
-	__handler__ = strings.Replace(__handler__, "${import_prefix}", p.ImprotPrefix, 1)
+	__handler__ = strings.Replace(__handler__, "${import_prefix}", p.ImprotPrefix, -1)
 	if len(p.tplInfo.PushHandlerList()) > 0 {
 		s := p.tplInfo.PushHandlerString(func(h *handler) string {
 			return fmt.Sprintf("return nil")
 		})
-		p.codeFiles["internal/handler/push.tmp.go"] = strings.Replace(__handler__, "${handler_define}", s, 1)
+		p.codeFiles["internal/handler/push.tmp.go"] = strings.Replace(__handler__, "${handler_define}", s, -1)
 	} else {
 		os.Remove("internal/handler/push.tmp.go")
 	}
@@ -322,7 +322,7 @@ func (p *Project) genHandlerFile() {
 		s := p.tplInfo.CallHandlerString(func(h *handler) string {
 			return fmt.Sprintf("return new(sdk.%s),nil", h.result)
 		})
-		p.codeFiles["internal/handler/call.tmp.go"] = strings.Replace(__handler__, "${handler_define}", s, 1)
+		p.codeFiles["internal/handler/call.tmp.go"] = strings.Replace(__handler__, "${handler_define}", s, -1)
 	} else {
 		os.Remove("internal/handler/call.tmp.go")
 	}
