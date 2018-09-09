@@ -12,7 +12,7 @@ import (
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
-	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/sdk"
 	"github.com/xiaoenai/tp-micro/gateway/types"
 	"github.com/xiaoenai/tp-micro/model/etcd"
@@ -87,7 +87,7 @@ func (h *Hosts) start() error {
 	go func() {
 		for {
 			select {
-			case <-client.EtcdClient().Ctx().Done():
+			case <-clientele.GetEtcdClient().Ctx().Done():
 				tp.Warnf("[GW_HOSTS] stop!")
 				h.revoke()
 				return
@@ -115,11 +115,11 @@ func (h *Hosts) anywayKeepAlive() <-chan *etcd.LeaseKeepAliveResponse {
 }
 
 func (h *Hosts) keepAlive() (<-chan *etcd.LeaseKeepAliveResponse, error) {
-	resp, err := client.EtcdClient().Grant(context.TODO(), minLeaseTTL)
+	resp, err := clientele.GetEtcdClient().Grant(context.TODO(), minLeaseTTL)
 	if err != nil {
 		return nil, err
 	}
-	_, err = client.EtcdClient().Put(
+	_, err = clientele.GetEtcdClient().Put(
 		context.TODO(),
 		h.serviceKey,
 		"",
@@ -128,7 +128,7 @@ func (h *Hosts) keepAlive() (<-chan *etcd.LeaseKeepAliveResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	ch, err := client.EtcdClient().KeepAlive(context.TODO(), resp.ID)
+	ch, err := clientele.GetEtcdClient().KeepAlive(context.TODO(), resp.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (h *Hosts) keepAlive() (<-chan *etcd.LeaseKeepAliveResponse, error) {
 }
 
 func (h *Hosts) revoke() {
-	_, err := client.EtcdClient().Revoke(context.TODO(), h.leaseid)
+	_, err := clientele.GetEtcdClient().Revoke(context.TODO(), h.leaseid)
 	if err != nil {
 		tp.Errorf("[GW_HOSTS] revoke host error: %s", err.Error())
 		return
@@ -175,7 +175,7 @@ func (h *Hosts) watchEtcd() {
 		outerSocketAddr string
 		innerSocketAddr string
 		ok              bool
-		watcher         = client.EtcdClient().Watch(
+		watcher         = clientele.GetEtcdClient().Watch(
 			context.Background(),
 			hostsPrefix,
 			etcd.WithPrefix(),
@@ -219,7 +219,7 @@ func (h *Hosts) watchEtcd() {
 }
 
 func (h *Hosts) resetGatewayIps(goSort bool) {
-	resp, err := client.EtcdClient().Get(
+	resp, err := clientele.GetEtcdClient().Get(
 		context.Background(),
 		hostsPrefix,
 		etcd.WithPrefix(),

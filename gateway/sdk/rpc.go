@@ -20,15 +20,13 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/types"
 )
 
 // Init initializes a common inner ant client.
-func Init(apiVersion string, cliCfg micro.CliConfig, protoFunc socket.ProtoFunc, etcdClient *etcd.Client) {
-	client.Init(cliCfg, protoFunc, etcdClient)
+func Init(apiVersion string, protoFunc socket.ProtoFunc) {
+	clientele.SetProtoFunc(protoFunc)
 	SetApiVersion(apiVersion)
 }
 
@@ -42,7 +40,7 @@ func SetApiVersion(apiVersion string) {
 // GwHosts returns the gateway host list.
 func GwHosts(setting ...socket.PacketSetting) (*types.GwHosts, *tp.Rerror) {
 	var reply = new(types.GwHosts)
-	rerr := client.DynamicClient().Call("/gw"+_apiVersion+"/hosts", nil, reply, setting...).Rerror()
+	rerr := clientele.DynamicCall(nil, "/gw"+_apiVersion+"/hosts", nil, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -52,7 +50,7 @@ func GwHosts(setting ...socket.PacketSetting) (*types.GwHosts, *tp.Rerror) {
 // SocketTotal returns the long connections total of the remote server.
 func SocketTotal(srvAddr string, setting ...socket.PacketSetting) (*types.SocketTotalReply, *tp.Rerror) {
 	var reply = new(types.SocketTotalReply)
-	rerr := client.StaticClient(srvAddr).Call("/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Rerror()
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -62,7 +60,7 @@ func SocketTotal(srvAddr string, setting ...socket.PacketSetting) (*types.Socket
 // SocketPush pushes message to the specified user.
 func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...socket.PacketSetting) (*types.SocketPushReply, *tp.Rerror) {
 	var reply = new(types.SocketPushReply)
-	rerr := client.StaticClient(srvAddr).Call("/gw"+_apiVersion+"/socket_push", args, reply, setting...).Rerror()
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_push", args, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -72,7 +70,7 @@ func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...socket.Pa
 // SocketMpush multi-push messages to the specified users.
 func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...socket.PacketSetting) (*types.SocketMpushReply, *tp.Rerror) {
 	var reply = new(types.SocketMpushReply)
-	rerr := client.StaticClient(srvAddr).Call("/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Rerror()
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Rerror()
 	if rerr != nil {
 		return nil, rerr
 	}

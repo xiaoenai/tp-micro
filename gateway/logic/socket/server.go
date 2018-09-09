@@ -22,8 +22,8 @@ import (
 	"github.com/henrylee2cn/teleport/plugin/proxy"
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/gateway/client"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 )
 
@@ -56,7 +56,7 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc)
 	innerPlugins := logic.InnerServerPlugins()
 	discoveryService := discovery.ServicePluginFromEtcd(
 		innerSrvCfg.InnerIpPort(),
-		client.EtcdClient(),
+		clientele.GetEtcdClient(),
 	)
 	innerPlugins = append(innerPlugins, discoveryService)
 	innerServer := micro.NewServer(

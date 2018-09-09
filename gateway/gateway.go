@@ -20,14 +20,13 @@ import (
 	_ "unsafe"
 
 	"github.com/henrylee2cn/teleport/socket"
-	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
 	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
 	long "github.com/xiaoenai/tp-micro/gateway/logic/socket"
 	"github.com/xiaoenai/tp-micro/gateway/sdk"
 	"github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 
 // Run the gateway main program.
@@ -40,23 +39,13 @@ func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 		return err
 	}
 
-	// etcd
-	etcdClient, err := etcd.EasyNew(cfg.Etcd)
-	if err != nil {
-		return err
-	}
-
 	// protocol
 	if protoFunc == nil {
 		protoFunc = socket.NewRawProtoFunc
 	}
 
 	// client
-	client.Init(
-		cfg.InnerSocketClient,
-		protoFunc,
-		etcdClient,
-	)
+	clientele.SetProtoFunc(protoFunc)
 
 	// business
 	if biz == nil {

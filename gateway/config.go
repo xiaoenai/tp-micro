@@ -19,7 +19,6 @@ import (
 
 	"github.com/henrylee2cn/cfgo"
 	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
 )
 
@@ -30,8 +29,6 @@ type Config struct {
 	OuterHttpServer   short.HttpSrvConfig `yaml:"outer_http_server"`
 	OuterSocketServer micro.SrvConfig     `yaml:"outer_socket_server"`
 	InnerSocketServer micro.SrvConfig     `yaml:"inner_socket_server"`
-	InnerSocketClient micro.CliConfig     `yaml:"inner_socket_client"`
-	Etcd              etcd.EasyConfig     `yaml:"etcd"`
 }
 
 // NewConfig creates a default config.
@@ -57,14 +54,6 @@ func NewConfig() *Config {
 			CountTime:         true,
 			SlowCometDuration: time.Millisecond * 500,
 		},
-		InnerSocketClient: micro.CliConfig{
-			Failover:          3,
-			HeartbeatSecond:   60,
-			DefaultContextAge: time.Second * 5,
-		},
-		Etcd: etcd.EasyConfig{
-			Endpoints: []string{"http://127.0.0.1:2379"},
-		},
 	}
 }
 
@@ -82,9 +71,5 @@ func (c *Config) Reload(bind cfgo.BindFunc) error {
 
 // check the config
 func (c *Config) check() error {
-	err := c.InnerSocketClient.Check()
-	if err != nil {
-		return err
-	}
 	return nil
 }

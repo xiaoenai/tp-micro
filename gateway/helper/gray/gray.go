@@ -7,8 +7,8 @@ import (
 	"github.com/henrylee2cn/teleport/plugin/proxy"
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/gateway/client"
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray/api"
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic"
 	mod "github.com/xiaoenai/tp-micro/gateway/helper/gray/logic/model"
@@ -62,10 +62,10 @@ func SetGray(
 		})
 		if rerr != nil {
 			tp.Errorf("%s", rerr.String())
-			return client.DynamicClient()
+			return clientele.GetDynamicClient()
 		}
 		if !r.Gray {
-			return client.DynamicClient()
+			return clientele.GetDynamicClient()
 		}
 		return grayClient
 	}

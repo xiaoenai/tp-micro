@@ -13,7 +13,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/auth"
 	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
 	"github.com/xiaoenai/tp-micro/gateway/logic/socket"
@@ -237,8 +237,7 @@ func kickOffline(sessionId string, checkLocal bool) (succ bool, rerr *tp.Rerror)
 	}
 	// Try to delete the session from the remote gateway.
 	var reply types.SocketKickReply
-	rerr = client.StaticClient(agent.InnerGw).
-		Call(kickUri, types.SocketKickArgs{SessionId: sessionId}, &reply).
+	rerr = clientele.StaticCall(nil, agent.InnerGw, kickUri, types.SocketKickArgs{SessionId: sessionId}, &reply).
 		Rerror()
 	if reply.Existed {
 		return true, nil

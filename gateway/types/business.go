@@ -17,7 +17,7 @@ package types
 import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/proxy"
-	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/clientele"
 )
 
 // Business implement your real business logic
@@ -59,6 +59,6 @@ func (biz *Business) Init() {
 // DefaultProxySelector creates a new default proxy caller selector.
 func DefaultProxySelector() func(*proxy.ProxyLabel) proxy.Forwarder {
 	return func(*proxy.ProxyLabel) proxy.Forwarder {
-		return client.DynamicClient()
+		return clientele.GetDynamicClient()
 	}
 }

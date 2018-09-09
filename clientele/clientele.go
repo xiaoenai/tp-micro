@@ -17,7 +17,7 @@ import (
 )
 
 var dynamicClient *micro.Client
-var staticClient *staticClients
+var staticClient *StaticClients
 var protoFunc socket.ProtoFunc
 var cliCfg micro.CliConfig
 var etcdCfg etcd.EasyConfig
@@ -40,7 +40,7 @@ func init() {
 		cliCfg,
 		discovery.NewLinkerFromEtcd(etcdClient),
 	)
-	staticClient = &staticClients{
+	staticClient = &StaticClients{
 		clients:   make(map[string]*micro.Client),
 		cfg:       cliCfg,
 		protoFunc: protoFunc,
@@ -50,6 +50,16 @@ func init() {
 // GetEtcdClient returns the common ETCD client.
 func GetEtcdClient() *etcd.Client {
 	return etcdClient
+}
+
+// GetDynamicClient returns the common client with etcd discovery.
+func GetDynamicClient() *micro.Client {
+	return dynamicClient
+}
+
+// GetStaticClients returns the common static client set.
+func GetStaticClients() *StaticClients {
+	return staticClient
 }
 
 // GetProtoFunc sets the socket communication protocol.
@@ -143,8 +153,8 @@ func settingDecorator(ctx Ctx, settings []socket.PacketSetting) []socket.PacketS
 	}, settings...)
 }
 
-// staticClients static clients map
-type staticClients struct {
+// StaticClients static clients map
+type StaticClients struct {
 	clients   map[string]*micro.Client
 	cfg       micro.CliConfig
 	protoFunc socket.ProtoFunc
@@ -152,7 +162,7 @@ type staticClients struct {
 }
 
 // Set sets the client whose server address is srvAddr.
-func (s *staticClients) Set(srvAddr string) {
+func (s *StaticClients) Set(srvAddr string) {
 	s.mu.Lock()
 	cli := micro.NewClient(s.cfg, micro.NewStaticLinker(srvAddr))
 	cli.SetProtoFunc(s.protoFunc)
@@ -162,7 +172,7 @@ func (s *staticClients) Set(srvAddr string) {
 
 // GetOrSet returns the client whose server address is srvAddr.
 // If the client does not exist, set and return it.
-func (s *staticClients) GetOrSet(srvAddr string) *micro.Client {
+func (s *StaticClients) GetOrSet(srvAddr string) *micro.Client {
 	s.mu.RLock()
 	cli, ok := s.clients[srvAddr]
 	s.mu.RUnlock()
@@ -182,7 +192,7 @@ func (s *staticClients) GetOrSet(srvAddr string) *micro.Client {
 }
 
 // Get returns the client whose server address is srvAddr.
-func (s *staticClients) Get(srvAddr string) (*micro.Client, bool) {
+func (s *StaticClients) Get(srvAddr string) (*micro.Client, bool) {
 	s.mu.RLock()
 	cli, ok := s.clients[srvAddr]
 	s.mu.RUnlock()
