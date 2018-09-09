@@ -157,13 +157,14 @@ var tplFiles = map[string]string{
 
 import (
 	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
+    "github.com/xiaoenai/tp-micro/clientele"
+    "github.com/xiaoenai/tp-micro/discovery"
 )
 
 func main() {
 	srv := micro.NewServer(
 		cfg.Srv,
-		discovery.ServicePlugin(cfg.Srv.InnerIpPort(), cfg.Etcd),
+		discovery.ServicePlugin(cfg.Srv.InnerIpPort(), clientele.GetEtcdCfg()),
 	)
 	route("/${service_api_prefix}", srv.Router())
 	srv.ListenAndServe()
@@ -178,7 +179,6 @@ import (
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/model/mongo"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/redis"
@@ -188,7 +188,6 @@ import (
 
 type config struct {
 	Srv      micro.SrvConfig ` + "`yaml:\"srv\"`" + `
-	Etcd     etcd.EasyConfig ` + "`yaml:\"etcd\"`" + `
 	Mysql    mysql.Config    ` + "`yaml:\"mysql\"`" + `
 	Mongo    mongo.Config    ` + "`yaml:\"mongo\"`" + `
 	Redis    redis.Config    ` + "`yaml:\"redis\"`" + `
@@ -234,9 +233,6 @@ var cfg = &config{
 		CountTime:         true,
 		SlowCometDuration: time.Millisecond * 500,
 	},
-	Etcd: etcd.EasyConfig{
-		Endpoints: []string{"http://127.0.0.1:2379"},
-	},
 	Redis:    *redis.NewConfig(),
 	CacheExpire: time.Hour*24,
 	LogLevel: "TRACE",
@@ -267,26 +263,13 @@ func route(_root string, _router *tp.Router) {
 import (
 	"fmt"
 
-	micro "github.com/xiaoenai/tp-micro"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
-    "github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+    "github.com/xiaoenai/tp-micro/clientele"
 )
 
 var _ = fmt.Sprintf
-var client *micro.Client
-// Init initializes client with configs.
-func Init(cliConfig micro.CliConfig, etcdConfing etcd.EasyConfig) {
-	client = micro.NewClient(
-		cliConfig,
-		discovery.NewLinker(etcdConfing),
-	)
-}
-// InitWithClient initializes client with specified object.
-func InitWithClient(cli *micro.Client) {
-	client = cli
-}
+
 ${rpc_call_define}
 `,
 
@@ -295,24 +278,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	micro "github.com/xiaoenai/tp-micro"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 
 	"${import_prefix}/sdk"
 )
-
-func init(){
-	sdk.Init(
-		micro.CliConfig{
-			Failover:        3,
-			HeartbeatSecond: 4,
-		},
-		etcd.EasyConfig{
-			Endpoints: []string{"http://127.0.0.1:2379"},
-		},
-	)
-}
 
 func toJsonBytes(i interface{}) []byte {
 	b, _ := json.MarshalIndent(i, "", "  ")

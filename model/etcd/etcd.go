@@ -29,10 +29,14 @@ type EasyConfig struct {
 	DialTimeout time.Duration `yaml:"dial_timeout" ini:"dial_timeout" comment:"timeout for failing to establish a connection"`
 	Username    string        `yaml:"username"     ini:"username"     comment:"user name for authentication"`
 	Password    string        `yaml:"password"     ini:"password"     comment:"password for authentication"`
+	init        bool
 }
 
 // Reload Bi-directionally synchronizes config between YAML file and memory.
 func (c *EasyConfig) Reload(bind cfgo.BindFunc) error {
+	if c.init {
+		return nil
+	}
 	err := bind()
 	if err != nil {
 		return err
@@ -42,11 +46,20 @@ func (c *EasyConfig) Reload(bind cfgo.BindFunc) error {
 
 // Check check and correct config.
 func (c *EasyConfig) Check() error {
+	if c.init {
+		return nil
+	}
+	if len(c.Endpoints) == 0 {
+		c.Endpoints = []string{
+			"http://127.0.0.1:2379",
+		}
+	}
 	if c.DialTimeout == 0 {
 		c.DialTimeout = 15 * time.Second
 	} else if c.DialTimeout < 0 {
 		c.DialTimeout = 0
 	}
+	c.init = true
 	return nil
 }
 

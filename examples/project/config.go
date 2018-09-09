@@ -7,7 +7,6 @@ import (
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/model/mongo"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/redis"
@@ -17,7 +16,6 @@ import (
 
 type config struct {
 	Srv         micro.SrvConfig `yaml:"srv"`
-	Etcd        etcd.EasyConfig `yaml:"etcd"`
 	Mysql       mysql.Config    `yaml:"mysql"`
 	Mongo       mongo.Config    `yaml:"mongo"`
 	Redis       redis.Config    `yaml:"redis"`
@@ -62,9 +60,6 @@ var cfg = &config{
 		PrintDetail:       true,
 		CountTime:         true,
 		SlowCometDuration: time.Millisecond * 500,
-	},
-	Etcd: etcd.EasyConfig{
-		Endpoints: []string{"http://127.0.0.1:2379"},
 	},
 	Redis:       *redis.NewConfig(),
 	CacheExpire: time.Hour * 24,

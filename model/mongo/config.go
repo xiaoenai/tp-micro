@@ -64,6 +64,15 @@ func (cfg *Config) Reload(bind cfgo.BindFunc) error {
 	if err != nil {
 		return err
 	}
+	if len(cfg.Addrs) == 0 {
+		cfg.Addrs = []string{"127.0.0.1:27017"}
+	}
+	if len(cfg.Username) == 0 {
+		cfg.Username = "root"
+	}
+	if len(cfg.Database) == 0 {
+		cfg.Database = "test"
+	}
 	cfg.init = true
 	return nil
 }

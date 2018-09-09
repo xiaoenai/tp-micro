@@ -120,7 +120,7 @@ func (p *Project) gen() {
 	p.genTypeFile()
 	p.genRouterFile()
 	p.genHandlerFile()
-	p.genSdkFile()
+	p.genRPCFile()
 	p.genModelFile()
 }
 
@@ -328,7 +328,7 @@ func (p *Project) genHandlerFile() {
 	}
 }
 
-func (p *Project) genSdkFile() {
+func (p *Project) genRPCFile() {
 	var s1, s2 string
 	for _, h := range p.tplInfo.HandlerList() {
 		name := h.fullName
@@ -351,9 +351,9 @@ func (p *Project) genSdkFile() {
 		switch h.group.typ {
 		case callType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(arg *%s, setting ...socket.PacketSetting)(*%s,*tp.Rerror){\n"+
+				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...socket.PacketSetting)(*%s,*tp.Rerror){\n"+
 					"result := new(%s)\n"+"%s"+
-					"rerr := client.Call(\"%s\", arg, result, setting...).Rerror()\n"+
+					"rerr := clientele.DynamicCall(ctx, \"%s\", arg, result, setting...).Rerror()\n"+
 					"return result, rerr\n}\n",
 				h.doc, name, h.arg, h.result,
 				h.result,
@@ -362,7 +362,7 @@ func (p *Project) genSdkFile() {
 			)
 			s2 += fmt.Sprintf(
 				"func Example%s(){\n"+
-					"result, rerr :=sdk.%[1]s(&sdk.%s{})\n"+
+					"result, rerr :=sdk.%[1]s(nil, &sdk.%s{})\n"+
 					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%s\", toJsonBytes(rerr))\n} else {\ntp.Infof(\"%s: result: %%s\", toJsonBytes(result))\n}\n"+
 					"fmt.Printf(\"\")\n// Output:\n"+
 					"}\n\n",
@@ -370,15 +370,15 @@ func (p *Project) genSdkFile() {
 			)
 		case pushType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(arg *%s, setting ...socket.PacketSetting)*tp.Rerror{\n"+"%s"+
-					"return client.Push(\"%s\", arg, setting...)\n}\n",
+				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...socket.PacketSetting)*tp.Rerror{\n"+"%s"+
+					"return clientele.DynamicPush(ctx, \"%s\", arg, setting...)\n}\n",
 				h.doc, name, h.arg,
 				settingString,
 				uri,
 			)
 			s2 += fmt.Sprintf(
 				"func Example%s(){\n"+
-					"rerr :=sdk.%[1]s(&sdk.%s{})\n"+
+					"rerr :=sdk.%[1]s(nil, &sdk.%s{})\n"+
 					"if rerr != nil {\ntp.Errorf(\"%s: rerr: %%s\", toJsonBytes(rerr))\n}\n"+
 					"fmt.Printf(\"\")\n// Output:\n"+
 					"}\n\n",

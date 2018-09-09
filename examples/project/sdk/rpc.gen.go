@@ -8,43 +8,27 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/clientele"
 )
 
 var _ = fmt.Sprintf
-var client *micro.Client
-
-// Init initializes client with configs.
-func Init(cliConfig micro.CliConfig, etcdConfing etcd.EasyConfig) {
-	client = micro.NewClient(
-		cliConfig,
-		discovery.NewLinker(etcdConfing),
-	)
-}
-
-// InitWithClient initializes client with specified object.
-func InitWithClient(cli *micro.Client) {
-	client = cli
-}
 
 // Stat handler
-func Stat(arg *StatArg, setting ...socket.PacketSetting) *tp.Rerror {
+func Stat(ctx clientele.Ctx, arg *StatArg, setting ...socket.PacketSetting) *tp.Rerror {
 	setting = append(setting, tp.WithQuery("ts", fmt.Sprintf("%v", arg.Ts)))
-	return client.Push("/project/stat", arg, setting...)
+	return clientele.DynamicPush(ctx, "/project/stat", arg, setting...)
 }
 
 // Home handler
-func Home(arg *EmptyStruct, setting ...socket.PacketSetting) (*HomeResult, *tp.Rerror) {
+func Home(ctx clientele.Ctx, arg *EmptyStruct, setting ...socket.PacketSetting) (*HomeResult, *tp.Rerror) {
 	result := new(HomeResult)
-	rerr := client.Call("/project/home", arg, result, setting...).Rerror()
+	rerr := clientele.DynamicCall(ctx, "/project/home", arg, result, setting...).Rerror()
 	return result, rerr
 }
 
 // Divide handler
-func Math_Divide(arg *DivideArg, setting ...socket.PacketSetting) (*DivideResult, *tp.Rerror) {
+func Math_Divide(ctx clientele.Ctx, arg *DivideArg, setting ...socket.PacketSetting) (*DivideResult, *tp.Rerror) {
 	result := new(DivideResult)
-	rerr := client.Call("/project/math/divide", arg, result, setting...).Rerror()
+	rerr := clientele.DynamicCall(ctx, "/project/math/divide", arg, result, setting...).Rerror()
 	return result, rerr
 }

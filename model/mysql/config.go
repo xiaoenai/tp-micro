@@ -89,6 +89,18 @@ func (cfg *Config) Reload(bind cfgo.BindFunc) error {
 	if err != nil {
 		return err
 	}
+	if len(cfg.Host) == 0 {
+		cfg.Host = "127.0.0.1"
+	}
+	if cfg.Port <= 0 {
+		cfg.Port = 3306
+	}
+	if len(cfg.Username) == 0 {
+		cfg.Username = "root"
+	}
+	if len(cfg.Database) == 0 {
+		cfg.Database = "test"
+	}
 	cfg.init = true
 	return nil
 }
