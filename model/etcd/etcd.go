@@ -20,6 +20,7 @@ import (
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/concurrency"
+	"github.com/henrylee2cn/cfgo"
 )
 
 // EasyConfig ETCD client config
@@ -30,15 +31,33 @@ type EasyConfig struct {
 	Password    string        `yaml:"password"     ini:"password"     comment:"password for authentication"`
 }
 
+// Reload Bi-directionally synchronizes config between YAML file and memory.
+func (c *EasyConfig) Reload(bind cfgo.BindFunc) error {
+	err := bind()
+	if err != nil {
+		return err
+	}
+	return c.Check()
+}
+
+// Check check and correct config.
+func (c *EasyConfig) Check() error {
+	if c.DialTimeout == 0 {
+		c.DialTimeout = 15 * time.Second
+	} else if c.DialTimeout < 0 {
+		c.DialTimeout = 0
+	}
+	return nil
+}
+
 // EasyNew creates ETCD client.
 // Note:
 // If etcdConfig.DialTimeout<0, it means unlimit;
 // If etcdConfig.DialTimeout=0, use the default value(15s).
 func EasyNew(etcdConfig EasyConfig) (*clientv3.Client, error) {
-	if etcdConfig.DialTimeout == 0 {
-		etcdConfig.DialTimeout = 15 * time.Second
-	} else if etcdConfig.DialTimeout < 0 {
-		etcdConfig.DialTimeout = 0
+	err := etcdConfig.Check()
+	if err != nil {
+		return nil, err
 	}
 	return clientv3.New(clientv3.Config{
 		Endpoints:   etcdConfig.Endpoints,
@@ -59,7 +78,7 @@ const (
 // Client ETCD v3 client
 type Client = clientv3.Client
 
-// New creates a new etcdv3 client from a given configuration.
+// NewClient creates a new etcdv3 client from a given configuration.
 //  func New(cfg clientv3.Config) (*clientv3.Client, error)
 var NewClient = clientv3.New
 

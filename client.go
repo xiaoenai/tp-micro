@@ -62,6 +62,7 @@ func (c *CliConfig) Reload(bind cfgo.BindFunc) error {
 	return c.Check()
 }
 
+// Check check and correct config.
 func (c *CliConfig) Check() error {
 	if len(c.Network) == 0 {
 		c.Network = "tcp"
