@@ -22,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/xiaoenai/tp-micro/clientele"
+
 	ws "github.com/fasthttp-contrib/websocket"
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
@@ -203,7 +205,9 @@ func (r *requestHandler) handle() {
 
 	// set seq
 	if seqBytes := query.Peek(SEQ); len(seqBytes) > 0 {
-		settings = append(settings, tp.WithSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes)))
+		settings = append(settings, tp.WithSeq(clientele.GetSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes))))
+	} else {
+		settings = append(settings, tp.WithSeq(clientele.GetSeq(label.RealIp)))
 	}
 
 	if query.Len() > 0 {
