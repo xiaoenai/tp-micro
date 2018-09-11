@@ -3,6 +3,7 @@
 
 TP-Micro v3 是一个基于 [Teleport v4](https://github.com/henrylee2cn/teleport/tree/v4) 定制的、简约而强大的微服务框架。
 
+![tp-micro flow chart](https://github.com/xiaoenai/tp-micro/raw/v3/doc/tp-micro_flow_chart.png)
 
 ## 安装
 

@@ -5,6 +5,8 @@ TP-Micro v3 is a simple, powerful micro service framework based on [Teleport v4]
 
 [简体中文](https://github.com/xiaoenai/tp-micro/blob/v3/README_ZH.md)
 
+![tp-micro flow chart](https://github.com/xiaoenai/tp-micro/raw/v3/doc/tp-micro_flow_chart.png)
+
 ## Install
 
 
