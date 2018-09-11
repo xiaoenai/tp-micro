@@ -263,8 +263,8 @@ type Meta struct {
 **Desc:**
 
 - This `micro gen` command only covers files with the ".gen.go" suffix if the `__tp-micro__gen__.lock` file exists
-- Add `.gen` suffix to the file name of the automatically generated file
-- `.tmp` is temporary code used to ensure successful compilation!<br>When the project is completed, it should be removed!
+- Add `.gen` suffix to the file name of the automatically generated file, DO NOT EDIT!
+- `.tmp` is temporary code used to ensure successful compilation!<br>It will be overwritten when `micro gen` is run!<br>When the project is completed, it should be removed!
 - The type of handler's parameter and result must be struct!
 - You can modify the created template file `__tp-micro__tpl__.go`, and run the `micro gen` command again to update the project
 
