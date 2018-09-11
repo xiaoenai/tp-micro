@@ -34,6 +34,7 @@ import (
 type SrvConfig struct {
 	Network           string        `yaml:"network"              ini:"network"              comment:"Network; tcp, tcp4, tcp6, unix or unixpacket"`
 	ListenAddress     string        `yaml:"listen_address"       ini:"listen_address"       comment:"Listen address; for server role"`
+	OuterHost         string        `yaml:"outer_host"           ini:"outer_host"           comment:"Outer host; for server role"`
 	TlsCertFile       string        `yaml:"tls_cert_file"        ini:"tls_cert_file"        comment:"TLS certificate file path"`
 	TlsKeyFile        string        `yaml:"tls_key_file"         ini:"tls_key_file"         comment:"TLS key file path"`
 	DefaultSessionAge time.Duration `yaml:"default_session_age"  ini:"default_session_age"  comment:"Default session max age, if less than or equal to 0, no time limit; ns,µs,ms,s,m,h"`
@@ -77,11 +78,14 @@ func (s *SrvConfig) InnerIpPort() string {
 
 // OuterIpPort returns the service's extranet address, such as '113.116.141.121:8080'.
 func (s *SrvConfig) OuterIpPort() string {
-	hostPort, err := OuterIpPort(s.ListenPort())
-	if err != nil {
-		tp.Fatalf("%v", err)
+	if len(s.OuterHost) == 0 {
+		var err error
+		s.OuterHost, err = OuterIpPort(s.ListenPort())
+		if err != nil {
+			tp.Fatalf("%v", err)
+		}
 	}
-	return hostPort
+	return s.OuterHost
 }
 
 func (s *SrvConfig) peerConfig() tp.PeerConfig {
