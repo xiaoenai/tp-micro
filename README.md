@@ -657,11 +657,11 @@ func main() {
 
 ### Optimize
 
-- SetPacketSizeLimit sets max packet size.
+- SetMessageSizeLimit sets max packet size.
   If maxSize<=0, set it to max uint32.
 
 ```go
-func SetPacketSizeLimit(maxPacketSize uint32)
+func SetMessageSizeLimit(maxMessageSize uint32)
 ```
 
 - SetSocketKeepAlive sets whether the operating system should send

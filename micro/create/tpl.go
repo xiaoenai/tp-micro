@@ -264,7 +264,6 @@ import (
 	"fmt"
 
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/socket"
     "github.com/xiaoenai/tp-micro/clientele"
 )
 

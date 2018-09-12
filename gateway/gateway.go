@@ -19,7 +19,8 @@ package gateway
 import (
 	_ "unsafe"
 
-	"github.com/henrylee2cn/teleport/socket"
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/proto/rawproto"
 	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
@@ -30,9 +31,9 @@ import (
 )
 
 // Run the gateway main program.
-// If protoFunc=nil, socket.NewFastProtoFunc is used by default.
+// If protoFunc=nil, rawproto.NewRawProtoFunc is used by default.
 // If biz=nil, types.DefaultBusiness() is used by default.
-func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
+func Run(cfg Config, biz *types.Business, protoFunc tp.ProtoFunc) error {
 	// config
 	err := cfg.check()
 	if err != nil {
@@ -41,7 +42,7 @@ func Run(cfg Config, biz *types.Business, protoFunc socket.ProtoFunc) error {
 
 	// protocol
 	if protoFunc == nil {
-		protoFunc = socket.NewRawProtoFunc
+		protoFunc = rawproto.NewRawProtoFunc
 	}
 
 	// client

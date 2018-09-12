@@ -28,7 +28,7 @@ func SetGray(
 	grayEtcdConfig etcd.EasyConfig,
 	mysqlConfig mysql.Config,
 	redisConfig redis.Config,
-	protoFunc socket.ProtoFunc,
+	protoFunc tp.ProtoFunc,
 ) (grayClient *micro.Client, err error) {
 	err = mod.Init(mysqlConfig, redisConfig)
 	if err != nil {

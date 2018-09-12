@@ -17,7 +17,7 @@ func TestSdk(t *testing.T) {
 	// 		Failover:        3,
 	// 		HeartbeatSecond: 4,
 	// 	},
-	// 	socket.NewFastProtoFunc,
+	// 	rawproto.NewRawProtoFunc,
 	// 	etcdClient,
 	// )
 	// reply, rerr := SocketTotal()

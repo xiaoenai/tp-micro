@@ -24,7 +24,6 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/binder"
 	"github.com/henrylee2cn/teleport/plugin/heartbeat"
-	"github.com/henrylee2cn/teleport/socket"
 )
 
 // SrvConfig server config
@@ -214,7 +213,7 @@ func (s *Server) GetSession(sessionId string) (tp.Session, bool) {
 }
 
 // ListenAndServe turns on the listening service.
-func (s *Server) ListenAndServe(protoFunc ...socket.ProtoFunc) error {
+func (s *Server) ListenAndServe(protoFunc ...tp.ProtoFunc) error {
 	return s.peer.ListenAndServe(protoFunc...)
 }
 
@@ -224,6 +223,6 @@ func (s *Server) RangeSession(fn func(sess tp.Session) bool) {
 }
 
 // ServeConn serves the connection and returns a session.
-func (s *Server) ServeConn(conn net.Conn, protoFunc ...socket.ProtoFunc) (tp.Session, error) {
+func (s *Server) ServeConn(conn net.Conn, protoFunc ...tp.ProtoFunc) (tp.Session, error) {
 	return s.peer.ServeConn(conn, protoFunc...)
 }

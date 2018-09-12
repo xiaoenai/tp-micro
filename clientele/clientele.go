@@ -10,7 +10,6 @@ import (
 
 	"github.com/henrylee2cn/cfgo"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/model/etcd"
@@ -18,7 +17,7 @@ import (
 
 var dynamicClient *micro.Client
 var staticClient *StaticClients
-var protoFunc socket.ProtoFunc
+var protoFunc tp.ProtoFunc
 var cliCfg micro.CliConfig
 var etcdCfg etcd.EasyConfig
 var etcdClient *etcd.Client
@@ -30,7 +29,7 @@ func init() {
 	cfgo.MustReg("cluster_client", &cliCfg)
 	cfgo.MustReg("etcd", &etcdCfg)
 	peerName = filepath.Base(os.Args[0])
-	protoFunc = socket.DefaultProtoFunc()
+	protoFunc = tp.DefaultProtoFunc()
 	var err error
 	etcdClient, err = etcd.EasyNew(etcdCfg)
 	if err != nil {
@@ -63,12 +62,12 @@ func GetStaticClients() *StaticClients {
 }
 
 // GetProtoFunc sets the socket communication protocol.
-func GetProtoFunc() socket.ProtoFunc {
+func GetProtoFunc() tp.ProtoFunc {
 	return protoFunc
 }
 
 // SetProtoFunc sets the socket communication protocol.
-func SetProtoFunc(_protoFunc socket.ProtoFunc) {
+func SetProtoFunc(_protoFunc tp.ProtoFunc) {
 	protoFunc = _protoFunc
 	dynamicClient.SetProtoFunc(protoFunc)
 	staticClient.protoFunc = protoFunc
@@ -110,7 +109,7 @@ type Ctx interface {
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func DynamicCall(ctx Ctx, uri string, arg interface{}, result interface{}, setting ...socket.PacketSetting) tp.CallCmd {
+func DynamicCall(ctx Ctx, uri string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
 	return dynamicClient.Call(uri, arg, result, settingDecorator(ctx, setting)...)
 }
 
@@ -119,7 +118,7 @@ func DynamicCall(ctx Ctx, uri string, arg interface{}, result interface{}, setti
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func DynamicPush(ctx Ctx, uri string, arg interface{}, setting ...socket.PacketSetting) *tp.Rerror {
+func DynamicPush(ctx Ctx, uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Rerror {
 	return dynamicClient.Push(uri, arg, settingDecorator(ctx, setting)...)
 }
 
@@ -128,7 +127,7 @@ func DynamicPush(ctx Ctx, uri string, arg interface{}, setting ...socket.PacketS
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func StaticCall(ctx Ctx, addr string, uri string, arg interface{}, result interface{}, setting ...socket.PacketSetting) tp.CallCmd {
+func StaticCall(ctx Ctx, addr string, uri string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
 	return staticClient.GetOrSet(addr).Call(uri, arg, result, settingDecorator(ctx, setting)...)
 }
 
@@ -137,17 +136,17 @@ func StaticCall(ctx Ctx, addr string, uri string, arg interface{}, result interf
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func StaticPush(ctx Ctx, addr string, uri string, arg interface{}, setting ...socket.PacketSetting) *tp.Rerror {
+func StaticPush(ctx Ctx, addr string, uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Rerror {
 	return staticClient.GetOrSet(addr).Push(uri, arg, settingDecorator(ctx, setting)...)
 }
 
-func settingDecorator(ctx Ctx, settings []socket.PacketSetting) []socket.PacketSetting {
+func settingDecorator(ctx Ctx, settings []tp.MessageSetting) []tp.MessageSetting {
 	if ctx == nil {
-		return append([]socket.PacketSetting{
+		return append([]tp.MessageSetting{
 			tp.WithSeq(GetSeq()),
 		}, settings...)
 	}
-	return append([]socket.PacketSetting{
+	return append([]tp.MessageSetting{
 		tp.WithSeq(GetSeq(ctx.Seq())),
 		tp.WithRealIp(ctx.RealIp()),
 	}, settings...)
@@ -157,7 +156,7 @@ func settingDecorator(ctx Ctx, settings []socket.PacketSetting) []socket.PacketS
 type StaticClients struct {
 	clients   map[string]*micro.Client
 	cfg       micro.CliConfig
-	protoFunc socket.ProtoFunc
+	protoFunc tp.ProtoFunc
 	mu        sync.RWMutex
 }
 

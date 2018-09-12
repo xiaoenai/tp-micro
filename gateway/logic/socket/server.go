@@ -20,7 +20,6 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/auth"
 	"github.com/henrylee2cn/teleport/plugin/proxy"
-	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/discovery"
@@ -42,7 +41,7 @@ func OuterServeConn(conn net.Conn) {
 }
 
 // Serve starts TCP gateway service.
-func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc socket.ProtoFunc) {
+func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	outerServer = micro.NewServer(
 		outerSrvCfg,
 		auth.VerifyAuth(socketConnTabPlugin.authAndLogon),

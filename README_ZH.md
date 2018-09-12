@@ -659,11 +659,11 @@ func main() {
 
 ### 通信优化
 
-- SetPacketSizeLimit 设置包大小的上限，
+- SetMessageSizeLimit 设置消息包大小的上限，
     如果 maxSize<=0，上限默认为最大 uint32
 
 ```go
-func SetPacketSizeLimit(maxPacketSize uint32)
+func SetMessageSizeLimit(maxMessageSize uint32)
 ```
 
 - SetSocketKeepAlive 是否允许操作系统的发送TCP的keepalive探测包

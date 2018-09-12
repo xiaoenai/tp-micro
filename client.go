@@ -21,7 +21,6 @@ import (
 	"github.com/henrylee2cn/cfgo"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/heartbeat"
-	"github.com/henrylee2cn/teleport/socket"
 )
 
 type (
@@ -106,7 +105,7 @@ func (c *CliConfig) peerConfig() tp.PeerConfig {
 type Client struct {
 	peer           tp.Peer
 	circuitBreaker *circuitBreaker
-	protoFunc      socket.ProtoFunc
+	protoFunc      tp.ProtoFunc
 	closeCh        chan struct{}
 	closeMu        sync.Mutex
 	maxTry         int
@@ -133,7 +132,7 @@ func NewClient(cfg CliConfig, linker Linker, globalLeftPlugin ...tp.Plugin) *Cli
 	}
 	cli := &Client{
 		peer:          peer,
-		protoFunc:     socket.DefaultProtoFunc(),
+		protoFunc:     tp.DefaultProtoFunc(),
 		closeCh:       make(chan struct{}),
 		maxTry:        cfg.Failover + 1,
 		heartbeatPing: heartbeatPing,
@@ -150,10 +149,10 @@ func NewClient(cfg CliConfig, linker Linker, globalLeftPlugin ...tp.Plugin) *Cli
 	return cli
 }
 
-// SetProtoFunc sets socket.ProtoFunc.
-func (c *Client) SetProtoFunc(protoFunc socket.ProtoFunc) {
+// SetProtoFunc sets tp.ProtoFunc.
+func (c *Client) SetProtoFunc(protoFunc tp.ProtoFunc) {
 	if protoFunc == nil {
-		protoFunc = socket.DefaultProtoFunc()
+		protoFunc = tp.DefaultProtoFunc()
 	}
 	c.protoFunc = protoFunc
 }
@@ -203,7 +202,7 @@ func (c *Client) AsyncCall(
 	arg interface{},
 	result interface{},
 	callCmdChan chan<- tp.CallCmd,
-	setting ...socket.PacketSetting,
+	setting ...tp.MessageSetting,
 ) tp.CallCmd {
 	if callCmdChan == nil {
 		callCmdChan = make(chan tp.CallCmd, 10) // buffered.
@@ -239,7 +238,7 @@ func (c *Client) AsyncCall(
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func (c *Client) Call(uri string, arg interface{}, result interface{}, setting ...socket.PacketSetting) tp.CallCmd {
+func (c *Client) Call(uri string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
 	select {
 	case <-c.closeCh:
 		return tp.NewFakeCallCmd(uri, arg, result, RerrClientClosed)
@@ -275,7 +274,7 @@ func (c *Client) Call(uri string, arg interface{}, result interface{}, setting .
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func (c *Client) Push(uri string, arg interface{}, setting ...socket.PacketSetting) *tp.Rerror {
+func (c *Client) Push(uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Rerror {
 	select {
 	case <-c.closeCh:
 		return RerrClientClosed

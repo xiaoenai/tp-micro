@@ -113,7 +113,7 @@ func main() {
 	go srv.ListenAndServe()
 
 	// test pushing, when the client progress is existed.
-	gwSdk.Init("v1", cfg.Cli, nil, p.Etcd())
+	gwSdk.Init("v1", nil)
 	for i := 0; ; i++ {
 		tp.Infof("test pushing msg after 10s")
 		time.Sleep(time.Second * 10)

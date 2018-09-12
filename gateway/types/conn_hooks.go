@@ -17,7 +17,6 @@ package types
 import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/auth"
-	"github.com/henrylee2cn/teleport/socket"
 	"github.com/valyala/fasthttp"
 	micro "github.com/xiaoenai/tp-micro"
 )
@@ -38,7 +37,7 @@ type (
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks interface {
 		// OnRequest is called when the client requests.
-		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []socket.PacketSetting, *tp.Rerror)
+		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Rerror)
 	}
 	// RequestArgs http query parameters
 	RequestArgs interface {
@@ -84,7 +83,7 @@ func DefaultHttpHooks() HttpHooks {
 
 type defHttpHooks struct{}
 
-func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []socket.PacketSetting, *tp.Rerror) {
+func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Rerror) {
 	accessToken, rerr := authFunc(string(params.QueryArgs().Peek("access_token")))
 	return accessToken, nil, rerr
 }

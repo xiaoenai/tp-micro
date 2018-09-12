@@ -352,7 +352,7 @@ func (p *Project) genRPCFile() {
 		switch h.group.typ {
 		case callType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...socket.PacketSetting)(*%s,*tp.Rerror){\n"+
+				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...tp.MessageSetting)(*%s,*tp.Rerror){\n"+
 					"result := new(%s)\n"+"%s"+
 					"rerr := clientele.DynamicCall(ctx, \"%s\", arg, result, setting...).Rerror()\n"+
 					"return result, rerr\n}\n",
@@ -371,7 +371,7 @@ func (p *Project) genRPCFile() {
 			)
 		case pushType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...socket.PacketSetting)*tp.Rerror{\n"+"%s"+
+				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...tp.MessageSetting)*tp.Rerror{\n"+"%s"+
 					"return clientele.DynamicPush(ctx, \"%s\", arg, setting...)\n}\n",
 				h.doc, name, h.arg,
 				settingString,
@@ -395,12 +395,10 @@ func (p *Project) genModelFile() {
 	for _, m := range p.tplInfo.models.mysql {
 		fileName := "internal/model/mysql_" + goutil.SnakeString(m.name) + ".gen.go"
 		p.codeFiles[fileName] = newModelString(m)
-		p.fillFile(fileName)
 	}
 	for _, m := range p.tplInfo.models.mongo {
 		fileName := "internal/model/mongo_" + goutil.SnakeString(m.name) + ".gen.go"
 		p.codeFiles[fileName] = newModelString(m)
-		p.fillFile(fileName)
 	}
 }
 

@@ -1,3 +1,7 @@
+// Temporary file used to ensure successful compilation!
+// It will be overwritten when `micro gen` is run!
+// When the project is completed, it should be removed!
+
 package handler
 
 import (
