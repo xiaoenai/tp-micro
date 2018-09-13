@@ -59,7 +59,6 @@ func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp
 // SocketMpush multi-push messages to the specified users.
 func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, *tp.Rerror) {
 	var (
-		uri               string
 		wg                sync.WaitGroup
 		sep               = "?"
 		failureSessionIds = make([]string, 0, len(args.Target))
@@ -72,6 +71,7 @@ func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, 
 	}
 	wg.Add(len(args.Target))
 	for _, t := range args.Target {
+		var uri string
 		if t.AdditionalQuery != "" {
 			uri = args.Uri + sep + t.AdditionalQuery
 		} else {
