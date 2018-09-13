@@ -77,12 +77,13 @@ func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, 
 		} else {
 			uri = args.Uri
 		}
+		sessId := t.SessionId
 		tp.TryGo(func() {
 			defer wg.Done()
-			rerr := innerPush(t.SessionId, uri, body, bodyCodec)
+			rerr := innerPush(sessId, uri, body, bodyCodec)
 			if rerr != nil {
 				lock.Lock()
-				failureSessionIds = append(failureSessionIds, t.SessionId)
+				failureSessionIds = append(failureSessionIds, sessId)
 				lock.Unlock()
 				tp.Tracef("SocketMpush: %s", rerr.String())
 			}
