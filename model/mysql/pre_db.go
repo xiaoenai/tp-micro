@@ -40,7 +40,7 @@ func (p *PreDB) Init(dbConfig *Config, redisConfig *redis.Config) (err error) {
 }
 
 // Init2 initialize *DB.
-func (p *PreDB) Init2(dbConfig *Config, redisCient *redis.Client) (err error) {
+func (p *PreDB) Init2(dbConfig *Config, redisClient *redis.Client) (err error) {
 	p.DB.DB, err = sqlx.Connect("mysql", dbConfig.Source())
 	if err != nil {
 		return err
@@ -51,9 +51,9 @@ func (p *PreDB) Init2(dbConfig *Config, redisCient *redis.Client) (err error) {
 	// p.DB.MapperFunc(goutil.SnakeString)
 	p.DB.Mapper = reflectx.NewMapperFunc("json", goutil.SnakeString)
 	p.DB.dbConfig = dbConfig
-	if !dbConfig.NoCache && redisCient != nil {
-		p.DB.Cache = redisCient
-		p.DB.redisConfig = redisCient.Config()
+	if !dbConfig.NoCache && redisClient != nil {
+		p.DB.Cache = redisClient
+		p.DB.redisConfig = redisClient.Config()
 	}
 
 	for _, preFunc := range p.preFuncs {
