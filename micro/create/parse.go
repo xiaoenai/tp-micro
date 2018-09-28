@@ -889,7 +889,7 @@ func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) strin
 		regStruct = groupName + ".RouteCall"
 	case pushType:
 		regFunc = groupName + ".RoutePushFunc"
-		regStruct = groupName + ".RouteCall"
+		regStruct = groupName + ".RoutePush"
 	}
 	var text, subGroupName string
 	if len(r.name) > 0 {
