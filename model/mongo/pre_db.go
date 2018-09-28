@@ -37,7 +37,7 @@ func (p *PreDB) Init(dbConfig *Config, redisConfig *redis.Config) (err error) {
 }
 
 // Init initialize *DB.
-func (p *PreDB) Init2(dbConfig *Config, redisCient *redis.Client) (err error) {
+func (p *PreDB) Init2(dbConfig *Config, redisClient *redis.Client) (err error) {
 	// connect to mongodb
 	db, err := mgo.DialWithInfo(dbConfig.Source())
 	if err != nil {
@@ -45,9 +45,9 @@ func (p *PreDB) Init2(dbConfig *Config, redisCient *redis.Client) (err error) {
 	}
 	p.DB.Session = db
 	p.DB.dbConfig = dbConfig
-	if !dbConfig.NoCache && redisCient != nil {
-		p.DB.Cache = redisCient
-		p.DB.redisConfig = redisCient.Config()
+	if !dbConfig.NoCache && redisClient != nil {
+		p.DB.Cache = redisClient
+		p.DB.redisConfig = redisClient.Config()
 	}
 
 	for _, preFunc := range p.preFuncs {
