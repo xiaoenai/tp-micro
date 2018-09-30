@@ -30,6 +30,26 @@ func (i Int32s) Value() (driver.Value, error) {
 	return json.Marshal(i)
 }
 
+// Int64s db column value type.
+type Int64s []int64
+
+// Scan implements the sql.Scanner interface.
+func (i *Int64s) Scan(value interface{}) error {
+	data, ok := value.([]byte)
+	if !ok {
+		return nil
+	}
+	return json.Unmarshal(data, i)
+}
+
+// Value implements the driver.Valuer interface.
+func (i Int64s) Value() (driver.Value, error) {
+	if i == nil {
+		return emptyArrayValue, nil
+	}
+	return json.Marshal(i)
+}
+
 // Strings db column value type.
 type Strings []string
 
