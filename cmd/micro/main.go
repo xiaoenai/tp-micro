@@ -84,7 +84,7 @@ func main() {
 		Flags: []cli.Flag{
 			cli.StringSliceFlag{
 				Name:  "watch_exts, x",
-				Value: (*cli.StringSlice)(&[]string{".go", ".ini", ".yaml", ".toml", ".xml"}),
+				Value: (*cli.StringSlice)(&[]string{".go", ".ini", ".toml", ".xml"}),
 				Usage: "Specified to increase the listening file suffix",
 			},
 			cli.StringSliceFlag{
