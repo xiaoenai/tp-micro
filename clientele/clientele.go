@@ -26,6 +26,7 @@ var incr int64
 var mutex sync.Mutex
 
 func init() {
+	cfgo.AllowAppsShare(true)
 	cfgo.MustReg("cluster_client", &cliCfg)
 	cfgo.MustReg("etcd", &etcdCfg)
 	peerName = filepath.Base(os.Args[0])
