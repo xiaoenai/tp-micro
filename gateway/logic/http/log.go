@@ -20,12 +20,18 @@ var (
 
 func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, seq string, inputBody []byte, outputBody *[]byte) {
 	var addr = r.ctx.RemoteAddr().String()
-	if label.RealIp != "" && label.RealIp != addr {
-		addr += "(real: " + label.RealIp + ")"
+	var realIp = label.RealIp
+	if realIp != "" && realIp == addr {
+		realIp = "same"
 	}
+	if realIp == "" {
+		realIp = "-"
+	}
+	addr += "(real:" + realIp + ")"
 	var (
 		costTimeStr string
 		printFunc   = tp.Infof
+		health      = "ok"
 	)
 	if countTime {
 		costTime := time.Since(startTime)
@@ -33,12 +39,17 @@ func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, s
 		if costTime >= slowCometDuration {
 			costTimeStr += "(slow)"
 			printFunc = tp.Warnf
+		} else {
+			costTimeStr += "(fast)"
 		}
 	} else {
-		costTimeStr = "-"
+		costTimeStr = "(-)"
+	}
+	if r.ctx.Response.StatusCode() != 200 {
+		health = "bad"
 	}
 
-	printFunc("PULL<- %s %s %s %q RECV(%s) SEND(%s)", addr, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
+	printFunc("PULL<- %s %s %s %s %q RECV(%s) SEND(%s)", health, addr, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
 }
 
 func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bool) []byte {
