@@ -31,7 +31,7 @@ func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, s
 	var (
 		costTimeStr string
 		printFunc   = tp.Infof
-		statusCode  = r.ctx.Response.StatusCode
+		statusCode  = r.ctx.Response.StatusCode()
 	)
 	if countTime {
 		costTime := time.Since(startTime)
@@ -54,7 +54,7 @@ func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, s
 		printFunc = tp.Warnf
 	}
 
-	printFunc("PULL<- %d %s %s %s %q RECV(%s) SEND(%s)", r.ctx.Response.StatusCode(), addr, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
+	printFunc("PULL<- %d %s %s %s %q RECV(%s) SEND(%s)", statusCode, addr, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
 }
 
 func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bool) []byte {
