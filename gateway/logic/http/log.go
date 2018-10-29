@@ -57,14 +57,23 @@ func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bo
 	b = append(b, strconv.FormatUint(uint64(size), 10)...)
 	if hasErr {
 		b = append(b, ',', '"', 'e', 'r', 'r', 'o', 'r', '"', ':')
-		b = append(b, r.errMsg...)
+		if len(r.errMsg) > 0 && r.errMsg[0] == '{' {
+			b = append(b, r.errMsg...)
+		} else {
+			b = append(b, utils.ToJsonStr(r.errMsg, false)...)
+		}
+
 	}
 	if printDetail {
 		b = append(b, ',', '"', 'm', 'e', 't', 'a', '"', ':')
 		b = append(b, utils.ToJsonStr(headerBytes, false)...)
 		if !hasErr && len(bodyBytes) > 0 {
 			b = append(b, ',', '"', 'b', 'o', 'd', 'y', '"', ':')
-			b = append(b, bodyBytes...)
+			if bodyBytes[0] == '{' {
+				b = append(b, bodyBytes...)
+			} else {
+				b = append(b, utils.ToJsonStr(bodyBytes, false)...)
+			}
 		}
 	}
 	b = append(b, '}')
