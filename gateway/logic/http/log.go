@@ -1,8 +1,6 @@
 package http
 
 import (
-	"bytes"
-	"encoding/json"
 	"math"
 	"strconv"
 	"time"
@@ -19,15 +17,6 @@ var (
 )
 
 func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, seq string, inputBody []byte, outputBody *[]byte) {
-	var addr = r.ctx.RemoteAddr().String()
-	var realIp = label.RealIp
-	if realIp != "" && realIp == addr {
-		realIp = "same"
-	}
-	if realIp == "" {
-		realIp = "-"
-	}
-	addr += "(real:" + realIp + ")"
 	var (
 		costTimeStr string
 		printFunc   = tp.Infof
@@ -54,7 +43,7 @@ func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, s
 		printFunc = tp.Warnf
 	}
 
-	printFunc("PULL<- %d %s %s %s %q RECV(%s) SEND(%s)", statusCode, addr, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
+	printFunc("PULL<- %d %s %s %s %q RECV(%s) SEND(%s)", statusCode, label.RealIp, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
 }
 
 func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bool) []byte {
@@ -68,21 +57,16 @@ func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bo
 	b = append(b, strconv.FormatUint(uint64(size), 10)...)
 	if hasErr {
 		b = append(b, ',', '"', 'e', 'r', 'r', 'o', 'r', '"', ':')
-		b = append(b, utils.ToJsonStr(r.errMsg, false)...)
+		b = append(b, r.errMsg...)
 	}
 	if printDetail {
 		b = append(b, ',', '"', 'm', 'e', 't', 'a', '"', ':')
 		b = append(b, utils.ToJsonStr(headerBytes, false)...)
 		if !hasErr && len(bodyBytes) > 0 {
 			b = append(b, ',', '"', 'b', 'o', 'd', 'y', '"', ':')
-			b = append(b, utils.ToJsonStr(bodyBytes, false)...)
+			b = append(b, bodyBytes...)
 		}
 	}
 	b = append(b, '}')
-	buf := bytes.NewBuffer(nil)
-	err := json.Indent(buf, b, "", "  ")
-	if err != nil {
-		return b
-	}
-	return buf.Bytes()
+	return b
 }
