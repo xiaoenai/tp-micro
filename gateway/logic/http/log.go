@@ -43,7 +43,7 @@ func (r *requestHandler) runlog(startTime time.Time, label *plugin.ProxyLabel, s
 		printFunc = tp.Warnf
 	}
 
-	printFunc("PULL<- %d %q %s %s %q RECV(%s) SEND(%s)", statusCode, label.RealIp, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
+	printFunc("PULL-HTTP<- %d %q %s %s %q RECV(%s) SEND(%s)", statusCode, label.RealIp, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
 }
 
 func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bool) []byte {
