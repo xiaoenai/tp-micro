@@ -148,7 +148,7 @@ func (l *linker) initNodes() error {
 	}
 	for _, kv := range resp.Kvs {
 		l.addNode(string(kv.Key), getServiceInfo(kv.Value))
-		tp.Infof("%s: INIT %q : %q\n", linkerName, kv.Key, kv.Value)
+		tp.Infof("%s: INIT %q : %q", linkerName, kv.Key, kv.Value)
 	}
 	return nil
 }
@@ -160,10 +160,10 @@ func (l *linker) watchNodes() {
 			switch ev.Type {
 			case etcd.EventTypePut:
 				l.addNode(string(ev.Kv.Key), getServiceInfo(ev.Kv.Value))
-				tp.Infof("%s: %s %q : %q\n", linkerName, ev.Type, ev.Kv.Key, ev.Kv.Value)
+				tp.Infof("%s: %s %q : %q", linkerName, ev.Type, ev.Kv.Key, ev.Kv.Value)
 			case etcd.EventTypeDelete:
 				l.delNode(string(ev.Kv.Key))
-				tp.Infof("%s: %s %q\n", linkerName, ev.Type, ev.Kv.Key)
+				tp.Infof("%s: %s %q", linkerName, ev.Type, ev.Kv.Key)
 			}
 		}
 	}
