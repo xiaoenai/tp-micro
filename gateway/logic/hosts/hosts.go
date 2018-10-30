@@ -317,7 +317,7 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 	h.ipsLock.Lock()
 	h.ips.Store(ips)
 	h.ipsLock.Unlock()
-	b, _ := json.MarshalIndent(ips, "", "  ")
+	b, _ := json.Marshal(ips)
 	tp.Tracef("[GW_HOSTS] update hosts: %s", b)
 }
 
