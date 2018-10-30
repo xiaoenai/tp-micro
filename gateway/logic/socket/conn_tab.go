@@ -49,7 +49,7 @@ func (c *socketConnTab) authAndLogon(authInfo string, sess plugin.AuthSession) *
 	}
 	rerr = logic.SocketHooks().OnLogon(sess, token)
 	if rerr == nil {
-		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).Id())
+		tp.Infof("[SOCKET_CONN] login, addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).Id())
 	}
 	return rerr
 }
@@ -68,6 +68,6 @@ func (c *socketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Rerror {
 }
 
 func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
-	tp.Tracef("[-SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.Id())
+	tp.Infof("[SOCKET_CONN] logoff addr: %s, id: %s", sess.RemoteAddr().String(), sess.Id())
 	return logic.SocketHooks().OnLogoff(sess)
 }
