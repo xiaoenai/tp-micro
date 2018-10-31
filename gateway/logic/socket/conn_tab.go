@@ -68,6 +68,6 @@ func (c *socketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Rerror {
 }
 
 func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
-	tp.Infof("[SOCKET_CONN] logoff addr: %q, id: %q", sess.RemoteAddr().String(), sess.Id())
+	tp.Infof("[SOCKET_CONN] logoff, addr: %q, id: %q", sess.RemoteAddr().String(), sess.Id())
 	return logic.SocketHooks().OnLogoff(sess)
 }
