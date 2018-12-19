@@ -197,8 +197,7 @@ func (c *circuitBreaker) close() {
 }
 
 func (c *circuitBreaker) watchOffline() {
-	ch := c.linker.WatchOffline()
-	for addr := range <-ch {
+	for addr := range c.linker.WatchOffline() {
 		_s, ok := c.sessLib.Load(addr)
 		if !ok {
 			continue
