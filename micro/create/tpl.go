@@ -286,6 +286,30 @@ func insertZeroDeletedTsField(whereCond string) string {
 	}
 	return whereCond[:i] + " AND ` + "`" + `deleted_ts` + "`" + `=0 " + whereCond[i:]
 }
+
+func insertZeroDeletedTmField(whereCond string) string {
+	whereCond = strings.TrimSpace(whereCond)
+	whereCond = strings.TrimRight(whereCond, ";")
+	i := index(
+		whereCond,
+		"` + "`" + `deleted` + "`" + `",
+		" deleted",
+	)
+	if i != -1 {
+		return whereCond
+	}
+	i = index(
+		whereCond,
+		"ORDER BY", "order by",
+		"GROUP BY", "group by",
+		"OFFSET", "offset",
+		"LIMIT", "limit",
+	)
+	if i == -1 {
+		return whereCond + " AND ` + "`" + `deleted` + "`" + `=0"
+	}
+	return whereCond[:i] + " AND ` + "`" + `deleted` + "`" + `=0 " + whereCond[i:]
+}
 `,
 
 	"args/const.gen.go": `package args
