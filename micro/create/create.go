@@ -1,8 +1,10 @@
 package create
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/henrylee2cn/goutil"
@@ -86,5 +88,45 @@ func CreateDoc() {
 	defer f.Close()
 	f.Write(formatSource(b))
 
+	tp.Infof("Completed README.md generation by api!")
+
+	// gen err code info
+	appendErrorInfo()
+
 	tp.Infof("Completed README.md generation!")
+}
+
+// appendErrorInfo append err code to README.md
+func appendErrorInfo() {
+	ctn := `
+## Error List
+
+|Code|Message(输出时 Msg 将会被转为 JSON string)|
+|------|------|
+`
+	var appendRow = func(code string, msg string) {
+		ctn += fmt.Sprintf("|%s|%s|\n", code, msg)
+	}
+
+	b, err := ioutil.ReadFile("rerrs/rerrs.go")
+	if err != nil {
+		tp.Errorf("[micro] Append error list error: %v", err)
+	}
+
+	re := regexp.MustCompile(`\(([1-9][0-9]*), rerrors\.(Msg\{.*\})`)
+	a := re.FindAllStringSubmatch(string(b), -1)
+	for _, row := range a {
+		if len(row) != 3 {
+			continue
+		}
+		appendRow(row[1], row[2])
+	}
+
+	f, err := os.OpenFile("README.md", os.O_WRONLY|os.O_APPEND, os.ModePerm)
+	if err != nil {
+		tp.Errorf("[micro] Append error list error: %v", err)
+	}
+	defer f.Close()
+	f.WriteString(ctn)
+	tp.Infof("Appended error list to README.md!")
 }
