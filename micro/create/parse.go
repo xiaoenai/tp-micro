@@ -392,19 +392,21 @@ func (t *tplInfo) initModelStructs() {
 }
 
 func (s *structType) initModel() {
-	s.setFields(false, &field{
-		Name: "UpdatedAt",
-		Typ:  "int64",
-		tag:  "`" + `json:"updated_at"` + "`",
-	}, &field{
-		Name: "CreatedAt",
-		Typ:  "int64",
-		tag:  "`" + `json:"created_at"` + "`",
-	}, &field{
-		Name: "DeletedTs",
-		Typ:  "int64",
-		tag:  "`" + `json:"deleted_ts"` + "`",
-	})
+	if !s.checkDefaultFields() {
+		s.setFields(false, &field{
+			Name: "UpdatedAt",
+			Typ:  "int64",
+			tag:  "`" + `json:"updated_at"` + "`",
+		}, &field{
+			Name: "CreatedAt",
+			Typ:  "int64",
+			tag:  "`" + `json:"created_at"` + "`",
+		}, &field{
+			Name: "DeletedTs",
+			Typ:  "int64",
+			tag:  "`" + `json:"deleted_ts"` + "`",
+		})
+	}
 
 	switch s.modelStyle {
 	case "mysql":
@@ -489,6 +491,11 @@ func (s *structType) initModel() {
 			s.isDefaultPrimary = true
 		}
 	}
+}
+
+// checkDefaultFields  CreatedAt UpdatedAt Deleted
+func (s *structType) checkDefaultFields() bool {
+	return s.getField("CreatedAt") != nil && s.getField("UpdatedAt") != nil && s.getField("Deleted") != nil
 }
 
 func (s *structType) getField(fieldName string) *field {
