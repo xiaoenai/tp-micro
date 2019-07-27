@@ -816,7 +816,6 @@ const mysqlModelTplTm = `package model
 import (
 	"database/sql"
 	"unsafe"
-    "time"
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/goutil/coarsetime"
@@ -874,7 +873,7 @@ func Get{{.Name}}DB() *mysql.CacheableDB {
 //  Without cache layer.
 func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .IsDefaultPrimary}}int64,{{end}}error) {
 	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow()
-	if _{{.LowerFirstLetter}}.CreatedAt == nil {
+	if _{{.LowerFirstLetter}}.CreatedAt.Unix() == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
 	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
@@ -907,10 +906,10 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .I
 //  Don't update the primary keys, 'created_at' key and 'deleted' key;
 //  Update all fields except the primary keys, 'created_at' key and 'deleted' key, if _updateFields is empty.
 func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) ({{if .IsDefaultPrimary}}int64,{{end}}error) {
-	if _{{.LowerFirstLetter}}.UpdatedAt == nil {
+	if _{{.LowerFirstLetter}}.UpdatedAt.Unix() == 0{
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow()
 	}
-	if _{{.LowerFirstLetter}}.CreatedAt == nil {
+	if _{{.LowerFirstLetter}}.CreatedAt.Unix() == 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
 	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
@@ -1119,7 +1118,7 @@ func Get{{.Name}}ByPrimary({{range .PrimaryFields}}_{{.ModelName}} {{.Typ}}, {{e
 	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}})
 	switch err {
 	case nil:
-		if _{{.LowerFirstLetter}}.CreatedAt == nil || _{{.LowerFirstLetter}}.Deleted != 0{
+		if _{{.LowerFirstLetter}}.CreatedAt.Unix() == 0 || _{{.LowerFirstLetter}}.Deleted != 0{
 			return nil, false, nil
 		}
 		return _{{.LowerFirstLetter}}, true, nil
@@ -1142,7 +1141,7 @@ func Get{{$.Name}}By{{.Name}}(_{{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, erro
 	err := {{$.LowerFirstName}}DB.CacheGet(_{{$.LowerFirstLetter}},"{{.ModelName}}")
 	switch err {
 	case nil:
-		if _{{$.LowerFirstLetter}}.CreatedAt == nil || _{{$.LowerFirstLetter}}.Deleted != 0{
+		if _{{$.LowerFirstLetter}}.CreatedAt.Unix() == 0 || _{{$.LowerFirstLetter}}.Deleted != 0{
 			return nil, false, nil
 		}
 		return _{{$.LowerFirstLetter}}, true, nil

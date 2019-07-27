@@ -504,7 +504,11 @@ func (mod *Model) mongoString() string {
 	mod.UpdateSql = mod.UpdateSql[:len(mod.UpdateSql)-1]
 	mod.UpsertSqlSuffix = mod.UpsertSqlSuffix[:len(mod.UpsertSqlSuffix)-1] + ";"
 
-	m, err := template.New("").Parse(mongoModelTpl)
+	mongoModelTplConst := mongoModelTpl
+	if mod.checkDefaultFields() {
+		mongoModelTplConst = mongoModelTplTm
+	}
+	m, err := template.New("").Parse(mongoModelTplConst)
 	if err != nil {
 		tp.Fatalf("[micro] model string: %v", err)
 	}
@@ -552,7 +556,11 @@ func (mod *Model) mysqlString() string {
 	mod.UpdateSql = mod.UpdateSql[:len(mod.UpdateSql)-1]
 	mod.UpsertSqlSuffix = mod.UpsertSqlSuffix[:len(mod.UpsertSqlSuffix)-1] + ";"
 
-	m, err := template.New("").Parse(mysqlModelTpl)
+	mysqlModelTplConst := mysqlModelTpl
+	if mod.checkDefaultFields() {
+		mysqlModelTplConst = mysqlModelTplTm
+	}
+	m, err := template.New("").Parse(mysqlModelTplConst)
 	if err != nil {
 		tp.Fatalf("[micro] model string: %v", err)
 	}
