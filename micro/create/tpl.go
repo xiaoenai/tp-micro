@@ -787,6 +787,385 @@ func Count{{.Name}}ByWhere(whereCond string, arg ...interface{}) (int64, error) 
 }
 `
 
+const mysqlModelTplTm = `package model
+
+import (
+	"database/sql"
+	"unsafe"
+    "time"
+
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/goutil/coarsetime"
+	"github.com/xiaoenai/tp-micro/model/mysql"
+	"github.com/xiaoenai/tp-micro/model/sqlx"
+
+	"${import_prefix}/args"
+)
+
+{{.Doc}}type {{.Name}} args.{{.Name}}
+
+// To{{.Name}} converts to *{{.Name}} type.
+func To{{.Name}}(_{{.LowerFirstLetter}} *args.{{.Name}}) *{{.Name}} {
+	return (*{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
+}
+
+// ToArgs{{.Name}} converts to *args.{{.Name}} type.
+func ToArgs{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *args.{{.Name}} {
+	return (*args.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
+}
+
+// To{{.Name}}Slice converts to []*{{.Name}} type.
+func To{{.Name}}Slice(a []*args.{{.Name}}) []*{{.Name}} {
+	return *(*[]*{{.Name}})(unsafe.Pointer(&a))
+}
+
+// ToArgs{{.Name}}Slice converts to []*args.{{.Name}} type.
+func ToArgs{{.Name}}Slice(a []*{{.Name}}) []*args.{{.Name}} {
+	return *(*[]*args.{{.Name}})(unsafe.Pointer(&a))
+}
+
+// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+func (*{{.Name}}) TableName() string {
+	return "{{.SnakeName}}"
+}
+
+func (_{{.LowerFirstLetter}} *{{.Name}}) isZeroPrimaryKey() bool {
+	{{range .PrimaryFields}}var _{{.ModelName}} {{.Typ}}
+	if _{{$.LowerFirstLetter}}.{{.Name}}!=_{{.ModelName}}{
+		return false
+	}
+	{{end}}return true
+}
+
+var {{.LowerFirstName}}DB, _ = mysqlHandler.RegCacheableDB(new({{.Name}}), cacheExpire, ` + "args.{{.Name}}Sql" + `)
+
+// Get{{.Name}}DB returns the {{.Name}} DB handler.
+func Get{{.Name}}DB() *mysql.CacheableDB {
+	return {{.LowerFirstName}}DB
+}
+
+// Insert{{.Name}} insert a {{.Name}} data into database.
+// NOTE:
+//  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
+//  Without cache layer.
+func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .IsDefaultPrimary}}int64,{{end}}error) {
+	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow()
+	if _{{.LowerFirstLetter}}.CreatedAt == nil {
+		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
+	}
+	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+		var (
+			query string
+			isZeroPrimaryKey=_{{.LowerFirstLetter}}.isZeroPrimaryKey()
+		)
+		if isZeroPrimaryKey {
+			query = "INSERT INTO {{.NameSql}} ({{index .QuerySql 0}})VALUES({{index .QuerySql 1}});"
+		} else {
+			query = "INSERT INTO {{.NameSql}} ({{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}})VALUES({{range .PrimaryFields}}:{{.ModelName}},{{end}}{{index .QuerySql 1}});"
+		}
+		{{if .IsDefaultPrimary}}r, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		if isZeroPrimaryKey && err==nil {
+			_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}}, err = r.LastInsertId()
+		}
+		{{else}}_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		{{end}}return err
+	}, tx...)
+}
+
+// Upsert{{.Name}} insert or update the {{.Name}} data by primary key.
+// NOTE:
+//  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
+//  With cache layer;
+//  Insert data if the primary key is specified;
+//  Update data based on _updateFields if no primary key is specified;
+//  _updateFields' members must be db field style (snake format);
+//  Automatic update 'updated_at' field;
+//  Don't update the primary keys, 'created_at' key and 'deleted' key;
+//  Update all fields except the primary keys, 'created_at' key and 'deleted' key, if _updateFields is empty.
+func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) ({{if .IsDefaultPrimary}}int64,{{end}}error) {
+	if _{{.LowerFirstLetter}}.UpdatedAt == nil {
+		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow()
+	}
+	if _{{.LowerFirstLetter}}.CreatedAt == nil {
+		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
+	}
+	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+		var (
+			query string
+			isZeroPrimaryKey=_{{.LowerFirstLetter}}.isZeroPrimaryKey()
+		)
+		if isZeroPrimaryKey {
+			query = "INSERT INTO {{.NameSql}} ({{index .QuerySql 0}})VALUES({{index .QuerySql 1}})"
+		} else {
+			query = "INSERT INTO {{.NameSql}} ({{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}})VALUES({{range .PrimaryFields}}:{{.ModelName}},{{end}}{{index .QuerySql 1}})"
+		}
+		query +=" ON DUPLICATE KEY UPDATE "
+		if len(_updateFields) == 0 {
+			query += "{{.UpsertSqlSuffix}}"
+		} else {
+			for _, s := range _updateFields {
+				if s == "updated_at" || s == "created_at" || s == "deleted"{{range .PrimaryFields}} || s == "{{.ModelName}}"{{end}} {
+					continue
+				}
+				query += ` + "\"`\" + s + \"`=VALUES(`\" + s + \"`),\"" + `
+			}
+			if query[len(query)-1] != ',' {
+				return nil
+			}
+			query += ` + "\"`updated_at`=VALUES(`updated_at`),`deleted`=0;\"" + `
+		}
+		{{if .IsDefaultPrimary}}r, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		if isZeroPrimaryKey && err==nil {
+			var rowsAffected int64
+			rowsAffected, err = r.RowsAffected()
+			if rowsAffected == 1 {
+				_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}}, err = r.LastInsertId()
+			}
+		}
+		{{else}}_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		{{end}}return err
+	}, tx...)
+	if err != nil {
+		return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}err
+	}
+	err = {{.LowerFirstName}}DB.DeleteCache(_{{.LowerFirstLetter}})
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}nil
+}
+
+// Update{{.Name}}ByPrimary update the {{.Name}} data in database by primary key.
+// NOTE:
+//  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
+//  With cache layer;
+//  _updateFields' members must be db field style (snake format);
+//  Automatic update 'updated_at' field;
+//  Don't update the primary keys, 'created_at' key and 'deleted' key;
+//  Update all fields except the primary keys, 'created_at' key and 'deleted' key, if _updateFields is empty.
+func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) error {
+	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow()
+	err := {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+		query := "UPDATE {{.NameSql}} SET "
+		if len(_updateFields) == 0 {
+			query += "{{.UpdateSql}} WHERE ` + "{{range $.PrimaryFields}}`{{.ModelName}}`=:{{.ModelName}} AND {{end}}`deleted`=0" + ` LIMIT 1;"
+		} else {
+			for _, s := range _updateFields {
+				if s == "updated_at" || s == "created_at" || s == "deleted"{{range .PrimaryFields}} || s == "{{.ModelName}}"{{end}} {
+					continue
+				}
+				query += ` + "\"`\" + s + \"`=:\" + s + \",\"" + `
+			}
+			if query[len(query)-1] != ',' {
+				return nil
+			}
+			query += ` + "\"`updated_at`=:updated_at WHERE {{range .PrimaryFields}}`{{.ModelName}}`=:{{.ModelName}} AND {{end}}`deleted`=0 LIMIT 1;\"" + `
+		}
+		_, err := tx.NamedExec(query, _{{.LowerFirstLetter}})
+		return err
+	}, tx...)
+	if err != nil {
+		return err
+	}
+	err = {{.LowerFirstName}}DB.DeleteCache(_{{.LowerFirstLetter}})
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
+}
+
+{{range .UniqueFields}}
+// Update{{$.Name}}By{{.Name}} update the {{$.Name}} data in database by '{{.ModelName}}' unique key.
+// NOTE:
+//  With cache layer;
+//  _updateFields' members must be db field style (snake format);
+//  Automatic update 'updated_at' field;
+//  Don't update the primary keys, 'created_at' key and 'deleted' key;
+//  Update all fields except the primary keys, '{{.ModelName}}' unique key, 'created_at' key and 'deleted' key, if _updateFields is empty.
+func Update{{$.Name}}By{{.Name}}(_{{$.LowerFirstLetter}} *{{$.Name}}, _updateFields []string, tx ...*sqlx.Tx) error {
+	_{{$.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow()
+	err := {{$.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+		query := "UPDATE {{$.NameSql}} SET "
+		if len(_updateFields) == 0 {
+			query += "{{$.UpdateSql}} WHERE ` + "`{{.ModelName}}`=:{{.ModelName}} AND `deleted`=0" + ` LIMIT 1;"
+		} else {
+			for _, s := range _updateFields {
+				if s == "updated_at" || s == "created_at" || s == "deleted" || s == "{{.ModelName}}"{{range $.PrimaryFields}} || s == "{{.ModelName}}"{{end}} {
+					continue
+				}
+				query += ` + "\"`\" + s + \"`=:\" + s + \",\"" + `
+			}
+			if query[len(query)-1] != ',' {
+				return nil
+			}
+			query += ` + "\"`updated_at`=:updated_at WHERE `{{.ModelName}}`=:{{.ModelName}} AND `deleted`=0 LIMIT 1;\"" + `
+		}
+		_, err := tx.NamedExec(query, _{{$.LowerFirstLetter}})
+		return err
+	}, tx...)
+	if err != nil {
+		return err
+	}
+	err = {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}},"{{.ModelName}}")
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
+}
+{{end}}
+
+// Delete{{.Name}}ByPrimary delete a {{.Name}} data in database by primary key.
+// NOTE:
+//  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
+//  With cache layer.
+func Delete{{.Name}}ByPrimary({{range .PrimaryFields}}_{{.ModelName}} {{.Typ}}, {{end}}deleteHard bool, tx ...*sqlx.Tx) error {
+	var err error
+	if deleteHard {
+		// Immediately delete from the hard disk.
+		err = {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+				_, err := tx.Exec("DELETE FROM {{.NameSql}} WHERE {{range .PrimaryFields}}` + "`{{.ModelName}}`=? AND {{end}}`deleted`=0;" + `", {{range .PrimaryFields}}_{{.ModelName}}, {{end}})
+				return err
+			}, tx...)
+
+	}else {
+		// Delay delete from the hard disk.
+		ts := coarsetime.FloorTimeNow()
+		err = {{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+			_, err := tx.Exec("UPDATE {{.NameSql}} SET ` + "`updated_at`=?, `deleted`=?" + ` WHERE {{range .PrimaryFields}}` + "`{{.ModelName}}`=? AND {{end}}`deleted`=0;" + `", ts, ts, {{range .PrimaryFields}}_{{.ModelName}}, {{end}})
+			return err
+		}, tx...)
+	}
+	
+	if err != nil {
+		return err
+	}
+	err = {{.LowerFirstName}}DB.DeleteCache(&{{.Name}}{
+		{{range .PrimaryFields}}{{.Name}}:_{{.ModelName}},
+		{{end}} })
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
+}
+
+{{range .UniqueFields}}
+// Delete{{$.Name}}By{{.Name}} delete a {{$.Name}} data in database by '{{.ModelName}}' unique key.
+// NOTE:
+//  With cache layer.
+func Delete{{$.Name}}By{{.Name}}(_{{.ModelName}} {{.Typ}}, deleteHard bool, tx ...*sqlx.Tx) error {
+	var err error
+	if deleteHard {
+		// Immediately delete from the hard disk.
+		err = {{$.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+				_, err := tx.Exec("DELETE FROM {{$.NameSql}} WHERE ` + "`{{.ModelName}}`=? AND `deleted`=0;" + `", _{{.ModelName}})
+				return err
+			}, tx...)
+
+	}else {
+		// Delay delete from the hard disk.
+		ts := coarsetime.FloorTimeNow()
+		err = {{$.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
+			_, err := tx.Exec("UPDATE {{$.NameSql}} SET ` + "`updated_at`=?, `deleted`=?" + ` WHERE ` + "`{{.ModelName}}`=? AND `deleted`=0;" + `", ts, ts, _{{.ModelName}})
+			return err
+		}, tx...)
+	}
+	
+	if err != nil {
+		return err
+	}
+	err = {{$.LowerFirstName}}DB.DeleteCache(&{{$.Name}}{
+		{{.Name}}:_{{.ModelName}},
+		},"{{.ModelName}}")
+	if err != nil {
+		tp.Errorf("%s", err.Error())
+	}
+	return nil
+}
+{{end}}
+
+// Get{{.Name}}ByPrimary query a {{.Name}} data from database by primary key.
+// NOTE:
+//  Primary key:{{range .PrimaryFields}} '{{.ModelName}}'{{end}};
+//  With cache layer;
+//  If @return bool=false error=nil, means the data is not exist.
+func Get{{.Name}}ByPrimary({{range .PrimaryFields}}_{{.ModelName}} {{.Typ}}, {{end}}) (*{{.Name}}, bool, error) {
+	var _{{.LowerFirstLetter}} = &{{.Name}}{
+		{{range .PrimaryFields}}{{.Name}}:_{{.ModelName}},
+		{{end}} }
+	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}})
+	switch err {
+	case nil:
+		if _{{.LowerFirstLetter}}.CreatedAt == nil || _{{.LowerFirstLetter}}.Deleted != 0{
+			return nil, false, nil
+		}
+		return _{{.LowerFirstLetter}}, true, nil
+	case sql.ErrNoRows:
+		return nil, false, nil
+	default:
+		return nil, false, err
+	}
+}
+
+{{range .UniqueFields}}
+// Get{{$.Name}}By{{.Name}} query a {{$.Name}} data from database by '{{.ModelName}}' unique key.
+// NOTE:
+//  With cache layer;
+//  If @return bool=false error=nil, means the data is not exist.
+func Get{{$.Name}}By{{.Name}}(_{{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error) {
+	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
+		{{.Name}}:_{{.ModelName}},
+		}
+	err := {{$.LowerFirstName}}DB.CacheGet(_{{$.LowerFirstLetter}},"{{.ModelName}}")
+	switch err {
+	case nil:
+		if _{{$.LowerFirstLetter}}.CreatedAt == nil || _{{$.LowerFirstLetter}}.Deleted != 0{
+			return nil, false, nil
+		}
+		return _{{$.LowerFirstLetter}}, true, nil
+	case sql.ErrNoRows:
+		return nil, false, nil
+	default:
+		return nil, false, err
+	}
+}
+{{end}}
+
+// Get{{.Name}}ByWhere query a {{.Name}} data from database by WHERE condition.
+// NOTE:
+//  Without cache layer;
+//  If @return bool=false error=nil, means the data is not exist.
+func Get{{.Name}}ByWhere(whereCond string, arg ...interface{}) (*{{.Name}}, bool, error) {
+	var _{{.LowerFirstLetter}} = new({{.Name}})
+	err := {{.LowerFirstName}}DB.Get(_{{.LowerFirstLetter}}, "SELECT {{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+insertZeroDeletedTmField(whereCond)+ " LIMIT 1;", arg...)
+	switch err {
+	case nil:
+		return _{{.LowerFirstLetter}}, true, nil
+	case sql.ErrNoRows:
+		return nil, false, nil
+	default:
+		return nil, false, err
+	}
+}
+
+// Select{{.Name}}ByWhere query some {{.Name}} data from database by WHERE condition.
+// NOTE:
+//  Without cache layer.
+func Select{{.Name}}ByWhere(whereCond string, arg ...interface{}) ([]*{{.Name}}, error) {
+	var objs = new([]*{{.Name}})
+	err := {{.LowerFirstName}}DB.Select(objs, "SELECT {{range .PrimaryFields}}` + "`{{.ModelName}}`," + `{{end}}{{index .QuerySql 0}} FROM {{.NameSql}} WHERE "+insertZeroDeletedTmField(whereCond), arg...)
+	return *objs, err
+}
+
+// Count{{.Name}}ByWhere count {{.Name}} data number from database by WHERE condition.
+// NOTE:
+//  Without cache layer.
+func Count{{.Name}}ByWhere(whereCond string, arg ...interface{}) (int64, error) {
+	var count int64
+	err := {{.LowerFirstName}}DB.Get(&count, "SELECT count(*) FROM {{.NameSql}} WHERE "+insertZeroDeletedTmField(whereCond), arg...)
+	return count, err
+}
+`
+
 const mongoModelTpl = `package model
 
 import (
@@ -864,6 +1243,145 @@ func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error
 //  Update data based on _updateFields if no primary key is specified;
 func Upsert{{.Name}}(selector, updater mongo.M) error {
 	updater["updated_at"] = coarsetime.FloorTimeNow().Unix()
+	return {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
+		_, err := col.Upsert(selector, mongo.M{"$set": updater})
+		return err
+	})
+}
+
+{{range .UniqueFields}}
+// Get{{$.Name}}By{{.Name}} query a {{$.Name}} data from database by '{{.ModelName}}' condition.
+// NOTE:
+//  With cache layer;
+//  If @return error!=nil, means the database error.
+func Get{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error) {
+	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
+		{{.Name}}: {{.ModelName}},
+	}
+	exists, err := Get{{$.Name}}ByFields(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
+	if err != nil {
+		return nil, false, err
+	}
+	if !exists {
+		return nil, false, nil
+	}
+
+	return _{{$.LowerFirstLetter}}, true, nil
+}
+{{end}}
+
+// Get{{.Name}}ByFields query a {{.Name}} data from database by WHERE field.
+// NOTE:
+//  With cache layer;
+//  If @return error!=nil, means the database error.
+func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) (bool, error) {
+	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}}, _fields...)
+	switch err {
+	case nil:
+		return true, nil
+	case mongo.ErrNotFound:
+		return false, nil
+	default:
+		return false, err
+	}
+}
+
+// Get{{.Name}}ByWhere query a {{.Name}} data from database by WHERE condition.
+// NOTE:
+//  Without cache layer;
+//  If @return error!=nil, means the database error.
+func Get{{.Name}}ByWhere(query mongo.M) (*{{.Name}}, bool, error) {
+	_{{.LowerFirstLetter}} := &{{.Name}}{}
+	err := {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
+		return col.Find(query).One(_{{.LowerFirstLetter}})
+	})
+	switch err {
+	case nil:
+		return _{{.LowerFirstLetter}}, true, nil
+	case mongo.ErrNotFound:
+		return nil, false, nil
+	default:
+		return nil, false, err
+	}
+}`
+
+const mongoModelTplTm = `package model
+
+import (
+	"time"
+	"unsafe"
+
+	"github.com/henrylee2cn/goutil/coarsetime"
+	"github.com/xiaoenai/tp-micro/model/mongo"
+	tp "github.com/henrylee2cn/teleport"
+
+	"${import_prefix}/args"
+)
+
+var _ = tp.Errorf
+
+{{.Doc}}type {{.Name}} args.{{.Name}}
+
+// To{{.Name}} converts to *{{.Name}} type.
+func To{{.Name}}(_{{.LowerFirstLetter}} *args.{{.Name}}) *{{.Name}} {
+	return (*{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
+}
+
+// ToArgs{{.Name}} converts to *args.{{.Name}} type.
+func ToArgs{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *args.{{.Name}} {
+	return (*args.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
+}
+
+// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+func (*{{.Name}}) TableName() string {
+	return "{{.SnakeName}}"
+}
+
+func (_{{.LowerFirstLetter}} *{{.Name}}) isZeroPrimaryKey() bool {
+	{{range .PrimaryFields}}var _{{.ModelName}} {{.Typ}}
+	if _{{$.LowerFirstLetter}}.{{.Name}}!=_{{.ModelName}}{
+		return false
+	}
+	{{end}}return true
+}
+
+var {{.LowerFirstName}}DB, _ = mongoHandler.RegCacheableDB(new({{.Name}}), time.Hour*24)
+
+// Get{{.Name}}DB returns the {{.Name}} DB handler.
+func Get{{.Name}}DB() *mongo.CacheableDB {
+	return {{.LowerFirstName}}DB
+}
+
+{{range .UniqueFields}}
+// Upsert{{$.Name}}By{{.Name}} update the {{$.Name}} data in database by '{{.ModelName}}' unique key.
+// NOTE:
+//  With cache layer;
+//  _updateFields' members must be db field style (snake format);
+func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error {
+	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
+		{{.Name}}: {{.ModelName}},
+	}
+	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}}
+	err := Upsert{{$.Name}}(selector, updater)
+	if err == nil {
+		// Del cache
+		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
+		if err2 != nil {
+			tp.Errorf("DeleteCache -> err:%s", err2)
+		}
+	}
+
+	return err
+}
+{{end}}
+
+// Upsert{{.Name}} insert or update the {{.Name}} data by selector and updater.
+// NOTE:
+//  With cache layer;
+//  Insert data if the primary key is specified;
+//  Update data based on _updateFields if no primary key is specified;
+func Upsert{{.Name}}(selector, updater mongo.M) error {
+	updater["updated_at"] = coarsetime.FloorTimeNow()
 	return {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
 		_, err := col.Upsert(selector, mongo.M{"$set": updater})
 		return err
