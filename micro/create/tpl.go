@@ -873,7 +873,7 @@ func Get{{.Name}}DB() *mysql.CacheableDB {
 //  Without cache layer.
 func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .IsDefaultPrimary}}int64,{{end}}error) {
 	_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow()
-	if _{{.LowerFirstLetter}}.CreatedAt.Unix() == 0 {
+	if _{{.LowerFirstLetter}}.CreatedAt.Unix() <= 0 {
 		_{{.LowerFirstLetter}}.CreatedAt = _{{.LowerFirstLetter}}.UpdatedAt
 	}
 	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}{{.LowerFirstName}}DB.Callback(func(tx sqlx.DbOrTx) error {
@@ -906,7 +906,7 @@ func Insert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, tx ...*sqlx.Tx) ({{if .I
 //  Don't update the primary keys, 'created_at' key and 'deleted' key;
 //  Update all fields except the primary keys, 'created_at' key and 'deleted' key, if _updateFields is empty.
 func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, tx ...*sqlx.Tx) ({{if .IsDefaultPrimary}}int64,{{end}}error) {
-	if _{{.LowerFirstLetter}}.UpdatedAt.Unix() == 0{
+	if _{{.LowerFirstLetter}}.UpdatedAt.Unix() <= 0{
 		_{{.LowerFirstLetter}}.UpdatedAt = coarsetime.FloorTimeNow()
 	}
 	if _{{.LowerFirstLetter}}.CreatedAt.Unix() == 0 {
