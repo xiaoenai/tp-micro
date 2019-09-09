@@ -40,7 +40,7 @@ const (
 type (
 	circuitBreaker struct {
 		linker          Linker
-		newSessionFunc  func(addr string) (*cliSession, *tp.Rerror)
+		newSessionFunc  func(addr string) (*cliSession, *tp.Status)
 		sessLib         goutil.Map
 		closeCh         chan struct{}
 		enableBreak     bool
@@ -66,7 +66,7 @@ func newCircuitBreaker(
 	errorPercentage int,
 	breakDuration time.Duration,
 	linker Linker,
-	newFn func(string) (tp.Session, *tp.Rerror),
+	newFn func(string) (tp.Session, *tp.Status),
 ) *circuitBreaker {
 	c := &circuitBreaker{
 		linker:          linker,
@@ -76,7 +76,7 @@ func newCircuitBreaker(
 		breakDuration:   breakDuration,
 		closeCh:         make(chan struct{}),
 	}
-	c.newSessionFunc = func(addr string) (*cliSession, *tp.Rerror) {
+	c.newSessionFunc = func(addr string) (*cliSession, *tp.Status) {
 		sess, rerr := newFn(addr)
 		if rerr != nil {
 			return nil, rerr
@@ -98,9 +98,9 @@ func (c *circuitBreaker) start() {
 	}
 }
 
-var notFoundService = RerrNotFound.Copy().SetReason("not found service")
+var notFoundService = RerrNotFound.Copy("not found service")
 
-func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Rerror) {
+func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Status) {
 	var (
 		uriPath = getUriPath(uri)
 		addr    string

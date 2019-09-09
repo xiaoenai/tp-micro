@@ -21,7 +21,7 @@ import (
 // Linker linker for client.
 type Linker interface {
 	// Select selects a service address by URI path.
-	Select(uriPath string, exclude map[string]struct{}) (addr string, rerr *tp.Rerror)
+	Select(uriPath string, exclude map[string]struct{}) (addr string, rerr *tp.Status)
 	// Len returns the number of nodes corresponding to the URI.
 	Len(uriPath string) int
 	// WatchOffline pushs service node offline notification.
@@ -46,7 +46,7 @@ type staticLinker struct {
 }
 
 // Select selects a service address by URI path.
-func (d *staticLinker) Select(uriPath string, exclude map[string]struct{}) (string, *tp.Rerror) {
+func (d *staticLinker) Select(uriPath string, exclude map[string]struct{}) (string, *tp.Status) {
 	return d.srvAddr, nil
 }
 

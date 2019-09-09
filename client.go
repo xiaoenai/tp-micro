@@ -142,7 +142,7 @@ func NewClient(cfg CliConfig, linker Linker, globalLeftPlugin ...tp.Plugin) *Cli
 		cfg.CircuitBreaker.ErrorPercentage,
 		cfg.CircuitBreaker.BreakDuration,
 		linker,
-		func(addr string) (tp.Session, *tp.Rerror) {
+		func(addr string) (tp.Session, *tp.Status) {
 			return cli.peer.Dial(addr, cli.protoFunc)
 		})
 	cli.circuitBreaker.start()
@@ -230,7 +230,7 @@ func (c *Client) AsyncCall(
 		return callCmd
 	}
 	callCmd := cliSess.AsyncCall(uri, arg, result, callCmdChan, setting...)
-	cliSess.feedback(!tp.IsConnRerror(callCmd.Rerror()))
+	cliSess.feedback(!tp.IsConnError(callCmd.Status()))
 	return callCmd
 }
 
@@ -247,7 +247,7 @@ func (c *Client) Call(uri string, arg interface{}, result interface{}, setting .
 	var (
 		cliSess     *cliSession
 		callCmd     tp.CallCmd
-		rerr        *tp.Rerror
+		rerr        *tp.Status
 		healthy     bool
 		callCmdChan = make(chan tp.CallCmd, 1)
 	)
@@ -258,13 +258,13 @@ func (c *Client) Call(uri string, arg interface{}, result interface{}, setting .
 		}
 		cliSess.AsyncCall(uri, arg, result, callCmdChan, setting...)
 		callCmd = <-callCmdChan
-		healthy = !tp.IsConnRerror(callCmd.Rerror())
+		healthy = !tp.IsConnError(callCmd.Status())
 		cliSess.feedback(healthy)
 		if healthy {
 			return callCmd
 		}
 		if i > 0 {
-			tp.Debugf("the %dth failover is triggered because: %s", i, callCmd.Rerror().String())
+			tp.Debugf("the %dth failover is triggered because: %s", i, callCmd.Status().String())
 		}
 	}
 	return callCmd
@@ -274,7 +274,7 @@ func (c *Client) Call(uri string, arg interface{}, result interface{}, setting .
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func (c *Client) Push(uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Rerror {
+func (c *Client) Push(uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
 	select {
 	case <-c.closeCh:
 		return RerrClientClosed
@@ -282,7 +282,7 @@ func (c *Client) Push(uri string, arg interface{}, setting ...tp.MessageSetting)
 	}
 	var (
 		cliSess *cliSession
-		rerr    *tp.Rerror
+		rerr    *tp.Status
 		healthy bool
 	)
 	for i := 0; i < c.maxTry; i++ {
@@ -291,7 +291,7 @@ func (c *Client) Push(uri string, arg interface{}, setting ...tp.MessageSetting)
 			return rerr
 		}
 		rerr = cliSess.Push(uri, arg, setting...)
-		healthy = !tp.IsConnRerror(rerr)
+		healthy = !tp.IsConnError(rerr)
 		cliSess.feedback(healthy)
 		if healthy {
 			return rerr

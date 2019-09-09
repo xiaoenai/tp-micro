@@ -148,10 +148,8 @@ func (s *Server) SetBindErrorFunc(fn binder.ErrorFunc) {
 		s.binder.SetErrorFunc(fn)
 		return
 	}
-	s.binder.SetErrorFunc(func(handlerName, paramName, reason string) *tp.Rerror {
-		return RerrInvalidParameter.Copy().SetReason(
-			fmt.Sprintf(`{"handler": %q, "param": %q, "reason": %q}`, handlerName, paramName, reason),
-		)
+	s.binder.SetErrorFunc(func(handlerName, paramName, reason string) *tp.Status {
+		return RerrInvalidParameter.SetCause(fmt.Sprintf(`{"handler": %q, "param": %q, "reason": %q}`, handlerName, paramName, reason))
 	})
 }
 
@@ -187,13 +185,13 @@ func (s *Server) RoutePushFunc(pushHandleFunc interface{}, plugin ...tp.Plugin) 
 
 // SetUnknownCall sets the default handler,
 // which is called when no handler for CALL is found.
-func (s *Server) SetUnknownCall(fn func(tp.UnknownCallCtx) (interface{}, *tp.Rerror), plugin ...tp.Plugin) {
+func (s *Server) SetUnknownCall(fn func(tp.UnknownCallCtx) (interface{}, *tp.Status), plugin ...tp.Plugin) {
 	s.peer.SetUnknownCall(fn, plugin...)
 }
 
 // SetUnknownPush sets the default handler,
 // which is called when no handler for PUSH is found.
-func (s *Server) SetUnknownPush(fn func(tp.UnknownPushCtx) *tp.Rerror, plugin ...tp.Plugin) {
+func (s *Server) SetUnknownPush(fn func(tp.UnknownPushCtx) *tp.Status, plugin ...tp.Plugin) {
 	s.peer.SetUnknownPush(fn, plugin...)
 }
 
@@ -223,6 +221,6 @@ func (s *Server) RangeSession(fn func(sess tp.Session) bool) {
 }
 
 // ServeConn serves the connection and returns a session.
-func (s *Server) ServeConn(conn net.Conn, protoFunc ...tp.ProtoFunc) (tp.Session, error) {
+func (s *Server) ServeConn(conn net.Conn, protoFunc ...tp.ProtoFunc) (tp.Session, *tp.Status) {
 	return s.peer.ServeConn(conn, protoFunc...)
 }
