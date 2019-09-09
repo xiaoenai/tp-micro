@@ -19,7 +19,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"sync"
 	"time"
 
 	"github.com/xiaoenai/tp-micro/clientele"
@@ -32,7 +31,6 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
-	"github.com/xiaoenai/tp-micro/gateway/logic/socket"
 )
 
 const (
@@ -55,17 +53,6 @@ type requestHandler struct {
 }
 
 var rerrInternalServerError = tp.NewRerror(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
-
-var (
-	gwWsUri    string
-	wsUpgrader = ws.Custom(wsHandler, 4096, 4096)
-)
-
-type wsFastHttpConn struct {
-	*ws.Conn
-	rio, wio    sync.Mutex
-	frameReader io.Reader
-}
 
 // Read reads data from the connection.
 // Read can be made to time out and return an Error with Timeout() == true
@@ -109,21 +96,9 @@ func (w *wsFastHttpConn) SetDeadline(t time.Time) error {
 	return w.Conn.SetWriteDeadline(t)
 }
 
-func wsHandler(conn *ws.Conn) {
-	socket.OuterServeConn(&wsFastHttpConn{Conn: conn})
-}
-
 func (r *requestHandler) handle() {
 	var ctx = r.ctx
 	var uri = goutil.BytesToString(ctx.Path())
-	// websocket
-	if uri == gwWsUri {
-		err := wsUpgrader.Upgrade(ctx)
-		if err != nil {
-			tp.Debugf("upgrade websocket fail: %s", err.Error())
-		}
-		return
-	}
 	var h = r.Header()
 	var contentType = goutil.BytesToString(h.ContentType())
 	var bodyCodec = GetBodyCodec(contentType, codec.ID_PLAIN)

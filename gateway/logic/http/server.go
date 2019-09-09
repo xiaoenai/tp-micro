@@ -97,7 +97,6 @@ func Serve(srvCfg HttpSrvConfig) {
 	}
 	addr := lis.Addr().String()
 	tp.Printf("register HTTP handler: %s", gwHostsUri)
-	tp.Printf("register WEB-SOCKET handler: %s", gwWsUri)
 	tp.Printf("listen ok (network:%s, addr:%s)", network, addr)
 
 	err = (&fasthttp.Server{
