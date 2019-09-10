@@ -55,6 +55,9 @@ func (c *socketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.Sta
 func (c *socketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Status {
 	// _appendQuery, _ := ctx.Swap().Load(socketConnTabPlugin)
 	// appendQuery, _ := _appendQuery.(string)
+	// u := ctx.UriObject()
+	// u.RawQuery += "&" + appendQuery
+	// u.RawQuery = strings.Trim(u.RawQuery, "&")
 	return nil
 }
 
