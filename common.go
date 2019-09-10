@@ -51,9 +51,9 @@ func doInit() {
 	})
 }
 
-func getUriPath(uri string) string {
-	if idx := strings.Index(uri, "?"); idx != -1 {
-		return uri[:idx]
+func getUriPath(serviceMethod string) string {
+	if idx := strings.Index(serviceMethod, "?"); idx != -1 {
+		return serviceMethod[:idx]
 	}
-	return uri
+	return serviceMethod
 }

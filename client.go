@@ -198,7 +198,7 @@ func (c *Client) RoutePushFunc(pushHandleFunc interface{}, plugin ...tp.Plugin) 
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure;
 //  Do not support failover to try again.
 func (c *Client) AsyncCall(
-	uri string,
+	serviceMethod string,
 	arg interface{},
 	result interface{},
 	callCmdChan chan<- tp.CallCmd,
@@ -217,19 +217,19 @@ func (c *Client) AsyncCall(
 	}
 	select {
 	case <-c.closeCh:
-		callCmd := tp.NewFakeCallCmd(uri, arg, result, RerrClientClosed)
+		callCmd := tp.NewFakeCallCmd(serviceMethod, arg, result, RerrClientClosed)
 		callCmdChan <- callCmd
 		return callCmd
 	default:
 	}
 
-	cliSess, rerr := c.circuitBreaker.selectSession(uri)
+	cliSess, rerr := c.circuitBreaker.selectSession(serviceMethod)
 	if rerr != nil {
-		callCmd := tp.NewFakeCallCmd(uri, arg, result, rerr)
+		callCmd := tp.NewFakeCallCmd(serviceMethod, arg, result, rerr)
 		callCmdChan <- callCmd
 		return callCmd
 	}
-	callCmd := cliSess.AsyncCall(uri, arg, result, callCmdChan, setting...)
+	callCmd := cliSess.AsyncCall(serviceMethod, arg, result, callCmdChan, setting...)
 	cliSess.feedback(!tp.IsConnError(callCmd.Status()))
 	return callCmd
 }
@@ -238,10 +238,10 @@ func (c *Client) AsyncCall(
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func (c *Client) Call(uri string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
+func (c *Client) Call(serviceMethod string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
 	select {
 	case <-c.closeCh:
-		return tp.NewFakeCallCmd(uri, arg, result, RerrClientClosed)
+		return tp.NewFakeCallCmd(serviceMethod, arg, result, RerrClientClosed)
 	default:
 	}
 	var (
@@ -252,11 +252,11 @@ func (c *Client) Call(uri string, arg interface{}, result interface{}, setting .
 		callCmdChan = make(chan tp.CallCmd, 1)
 	)
 	for i := 0; i < c.maxTry; i++ {
-		cliSess, rerr = c.circuitBreaker.selectSession(uri)
+		cliSess, rerr = c.circuitBreaker.selectSession(serviceMethod)
 		if rerr != nil {
-			return tp.NewFakeCallCmd(uri, arg, result, rerr)
+			return tp.NewFakeCallCmd(serviceMethod, arg, result, rerr)
 		}
-		cliSess.AsyncCall(uri, arg, result, callCmdChan, setting...)
+		cliSess.AsyncCall(serviceMethod, arg, result, callCmdChan, setting...)
 		callCmd = <-callCmdChan
 		healthy = !tp.IsConnError(callCmd.Status())
 		cliSess.feedback(healthy)
@@ -274,7 +274,7 @@ func (c *Client) Call(uri string, arg interface{}, result interface{}, setting .
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func (c *Client) Push(uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
+func (c *Client) Push(serviceMethod string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
 	select {
 	case <-c.closeCh:
 		return RerrClientClosed
@@ -286,11 +286,11 @@ func (c *Client) Push(uri string, arg interface{}, setting ...tp.MessageSetting)
 		healthy bool
 	)
 	for i := 0; i < c.maxTry; i++ {
-		cliSess, rerr = c.circuitBreaker.selectSession(uri)
+		cliSess, rerr = c.circuitBreaker.selectSession(serviceMethod)
 		if rerr != nil {
 			return rerr
 		}
-		rerr = cliSess.Push(uri, arg, setting...)
+		rerr = cliSess.Push(serviceMethod, arg, setting...)
 		healthy = !tp.IsConnError(rerr)
 		cliSess.feedback(healthy)
 		if healthy {
