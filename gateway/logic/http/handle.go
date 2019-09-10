@@ -52,7 +52,7 @@ var rerrInternalServerError = tp.NewStatus(tp.CodeInternalServerError, tp.CodeTe
 
 func (r *requestHandler) handle() {
 	var ctx = r.ctx
-	// var uri = goutil.BytesToString(ctx.Path())
+	var serviceMethod = goutil.BytesToString(ctx.Path())
 	var h = r.Header()
 	var contentType = goutil.BytesToString(h.ContentType())
 	var bodyCodec = GetBodyCodec(contentType, codec.ID_PLAIN)
@@ -61,6 +61,7 @@ func (r *requestHandler) handle() {
 	var bodyBytes = ctx.Request.Body()
 	var reply []byte
 	var label proxy.Label
+	label.ServiceMethod = serviceMethod
 
 	// set real ip
 	if xRealIp := h.Peek("X-Real-IP"); len(xRealIp) > 0 {
