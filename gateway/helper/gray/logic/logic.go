@@ -20,7 +20,7 @@ var (
 )
 
 // IsGray check whether the service should use grayscale based on the uid.
-func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Rerror) {
+func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Status) {
 	g, exist, err := model.GetGrayMatchByUri(args.Uri)
 	if err != nil {
 		return nil, micro.RerrInternalServerError.Copy().SetReason(err.Error())
@@ -46,7 +46,7 @@ func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Rerror) {
 }
 
 // Get get the rule of gray.
-func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Rerror) {
+func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Status) {
 	g, exist, err := model.GetGrayMatchByUri(args.Uri)
 	if err != nil {
 		return nil, micro.RerrInternalServerError.Copy().SetReason(err.Error())
@@ -58,7 +58,7 @@ func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Rerror) {
 }
 
 // Delete delete the rule of gray.
-func Delete(args *types.DeleteArgs) (*struct{}, *tp.Rerror) {
+func Delete(args *types.DeleteArgs) (*struct{}, *tp.Status) {
 	err := model.DeleteGrayMatchByUri(args.Uri)
 	if err != nil {
 		return nil, micro.RerrInternalServerError.Copy().SetReason(err.Error())
@@ -67,7 +67,7 @@ func Delete(args *types.DeleteArgs) (*struct{}, *tp.Rerror) {
 }
 
 // Set insert or update the regular expression for matching the URI.
-func Set(args *types.SetArgs) (*struct{}, *tp.Rerror) {
+func Set(args *types.SetArgs) (*struct{}, *tp.Status) {
 	_, ok := regexpCache.Load(args.Regexp)
 	if !ok {
 		re, err := regexp.Compile(args.Regexp)

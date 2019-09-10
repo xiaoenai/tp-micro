@@ -72,7 +72,7 @@ func ServicePluginFromEtcd(hostport string, etcdClient *etcd.Client, excludeApis
 		serviceInfo: new(ServiceInfo),
 	}
 	s.resetHostPort(hostport)
-	s.ExcludeApi(heartbeat.HeartbeatUri)
+	s.ExcludeApi(heartbeat.HeartbeatServiceMethod)
 	s.ExcludeApi(excludeApis...)
 	return s
 }

@@ -74,17 +74,8 @@ func Serve(srvCfg HttpSrvConfig) {
 	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
 	var tlsConfig *tls.Config
 	var err error
-	if len(srvCfg.TlsCertFile) > 0 && len(srvCfg.TlsKeyFile) > 0 {
-		tlsConfig, err = tp.NewTlsConfigFromFile(srvCfg.TlsCertFile, srvCfg.TlsKeyFile)
-		if err != nil {
-			tp.Fatalf("%v", err)
-		}
-		gwWsUri = "/gw/" + logic.ApiVersion() + "/wss"
-	} else {
-		gwWsUri = "/gw/" + logic.ApiVersion() + "/ws"
-	}
 
-	lis, err := tp.NewInheritListener("tcp", srvCfg.ListenAddress, tlsConfig)
+	lis, err := tp.NewInheritedListener("tcp", srvCfg.ListenAddress, tlsConfig)
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}

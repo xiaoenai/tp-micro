@@ -18,10 +18,10 @@ var (
 	slowCometDuration time.Duration = math.MaxInt64
 )
 
-func (r *requestHandler) runlog(startTime time.Time, label *proxy.ProxyLabel, seq string, inputBody []byte, outputBody *[]byte) {
+func (r *requestHandler) runlog(startTime time.Time, label *proxy.Label, seq string, inputBody []byte, outputBody *[]byte) {
 	var addr = r.ctx.RemoteAddr().String()
-	if label.RealIp != "" && label.RealIp != addr {
-		addr += "(real: " + label.RealIp + ")"
+	if label.RealIP != "" && label.RealIP != addr {
+		addr += "(real: " + label.RealIP + ")"
 	}
 	var (
 		costTimeStr string
@@ -38,7 +38,7 @@ func (r *requestHandler) runlog(startTime time.Time, label *proxy.ProxyLabel, se
 		costTimeStr = "-"
 	}
 
-	printFunc("CALL<- %s %s %s %q\nRECV(%s)\nSEND(%s)", addr, costTimeStr, label.Uri, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
+	printFunc("CALL<- %s %s %s %q\nRECV(%s)\nSEND(%s)", addr, costTimeStr, label.ServiceMethod, seq, r.packetLogBytes(inputBody, r.ctx.Request.Header.Header(), false), r.packetLogBytes(*outputBody, r.ctx.Response.Header.Header(), r.errMsg != nil))
 }
 
 func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bool) []byte {
@@ -52,14 +52,14 @@ func (r *requestHandler) packetLogBytes(bodyBytes, headerBytes []byte, hasErr bo
 	b = append(b, strconv.FormatUint(uint64(size), 10)...)
 	if hasErr {
 		b = append(b, ',', '"', 'e', 'r', 'r', 'o', 'r', '"', ':')
-		b = append(b, utils.ToJsonStr(r.errMsg, false)...)
+		b = append(b, utils.ToJSONStr(r.errMsg, false)...)
 	}
 	if printDetail {
 		b = append(b, ',', '"', 'm', 'e', 't', 'a', '"', ':')
-		b = append(b, utils.ToJsonStr(headerBytes, false)...)
+		b = append(b, utils.ToJSONStr(headerBytes, false)...)
 		if !hasErr && len(bodyBytes) > 0 {
 			b = append(b, ',', '"', 'b', 'o', 'd', 'y', '"', ':')
-			b = append(b, utils.ToJsonStr(bodyBytes, false)...)
+			b = append(b, utils.ToJSONStr(bodyBytes, false)...)
 		}
 	}
 	b = append(b, '}')

@@ -78,11 +78,11 @@ func getSalt(m goutil.Map) (uint64, bool) {
 
 var rerrServerError = micro.RerrInternalServerError.Copy().SetReason("Agent Error")
 
-func newServerRerror(detail string) *tp.Rerror {
+func newServerRerror(detail string) *tp.Status {
 	return rerrServerError.Copy().SetReason(detail)
 }
 
-func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp.Rerror) {
+func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp.Status) {
 	sess, ok := peer.GetSession(sessionId)
 	if ok {
 		return sess, nil
@@ -91,11 +91,11 @@ func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp
 	return nil, micro.RerrNotOnline
 }
 
-func (*agentHandler) PreWritePush(tp.WriteCtx) *tp.Rerror {
+func (*agentHandler) PreWritePush(tp.WriteCtx) *tp.Status {
 	return nil
 }
 
-func (h *agentHandler) OnLogon(sess auth.AuthSession, accessToken types.AccessToken) *tp.Rerror {
+func (h *agentHandler) OnLogon(sess auth.AuthSession, accessToken types.AccessToken) *tp.Status {
 	sessionId := accessToken.SessionId()
 	// check or remove old session
 	_, rerr := kickOffline(sessionId, true)
@@ -131,7 +131,7 @@ func (h *agentHandler) OnLogon(sess auth.AuthSession, accessToken types.AccessTo
 	return nil
 }
 
-func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
+func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Status {
 	salt, ok := getSalt(sess.Swap())
 	if !ok {
 		return nil
@@ -173,12 +173,12 @@ func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Rerror {
 }
 
 // EnforceKickOffline enforches kick the user offline.
-func EnforceKickOffline(sessionId string) *tp.Rerror {
+func EnforceKickOffline(sessionId string) *tp.Status {
 	return enforceKickOffline(sessionId, false)
 }
 
 // enforceKickOffline enforches kick the user offline.
-func enforceKickOffline(sessionId string, checkLocal bool) *tp.Rerror {
+func enforceKickOffline(sessionId string, checkLocal bool) *tp.Status {
 	succ, rerr := kickOffline(sessionId, checkLocal)
 	if succ || rerr != nil {
 		return rerr
@@ -219,7 +219,7 @@ func enforceKickOffline(sessionId string, checkLocal bool) *tp.Rerror {
 }
 
 // kickOffline kicks the user offline.
-func kickOffline(sessionId string, checkLocal bool) (succ bool, rerr *tp.Rerror) {
+func kickOffline(sessionId string, checkLocal bool) (succ bool, rerr *tp.Status) {
 	if checkLocal {
 		// Try to delete the session from the local gateway.
 		existed, _ := socket.Kick(sessionId)
@@ -246,7 +246,7 @@ func kickOffline(sessionId string, checkLocal bool) (succ bool, rerr *tp.Rerror)
 }
 
 // GetAgent returns agent information.
-func GetAgent(sessionId string) (*Agent, *tp.Rerror) {
+func GetAgent(sessionId string) (*Agent, *tp.Status) {
 	key := globalHandler.module.Key(sessionId)
 	data, err := globalHandler.redisWithLargeMemory.Get(key).Bytes()
 	switch {
@@ -272,7 +272,7 @@ func GetAgent(sessionId string) (*Agent, *tp.Rerror) {
 var nilAgents = &Agents{Agents: []*Agent{}}
 
 // QueryAgent queries agent information in batches.
-func QueryAgent(sessionIds []string) (*Agents, *tp.Rerror) {
+func QueryAgent(sessionIds []string) (*Agents, *tp.Status) {
 	if len(sessionIds) == 0 {
 		return nilAgents, nil
 	}

@@ -1,11 +1,9 @@
 package clientele
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/henrylee2cn/cfgo"
@@ -22,7 +20,7 @@ var cliCfg micro.CliConfig
 var etcdCfg etcd.EasyConfig
 var etcdClient *etcd.Client
 var peerName string
-var incr int64
+var incr int32
 var mutex sync.Mutex
 
 func init() {
@@ -80,25 +78,25 @@ func GetEtcdCfg() etcd.EasyConfig {
 }
 
 // GetSeq creates a new sequence with some prefix string.
-func GetSeq(prefix ...string) string {
+func GetSeq(prefix ...int32) int32 {
 	mutex.Lock()
-	seq := fmt.Sprintf("%s[%d]", peerName, incr)
+	seq := incr
 	incr++
 	mutex.Unlock()
-	for _, p := range prefix {
-		p = strings.TrimSpace(p)
-		if p == "" {
-			continue
-		}
-		seq = p + ">" + seq
-	}
+	// for _, p := range prefix {
+	// 	p = strings.TrimSpace(p)
+	// 	if p == "" {
+	// 		continue
+	// 	}
+	// 	seq = p + ">" + seq
+	// }
 	return seq
 }
 
 // Ctx handler's context
 type Ctx interface {
 	// Seq returns the input packet sequence.
-	Seq() string
+	Seq() int32
 	// RealIp returns the the current real remote addr.
 	RealIp() string
 	// Query returns the input packet uri query object.
@@ -119,7 +117,7 @@ func DynamicCall(ctx Ctx, uri string, arg interface{}, result interface{}, setti
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func DynamicPush(ctx Ctx, uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Rerror {
+func DynamicPush(ctx Ctx, uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
 	return dynamicClient.Push(uri, arg, settingDecorator(ctx, setting)...)
 }
 
@@ -137,19 +135,19 @@ func StaticCall(ctx Ctx, addr string, uri string, arg interface{}, result interf
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func StaticPush(ctx Ctx, addr string, uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Rerror {
+func StaticPush(ctx Ctx, addr string, uri string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
 	return staticClient.GetOrSet(addr).Push(uri, arg, settingDecorator(ctx, setting)...)
 }
 
 func settingDecorator(ctx Ctx, settings []tp.MessageSetting) []tp.MessageSetting {
-	if ctx == nil {
-		return append([]tp.MessageSetting{
-			tp.WithSeq(GetSeq()),
-		}, settings...)
-	}
+	// if ctx == nil {
+	// 	return append([]tp.MessageSetting{
+	// 		tp.Message.SetSeq(GetSeq()),
+	// 	}, settings...)
+	// }
 	return append([]tp.MessageSetting{
-		tp.WithSeq(GetSeq(ctx.Seq())),
-		tp.WithRealIp(ctx.RealIp()),
+	// tp.Message.SetSeq(GetSeq(ctx.Seq())),
+	// tp.WithRealIP(ctx.RealIp()),
 	}, settings...)
 }
 

@@ -179,7 +179,7 @@ func getServiceInfo(value []byte) *ServiceInfo {
 }
 
 // Select selects a service address by URI path.
-func (l *linker) Select(uriPath string, exclude map[string]struct{}) (string, *tp.Rerror) {
+func (l *linker) Select(uriPath string, exclude map[string]struct{}) (string, *tp.Status) {
 	iface, exist := l.uriPaths.Load(uriPath)
 	if !exist {
 		return "", micro.RerrNotFound

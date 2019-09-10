@@ -24,20 +24,20 @@ import (
 // SocketHooks TCP socket connecting event hooks
 type SocketHooks interface {
 	// OnLogon is called when the client goes online.
-	OnLogon(auth.AuthSession, AccessToken) *tp.Rerror
+	OnLogon(auth.Session, AccessToken) *tp.Status
 	// OnLogoff is called when the client goes offline.
-	OnLogoff(tp.BaseSession) *tp.Rerror
+	OnLogoff(tp.BaseSession) *tp.Status
 	// GetSession returns session from peer by uid.
-	GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror)
+	GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Status)
 	//PreWritePush is executed before writing PUSH packet.
-	PreWritePush(tp.WriteCtx) *tp.Rerror
+	PreWritePush(tp.WriteCtx) *tp.Status
 }
 
 type (
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks interface {
 		// OnRequest is called when the client requests.
-		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Rerror)
+		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Status)
 	}
 	// RequestArgs http query parameters
 	RequestArgs interface {
@@ -55,16 +55,16 @@ func DefaultSocketHooks() SocketHooks {
 
 type defSocketHooks struct{}
 
-func (d *defSocketHooks) OnLogon(sess auth.AuthSession, accessToken AccessToken) *tp.Rerror {
-	sess.SetId(accessToken.SessionId())
+func (d *defSocketHooks) OnLogon(sess auth.Session, accessToken AccessToken) *tp.Status {
+	sess.SetID(accessToken.SessionId())
 	return nil
 }
 
-func (d *defSocketHooks) OnLogoff(tp.BaseSession) *tp.Rerror {
+func (d *defSocketHooks) OnLogoff(tp.BaseSession) *tp.Status {
 	return nil
 }
 
-func (d *defSocketHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Rerror) {
+func (d *defSocketHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Status) {
 	sess, ok := peer.GetSession(uid)
 	if !ok {
 		return nil, micro.RerrNotOnline
@@ -72,7 +72,7 @@ func (d *defSocketHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.R
 	return sess, nil
 }
 
-func (d *defSocketHooks) PreWritePush(tp.WriteCtx) *tp.Rerror {
+func (d *defSocketHooks) PreWritePush(tp.WriteCtx) *tp.Status {
 	return nil
 }
 
@@ -83,7 +83,7 @@ func DefaultHttpHooks() HttpHooks {
 
 type defHttpHooks struct{}
 
-func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Rerror) {
+func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Status) {
 	accessToken, rerr := authFunc(string(params.QueryArgs().Peek("access_token")))
 	return accessToken, nil, rerr
 }

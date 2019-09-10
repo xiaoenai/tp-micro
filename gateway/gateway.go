@@ -20,7 +20,6 @@ import (
 	_ "unsafe"
 
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/proto/rawproto"
 	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
@@ -41,9 +40,9 @@ func Run(cfg Config, biz *types.Business, protoFunc tp.ProtoFunc) error {
 	}
 
 	// protocol
-	if protoFunc == nil {
-		protoFunc = rawproto.NewRawProtoFunc
-	}
+	// if protoFunc == nil {
+	// 	protoFunc = rawproto.NewRawProtoFunc
+	// }
 
 	// client
 	clientele.SetProtoFunc(protoFunc)

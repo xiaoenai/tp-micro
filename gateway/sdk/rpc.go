@@ -37,9 +37,9 @@ func SetApiVersion(apiVersion string) {
 }
 
 // GwHosts returns the gateway host list.
-func GwHosts(setting ...tp.MessageSetting) (*types.GwHosts, *tp.Rerror) {
+func GwHosts(setting ...tp.MessageSetting) (*types.GwHosts, *tp.Status) {
 	var reply = new(types.GwHosts)
-	rerr := clientele.DynamicCall(nil, "/gw"+_apiVersion+"/hosts", nil, reply, setting...).Rerror()
+	rerr := clientele.DynamicCall(nil, "/gw"+_apiVersion+"/hosts", nil, reply, setting...).Status()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -47,9 +47,9 @@ func GwHosts(setting ...tp.MessageSetting) (*types.GwHosts, *tp.Rerror) {
 }
 
 // SocketTotal returns the long connections total of the remote server.
-func SocketTotal(srvAddr string, setting ...tp.MessageSetting) (*types.SocketTotalReply, *tp.Rerror) {
+func SocketTotal(srvAddr string, setting ...tp.MessageSetting) (*types.SocketTotalReply, *tp.Status) {
 	var reply = new(types.SocketTotalReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Rerror()
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Status()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -57,9 +57,9 @@ func SocketTotal(srvAddr string, setting ...tp.MessageSetting) (*types.SocketTot
 }
 
 // SocketPush pushes message to the specified user.
-func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSetting) (*types.SocketPushReply, *tp.Rerror) {
+func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSetting) (*types.SocketPushReply, *tp.Status) {
 	var reply = new(types.SocketPushReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_push", args, reply, setting...).Rerror()
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_push", args, reply, setting...).Status()
 	if rerr != nil {
 		return nil, rerr
 	}
@@ -67,9 +67,9 @@ func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.Messag
 }
 
 // SocketMpush multi-push messages to the specified users.
-func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...tp.MessageSetting) (*types.SocketMpushReply, *tp.Rerror) {
+func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...tp.MessageSetting) (*types.SocketMpushReply, *tp.Status) {
 	var reply = new(types.SocketMpushReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Rerror()
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Status()
 	if rerr != nil {
 		return nil, rerr
 	}

@@ -273,7 +273,7 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 		reply   *types.SocketTotalReply
 		t       time.Time
 		sortIps = make(SortWeightIps, 0, cnt)
-		rerr    *tp.Rerror
+		rerr    *tp.Status
 	)
 	for _, w := range h.weightIps {
 		if len(w.innerSocketAddr) > 0 {

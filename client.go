@@ -125,7 +125,7 @@ func NewClient(cfg CliConfig, linker Linker, globalLeftPlugin ...tp.Plugin) *Cli
 	}
 	peer := tp.NewPeer(cfg.peerConfig(), globalLeftPlugin...)
 	if len(cfg.TlsCertFile) > 0 && len(cfg.TlsKeyFile) > 0 {
-		err := peer.SetTlsConfigFromFile(cfg.TlsCertFile, cfg.TlsKeyFile)
+		err := peer.SetTLSConfigFromFile(cfg.TlsCertFile, cfg.TlsKeyFile)
 		if err != nil {
 			tp.Fatalf("%v", err)
 		}

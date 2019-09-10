@@ -15,8 +15,6 @@
 package socket
 
 import (
-	"strings"
-
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/auth"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
@@ -38,7 +36,7 @@ func (c *socketConnTab) Name() string {
 	return "SocketConnTab"
 }
 
-func (c *socketConnTab) authAndLogon(authInfo string, sess auth.AuthSession) *tp.Rerror {
+func (c *socketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.Status {
 	token, rerr := logic.AuthFunc()(authInfo)
 	if rerr != nil {
 		return rerr
@@ -49,25 +47,22 @@ func (c *socketConnTab) authAndLogon(authInfo string, sess auth.AuthSession) *tp
 	}
 	rerr = logic.SocketHooks().OnLogon(sess, token)
 	if rerr == nil {
-		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).Id())
+		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).ID())
 	}
 	return rerr
 }
 
-func (c *socketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Rerror {
-	_appendQuery, _ := ctx.Swap().Load(socketConnTabPlugin)
-	appendQuery, _ := _appendQuery.(string)
-	u := ctx.UriObject()
-	u.RawQuery += "&" + appendQuery
-	u.RawQuery = strings.Trim(u.RawQuery, "&")
+func (c *socketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Status {
+	// _appendQuery, _ := ctx.Swap().Load(socketConnTabPlugin)
+	// appendQuery, _ := _appendQuery.(string)
 	return nil
 }
 
-func (c *socketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Rerror {
+func (c *socketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Status {
 	return c.PostReadCallBody(ctx)
 }
 
-func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Rerror {
-	tp.Tracef("[-SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.Id())
+func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Status {
+	tp.Tracef("[-SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.ID())
 	return logic.SocketHooks().OnLogoff(sess)
 }

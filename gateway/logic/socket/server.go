@@ -44,9 +44,9 @@ func OuterServeConn(conn net.Conn) {
 func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	outerServer = micro.NewServer(
 		outerSrvCfg,
-		auth.VerifyAuth(socketConnTabPlugin.authAndLogon),
+		authChecker,
 		socketConnTabPlugin,
-		proxy.Proxy(logic.ProxySelector),
+		proxy.NewPlugin(logic.ProxySelector),
 		preWritePushPlugin(),
 	)
 
@@ -81,13 +81,31 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	select {}
 }
 
+const clientAuthInfo = "client-auth-info-12345"
+
+var authChecker = auth.NewCheckerPlugin(
+	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *tp.Status) {
+		var authInfo string
+		stat = fn(&authInfo)
+		if !stat.OK() {
+			return
+		}
+		tp.Infof("auth info: %v", authInfo)
+		if clientAuthInfo != authInfo {
+			return nil, tp.NewStatus(403, "auth fail", "auth fail detail")
+		}
+		return "pass", nil
+	},
+	tp.WithBodyCodec('s'),
+)
+
 // preWritePushPlugin returns PreWritePushPlugin.
 func preWritePushPlugin() tp.Plugin {
 	return &perPusher{fn: logic.SocketHooks().PreWritePush}
 }
 
 type perPusher struct {
-	fn func(tp.WriteCtx) *tp.Rerror
+	fn func(tp.WriteCtx) *tp.Status
 }
 
 func (p *perPusher) Name() string {
@@ -98,6 +116,6 @@ var (
 	_ tp.PreWritePushPlugin = (*perPusher)(nil)
 )
 
-func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Rerror {
+func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Status {
 	return p.fn(ctx)
 }

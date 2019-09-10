@@ -17,7 +17,7 @@ type gw struct {
 }
 
 // Hosts returns the gateway seriver hosts.
-func (g *gw) Hosts(*struct{}) (*types.GwHosts, *tp.Rerror) {
+func (g *gw) Hosts(*struct{}) (*types.GwHosts, *tp.Status) {
 	return hosts.GwHosts(), nil
 }
 
@@ -32,12 +32,12 @@ func totalConn() int32 {
 }
 
 // SocketTotal returns the long connections total.
-func (g *gw) SocketTotal(*types.SocketTotalArgs) (*types.SocketTotalReply, *tp.Rerror) {
+func (g *gw) SocketTotal(*types.SocketTotalArgs) (*types.SocketTotalReply, *tp.Status) {
 	return &types.SocketTotalReply{ConnTotal: totalConn()}, nil
 }
 
 // innerPush pushes the message to the specified user.
-func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rerror {
+func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Status {
 	sess, rerr := logic.SocketHooks().GetSession(outerPeer, uid)
 	if rerr != nil {
 		return rerr
@@ -48,7 +48,7 @@ func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Rer
 var socketPushReply = new(types.SocketPushReply)
 
 // SocketPush pushes message to the specified user.
-func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp.Rerror) {
+func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp.Status) {
 	rerr := innerPush(args.SessionId, args.Uri, args.Body, byte(args.BodyCodec))
 	if rerr != nil {
 		return nil, rerr
@@ -57,7 +57,7 @@ func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp
 }
 
 // SocketMpush multi-push messages to the specified users.
-func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, *tp.Rerror) {
+func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, *tp.Status) {
 	var (
 		wg                sync.WaitGroup
 		sep               = "?"
@@ -105,7 +105,7 @@ func Kick(uid string) (existed bool, err error) {
 }
 
 // SocketKick kicks the uid offline.
-func (g *gw) SocketKick(args *types.SocketKickArgs) (*types.SocketKickReply, *tp.Rerror) {
+func (g *gw) SocketKick(args *types.SocketKickArgs) (*types.SocketKickReply, *tp.Status) {
 	existed, _ := Kick(args.SessionId)
 	return &types.SocketKickReply{
 		Existed: existed,

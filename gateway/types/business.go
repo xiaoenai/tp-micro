@@ -23,13 +23,13 @@ import (
 // Business implement your real business logic
 type Business struct {
 	// AuthFunc Verifies access token
-	AuthFunc func(accessToken string) (AccessToken, *tp.Rerror)
+	AuthFunc func(accessToken string) (AccessToken, *tp.Status)
 	// SocketHooks TCP socket connecting event hooks
 	SocketHooks
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks
 	// ProxySelector returns proxy caller by label.
-	ProxySelector func(*proxy.ProxyLabel) proxy.Forwarder
+	ProxySelector func(*proxy.Label) proxy.Forwarder
 	// InnerServerPlugins inner server plugins
 	InnerServerPlugins []tp.Plugin
 }
@@ -57,8 +57,8 @@ func (biz *Business) Init() {
 }
 
 // DefaultProxySelector creates a new default proxy caller selector.
-func DefaultProxySelector() func(*proxy.ProxyLabel) proxy.Forwarder {
-	return func(*proxy.ProxyLabel) proxy.Forwarder {
+func DefaultProxySelector() func(*proxy.Label) proxy.Forwarder {
+	return func(*proxy.Label) proxy.Forwarder {
 		return clientele.GetDynamicClient()
 	}
 }

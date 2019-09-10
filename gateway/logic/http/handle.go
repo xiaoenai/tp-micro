@@ -18,12 +18,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"time"
 
-	"github.com/xiaoenai/tp-micro/clientele"
-
-	ws "github.com/fasthttp-contrib/websocket"
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
@@ -52,53 +48,11 @@ type requestHandler struct {
 	errMsg []byte
 }
 
-var rerrInternalServerError = tp.NewRerror(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
-
-// Read reads data from the connection.
-// Read can be made to time out and return an Error with Timeout() == true
-// after a fixed time limit; see SetDeadline and SetReadDeadline.
-func (w *wsFastHttpConn) Read(msg []byte) (n int, err error) {
-	w.rio.Lock()
-	defer w.rio.Unlock()
-again:
-	if w.frameReader == nil {
-		_, w.frameReader, err = w.Conn.NextReader()
-		if err != nil {
-			return 0, err
-		}
-		if w.frameReader == nil {
-			goto again
-		}
-	}
-	n, err = w.frameReader.Read(msg)
-	if err == io.EOF {
-		w.frameReader = nil
-		goto again
-	}
-	return n, err
-}
-
-// Write implements the io.Writer interface:
-// it writes data as a frame to the WebSocket connection.
-func (w *wsFastHttpConn) Write(msg []byte) (n int, err error) {
-	w.wio.Lock()
-	defer w.wio.Unlock()
-	err = w.Conn.WriteMessage(ws.TextMessage, msg)
-	return len(msg), err
-}
-
-// SetDeadline sets the connection's network read & write deadlines.
-func (w *wsFastHttpConn) SetDeadline(t time.Time) error {
-	err := w.Conn.SetReadDeadline(t)
-	if err != nil {
-		return err
-	}
-	return w.Conn.SetWriteDeadline(t)
-}
+var rerrInternalServerError = tp.NewStatus(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
 
 func (r *requestHandler) handle() {
 	var ctx = r.ctx
-	var uri = goutil.BytesToString(ctx.Path())
+	// var uri = goutil.BytesToString(ctx.Path())
 	var h = r.Header()
 	var contentType = goutil.BytesToString(h.ContentType())
 	var bodyCodec = GetBodyCodec(contentType, codec.ID_PLAIN)
@@ -106,22 +60,21 @@ func (r *requestHandler) handle() {
 	var query = r.ctx.QueryArgs()
 	var bodyBytes = ctx.Request.Body()
 	var reply []byte
-	var label proxy.ProxyLabel
-	label.Uri = uri
+	var label proxy.Label
 
 	// set real ip
 	if xRealIp := h.Peek("X-Real-IP"); len(xRealIp) > 0 {
-		label.RealIp = string(xRealIp)
+		label.RealIP = string(xRealIp)
 	} else if xForwardedFor := h.Peek("X-Forwarded-For"); len(xForwardedFor) > 0 {
-		label.RealIp = string(bytes.Split(xForwardedFor, []byte{','})[0])
+		label.RealIP = string(bytes.Split(xForwardedFor, []byte{','})[0])
 	}
-	if len(label.RealIp) == 0 {
-		label.RealIp = ctx.RemoteAddr().String()
+	if len(label.RealIP) == 0 {
+		label.RealIP = ctx.RemoteAddr().String()
 	}
 	start := time.Now()
 	defer func() {
 		if p := recover(); p != nil {
-			r.replyError(rerrInternalServerError.Copy().SetReason(fmt.Sprint(p)))
+			r.replyError(rerrInternalServerError.SetCause(fmt.Sprint(p)))
 		}
 		r.runlog(start, &label, goutil.BytesToString(query.Peek(SEQ)), bodyBytes, &reply)
 	}()
@@ -132,7 +85,7 @@ func (r *requestHandler) handle() {
 	}
 
 	// gw hosts
-	if label.Uri == gwHostsUri {
+	if label.ServiceMethod == gwHostsUri {
 		switch acceptBodyCodec {
 		case codec.ID_PROTOBUF:
 			b, _ := codec.ProtoMarshal(hosts.GwHosts())
@@ -166,9 +119,9 @@ func (r *requestHandler) handle() {
 
 	// set session id
 	if accessToken == nil {
-		label.SessionId = ctx.RemoteAddr().String()
+		label.SessionID = ctx.RemoteAddr().String()
 	} else {
-		label.SessionId = accessToken.SessionId()
+		label.SessionID = accessToken.SessionId()
 		if info := accessToken.AddedQuery(); info != nil {
 			info.VisitAll(func(key, value []byte) {
 				query.AddBytesKV(key, value)
@@ -176,25 +129,25 @@ func (r *requestHandler) handle() {
 		}
 	}
 
-	settings = append(settings, tp.WithAddMeta(tp.MetaRealIp, label.RealIp))
+	settings = append(settings, tp.WithAddMeta(tp.MetaRealIP, label.RealIP))
 
 	// set seq
-	if seqBytes := query.Peek(SEQ); len(seqBytes) > 0 {
-		settings = append(settings, tp.WithSeq(clientele.GetSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes))))
-	} else {
-		settings = append(settings, tp.WithSeq(clientele.GetSeq(label.RealIp)))
-	}
+	// if seqBytes := query.Peek(SEQ); len(seqBytes) > 0 {
+	// 	settings = append(settings, tp.WithSeq(clientele.GetSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes))))
+	// } else {
+	// 	settings = append(settings, tp.WithSeq(clientele.GetSeq(label.RealIp)))
+	// }
 
 	if query.Len() > 0 {
-		label.Uri += "?" + query.String()
+		label.ServiceMethod += "?" + query.String()
 	}
 
 	callcmd := logic.
 		ProxySelector(&label).
-		Call(label.Uri, bodyBytes, &reply, settings...)
+		Call(label.ServiceMethod, bodyBytes, &reply, settings...)
 
 	// fail
-	if rerr := callcmd.Rerror(); rerr != nil {
+	if rerr := callcmd.Status(); rerr != nil {
 		callcmd.InputMeta().VisitAll(func(key, value []byte) {
 			k := goutil.BytesToString(key)
 			v := goutil.BytesToString(value)
@@ -244,14 +197,14 @@ func (r *requestHandler) crossDomainFilter() bool {
 	return true
 }
 
-func (r *requestHandler) replyError(rerr *tp.Rerror) {
+func (r *requestHandler) replyError(rerr *tp.Status) {
 	var statusCode int
-	if rerr.Code < 200 {
+	if rerr.Code() < 200 {
 		// Internal communication error
 		statusCode = 500
-	} else if rerr.Code < 600 {
+	} else if rerr.Code() < 600 {
 		// Custom HTTP error
-		statusCode = int(rerr.Code)
+		statusCode = int(rerr.Code())
 	} else {
 		// Business error
 		statusCode = 299
