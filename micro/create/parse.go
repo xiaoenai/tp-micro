@@ -858,7 +858,7 @@ func (r *router) handlerString(ctnFn func(*handler) string) string {
 		var secondParam, resultParam string
 		for _, h := range r.handlers {
 			secondParam = fmt.Sprintf("arg *sdk.%s", h.arg)
-			resultParam = "*tp.Rerror"
+			resultParam = "*tp.Status"
 			if len(h.result) > 0 {
 				resultParam = fmt.Sprintf("(*sdk.%s,%s)", h.result, resultParam)
 			}
@@ -894,18 +894,18 @@ func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) strin
 	var text, subGroupName string
 	if len(r.name) > 0 {
 		fullNamePrefix = joinName(fullNamePrefix, r.name)
-		uriPrefix = path.Join("/", uriPrefix, tp.ToUriPath(r.name))
+		uriPrefix = path.Join("/", uriPrefix, toUriPath(r.name))
 		if len(r.handlers) > 0 {
 			for _, h := range r.handlers {
 				h.fullName = joinName(fullNamePrefix, h.name)
-				h.uri = path.Join("/", uriPrefix, tp.ToUriPath(h.name))
+				h.uri = path.Join("/", uriPrefix, toUriPath(h.name))
 			}
 			text += fmt.Sprintf("%s(new(handler.%s))\n", regStruct, r.name)
 		}
 		if len(r.children) > 0 {
 			subGroupName = "_" + firstLowerLetter(r.name) + r.name[1:]
 			text += "{\n"
-			text += fmt.Sprintf("%s:=%s.SubRoute(\"%s\")\n", subGroupName, groupName, tp.ToUriPath(r.name))
+			text += fmt.Sprintf("%s:=%s.SubRoute(\"%s\")\n", subGroupName, groupName, toUriPath(r.name))
 			for _, child := range r.children {
 				text += child.routerString(subGroupName, fullNamePrefix, uriPrefix)
 			}
@@ -914,7 +914,7 @@ func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) strin
 	} else {
 		for _, h := range r.handlers {
 			h.fullName = joinName(fullNamePrefix, h.name)
-			h.uri = path.Join("/", fullNamePrefix, uriPrefix, tp.ToUriPath(h.name))
+			h.uri = path.Join("/", fullNamePrefix, uriPrefix, toUriPath(h.name))
 			text += fmt.Sprintf("%s(handler.%s)\n", regFunc, h.name)
 		}
 		for _, child := range r.children {
@@ -922,6 +922,18 @@ func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) strin
 		}
 	}
 	return text
+}
+
+// toUriPath maps struct(func) name to URI path.
+func toUriPath(name string) string {
+	p := strings.Replace(name, "__", ".", -1)
+	a := strings.Split(p, "_")
+	for k, v := range a {
+		a[k] = goutil.SnakeString(v)
+	}
+	p = path.Join(a...)
+	p = path.Join("/", p)
+	return strings.Replace(p, ".", "_", -1)
 }
 
 func joinName(a, b string) string {

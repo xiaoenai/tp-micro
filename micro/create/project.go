@@ -352,9 +352,9 @@ func (p *Project) genRPCFile() {
 		switch h.group.typ {
 		case callType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...tp.MessageSetting)(*%s,*tp.Rerror){\n"+
+				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...tp.MessageSetting)(*%s,*tp.Status){\n"+
 					"result := new(%s)\n"+"%s"+
-					"rerr := clientele.DynamicCall(ctx, \"%s\", arg, result, setting...).Rerror()\n"+
+					"rerr := clientele.DynamicCall(ctx, \"%s\", arg, result, setting...).Status()\n"+
 					"return result, rerr\n}\n",
 				h.doc, name, h.arg, h.result,
 				h.result,
@@ -371,7 +371,7 @@ func (p *Project) genRPCFile() {
 			)
 		case pushType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...tp.MessageSetting)*tp.Rerror{\n"+"%s"+
+				"%sfunc %s(ctx clientele.Ctx, arg *%s, setting ...tp.MessageSetting)*tp.Status{\n"+"%s"+
 					"return clientele.DynamicPush(ctx, \"%s\", arg, setting...)\n}\n",
 				h.doc, name, h.arg,
 				settingString,

@@ -148,7 +148,7 @@ import (
 
 var (
 	// RerrInvalidParameter error
-	RerrInvalidParameter = tp.NewRerror(100001, "Invalid Parameter", "Contains invalid request parameters")
+	RerrInvalidParameter = tp.NewStatus(100001, "Invalid Parameter", "Contains invalid request parameters")
 )
 `
 

@@ -44,7 +44,7 @@ func OuterServeConn(conn net.Conn) {
 func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	outerServer = micro.NewServer(
 		outerSrvCfg,
-		authChecker,
+		// authChecker,
 		socketConnTabPlugin,
 		proxy.NewPlugin(logic.ProxySelector),
 		preWritePushPlugin(),

@@ -100,9 +100,9 @@ func (c *circuitBreaker) start() {
 
 var notFoundService = RerrNotFound.Copy("not found service")
 
-func (c *circuitBreaker) selectSession(uri string) (*cliSession, *tp.Status) {
+func (c *circuitBreaker) selectSession(serviceMethod string) (*cliSession, *tp.Status) {
 	var (
-		uriPath = getUriPath(uri)
+		uriPath = getUriPath(serviceMethod)
 		addr    string
 		s       *cliSession
 		cnt     = c.linker.Len(uriPath)
