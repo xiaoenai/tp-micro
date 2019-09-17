@@ -41,7 +41,7 @@ func Run(cfg Config, biz *types.Business, protoFunc tp.ProtoFunc) error {
 
 	// protocol
 	// if protoFunc == nil {
-	// 	protoFunc = rawproto.NewRawProtoFunc
+	// 	protoFunc = httproto.NewHTTProtoFunc(true)
 	// }
 
 	// client

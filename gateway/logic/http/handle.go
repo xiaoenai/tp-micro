@@ -62,6 +62,7 @@ func (r *requestHandler) handle() {
 	var reply []byte
 	var label proxy.Label
 	label.ServiceMethod = serviceMethod
+	tp.Infof("serviceMethod-> %s", serviceMethod)
 
 	// set real ip
 	if xRealIp := h.Peek("X-Real-IP"); len(xRealIp) > 0 {
@@ -125,22 +126,17 @@ func (r *requestHandler) handle() {
 		label.SessionID = accessToken.SessionId()
 		if info := accessToken.AddedQuery(); info != nil {
 			info.VisitAll(func(key, value []byte) {
-				query.AddBytesKV(key, value)
+				settings = append(settings, tp.WithAddMeta(string(key), string(value)))
 			})
 		}
 	}
 
 	settings = append(settings, tp.WithAddMeta(tp.MetaRealIP, label.RealIP))
 
-	// set seq
-	// if seqBytes := query.Peek(SEQ); len(seqBytes) > 0 {
-	// 	settings = append(settings, tp.WithSeq(clientele.GetSeq(label.RealIp+"@"+goutil.BytesToString(seqBytes))))
-	// } else {
-	// 	settings = append(settings, tp.WithSeq(clientele.GetSeq(label.RealIp)))
-	// }
-
 	if query.Len() > 0 {
-		label.ServiceMethod += "?" + query.String()
+		query.VisitAll(func(key, value []byte) {
+			settings = append(settings, tp.WithAddMeta(string(key), string(value)))
+		})
 	}
 
 	callcmd := logic.

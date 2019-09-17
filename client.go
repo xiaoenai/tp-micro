@@ -253,6 +253,7 @@ func (c *Client) Call(serviceMethod string, arg interface{}, result interface{},
 	)
 	for i := 0; i < c.maxTry; i++ {
 		cliSess, rerr = c.circuitBreaker.selectSession(serviceMethod)
+		tp.Infof("Rerr-> %v", rerr)
 		if rerr != nil {
 			return tp.NewFakeCallCmd(serviceMethod, arg, result, rerr)
 		}

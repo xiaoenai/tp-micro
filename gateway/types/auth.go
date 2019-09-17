@@ -68,6 +68,8 @@ func (d defAccessToken) DeviceId() string {
 	return string(d)
 }
 
+type ctx struct{ tp.UnknownPushCtx }
+
 // AddedQuery the user information will be appended to the URI query part.
 func (d defAccessToken) AddedQuery() *utils.Args {
 	args := utils.AcquireArgs()
