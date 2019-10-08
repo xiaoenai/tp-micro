@@ -231,7 +231,7 @@ func checkIfNotWatch(name string) bool {
 	return false
 }
 
-var watchExts = []string{".go", ".ini", ".toml", ".xml"}
+var watchExts = []string{".go", ".ini", ".yaml", ".toml", ".xml"}
 
 // checkIfWatchExt returns true if the name HasSuffix <watch_ext>.
 func checkIfWatchExt(name string) bool {

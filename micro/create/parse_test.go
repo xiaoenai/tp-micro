@@ -11,7 +11,7 @@ import (
 )
 import f "fmt"
 
-type __API_CALL__ interface {
+type __API_PULL__ interface {
 	// Stat doc
 	Stat(X) *struct{}// Stat comment
 	// Math doc
@@ -83,7 +83,7 @@ func TestParse(t *testing.T) {
 	tInfo.Parse()
 	t.Logf("TypeImportString: %s", tInfo.TypeImportString())
 	t.Logf("TypesString:\n%v", tInfo.TypesString())
-	t.Logf("call apis:\n%v", tInfo.CallHandlerString(nil))
+	t.Logf("pull apis:\n%v", tInfo.CallHandlerString(nil))
 	t.Logf("push apis:\n%v", tInfo.PushHandlerString(nil))
 	t.Logf("router:\n%v", tInfo.RouterString("_group"))
 	for _, m := range tInfo.models.mysql {

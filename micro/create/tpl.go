@@ -1,20 +1,11 @@
 package create
 
-var __handler__ = `package handler
-import (
-    tp "github.com/henrylee2cn/teleport"
-    "${import_prefix}/sdk"
-    // "${import_prefix}/internal/model"
-)
-${handler_define}
-`
-
-const __tpl__ = `// Command ${PROJ_NAME} is the tp-micro service project.
+const __tpl__ = `// Command __PROJ_NAME__ is the tp-micro service project.
 // The framework reference: https://github.com/xiaoenai/tp-micro
 package __TPL__
 
-// __API_CALL__ register CALL router
-type __API_CALL__ interface {
+// __API_PULL__ register PULL router
+type __API_PULL__ interface {
 	// Home handler
 	Home(*struct{}) *HomeResult
 	// Math controller
@@ -91,40 +82,6 @@ type Meta struct {
 }
 `
 
-// .gitignore
-const __gitignore__ = `*.o
-*.a
-*.so
-_obj
-_test
-*.[568vq]
-[568vq].out
-*.cgo1.go
-*.cgo2.c
-_cgo_defun.c
-_cgo_gotypes.go
-_cgo_export.*
-_testmain.go
-*.exe
-*.exe~
-*.test
-*.prof
-*.rar
-*.zip
-*.gz
-*.psd
-*.bmd
-*.cfg
-*.pptx
-*.log
-*nohup.out
-*.vscode
-*.sublime-project
-*.sublime-workspace
-${PROJ_NAME}
-`
-
-// README.md
 const __readme__ = `# ${PROJ_NAME}
 
 ${readme}
@@ -133,23 +90,7 @@ ${readme}
 
 *This is a project created by ` + "`micro gen`" + ` command.*
 
-*[About Micro Command](https://github.com/xiaoenai/tp-micro/tree/v3/cmd/micro)*
-`
-
-// __tp-micro__gen__.lock
-const __genlock__ = "NOTE:\nThis `micro gen` command only covers files with the \".gen.go\" suffix if the file exists!"
-
-// sdk/rerr.go
-const __rerr__ = `package sdk
-
-import (
-	tp "github.com/henrylee2cn/teleport"
-)
-
-var (
-	// RerrInvalidParameter error
-	RerrInvalidParameter = tp.NewStatus(100001, "Invalid Parameter", "Contains invalid request parameters")
-)
+*[About Micro Command](https://github.com/xiaoenai/tp-micro/tree/v2/cmd/micro)*
 `
 
 var tplFiles = map[string]string{
@@ -157,16 +98,17 @@ var tplFiles = map[string]string{
 
 import (
 	micro "github.com/xiaoenai/tp-micro"
-    "github.com/xiaoenai/tp-micro/clientele"
-    "github.com/xiaoenai/tp-micro/discovery"
+	"github.com/xiaoenai/tp-micro/discovery"
+
+	"${import_prefix}/api"
 )
 
 func main() {
 	srv := micro.NewServer(
 		cfg.Srv,
-		discovery.ServicePlugin(cfg.Srv.InnerIpPort(), clientele.GetEtcdCfg()),
+		discovery.ServicePlugin(cfg.Srv.InnerIpPort(), cfg.Etcd),
 	)
-	route("/${service_api_prefix}", srv.Router())
+	api.Route("/${service_api_prefix}", srv.Router())
 	srv.ListenAndServe()
 }
 `,
@@ -179,15 +121,17 @@ import (
 	"github.com/henrylee2cn/goutil"
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/model/mongo"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/redis"
 
-	"${import_prefix}/internal/model"
+	"${import_prefix}/logic/model"
 )
 
 type config struct {
 	Srv      micro.SrvConfig ` + "`yaml:\"srv\"`" + `
+	Etcd     etcd.EasyConfig ` + "`yaml:\"etcd\"`" + `
 	Mysql    mysql.Config    ` + "`yaml:\"mysql\"`" + `
 	Mongo    mongo.Config    ` + "`yaml:\"mongo\"`" + `
 	Redis    redis.Config    ` + "`yaml:\"redis\"`" + `
@@ -233,6 +177,9 @@ var cfg = &config{
 		CountTime:         true,
 		SlowCometDuration: time.Millisecond * 500,
 	},
+	Etcd: etcd.EasyConfig{
+		Endpoints: []string{"http://127.0.0.1:2379"},
+	},
 	Redis:    *redis.NewConfig(),
 	CacheExpire: time.Hour*24,
 	LogLevel: "TRACE",
@@ -244,53 +191,7 @@ func init() {
 }
 `,
 
-	"router.gen.go": `
-package main
-import (
-	tp "github.com/henrylee2cn/teleport"
-	
-	"${import_prefix}/internal/handler"
-)
-// route registers handlers to router.
-func route(_root string, _router *tp.Router) {
-    // root router group
-    _group := _router.SubRoute(_root)
-    
-    ${register_router_list}}
-`,
-
-	"sdk/rpc.gen.go": `package sdk
-import (
-	"fmt"
-
-	tp "github.com/henrylee2cn/teleport"
-    "github.com/xiaoenai/tp-micro/clientele"
-)
-
-var _ = fmt.Sprintf
-
-${rpc_call_define}
-`,
-
-	"sdk/rpc.gen_test.go": `package sdk_test
-import (
-	"encoding/json"
-	"fmt"
-
-	tp "github.com/henrylee2cn/teleport"
-
-	"${import_prefix}/sdk"
-)
-
-func toJsonBytes(i interface{}) []byte {
-	b, _ := json.MarshalIndent(i, "", "  ")
-	return b
-}
-
-${rpc_call_test_define}
-`,
-
-	"internal/model/init.go": `package model
+	"logic/model/init.go": `package model
 
 import (
 	"strings"
@@ -387,14 +288,124 @@ func insertZeroDeletedTsField(whereCond string) string {
 }
 `,
 
-	"sdk/val.gen.go": `package sdk
-${val_list}
+	"args/const.gen.go": `package args
+${const_list}
 `,
 
-	"sdk/type.gen.go": `package sdk
+	"args/type.gen.go": `package args
 import (${import_list}
 )
 ${type_define_list}
+`,
+
+	"logic/tmp_code.gen.go": `package logic
+import (
+	tp "github.com/henrylee2cn/teleport"
+
+	"${import_prefix}/args"
+	// "${import_prefix}/logic/model"
+	// "${import_prefix}/rerrs"
+)
+${logic_api_define}
+`,
+
+	"api/pull_handler.gen.go": `package api
+import (
+    tp "github.com/henrylee2cn/teleport"
+
+    "${import_prefix}/logic"
+    "${import_prefix}/args"
+)
+${handler_api_define}
+`,
+
+	"api/push_handler.gen.go": `package api
+import (
+    tp "github.com/henrylee2cn/teleport"
+
+    "${import_prefix}/logic"
+    "${import_prefix}/args"
+)
+${handler_api_define}
+`,
+
+	"api/router.gen.go": `
+package api
+import (
+    tp "github.com/henrylee2cn/teleport"
+)
+// Route registers handlers to router.
+func Route(_root string, _router *tp.Router) {
+    // root router group
+    _group := _router.SubRoute(_root)
+    
+    // custom router
+    customRoute(_group.ToRouter())
+   
+    // automatically generated router
+    ${register_router_list}}
+`,
+
+	"sdk/rpc.gen.go": `package sdk
+import (
+	"fmt"
+
+	micro "github.com/xiaoenai/tp-micro"
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/socket"
+    "github.com/xiaoenai/tp-micro/discovery"
+	"github.com/xiaoenai/tp-micro/model/etcd"
+
+	"${import_prefix}/args"
+)
+
+var _ = fmt.Sprintf
+var client *micro.Client
+// Init initializes client with configs.
+func Init(cliConfig micro.CliConfig, etcdConfing etcd.EasyConfig) {
+	client = micro.NewClient(
+		cliConfig,
+		discovery.NewLinker(etcdConfing),
+	)
+}
+// InitWithClient initializes client with specified object.
+func InitWithClient(cli *micro.Client) {
+	client = cli
+}
+${rpc_pull_define}
+`,
+
+	"sdk/rpc.gen_test.go": `package sdk_test
+import (
+	"encoding/json"
+	"fmt"
+
+	micro "github.com/xiaoenai/tp-micro"
+	tp "github.com/henrylee2cn/teleport"
+	"github.com/xiaoenai/tp-micro/model/etcd"
+
+	"${import_prefix}/args"
+	"${import_prefix}/sdk"
+)
+
+func init(){
+	sdk.Init(
+		micro.CliConfig{
+			Failover:        3,
+			HeartbeatSecond: 4,
+		},
+		etcd.EasyConfig{
+			Endpoints: []string{"http://127.0.0.1:2379"},
+		},
+	)
+}
+
+func toJsonBytes(i interface{}) []byte {
+	b, _ := json.MarshalIndent(i, "", "  ")
+	return b
+}
+
+${rpc_pull_test_define}
 `,
 }
 
@@ -409,29 +420,29 @@ import (
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 
-	"${import_prefix}/sdk"
+	"${import_prefix}/args"
 )
 
-{{.Doc}}type {{.Name}} sdk.{{.Name}}
+{{.Doc}}type {{.Name}} args.{{.Name}}
 
 // To{{.Name}} converts to *{{.Name}} type.
-func To{{.Name}}(_{{.LowerFirstLetter}} *sdk.{{.Name}}) *{{.Name}} {
+func To{{.Name}}(_{{.LowerFirstLetter}} *args.{{.Name}}) *{{.Name}} {
 	return (*{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
 }
 
-// ToSdk{{.Name}} converts to *sdk.{{.Name}} type.
-func ToSdk{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *sdk.{{.Name}} {
-	return (*sdk.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
+// ToArgs{{.Name}} converts to *args.{{.Name}} type.
+func ToArgs{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *args.{{.Name}} {
+	return (*args.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
 }
 
 // To{{.Name}}Slice converts to []*{{.Name}} type.
-func To{{.Name}}Slice(a []*sdk.{{.Name}}) []*{{.Name}} {
+func To{{.Name}}Slice(a []*args.{{.Name}}) []*{{.Name}} {
 	return *(*[]*{{.Name}})(unsafe.Pointer(&a))
 }
 
-// ToSdk{{.Name}}Slice converts to []*sdk.{{.Name}} type.
-func ToSdk{{.Name}}Slice(a []*{{.Name}}) []*sdk.{{.Name}} {
-	return *(*[]*sdk.{{.Name}})(unsafe.Pointer(&a))
+// ToArgs{{.Name}}Slice converts to []*args.{{.Name}} type.
+func ToArgs{{.Name}}Slice(a []*{{.Name}}) []*args.{{.Name}} {
+	return *(*[]*args.{{.Name}})(unsafe.Pointer(&a))
 }
 
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
@@ -447,7 +458,7 @@ func (_{{.LowerFirstLetter}} *{{.Name}}) isZeroPrimaryKey() bool {
 	{{end}}return true
 }
 
-var {{.LowerFirstName}}DB, _ = mysqlHandler.RegCacheableDB(new({{.Name}}), cacheExpire, ` + "sdk.{{.Name}}Sql" + `)
+var {{.LowerFirstName}}DB, _ = mysqlHandler.RegCacheableDB(new({{.Name}}), cacheExpire, ` + "args.{{.Name}}Sql" + `)
 
 // Get{{.Name}}DB returns the {{.Name}} DB handler.
 func Get{{.Name}}DB() *mysql.CacheableDB {
@@ -786,21 +797,21 @@ import (
 	"github.com/xiaoenai/tp-micro/model/mongo"
 	tp "github.com/henrylee2cn/teleport"
 
-	"${import_prefix}/sdk"
+	"${import_prefix}/args"
 )
 
 var _ = tp.Errorf
 
-{{.Doc}}type {{.Name}} sdk.{{.Name}}
+{{.Doc}}type {{.Name}} args.{{.Name}}
 
 // To{{.Name}} converts to *{{.Name}} type.
-func To{{.Name}}(_{{.LowerFirstLetter}} *sdk.{{.Name}}) *{{.Name}} {
+func To{{.Name}}(_{{.LowerFirstLetter}} *args.{{.Name}}) *{{.Name}} {
 	return (*{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
 }
 
-// ToSdk{{.Name}} converts to *sdk.{{.Name}} type.
-func ToSdk{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *sdk.{{.Name}} {
-	return (*sdk.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
+// ToArgs{{.Name}} converts to *args.{{.Name}} type.
+func ToArgs{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *args.{{.Name}} {
+	return (*args.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
 }
 
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable

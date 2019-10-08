@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	// API_CALL_ROUTER name of the interface used to register the call route in the template
-	API_CALL_ROUTER = "__API_CALL__"
+	// API_PULL_ROUTER name of the interface used to register the pull route in the template
+	API_PULL_ROUTER = "__API_PULL__"
 	// API_PUSH_ROUTER name of the interface used to register the push route in the template
 	API_PUSH_ROUTER = "__API_PUSH__"
 	// MYSQL_MODEL name of the struct used to create mysql model
@@ -29,7 +29,7 @@ const (
 )
 
 const (
-	callType int8 = 0
+	pullType int8 = 0
 	pushType int8 = 1
 )
 
@@ -39,7 +39,7 @@ type (
 		fileSet           *token.FileSet
 		astFile           *ast.File
 		doc               string
-		callRouter        *router
+		pullRouter        *router
 		pushRouter        *router
 		models            *models
 		realStructTypes   []*structType
@@ -109,7 +109,7 @@ func newTplInfo(tplBytes []byte) *tplInfo {
 		fileSet:           fset,
 		astFile:           file,
 		doc:               addSlash(file.Doc.Text()),
-		callRouter:        &router{typ: callType},
+		pullRouter:        &router{typ: pullType},
 		pushRouter:        &router{typ: pushType},
 		models:            new(models),
 		realStructTypeMap: make(map[string]*structType),
@@ -149,7 +149,7 @@ func (t *tplInfo) CallHandlerString(ctnFn func(*handler) string) string {
 	if ctnFn == nil {
 		ctnFn = func(*handler) string { return "return nil,nil" }
 	}
-	return t.callRouter.handlerString(ctnFn)
+	return t.pullRouter.handlerString(ctnFn)
 }
 
 func (t *tplInfo) PushHandlerString(ctnFn func(*handler) string) string {
@@ -160,7 +160,7 @@ func (t *tplInfo) PushHandlerString(ctnFn func(*handler) string) string {
 }
 
 func (t *tplInfo) HandlerList() []*handler {
-	return append(t.pushRouter.handlerList(), t.callRouter.handlerList()...)
+	return append(t.pushRouter.handlerList(), t.pullRouter.handlerList()...)
 }
 
 func (t *tplInfo) PushHandlerList() []*handler {
@@ -168,14 +168,14 @@ func (t *tplInfo) PushHandlerList() []*handler {
 }
 
 func (t *tplInfo) CallHandlerList() []*handler {
-	return t.callRouter.handlerList()
+	return t.pullRouter.handlerList()
 }
 
 func (t *tplInfo) RouterString(groupName string) string {
 	var text string
-	text += "\n// CALL APIs...\n"
+	text += "\n// PULL APIs...\n"
 	text += "{\n"
-	text += t.callRouter.routerString(groupName, "", "")
+	text += t.pullRouter.routerString(groupName, "", "")
 	text += "}\n"
 	text += "\n// PUSH APIs...\n"
 	text += "{\n"
@@ -684,7 +684,7 @@ func getStructFieldNames(v []*structType) (a []string) {
 }
 
 func (t *tplInfo) collectIfaces() {
-	var callIface, pushIface *ast.InterfaceType
+	var pullIface, pushIface *ast.InterfaceType
 	ast.Inspect(t.astFile, func(n ast.Node) bool {
 		var e ast.Expr
 		var ifaceName string
@@ -701,14 +701,14 @@ func (t *tplInfo) collectIfaces() {
 			return true
 		}
 		switch ifaceName {
-		case API_CALL_ROUTER:
-			callIface = x
+		case API_PULL_ROUTER:
+			pullIface = x
 		case API_PUSH_ROUTER:
 			pushIface = x
 		}
 		return true
 	})
-	t.collectApis(t.callRouter, callIface)
+	t.collectApis(t.pullRouter, pullIface)
 	t.collectApis(t.pushRouter, pushIface)
 }
 
@@ -763,7 +763,7 @@ func (t *tplInfo) getHandler(typ int8, f *ast.FuncType) (*handler, error) {
 	}
 	var numResults int
 	switch typ {
-	case callType:
+	case pullType:
 		numResults = 1
 	case pushType:
 		numResults = 0
@@ -800,7 +800,7 @@ func (t *tplInfo) getHandler(typ int8, f *ast.FuncType) (*handler, error) {
 	if numResults == 0 {
 		return h, nil
 	}
-	// call handler has result
+	// pull handler has result
 	ft = f.Results.List[0].Type
 	if se, ok := ft.(*ast.StarExpr); ok {
 		ft = se.X
@@ -843,7 +843,7 @@ func (r *router) handlerList() []*handler {
 func (r *router) handlerString(ctnFn func(*handler) string) string {
 	var ctxField string
 	switch r.typ {
-	case callType:
+	case pullType:
 		ctxField = "tp.CallCtx"
 	case pushType:
 		ctxField = "tp.PushCtx"
@@ -857,10 +857,10 @@ func (r *router) handlerString(ctnFn func(*handler) string) string {
 		}
 		var secondParam, resultParam string
 		for _, h := range r.handlers {
-			secondParam = fmt.Sprintf("arg *sdk.%s", h.arg)
+			secondParam = fmt.Sprintf("arg *args.%s", h.arg)
 			resultParam = "*tp.Status"
 			if len(h.result) > 0 {
-				resultParam = fmt.Sprintf("(*sdk.%s,%s)", h.result, resultParam)
+				resultParam = fmt.Sprintf("(*args.%s,%s)", h.result, resultParam)
 			}
 			if len(r.name) > 0 {
 				text += fmt.Sprintf(
@@ -884,7 +884,7 @@ func (r *router) handlerString(ctnFn func(*handler) string) string {
 func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) string {
 	var regFunc, regStruct string
 	switch r.typ {
-	case callType:
+	case pullType:
 		regFunc = groupName + ".RouteCallFunc"
 		regStruct = groupName + ".RouteCall"
 	case pushType:
@@ -900,7 +900,7 @@ func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) strin
 				h.fullName = joinName(fullNamePrefix, h.name)
 				h.uri = path.Join("/", uriPrefix, toUriPath(h.name))
 			}
-			text += fmt.Sprintf("%s(new(handler.%s))\n", regStruct, r.name)
+			text += fmt.Sprintf("%s(new(%s))\n", regStruct, r.name)
 		}
 		if len(r.children) > 0 {
 			subGroupName = "_" + firstLowerLetter(r.name) + r.name[1:]
@@ -915,7 +915,7 @@ func (r *router) routerString(groupName, fullNamePrefix, uriPrefix string) strin
 		for _, h := range r.handlers {
 			h.fullName = joinName(fullNamePrefix, h.name)
 			h.uri = path.Join("/", fullNamePrefix, uriPrefix, toUriPath(h.name))
-			text += fmt.Sprintf("%s(handler.%s)\n", regFunc, h.name)
+			text += fmt.Sprintf("%s(%s)\n", regFunc, h.name)
 		}
 		for _, child := range r.children {
 			text += child.routerString(groupName, fullNamePrefix, uriPrefix)

@@ -28,7 +28,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "Micro project aids"
-	app.Version = "3.0.0"
+	app.Version = "6.0.0"
 	app.Author = "henrylee2cn"
 	app.Usage = "a deployment tools of tp-micro frameware"
 
@@ -84,7 +84,7 @@ func main() {
 		Flags: []cli.Flag{
 			cli.StringSliceFlag{
 				Name:  "watch_exts, x",
-				Value: (*cli.StringSlice)(&[]string{".go", ".ini", ".toml", ".xml"}),
+				Value: (*cli.StringSlice)(&[]string{".go", ".ini", ".yaml", ".toml", ".xml"}),
 				Usage: "Specified to increase the listening file suffix",
 			},
 			cli.StringSliceFlag{
