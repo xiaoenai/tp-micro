@@ -62,7 +62,6 @@ func (r *requestHandler) handle() {
 	var reply []byte
 	var label proxy.Label
 	label.ServiceMethod = serviceMethod
-	tp.Infof("serviceMethod-> %s", serviceMethod)
 
 	// set real ip
 	if xRealIp := h.Peek("X-Real-IP"); len(xRealIp) > 0 {
