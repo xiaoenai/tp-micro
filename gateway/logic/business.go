@@ -60,6 +60,11 @@ func HttpHooks() types.HttpHooks {
 	return globalBusiness.HttpHooks
 }
 
+// WebSocketHooks returns WEB socket connecting event hooks.
+func WebSocketHooks() types.WebSocketHooks {
+	return globalBusiness.WebSocketHooks
+}
+
 // ProxySelector returns proxy caller by label.
 func ProxySelector(label *proxy.Label) proxy.Forwarder {
 	return globalBusiness.ProxySelector(label)

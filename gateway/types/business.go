@@ -28,6 +28,8 @@ type Business struct {
 	SocketHooks
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks
+	// WebSocketHooks WEB socket connecting event hooks
+	WebSocketHooks
 	// ProxySelector returns proxy caller by label.
 	ProxySelector func(*proxy.Label) proxy.Forwarder
 	// InnerServerPlugins inner server plugins

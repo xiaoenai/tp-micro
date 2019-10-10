@@ -48,8 +48,25 @@ type (
 	}
 )
 
+// WebSocketHooks WEB socket connecting event hooks
+type WebSocketHooks interface {
+	// OnLogon is called when the client goes online.
+	OnLogon(auth.Session, AccessToken) *tp.Status
+	// OnLogoff is called when the client goes offline.
+	OnLogoff(tp.BaseSession) *tp.Status
+	// GetSession returns session from peer by uid.
+	GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Status)
+	//PreWritePush is executed before writing PUSH packet.
+	PreWritePush(tp.WriteCtx) *tp.Status
+}
+
 // DefaultSocketHooks creates a new default SocketHooks object.
 func DefaultSocketHooks() SocketHooks {
+	return new(defSocketHooks)
+}
+
+// DefaultWebSocketHooks creates a new default WebSocketHooks object.
+func DefaultWebSocketHooks() WebSocketHooks {
 	return new(defSocketHooks)
 }
 
