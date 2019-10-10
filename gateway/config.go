@@ -56,6 +56,13 @@ func NewConfig() *Config {
 			CountTime:         true,
 			SlowCometDuration: time.Millisecond * 500,
 		},
+		WebSocketServer: micro.SrvConfig{
+			ListenAddress:     "0.0.0.0:5040",
+			EnableHeartbeat:   true,
+			PrintDetail:       true,
+			CountTime:         true,
+			SlowCometDuration: time.Millisecond * 500,
+		},
 	}
 }
 
