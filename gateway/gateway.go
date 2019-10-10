@@ -35,7 +35,7 @@ import (
 // Run the gateway main program.
 // If protoFunc=nil, rawproto.NewRawProtoFunc is used by default.
 // If biz=nil, types.DefaultBusiness() is used by default.
-func Run(cfg Config, biz *types.Business, protoFunc tp.ProtoFunc) error {
+func Run(cfg Config, biz *types.Business, protoFunc, wsProtoFunc tp.ProtoFunc) error {
 	// config
 	err := cfg.check()
 	if err != nil {
@@ -83,12 +83,16 @@ func Run(cfg Config, biz *types.Business, protoFunc tp.ProtoFunc) error {
 		)
 	}
 
+	// web socket proto func
+	if wsProtoFunc == nil {
+		wsProtoFunc = jsonSubProto.NewJSONSubProtoFunc()
+	}
 	// web socket server
 	if cfg.EnableWebSocket {
 		webSocketAddr = cfg.WebSocketServer.OuterIpPort()
 		go ws.Serve(
 			cfg.WebSocketServer,
-			jsonSubProto.NewJSONSubProtoFunc(),
+			wsProtoFunc,
 		)
 	}
 
