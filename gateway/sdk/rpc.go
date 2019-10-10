@@ -75,3 +75,33 @@ func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...tp.Mess
 	}
 	return reply, nil
 }
+
+// WsTotal returns the long connections total of the remote server.
+func WsTotal(srvAddr string, setting ...tp.MessageSetting) (*types.WsTotalReply, *tp.Status) {
+	var reply = new(types.WsTotalReply)
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_total", nil, reply, setting...).Status()
+	if rerr != nil {
+		return nil, rerr
+	}
+	return reply, nil
+}
+
+// WsPush pushes message to the specified user.
+func WsPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSetting) (*types.WsPushReply, *tp.Status) {
+	var reply = new(types.WsPushReply)
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_push", args, reply, setting...).Status()
+	if rerr != nil {
+		return nil, rerr
+	}
+	return reply, nil
+}
+
+// WsMpush multi-push messages to the specified users.
+func WsMpush(srvAddr string, args *types.WsMpushArgs, setting ...tp.MessageSetting) (*types.WsMpushReply, *tp.Status) {
+	var reply = new(types.WsMpushReply)
+	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_mpush", args, reply, setting...).Status()
+	if rerr != nil {
+		return nil, rerr
+	}
+	return reply, nil
+}

@@ -53,6 +53,9 @@ func (biz *Business) Init() {
 	if biz.HttpHooks == nil {
 		biz.HttpHooks = DefaultHttpHooks()
 	}
+	if biz.WebSocketHooks == nil {
+		biz.WebSocketHooks = DefaultWebSocketHooks()
+	}
 	if biz.ProxySelector == nil {
 		biz.ProxySelector = DefaultProxySelector()
 	}

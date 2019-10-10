@@ -19,7 +19,9 @@ func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 		"/",
 		outerSrvCfg.PeerConfig(),
 		// authChecker,
+		webSocketConnTabPlugin,
 		proxy.NewPlugin(logic.ProxySelector),
+		preWritePushPlugin(),
 	)
 	// ws outer peer
 	outerPeer = srv.Peer
@@ -45,3 +47,24 @@ var authChecker = auth.NewCheckerPlugin(
 	},
 	tp.WithBodyCodec('s'),
 )
+
+// preWritePushPlugin returns PreWritePushPlugin.
+func preWritePushPlugin() tp.Plugin {
+	return &perPusher{fn: logic.WebSocketHooks().PreWritePush}
+}
+
+type perPusher struct {
+	fn func(tp.WriteCtx) *tp.Status
+}
+
+func (p *perPusher) Name() string {
+	return "PUSH-LOGIC"
+}
+
+var (
+	_ tp.PreWritePushPlugin = (*perPusher)(nil)
+)
+
+func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Status {
+	return p.fn(ctx)
+}
