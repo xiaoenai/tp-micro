@@ -37,6 +37,36 @@ message SocketKickReply {
     bool  existed      = 1;
 }
 
+message WsTotalReply {
+    int32  conn_total   = 1;
+}
+
+message WsPushArgs {
+    string  session_id = 1;
+    string  uri        = 2;
+    bytes   body       = 3;
+    int32   body_codec = 4;
+}
+
+message WsMpushArgs {
+    repeated MpushTarget target = 1;
+    string  uri                 = 2;
+    bytes   body                = 3;
+    int32   body_codec          = 4;
+}
+
+message WsMpushReply {
+    repeated string failure_session_ids = 1;
+}
+
+message WsKickArgs {
+    string  session_id = 1;
+}
+
+message WsKickReply {
+    bool  existed      = 1;
+}
+
 message GwHosts {
     repeated string http   = 1;
     repeated string socket = 2;

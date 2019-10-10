@@ -24,6 +24,7 @@ import (
 	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
+	websocket "github.com/xiaoenai/tp-micro/gateway/logic/websocket"
 )
 
 var (
@@ -68,10 +69,16 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 		verGroup := gwGroup.SubRoute(logic.ApiVersion())
 		{
 			verGroup.RouteCallFunc((*gw).Hosts)
+			// socket api
 			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketTotal))
 			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketPush))
 			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketMpush))
 			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketKick))
+			// ws api
+			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*websocket.Gw).WsTotal))
+			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*websocket.Gw).WsPush))
+			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*websocket.Gw).WsMpush))
+			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*websocket.Gw).WsKick))
 		}
 	}
 

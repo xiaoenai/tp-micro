@@ -9,6 +9,10 @@ import (
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 )
 
+var (
+	outerPeer tp.Peer
+)
+
 // Serve starts websocket gateway service.
 func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	srv := ws.NewServer(
@@ -17,6 +21,8 @@ func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 		// authChecker,
 		proxy.NewPlugin(logic.ProxySelector),
 	)
+	// ws outer peer
+	outerPeer = srv.Peer
 	go srv.ListenAndServe(protoFunc)
 
 	select {}

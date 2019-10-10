@@ -27,3 +27,13 @@ type (
 	// SocketPushReply reply
 	SocketPushReply = codec.PbEmpty
 )
+
+type (
+	// WsTotalArgs args
+	WsTotalArgs = codec.PbEmpty
+)
+
+type (
+	// WsPushReply reply
+	WsPushReply = codec.PbEmpty
+)
