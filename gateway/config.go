@@ -26,9 +26,11 @@ import (
 type Config struct {
 	EnableHttp        bool                `yaml:"enable_http"`
 	EnableSocket      bool                `yaml:"enable_socket"`
+	EnableWebSocket   bool                `yaml:"enable_web_socket"`
 	OuterHttpServer   short.HttpSrvConfig `yaml:"outer_http_server"`
 	OuterSocketServer micro.SrvConfig     `yaml:"outer_socket_server"`
 	InnerSocketServer micro.SrvConfig     `yaml:"inner_socket_server"`
+	WebSocketServer   micro.SrvConfig     `yaml:"web_socket_server"`
 }
 
 // NewConfig creates a default config.

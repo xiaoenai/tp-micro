@@ -83,7 +83,7 @@ func (s *SrvConfig) OuterIpPort() string {
 	return hostPort
 }
 
-func (s *SrvConfig) peerConfig() tp.PeerConfig {
+func (s *SrvConfig) PeerConfig() tp.PeerConfig {
 	host, port, err := net.SplitHostPort(s.ListenAddress)
 	if err != nil {
 		tp.Fatalf("%v", err)
@@ -114,7 +114,7 @@ func NewServer(cfg SrvConfig, globalLeftPlugin ...tp.Plugin) *Server {
 	if cfg.EnableHeartbeat {
 		globalLeftPlugin = append(globalLeftPlugin, heartbeat.NewPong())
 	}
-	peer := tp.NewPeer(cfg.peerConfig(), globalLeftPlugin...)
+	peer := tp.NewPeer(cfg.PeerConfig(), globalLeftPlugin...)
 	binder := binder.NewStructArgsBinder(nil)
 	peer.PluginContainer().AppendRight(binder)
 	if len(cfg.TlsCertFile) > 0 && len(cfg.TlsKeyFile) > 0 {

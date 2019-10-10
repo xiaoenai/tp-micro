@@ -43,6 +43,7 @@ type Hosts struct {
 	serviceKey      string
 	outerSocketAddr string
 	innerSocketAddr string
+	webSocketAddr   string
 	ips             atomic.Value
 	ipsLock         sync.Mutex
 	weightIps       map[string]*WeightIp
@@ -55,8 +56,8 @@ var (
 )
 
 // Start initializes and starts the hosts program.
-func Start(httpAddr, outerSocketAddr, innerSocketAddr string) error {
-	hosts.init(httpAddr, outerSocketAddr, innerSocketAddr)
+func Start(httpAddr, outerSocketAddr, innerSocketAddr, webSocketAddr string) error {
+	hosts.init(httpAddr, outerSocketAddr, innerSocketAddr, webSocketAddr)
 	return hosts.start()
 }
 
@@ -71,10 +72,11 @@ func SocketAddress() (outer, inner string) {
 	return hosts.outerSocketAddr, hosts.innerSocketAddr
 }
 
-func (h *Hosts) init(httpAddr, outerSocketAddr, innerSocketAddr string) {
+func (h *Hosts) init(httpAddr, outerSocketAddr, innerSocketAddr, webSocketAddr string) {
 	h.outerSocketAddr = outerSocketAddr
 	h.innerSocketAddr = innerSocketAddr
-	h.serviceKey = hostsPrefix + "@" + httpAddr + "@" + outerSocketAddr + "@" + innerSocketAddr
+	h.webSocketAddr = webSocketAddr
+	h.serviceKey = hostsPrefix + "@" + httpAddr + "@" + outerSocketAddr + "@" + innerSocketAddr + "@" + webSocketAddr
 }
 
 // start starts the SocketHosts program.
@@ -174,6 +176,7 @@ func (h *Hosts) watchEtcd() {
 		httpAddr        string
 		outerSocketAddr string
 		innerSocketAddr string
+		webSocketAddr   string
 		ok              bool
 		watcher         = clientele.GetEtcdClient().Watch(
 			context.Background(),
@@ -183,7 +186,7 @@ func (h *Hosts) watchEtcd() {
 	)
 	for wresp := range watcher {
 		for _, ev := range wresp.Events {
-			httpAddr, outerSocketAddr, innerSocketAddr, ok = splitHostsKey(ev.Kv.Key)
+			httpAddr, outerSocketAddr, innerSocketAddr, webSocketAddr, ok = splitHostsKey(ev.Kv.Key)
 			if !ok {
 				continue
 			}
@@ -198,6 +201,7 @@ func (h *Hosts) watchEtcd() {
 						httpAddr:        httpAddr,
 						outerSocketAddr: outerSocketAddr,
 						innerSocketAddr: innerSocketAddr,
+						webSocketAddr:   webSocketAddr,
 					}
 					tp.Infof("[GW_HOSTS] add host: %s", key)
 				}
@@ -237,7 +241,7 @@ func (h *Hosts) resetGatewayIps(goSort bool) {
 		m               = make(map[string]*WeightIp, len(resp.Kvs))
 	)
 	for _, n := range resp.Kvs {
-		httpAddr, outerSocketAddr, innerSocketAddr, ok = splitHostsKey(n.Key)
+		httpAddr, outerSocketAddr, innerSocketAddr, webSocketAddr, ok = splitHostsKey(n.Key)
 		if !ok {
 			tp.Warnf("[GW_HOSTS] invalid host key: %s", n.Key)
 			continue
@@ -329,6 +333,7 @@ type (
 		httpAddr        string
 		outerSocketAddr string
 		innerSocketAddr string
+		webSocketAddr   string
 		weight          int64
 	}
 )
@@ -349,7 +354,7 @@ func (s SortWeightIps) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
-func splitHostsKey(valueBytes []byte) (httpAddr, outerSocketAddr, innerSocketAddr string, ok bool) {
+func splitHostsKey(valueBytes []byte) (httpAddr, outerSocketAddr, innerSocketAddr, webSocketAddr string, ok bool) {
 	valueBytes = bytes.TrimPrefix(valueBytes, goutil.StringToBytes(hostsPrefix))
 	a := bytes.Split(valueBytes, []byte{'@'})
 	if len(a) != 4 {
@@ -358,6 +363,7 @@ func splitHostsKey(valueBytes []byte) (httpAddr, outerSocketAddr, innerSocketAdd
 	httpAddr = string(a[1])
 	outerSocketAddr = string(a[2])
 	innerSocketAddr = string(a[3])
+	webSocketAddr = string(a[4])
 	ok = true
 	return
 }

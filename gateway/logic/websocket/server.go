@@ -1,61 +1,26 @@
 package websocket
 
-import(
-		ws "github.com/henrylee2cn/teleport/mixer/websocket"
+import (
+	// ws "github.com/henrylee2cn/teleport/mixer/websocket"
 
+	tp "github.com/henrylee2cn/teleport"
+	ws "github.com/henrylee2cn/teleport/mixer/websocket"
+	"github.com/henrylee2cn/teleport/mixer/websocket/jsonSubProto"
+	"github.com/henrylee2cn/teleport/plugin/auth"
+	"github.com/henrylee2cn/teleport/plugin/proxy"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/gateway/logic"
 )
 
-var (
-	outerPeer   tp.Peer
-	outerServer *micro.Server
-)
-
-// OuterServeConn serves connetion.
-func OuterServeConn(conn net.Conn) {
-	sess, err := outerServer.ServeConn(conn)
-	if err != nil {
-		tp.Errorf("Serve net.Conn error: %v", err)
-	}
-	<-sess.CloseNotify()
-}
-
-// Serve starts TCP gateway service.
-func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
-	outerServer = micro.NewServer(
-		outerSrvCfg,
+// Serve starts websocket gateway service.
+func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
+	srv := ws.NewServer(
+		"/",
+		outerSrvCfg.PeerConfig(),
 		// authChecker,
-		socketConnTabPlugin,
 		proxy.NewPlugin(logic.ProxySelector),
-		preWritePushPlugin(),
 	)
-
-	outerPeer = outerServer.Peer()
-
-	innerPlugins := logic.InnerServerPlugins()
-	discoveryService := discovery.ServicePluginFromEtcd(
-		innerSrvCfg.InnerIpPort(),
-		clientele.GetEtcdClient(),
-	)
-	innerPlugins = append(innerPlugins, discoveryService)
-	innerServer := micro.NewServer(
-		innerSrvCfg,
-		innerPlugins...,
-	)
-
-	gwGroup := innerServer.SubRoute("/gw")
-	{
-		verGroup := gwGroup.SubRoute(logic.ApiVersion())
-		{
-			verGroup.RouteCallFunc((*gw).Hosts)
-			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketTotal))
-			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketPush))
-			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketMpush))
-			discoveryService.ExcludeApi(verGroup.RouteCallFunc((*gw).SocketKick))
-		}
-	}
-
-	go outerServer.ListenAndServe(protoFunc)
-	go innerServer.ListenAndServe(protoFunc)
+	go srv.ListenAndServe(jsonSubProto.NewJSONSubProtoFunc())
 
 	select {}
 }
@@ -77,24 +42,3 @@ var authChecker = auth.NewCheckerPlugin(
 	},
 	tp.WithBodyCodec('s'),
 )
-
-// preWritePushPlugin returns PreWritePushPlugin.
-func preWritePushPlugin() tp.Plugin {
-	return &perPusher{fn: logic.SocketHooks().PreWritePush}
-}
-
-type perPusher struct {
-	fn func(tp.WriteCtx) *tp.Status
-}
-
-func (p *perPusher) Name() string {
-	return "PUSH-LOGIC"
-}
-
-var (
-	_ tp.PreWritePushPlugin = (*perPusher)(nil)
-)
-
-func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Status {
-	return p.fn(ctx)
-}

@@ -20,11 +20,13 @@ import (
 	_ "unsafe"
 
 	tp "github.com/henrylee2cn/teleport"
+	// "github.com/henrylee2cn/teleport/proto/httproto"
 	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
 	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
 	long "github.com/xiaoenai/tp-micro/gateway/logic/socket"
+	ws "github.com/xiaoenai/tp-micro/gateway/logic/websocket"
 	"github.com/xiaoenai/tp-micro/gateway/sdk"
 	"github.com/xiaoenai/tp-micro/gateway/types"
 )
@@ -60,6 +62,7 @@ func Run(cfg Config, biz *types.Business, protoFunc tp.ProtoFunc) error {
 		httpAddr        string
 		outerSocketAddr string
 		innerSocketAddr string
+		webSocketAddr   string
 	)
 
 	// HTTP server
@@ -76,6 +79,15 @@ func Run(cfg Config, biz *types.Business, protoFunc tp.ProtoFunc) error {
 			cfg.OuterSocketServer,
 			cfg.InnerSocketServer,
 			protoFunc,
+		)
+	}
+
+	// web socket server
+	if cfg.EnableWebSocket {
+		webSocketAddr = cfg.WebSocketServer.OuterIpPort()
+		go ws.Serve(
+			cfg.WebSocketServer,
+			jsonSubProto.NewJSONSubProtoFunc(),
 		)
 	}
 
