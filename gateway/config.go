@@ -36,8 +36,9 @@ type Config struct {
 // NewConfig creates a default config.
 func NewConfig() *Config {
 	return &Config{
-		EnableHttp:   true,
-		EnableSocket: true,
+		EnableHttp:      true,
+		EnableSocket:    true,
+		EnableWebSocket: true,
 		OuterHttpServer: short.HttpSrvConfig{
 			ListenAddress: "0.0.0.0:5000",
 			AllowCross:    false,

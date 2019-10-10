@@ -359,7 +359,7 @@ func (s SortWeightIps) Swap(i, j int) {
 func splitHostsKey(valueBytes []byte) (httpAddr, outerSocketAddr, innerSocketAddr, webSocketAddr string, ok bool) {
 	valueBytes = bytes.TrimPrefix(valueBytes, goutil.StringToBytes(hostsPrefix))
 	a := bytes.Split(valueBytes, []byte{'@'})
-	if len(a) != 4 {
+	if len(a) != 5 {
 		return
 	}
 	httpAddr = string(a[1])
