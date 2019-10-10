@@ -40,4 +40,5 @@ message SocketKickReply {
 message GwHosts {
     repeated string http   = 1;
     repeated string socket = 2;
+    repeated string ws = 3;    
 }

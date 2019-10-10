@@ -300,11 +300,13 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 	ips := &types.GwHosts{
 		Http:   make([]string, 0, len(sortIps)),
 		Socket: make([]string, 0, len(sortIps)),
+		Ws:     make([]string, 0, len(sortIps)),
 	}
 	var (
 		// Eliminate duplicates
 		httpMap   = make(map[string]bool, len(sortIps))
 		socketMap = make(map[string]bool, len(sortIps))
+		wsMap     = make(map[string]bool, len(sortIps))
 	)
 	for _, w := range sortIps {
 		if len(w.httpAddr) > 0 && len(ips.Http) < maxGatewayAmount {
@@ -317,6 +319,12 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 			if !socketMap[w.outerSocketAddr] {
 				ips.Socket = append(ips.Socket, w.outerSocketAddr)
 				socketMap[w.outerSocketAddr] = true
+			}
+		}
+		if len(w.webSocketAddr) > 0 && len(ips.Ws) < maxGatewayAmount {
+			if !wsMap[w.webSocketAddr] {
+				ips.Ws = append(ips.Ws, w.webSocketAddr)
+				wsMap[w.webSocketAddr] = true
 			}
 		}
 	}
