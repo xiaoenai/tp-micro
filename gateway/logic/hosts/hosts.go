@@ -237,6 +237,7 @@ func (h *Hosts) resetGatewayIps(goSort bool) {
 		httpAddr        string
 		outerSocketAddr string
 		innerSocketAddr string
+		webSocketAddr   string
 		ok              bool
 		m               = make(map[string]*WeightIp, len(resp.Kvs))
 	)
@@ -250,6 +251,7 @@ func (h *Hosts) resetGatewayIps(goSort bool) {
 			httpAddr:        httpAddr,
 			outerSocketAddr: outerSocketAddr,
 			innerSocketAddr: innerSocketAddr,
+			webSocketAddr:   webSocketAddr,
 		}
 	}
 	if goSort {

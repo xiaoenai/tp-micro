@@ -21,6 +21,7 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	// "github.com/henrylee2cn/teleport/proto/httproto"
+	"github.com/henrylee2cn/teleport/mixer/websocket/jsonSubProto"
 	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
@@ -95,6 +96,7 @@ func Run(cfg Config, biz *types.Business, protoFunc tp.ProtoFunc) error {
 		httpAddr,
 		outerSocketAddr,
 		innerSocketAddr,
+		webSocketAddr,
 	)
 
 	select {}

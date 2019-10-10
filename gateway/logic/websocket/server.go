@@ -1,11 +1,8 @@
 package websocket
 
 import (
-	// ws "github.com/henrylee2cn/teleport/mixer/websocket"
-
 	tp "github.com/henrylee2cn/teleport"
 	ws "github.com/henrylee2cn/teleport/mixer/websocket"
-	"github.com/henrylee2cn/teleport/mixer/websocket/jsonSubProto"
 	"github.com/henrylee2cn/teleport/plugin/auth"
 	"github.com/henrylee2cn/teleport/plugin/proxy"
 	micro "github.com/xiaoenai/tp-micro"
@@ -20,7 +17,7 @@ func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 		// authChecker,
 		proxy.NewPlugin(logic.ProxySelector),
 	)
-	go srv.ListenAndServe(jsonSubProto.NewJSONSubProtoFunc())
+	go srv.ListenAndServe(protoFunc)
 
 	select {}
 }
