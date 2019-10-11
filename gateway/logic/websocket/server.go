@@ -18,7 +18,7 @@ func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	srv := ws.NewServer(
 		"/",
 		outerSrvCfg.PeerConfig(),
-		// authChecker,
+		authChecker,
 		webSocketConnTabPlugin,
 		proxy.NewPlugin(logic.ProxySelector),
 		preWritePushPlugin(),
@@ -37,6 +37,7 @@ var authChecker = auth.NewCheckerPlugin(
 		var authInfo string
 		stat = fn(&authInfo)
 		if !stat.OK() {
+			tp.Infof("checker this")
 			return
 		}
 		tp.Infof("auth info: %v", authInfo)

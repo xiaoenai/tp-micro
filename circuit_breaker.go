@@ -109,7 +109,6 @@ func (c *circuitBreaker) selectSession(serviceMethod string) (*cliSession, *tp.S
 		exclude = make(map[string]struct{}, cnt)
 		rerr    = notFoundService
 	)
-	tp.Infof("uri_path-> %s, cnt-> %d", uriPath, cnt)
 	for i := cnt; i > 0; i-- {
 		addr, rerr = c.linker.Select(uriPath, exclude)
 		if rerr != nil {
