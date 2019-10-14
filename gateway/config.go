@@ -20,6 +20,7 @@ import (
 	"github.com/henrylee2cn/cfgo"
 	micro "github.com/xiaoenai/tp-micro"
 	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 
 // Config app config
@@ -30,6 +31,8 @@ type Config struct {
 	OuterHttpServer   short.HttpSrvConfig `yaml:"outer_http_server"`
 	OuterSocketServer micro.SrvConfig     `yaml:"outer_socket_server"`
 	InnerSocketServer micro.SrvConfig     `yaml:"inner_socket_server"`
+	InnerSocketClient micro.CliConfig     `yaml:"inner_socket_client"`
+	Etcd              etcd.EasyConfig     `yaml:"etcd"`
 	WebSocketServer   micro.SrvConfig     `yaml:"web_socket_server"`
 }
 

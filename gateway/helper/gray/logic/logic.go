@@ -23,7 +23,7 @@ var (
 func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Status) {
 	g, exist, err := model.GetGrayMatchByUri(args.Uri)
 	if err != nil {
-		return nil, micro.RerrInternalServerError.Copy().SetReason(err.Error())
+		return nil, micro.RerrInternalServerError.SetCause(err.Error())
 	}
 	if !exist {
 		return notGrayResult, nil
@@ -33,7 +33,7 @@ func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Status) {
 	if !ok {
 		re, err = regexp.Compile(g.Regexp)
 		if err != nil {
-			return nil, micro.RerrInternalServerError.Copy().SetReason(err.Error())
+			return nil, micro.RerrInternalServerError.SetCause(err.Error())
 		}
 		regexpCache.Store(g.Regexp, re)
 	} else {
@@ -49,7 +49,7 @@ func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Status) {
 func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Status) {
 	g, exist, err := model.GetGrayMatchByUri(args.Uri)
 	if err != nil {
-		return nil, micro.RerrInternalServerError.Copy().SetReason(err.Error())
+		return nil, micro.RerrInternalServerError.SetCause(err.Error())
 	}
 	if !exist {
 		return nil, micro.RerrNotFound
@@ -61,7 +61,7 @@ func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Status) {
 func Delete(args *types.DeleteArgs) (*struct{}, *tp.Status) {
 	err := model.DeleteGrayMatchByUri(args.Uri)
 	if err != nil {
-		return nil, micro.RerrInternalServerError.Copy().SetReason(err.Error())
+		return nil, micro.RerrInternalServerError.SetCause(err.Error())
 	}
 	return new(struct{}), nil
 }
@@ -72,7 +72,7 @@ func Set(args *types.SetArgs) (*struct{}, *tp.Status) {
 	if !ok {
 		re, err := regexp.Compile(args.Regexp)
 		if err != nil {
-			return nil, micro.RerrInvalidParameter.Copy().SetReason(err.Error())
+			return nil, micro.RerrInvalidParameter.SetCause(err.Error())
 		}
 		regexpCache.Store(args.Regexp, re)
 	}
@@ -82,7 +82,7 @@ func Set(args *types.SetArgs) (*struct{}, *tp.Status) {
 		Regexp: args.Regexp,
 	})
 	if err != nil {
-		return nil, micro.RerrInternalServerError.Copy().SetReason(err.Error())
+		return nil, micro.RerrInternalServerError.SetCause(err.Error())
 	}
 	return new(struct{}), nil
 }

@@ -28,8 +28,9 @@ import (
 )
 
 var (
-	outerPeer   tp.Peer
-	outerServer *micro.Server
+	outerPeer      tp.Peer
+	outerServer    *micro.Server
+	clientAuthInfo string
 )
 
 // OuterServeConn serves connetion.
@@ -88,8 +89,7 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	select {}
 }
 
-const clientAuthInfo = "client-auth-info-12345"
-
+// auth plugin
 var authChecker = auth.NewCheckerPlugin(
 	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *tp.Status) {
 		var authInfo string
@@ -98,10 +98,11 @@ var authChecker = auth.NewCheckerPlugin(
 			return
 		}
 		tp.Infof("auth info: %v", authInfo)
-		if clientAuthInfo != authInfo {
-			return nil, tp.NewStatus(403, "auth fail", "auth fail detail")
+		stat = socketConnTabPlugin.authAndLogon(authInfo, sess)
+		if !stat.OK() {
+			return
 		}
-		return "pass", nil
+		return "", nil
 	},
 	tp.WithBodyCodec('s'),
 )

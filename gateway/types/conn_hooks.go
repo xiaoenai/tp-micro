@@ -74,6 +74,7 @@ type defSocketHooks struct{}
 
 func (d *defSocketHooks) OnLogon(sess auth.Session, accessToken AccessToken) *tp.Status {
 	sess.SetID(accessToken.SessionId())
+	tp.Infof("Session-> %v", accessToken.SessionId())
 	return nil
 }
 

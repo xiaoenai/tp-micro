@@ -5,7 +5,6 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/proxy"
-	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/discovery"
@@ -34,9 +33,9 @@ func SetGray(
 	if err != nil {
 		return nil, err
 	}
-	if protoFunc == nil {
-		protoFunc = socket.NewRawProtoFunc
-	}
+	// if protoFunc == nil {
+	// 	protoFunc = socket.NewRawProtoFunc
+	// }
 	grayEtcdClient, err := etcd.EasyNew(grayEtcdConfig)
 	if err != nil {
 		return nil, err
@@ -48,17 +47,17 @@ func SetGray(
 	grayClient.SetProtoFunc(protoFunc)
 
 	biz.InnerServerPlugins = append(biz.InnerServerPlugins, new(innerServerPlugin))
-	biz.ProxySelector = func(label *proxy.ProxyLabel) proxy.Forwarder {
-		idx := strings.Index(label.Uri, "?")
+	biz.ProxySelector = func(label *proxy.Label) proxy.Forwarder {
+		idx := strings.Index(label.ServiceMethod, "?")
 		var uri string
 		if idx != -1 {
-			uri = label.Uri[:idx]
+			uri = label.ServiceMethod[:idx]
 		} else {
-			uri = label.Uri
+			uri = label.ServiceMethod
 		}
 		r, rerr := logic.IsGray(&types.IsGrayArgs{
 			Uri: uri,
-			Uid: label.SessionId,
+			Uid: label.SessionID,
 		})
 		if rerr != nil {
 			tp.Errorf("%s", rerr.String())

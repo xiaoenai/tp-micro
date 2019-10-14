@@ -10,11 +10,13 @@ import (
 )
 
 var (
-	outerPeer tp.Peer
+	outerPeer      tp.Peer
+	clientAuthInfo string
 )
 
 // Serve starts websocket gateway service.
 func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
+	// new ws server
 	srv := ws.NewServer(
 		"/",
 		outerSrvCfg.PeerConfig(),
@@ -30,21 +32,20 @@ func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	select {}
 }
 
-const clientAuthInfo = "client-auth-info-12345"
-
+// auth plugin
 var authChecker = auth.NewCheckerPlugin(
 	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *tp.Status) {
 		var authInfo string
 		stat = fn(&authInfo)
 		if !stat.OK() {
-			tp.Infof("checker this")
 			return
 		}
 		tp.Infof("auth info: %v", authInfo)
-		if clientAuthInfo != authInfo {
-			return nil, tp.NewStatus(403, "auth fail", "auth fail detail")
+		stat = webSocketConnTabPlugin.authAndLogon(authInfo, sess)
+		if !stat.OK() {
+			return
 		}
-		return "pass", nil
+		return "", nil
 	},
 	tp.WithBodyCodec('s'),
 )
