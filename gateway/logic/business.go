@@ -22,7 +22,7 @@ import (
 
 var (
 	globalBusiness *types.Business
-	apiVersion     = "v1"
+	apiVersion     = "v6"
 )
 
 // SetBusiness sets business object.
