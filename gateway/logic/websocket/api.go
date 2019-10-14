@@ -32,9 +32,9 @@ func (g *Gw) WsTotal(*types.WsTotalArgs) (*types.WsTotalReply, *tp.Status) {
 
 // innerPush pushes the message to the specified user.
 func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Status {
-	sess, rerr := logic.WebSocketHooks().GetSession(outerPeer, uid)
-	if rerr != nil {
-		return rerr
+	sess, stat := logic.WebSocketHooks().GetSession(outerPeer, uid)
+	if stat != nil {
+		return stat
 	}
 	return sess.Push(uri, args, tp.WithBodyCodec(bodyCodec))
 }
@@ -43,9 +43,9 @@ var wsPushReply = new(types.WsPushReply)
 
 // WsPush pushes message to the specified user.
 func (g *Gw) WsPush(args *types.WsPushArgs) (*types.WsPushReply, *tp.Status) {
-	rerr := innerPush(args.SessionId, args.Uri, args.Body, byte(args.BodyCodec))
-	if rerr != nil {
-		return nil, rerr
+	stat := innerPush(args.SessionId, args.Uri, args.Body, byte(args.BodyCodec))
+	if stat != nil {
+		return nil, stat
 	}
 	return wsPushReply, nil
 }
@@ -74,12 +74,12 @@ func (g *Gw) WsMpush(args *types.WsMpushArgs) (*types.WsMpushReply, *tp.Status) 
 		sessId := t.SessionId
 		tp.TryGo(func() {
 			defer wg.Done()
-			rerr := innerPush(sessId, uri, body, bodyCodec)
-			if rerr != nil {
+			stat := innerPush(sessId, uri, body, bodyCodec)
+			if stat != nil {
 				lock.Lock()
 				failureSessionIds = append(failureSessionIds, sessId)
 				lock.Unlock()
-				tp.Tracef("SocketMpush: %s", rerr.String())
+				tp.Tracef("SocketMpush: %s", stat.String())
 			}
 		})
 	}

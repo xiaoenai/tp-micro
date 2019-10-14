@@ -223,9 +223,9 @@ func (c *Client) AsyncCall(
 	default:
 	}
 
-	cliSess, rerr := c.circuitBreaker.selectSession(serviceMethod)
-	if rerr != nil {
-		callCmd := tp.NewFakeCallCmd(serviceMethod, arg, result, rerr)
+	cliSess, stat := c.circuitBreaker.selectSession(serviceMethod)
+	if stat != nil {
+		callCmd := tp.NewFakeCallCmd(serviceMethod, arg, result, stat)
 		callCmdChan <- callCmd
 		return callCmd
 	}
@@ -247,15 +247,14 @@ func (c *Client) Call(serviceMethod string, arg interface{}, result interface{},
 	var (
 		cliSess     *cliSession
 		callCmd     tp.CallCmd
-		rerr        *tp.Status
+		stat        *tp.Status
 		healthy     bool
 		callCmdChan = make(chan tp.CallCmd, 1)
 	)
 	for i := 0; i < c.maxTry; i++ {
-		cliSess, rerr = c.circuitBreaker.selectSession(serviceMethod)
-		tp.Infof("Rerr-> %v", rerr)
-		if rerr != nil {
-			return tp.NewFakeCallCmd(serviceMethod, arg, result, rerr)
+		cliSess, stat = c.circuitBreaker.selectSession(serviceMethod)
+		if stat != nil {
+			return tp.NewFakeCallCmd(serviceMethod, arg, result, stat)
 		}
 		cliSess.AsyncCall(serviceMethod, arg, result, callCmdChan, setting...)
 		callCmd = <-callCmdChan
@@ -283,25 +282,25 @@ func (c *Client) Push(serviceMethod string, arg interface{}, setting ...tp.Messa
 	}
 	var (
 		cliSess *cliSession
-		rerr    *tp.Status
+		stat    *tp.Status
 		healthy bool
 	)
 	for i := 0; i < c.maxTry; i++ {
-		cliSess, rerr = c.circuitBreaker.selectSession(serviceMethod)
-		if rerr != nil {
-			return rerr
+		cliSess, stat = c.circuitBreaker.selectSession(serviceMethod)
+		if stat != nil {
+			return stat
 		}
-		rerr = cliSess.Push(serviceMethod, arg, setting...)
-		healthy = !tp.IsConnError(rerr)
+		stat = cliSess.Push(serviceMethod, arg, setting...)
+		healthy = !tp.IsConnError(stat)
 		cliSess.feedback(healthy)
 		if healthy {
-			return rerr
+			return stat
 		}
 		if i > 0 {
-			tp.Debugf("the %dth failover is triggered because: %s", i, rerr.String())
+			tp.Debugf("the %dth failover is triggered because: %s", i, stat.String())
 		}
 	}
-	return rerr
+	return stat
 }
 
 // Close closes client.

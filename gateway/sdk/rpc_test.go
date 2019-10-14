@@ -20,9 +20,9 @@ func TestSdk(t *testing.T) {
 	// 	rawproto.NewRawProtoFunc,
 	// 	etcdClient,
 	// )
-	// reply, rerr := SocketTotal()
-	// if rerr != nil {
-	// 	t.Logf("rerr: %v", rerr)
+	// reply, stat := SocketTotal()
+	// if stat != nil {
+	// 	t.Logf("stat: %v", stat)
 	// } else {
 	// 	t.Logf("long connections total: %d", reply.ConnTotal)
 	// }

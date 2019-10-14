@@ -18,18 +18,18 @@ func toJsonBytes(i interface{}) []byte {
 }
 
 func ExampleStat() {
-	rerr := sdk.Stat(nil, &sdk.StatArg{})
-	if rerr != nil {
-		tp.Errorf("Stat: rerr: %s", toJsonBytes(rerr))
+	stat := sdk.Stat(nil, &sdk.StatArg{})
+	if stat != nil {
+		tp.Errorf("Stat: rerr: %s", toJsonBytes(stat))
 	}
 	fmt.Printf("")
 	// Output:
 }
 
 func ExampleHome() {
-	result, rerr := sdk.Home(nil, &sdk.EmptyStruct{})
-	if rerr != nil {
-		tp.Errorf("Home: rerr: %s", toJsonBytes(rerr))
+	result, stat := sdk.Home(nil, &sdk.EmptyStruct{})
+	if stat != nil {
+		tp.Errorf("Home: rerr: %s", toJsonBytes(stat))
 	} else {
 		tp.Infof("Home: result: %s", toJsonBytes(result))
 	}
@@ -38,9 +38,9 @@ func ExampleHome() {
 }
 
 func ExampleMath_Divide() {
-	result, rerr := sdk.Math_Divide(nil, &sdk.DivideArg{})
-	if rerr != nil {
-		tp.Errorf("Math_Divide: rerr: %s", toJsonBytes(rerr))
+	result, stat := sdk.Math_Divide(nil, &sdk.DivideArg{})
+	if stat != nil {
+		tp.Errorf("Math_Divide: rerr: %s", toJsonBytes(stat))
 	} else {
 		tp.Infof("Math_Divide: result: %s", toJsonBytes(result))
 	}

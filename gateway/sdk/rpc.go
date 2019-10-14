@@ -39,9 +39,9 @@ func SetApiVersion(apiVersion string) {
 // GwHosts returns the gateway host list.
 func GwHosts(setting ...tp.MessageSetting) (*types.GwHosts, *tp.Status) {
 	var reply = new(types.GwHosts)
-	rerr := clientele.DynamicCall(nil, "/gw"+_apiVersion+"/hosts", nil, reply, setting...).Status()
-	if rerr != nil {
-		return nil, rerr
+	stat := clientele.DynamicCall(nil, "/gw"+_apiVersion+"/hosts", nil, reply, setting...).Status()
+	if stat != nil {
+		return nil, stat
 	}
 	return reply, nil
 }
@@ -49,9 +49,9 @@ func GwHosts(setting ...tp.MessageSetting) (*types.GwHosts, *tp.Status) {
 // SocketTotal returns the long connections total of the remote server.
 func SocketTotal(srvAddr string, setting ...tp.MessageSetting) (*types.SocketTotalReply, *tp.Status) {
 	var reply = new(types.SocketTotalReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Status()
-	if rerr != nil {
-		return nil, rerr
+	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Status()
+	if stat != nil {
+		return nil, stat
 	}
 	return reply, nil
 }
@@ -59,9 +59,9 @@ func SocketTotal(srvAddr string, setting ...tp.MessageSetting) (*types.SocketTot
 // SocketPush pushes message to the specified user.
 func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSetting) (*types.SocketPushReply, *tp.Status) {
 	var reply = new(types.SocketPushReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_push", args, reply, setting...).Status()
-	if rerr != nil {
-		return nil, rerr
+	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_push", args, reply, setting...).Status()
+	if stat != nil {
+		return nil, stat
 	}
 	return reply, nil
 }
@@ -69,9 +69,9 @@ func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.Messag
 // SocketMpush multi-push messages to the specified users.
 func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...tp.MessageSetting) (*types.SocketMpushReply, *tp.Status) {
 	var reply = new(types.SocketMpushReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Status()
-	if rerr != nil {
-		return nil, rerr
+	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Status()
+	if stat != nil {
+		return nil, stat
 	}
 	return reply, nil
 }
@@ -79,9 +79,9 @@ func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...tp.Mess
 // WsTotal returns the long connections total of the remote server.
 func WsTotal(srvAddr string, setting ...tp.MessageSetting) (*types.WsTotalReply, *tp.Status) {
 	var reply = new(types.WsTotalReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_total", nil, reply, setting...).Status()
-	if rerr != nil {
-		return nil, rerr
+	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_total", nil, reply, setting...).Status()
+	if stat != nil {
+		return nil, stat
 	}
 	return reply, nil
 }
@@ -89,9 +89,9 @@ func WsTotal(srvAddr string, setting ...tp.MessageSetting) (*types.WsTotalReply,
 // WsPush pushes message to the specified user.
 func WsPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSetting) (*types.WsPushReply, *tp.Status) {
 	var reply = new(types.WsPushReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_push", args, reply, setting...).Status()
-	if rerr != nil {
-		return nil, rerr
+	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_push", args, reply, setting...).Status()
+	if stat != nil {
+		return nil, stat
 	}
 	return reply, nil
 }
@@ -99,9 +99,9 @@ func WsPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSet
 // WsMpush multi-push messages to the specified users.
 func WsMpush(srvAddr string, args *types.WsMpushArgs, setting ...tp.MessageSetting) (*types.WsMpushReply, *tp.Status) {
 	var reply = new(types.WsMpushReply)
-	rerr := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_mpush", args, reply, setting...).Status()
-	if rerr != nil {
-		return nil, rerr
+	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_mpush", args, reply, setting...).Status()
+	if stat != nil {
+		return nil, stat
 	}
 	return reply, nil
 }

@@ -48,7 +48,7 @@ type requestHandler struct {
 	errMsg []byte
 }
 
-var rerrInternalServerError = tp.NewStatus(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
+var statInternalServerError = tp.NewStatus(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
 
 func (r *requestHandler) handle() {
 	var ctx = r.ctx
@@ -75,7 +75,7 @@ func (r *requestHandler) handle() {
 	start := time.Now()
 	defer func() {
 		if p := recover(); p != nil {
-			r.replyError(rerrInternalServerError.SetCause(fmt.Sprint(p)))
+			r.replyError(statInternalServerError.SetCause(fmt.Sprint(p)))
 		}
 		r.runlog(start, &label, goutil.BytesToString(query.Peek(SEQ)), bodyBytes, &reply)
 	}()
@@ -99,9 +99,9 @@ func (r *requestHandler) handle() {
 	}
 
 	// verify access token
-	accessToken, settings, rerr := logic.HttpHooks().OnRequest(r, bodyBytes, logic.AuthFunc())
-	if rerr != nil {
-		r.replyError(rerr)
+	accessToken, settings, stat := logic.HttpHooks().OnRequest(r, bodyBytes, logic.AuthFunc())
+	if stat != nil {
+		r.replyError(stat)
 		return
 	}
 
@@ -143,13 +143,13 @@ func (r *requestHandler) handle() {
 		Call(label.ServiceMethod, bodyBytes, &reply, settings...)
 
 	// fail
-	if rerr := callcmd.Status(); rerr != nil {
+	if stat := callcmd.Status(); stat != nil {
 		callcmd.InputMeta().VisitAll(func(key, value []byte) {
 			k := goutil.BytesToString(key)
 			v := goutil.BytesToString(value)
 			ctx.Response.Header.Add(k, v)
 		})
-		r.replyError(rerr)
+		r.replyError(stat)
 		return
 	}
 
@@ -193,19 +193,19 @@ func (r *requestHandler) crossDomainFilter() bool {
 	return true
 }
 
-func (r *requestHandler) replyError(rerr *tp.Status) {
+func (r *requestHandler) replyError(stat *tp.Status) {
 	var statusCode int
-	if rerr.Code() < 200 {
+	if stat.Code() < 200 {
 		// Internal communication error
 		statusCode = 500
-	} else if rerr.Code() < 600 {
+	} else if stat.Code() < 600 {
 		// Custom HTTP error
-		statusCode = int(rerr.Code())
+		statusCode = int(stat.Code())
 	} else {
 		// Business error
 		statusCode = 299
 	}
-	r.errMsg, _ = rerr.MarshalJSON()
+	r.errMsg, _ = stat.MarshalJSON()
 	r.ctx.SetStatusCode(statusCode)
 	r.ctx.SetContentType("application/json")
 	r.ctx.SetBody(r.errMsg)

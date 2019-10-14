@@ -55,12 +55,12 @@ func SetGray(
 		} else {
 			uri = label.ServiceMethod
 		}
-		r, rerr := logic.IsGray(&types.IsGrayArgs{
+		r, stat := logic.IsGray(&types.IsGrayArgs{
 			Uri: uri,
 			Uid: label.SessionID,
 		})
-		if rerr != nil {
-			tp.Errorf("%s", rerr.String())
+		if stat != nil {
+			tp.Errorf("%s", stat.String())
 			return clientele.GetDynamicClient()
 		}
 		if !r.Gray {

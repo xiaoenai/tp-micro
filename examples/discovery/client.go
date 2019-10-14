@@ -32,13 +32,13 @@ func main() {
 	)
 	defer cli.Close()
 	var reply = new(pb.PbTest)
-	rerr := cli.Call(
+	stat := cli.Call(
 		"/group/home/test",
 		&pb.PbTest{A: 10, B: 2},
 		reply,
 	).Rerror()
-	if rerr != nil {
-		tp.Errorf("call error: %v", rerr)
+	if stat != nil {
+		tp.Errorf("call error: %v", stat)
 	} else {
 		tp.Infof("call reply: %v", reply)
 	}

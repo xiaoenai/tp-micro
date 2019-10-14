@@ -123,9 +123,9 @@ func main() {
 }
 
 func push(uids []string, args *Args) {
-	agts, rerr := agent.QueryAgent(uids)
-	if rerr != nil {
-		tp.Errorf("push fail: %v", rerr)
+	agts, stat := agent.QueryAgent(uids)
+	if stat != nil {
+		tp.Errorf("push fail: %v", stat)
 	}
 	for _, agt := range agts.Agents {
 		if agt.IsOffline {
@@ -140,7 +140,7 @@ func push(uids []string, args *Args) {
 		}
 		targetUri := "/push"
 		msgBytes, _ := json.Marshal(args)
-		_, rerr := gwSdk.SocketMpush(
+		_, stat := gwSdk.SocketMpush(
 			addr,
 			&gwTypes.SocketMpushArgs{
 				Target:    target,
@@ -150,8 +150,8 @@ func push(uids []string, args *Args) {
 			},
 			tp.WithBodyCodec(codec.ID_JSON),
 		)
-		if rerr != nil {
-			tp.Errorf("push fail: %v", rerr)
+		if stat != nil {
+			tp.Errorf("push fail: %v", stat)
 		} else {
 			tp.Infof("push ok")
 		}

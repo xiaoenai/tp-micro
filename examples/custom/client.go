@@ -17,9 +17,9 @@ func main() {
 	)
 	// test call
 	var reply int
-	rerr := cli.Call("/math/divide?access_token=sdfghj", Msg{A: 10, B: 2}, &reply).Rerror()
-	if rerr != nil {
-		tp.Fatalf("%v", rerr)
+	stat := cli.Call("/math/divide?access_token=sdfghj", Msg{A: 10, B: 2}, &reply).Rerror()
+	if stat != nil {
+		tp.Fatalf("%v", stat)
 	}
 	tp.Infof("10/2=%d", reply)
 

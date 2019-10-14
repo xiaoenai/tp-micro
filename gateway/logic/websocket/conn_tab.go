@@ -37,19 +37,19 @@ func (c *webSocketConnTab) Name() string {
 }
 
 func (c *webSocketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.Status {
-	token, rerr := logic.AuthFunc()(authInfo)
-	if rerr != nil {
-		return rerr
+	token, stat := logic.AuthFunc()(authInfo)
+	if stat != nil {
+		return stat
 	}
 	info := token.AddedQuery()
 	if info != nil && info.Len() > 0 {
 		sess.Swap().Store(webSocketConnTabPlugin, info.String())
 	}
-	rerr = logic.WebSocketHooks().OnLogon(sess, token)
-	if rerr == nil {
+	stat = logic.WebSocketHooks().OnLogon(sess, token)
+	if stat == nil {
 		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).ID())
 	}
-	return rerr
+	return stat
 }
 
 func (c *webSocketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Status {

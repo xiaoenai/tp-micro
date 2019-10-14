@@ -77,10 +77,10 @@ func getSalt(m goutil.Map) (uint64, bool) {
 	return 0, false
 }
 
-var rerrServerError = micro.RerrInternalServerError.SetCause("Agent Error")
+var statServerError = micro.RerrInternalServerError.SetCause("Agent Error")
 
 func newServerRerror(detail string) *tp.Status {
-	return rerrServerError.SetCause(detail)
+	return statServerError.SetCause(detail)
 }
 
 func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp.Status) {
@@ -99,9 +99,9 @@ func (*agentHandler) PreWritePush(tp.WriteCtx) *tp.Status {
 func (h *agentHandler) OnLogon(sess auth.Session, accessToken types.AccessToken) *tp.Status {
 	sessionId := accessToken.SessionId()
 	// check or remove old session
-	_, rerr := kickOffline(sessionId, true)
-	if rerr != nil {
-		return rerr
+	_, stat := kickOffline(sessionId, true)
+	if stat != nil {
+		return stat
 	}
 
 	// logon new agent
@@ -180,9 +180,9 @@ func EnforceKickOffline(sessionId string) *tp.Status {
 
 // enforceKickOffline enforches kick the user offline.
 func enforceKickOffline(sessionId string, checkLocal bool) *tp.Status {
-	succ, rerr := kickOffline(sessionId, checkLocal)
-	if succ || rerr != nil {
-		return rerr
+	succ, stat := kickOffline(sessionId, checkLocal)
+	if succ || stat != nil {
+		return stat
 	}
 	// enforce remove agent
 	var (
@@ -220,7 +220,7 @@ func enforceKickOffline(sessionId string, checkLocal bool) *tp.Status {
 }
 
 // kickOffline kicks the user offline.
-func kickOffline(sessionId string, checkLocal bool) (succ bool, rerr *tp.Status) {
+func kickOffline(sessionId string, checkLocal bool) (succ bool, stat *tp.Status) {
 	if checkLocal {
 		// Try to delete the session from the local gateway.
 		existed, _ := socket.Kick(sessionId)
@@ -229,20 +229,20 @@ func kickOffline(sessionId string, checkLocal bool) (succ bool, rerr *tp.Status)
 		}
 	}
 	// Find the agent of the sessionId.
-	agent, rerr := GetAgent(sessionId)
-	if rerr != nil {
-		return false, rerr
+	agent, stat := GetAgent(sessionId)
+	if stat != nil {
+		return false, stat
 	}
 	if agent.IsOffline {
 		return true, nil
 	}
 	// Try to delete the session from the remote gateway.
 	var reply types.SocketKickReply
-	rerr = clientele.StaticCall(nil, agent.InnerGw, kickUri, types.SocketKickArgs{SessionId: sessionId}, &reply).Status()
+	stat = clientele.StaticCall(nil, agent.InnerGw, kickUri, types.SocketKickArgs{SessionId: sessionId}, &reply).Status()
 	if reply.Existed {
 		return true, nil
 	}
-	return false, rerr
+	return false, stat
 }
 
 // GetAgent returns agent information.

@@ -1,4 +1,4 @@
-package rerrs
+package status
 
 import (
 	tp "github.com/henrylee2cn/teleport"

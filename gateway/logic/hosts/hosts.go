@@ -279,17 +279,17 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 		reply   *types.SocketTotalReply
 		t       time.Time
 		sortIps = make(SortWeightIps, 0, cnt)
-		rerr    *tp.Status
+		stat    *tp.Status
 	)
 	for _, w := range h.weightIps {
 		if len(w.innerSocketAddr) > 0 {
 			t = time.Now()
-			reply, rerr = sdk.SocketTotal(
+			reply, stat = sdk.SocketTotal(
 				w.innerSocketAddr,
 				tp.WithBodyCodec(codec.ID_PROTOBUF),
 			)
-			if rerr != nil {
-				tp.Warnf("[GW_HOSTS] not available host: innerSocketAddr: %s, error: %s", w.innerSocketAddr, rerr)
+			if stat != nil {
+				tp.Warnf("[GW_HOSTS] not available host: innerSocketAddr: %s, error: %s", w.innerSocketAddr, stat)
 				continue
 			}
 			w.weight = -int64(reply.ConnTotal) - int64(time.Since(t)/time.Millisecond)

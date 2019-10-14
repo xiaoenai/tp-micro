@@ -102,6 +102,6 @@ func DefaultHttpHooks() HttpHooks {
 type defHttpHooks struct{}
 
 func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Status) {
-	accessToken, rerr := authFunc(string(params.QueryArgs().Peek("access_token")))
-	return accessToken, nil, rerr
+	accessToken, stat := authFunc(string(params.QueryArgs().Peek("access_token")))
+	return accessToken, nil, stat
 }

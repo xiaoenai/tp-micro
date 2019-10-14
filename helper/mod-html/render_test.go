@@ -44,10 +44,10 @@ func TestParseText(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b, rerr := html.Render(new(meta), "a", "TestParse A!")
-	t.Logf("body: %s, rerr: %v", b, rerr)
-	b, rerr = html.Render(new(meta), "b", "TestParse B!")
-	t.Logf("body: %s, rerr: %v", b, rerr)
+	b, stat := html.Render(new(meta), "a", "TestParse A!")
+	t.Logf("body: %s, rerr: %v", b, stat)
+	b, stat = html.Render(new(meta), "b", "TestParse B!")
+	t.Logf("body: %s, rerr: %v", b, stat)
 }
 
 func TestParseFiles(t *testing.T) {
@@ -56,10 +56,10 @@ func TestParseFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b, rerr := html.Render(new(meta), "a_test.tpl", "TestParseFiles A!")
-	t.Logf("body: %s, rerr: %v", b, rerr)
-	b, rerr = html.Render(new(meta), "b_test.tpl", "TestParseFiles B!")
-	t.Logf("body: %s, rerr: %v", b, rerr)
+	b, stat := html.Render(new(meta), "a_test.tpl", "TestParseFiles A!")
+	t.Logf("body: %s, rerr: %v", b, stat)
+	b, stat = html.Render(new(meta), "b_test.tpl", "TestParseFiles B!")
+	t.Logf("body: %s, rerr: %v", b, stat)
 }
 
 func TestParseGlob(t *testing.T) {
@@ -68,10 +68,10 @@ func TestParseGlob(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b, rerr := html.Render(new(meta), "a_test.tpl", "TestParseGlob A!")
-	t.Logf("body: %s, rerr: %v", b, rerr)
-	b, rerr = html.Render(new(meta), "b_test.tpl", "TestParseGlob B!")
-	t.Logf("body: %s, rerr: %v", b, rerr)
+	b, stat := html.Render(new(meta), "a_test.tpl", "TestParseGlob A!")
+	t.Logf("body: %s, rerr: %v", b, stat)
+	b, stat = html.Render(new(meta), "b_test.tpl", "TestParseGlob B!")
+	t.Logf("body: %s, rerr: %v", b, stat)
 }
 
 func TestDelims(t *testing.T) {
@@ -93,8 +93,8 @@ func TestDelims(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, rerr := html.Render(new(meta), "doc", "TestDelims!")
-	t.Logf("body: %s, rerr: %v", b, rerr)
+	b, stat := html.Render(new(meta), "doc", "TestDelims!")
+	t.Logf("body: %s, rerr: %v", b, stat)
 }
 
 func TestGoTimingRefresh(t *testing.T) {
@@ -107,12 +107,12 @@ func TestGoTimingRefresh(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b, rerr := html.Render(new(meta), "a_test.tpl", "TestGoTimingRefresh 1!")
-	t.Logf("test1: body: %s, rerr: %v", b, rerr)
+	b, stat := html.Render(new(meta), "a_test.tpl", "TestGoTimingRefresh 1!")
+	t.Logf("test1: body: %s, rerr: %v", b, stat)
 
 	html.GoTimingRefresh(time.Second * 5)
 	time.Sleep(time.Second * 15)
 
-	b, rerr = html.Render(new(meta), "a_test.tpl", "TestGoTimingRefresh 2!")
-	t.Logf("test2: body: %s, rerr: %v", b, rerr)
+	b, stat = html.Render(new(meta), "a_test.tpl", "TestGoTimingRefresh 2!")
+	t.Logf("test2: body: %s, rerr: %v", b, stat)
 }

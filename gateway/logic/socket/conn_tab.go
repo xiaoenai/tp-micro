@@ -37,19 +37,19 @@ func (c *socketConnTab) Name() string {
 }
 
 func (c *socketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.Status {
-	token, rerr := logic.AuthFunc()(authInfo)
-	if rerr != nil {
-		return rerr
+	token, stat := logic.AuthFunc()(authInfo)
+	if stat != nil {
+		return stat
 	}
 	info := token.AddedQuery()
 	if info != nil && info.Len() > 0 {
 		sess.Swap().Store(socketConnTabPlugin, info.String())
 	}
-	rerr = logic.SocketHooks().OnLogon(sess, token)
-	if rerr == nil {
+	stat = logic.SocketHooks().OnLogon(sess, token)
+	if stat == nil {
 		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).ID())
 	}
-	return rerr
+	return stat
 }
 
 func (c *socketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Status {

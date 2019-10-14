@@ -77,9 +77,9 @@ func newCircuitBreaker(
 		closeCh:         make(chan struct{}),
 	}
 	c.newSessionFunc = func(addr string) (*cliSession, *tp.Status) {
-		sess, rerr := newFn(addr)
-		if rerr != nil {
-			return nil, rerr
+		sess, stat := newFn(addr)
+		if stat != nil {
+			return nil, stat
 		}
 		return &cliSession{
 			addr:           addr,
@@ -107,17 +107,17 @@ func (c *circuitBreaker) selectSession(serviceMethod string) (*cliSession, *tp.S
 		s       *cliSession
 		cnt     = c.linker.Len(uriPath)
 		exclude = make(map[string]struct{}, cnt)
-		rerr    = notFoundService
+		stat    = notFoundService
 	)
 	for i := cnt; i > 0; i-- {
-		addr, rerr = c.linker.Select(uriPath, exclude)
-		if rerr != nil {
-			return nil, rerr
+		addr, stat = c.linker.Select(uriPath, exclude)
+		if stat != nil {
+			return nil, stat
 		}
 		_s, ok := c.sessLib.Load(addr)
 		if !ok {
-			s, rerr = c.newSessionFunc(addr)
-			if rerr != nil {
+			s, stat = c.newSessionFunc(addr)
+			if stat != nil {
 				exclude[addr] = struct{}{}
 				continue
 			}
@@ -131,7 +131,7 @@ func (c *circuitBreaker) selectSession(serviceMethod string) (*cliSession, *tp.S
 		}
 		exclude[addr] = struct{}{}
 	}
-	return s, rerr
+	return s, stat
 }
 
 func (c *circuitBreaker) work() {
