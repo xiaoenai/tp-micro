@@ -131,6 +131,7 @@ import (
 
 type config struct {
 	Srv      micro.SrvConfig ` + "`yaml:\"srv\"`" + `
+	Cli      micro.CliConfig ` + "`yaml:\"cli\"`" + `
 	Etcd     etcd.EasyConfig ` + "`yaml:\"etcd\"`" + `
 	Mysql    mysql.Config    ` + "`yaml:\"mysql\"`" + `
 	Mongo    mongo.Config    ` + "`yaml:\"mongo\"`" + `
