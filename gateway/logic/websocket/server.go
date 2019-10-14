@@ -4,6 +4,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	ws "github.com/henrylee2cn/teleport/mixer/websocket"
 	"github.com/henrylee2cn/teleport/plugin/auth"
+	"github.com/henrylee2cn/teleport/plugin/binder"
 	"github.com/henrylee2cn/teleport/plugin/proxy"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
@@ -20,6 +21,7 @@ func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	srv := ws.NewServer(
 		"/",
 		outerSrvCfg.PeerConfig(),
+		binder.NewStructArgsBinder(nil),
 		authChecker,
 		webSocketConnTabPlugin,
 		proxy.NewPlugin(logic.ProxySelector),
