@@ -16,6 +16,7 @@ package http
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net"
 	"net/http"
 	"time"
@@ -91,7 +92,7 @@ func Serve(srvCfg HttpSrvConfig) {
 	tp.Printf("listen ok (network:%s, addr:%s)", network, addr)
 
 	err = (&fasthttp.Server{
-		Name:    "micro-gateway",
+		Name:    fmt.Sprintf("micro-gateway-%s", logic.ApiVersion()),
 		Handler: handler,
 	}).Serve(lis)
 

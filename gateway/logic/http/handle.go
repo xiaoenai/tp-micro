@@ -51,16 +51,18 @@ type requestHandler struct {
 var statInternalServerError = tp.NewStatus(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
 
 func (r *requestHandler) handle() {
-	var ctx = r.ctx
-	var serviceMethod = goutil.BytesToString(ctx.Path())
-	var h = r.Header()
-	var contentType = goutil.BytesToString(h.ContentType())
-	var bodyCodec = GetBodyCodec(contentType, codec.ID_PLAIN)
-	var acceptBodyCodec = GetBodyCodec(goutil.BytesToString(h.Peek("Accept")), bodyCodec)
-	var query = r.ctx.QueryArgs()
-	var bodyBytes = ctx.Request.Body()
-	var reply []byte
-	var label proxy.Label
+	var (
+		ctx             = r.ctx
+		serviceMethod   = goutil.BytesToString(ctx.Path())
+		h               = r.Header()
+		contentType     = goutil.BytesToString(h.ContentType())
+		bodyCodec       = GetBodyCodec(contentType, codec.ID_PLAIN)
+		acceptBodyCodec = GetBodyCodec(goutil.BytesToString(h.Peek("Accept")), bodyCodec)
+		query           = r.ctx.QueryArgs()
+		bodyBytes       = ctx.Request.Body()
+		reply           []byte
+		label           proxy.Label
+	)
 	label.ServiceMethod = serviceMethod
 
 	// set real ip
@@ -72,6 +74,7 @@ func (r *requestHandler) handle() {
 	if len(label.RealIP) == 0 {
 		label.RealIP = ctx.RemoteAddr().String()
 	}
+
 	start := time.Now()
 	defer func() {
 		if p := recover(); p != nil {
@@ -125,6 +128,7 @@ func (r *requestHandler) handle() {
 		label.SessionID = accessToken.SessionId()
 		if info := accessToken.AddedQuery(); info != nil {
 			info.VisitAll(func(key, value []byte) {
+				tp.Warnf("key-> %s", string(key))
 				settings = append(settings, tp.WithAddMeta(string(key), string(value)))
 			})
 		}
@@ -132,12 +136,12 @@ func (r *requestHandler) handle() {
 
 	settings = append(settings, tp.WithAddMeta(tp.MetaRealIP, label.RealIP))
 
+	// set query
 	if query.Len() > 0 {
 		query.VisitAll(func(key, value []byte) {
 			settings = append(settings, tp.WithAddMeta(string(key), string(value)))
 		})
 	}
-
 	callcmd := logic.
 		ProxySelector(&label).
 		Call(label.ServiceMethod, bodyBytes, &reply, settings...)
@@ -154,7 +158,6 @@ func (r *requestHandler) handle() {
 	}
 
 	// succ
-
 	var hasRespContentType bool
 	callcmd.InputMeta().VisitAll(func(key, value []byte) {
 		k := goutil.BytesToString(key)
