@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	tp "github.com/henrylee2cn/teleport"
+	"github.com/henrylee2cn/teleport/socket"
 	"github.com/xiaoenai/tp-micro/clientele"
 )
 
@@ -14,20 +15,20 @@ var _ = fmt.Sprintf
 
 // Stat handler
 func Stat(ctx clientele.Ctx, arg *StatArg, setting ...tp.MessageSetting) *tp.Status {
-	setting = append(setting, tp.WithQuery("ts", fmt.Sprintf("%v", arg.Ts)))
+	setting = append(setting, socket.WithAddMeta("ts", fmt.Sprintf("%v", arg.Ts)))
 	return clientele.DynamicPush(ctx, "/project/stat", arg, setting...)
 }
 
 // Home handler
 func Home(ctx clientele.Ctx, arg *EmptyStruct, setting ...tp.MessageSetting) (*HomeResult, *tp.Status) {
 	result := new(HomeResult)
-	stat := clientele.DynamicCall(ctx, "/project/home", arg, result, setting...).Rerror()
+	stat := clientele.DynamicCall(ctx, "/project/home", arg, result, setting...).Status()
 	return result, stat
 }
 
 // Divide handler
 func Math_Divide(ctx clientele.Ctx, arg *DivideArg, setting ...tp.MessageSetting) (*DivideResult, *tp.Status) {
 	result := new(DivideResult)
-	stat := clientele.DynamicCall(ctx, "/project/math/divide", arg, result, setting...).Rerror()
+	stat := clientele.DynamicCall(ctx, "/project/math/divide", arg, result, setting...).Status()
 	return result, stat
 }

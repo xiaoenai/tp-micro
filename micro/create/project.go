@@ -381,10 +381,10 @@ func (p *Project) genSdkFile() {
 			if strings.HasPrefix(param.Typ, "[") {
 				settingString += fmt.Sprintf("for _,v:=range arg.%s{\n%s}\n",
 					param.Name,
-					fmt.Sprintf("setting=append(setting,tp.WithQuery(\"%s\",fmt.Sprintf(\"%%v\",v)))\n", param.queryName),
+					fmt.Sprintf("setting=append(setting,tp.WithAddMeta(\"%s\",fmt.Sprintf(\"%%v\",v)))\n", param.queryName),
 				)
 			} else {
-				settingString += fmt.Sprintf("setting=append(setting,tp.WithQuery(\"%s\",fmt.Sprintf(\"%%v\",arg.%s)))\n",
+				settingString += fmt.Sprintf("setting=append(setting,tp.WithAddMeta(\"%s\",fmt.Sprintf(\"%%v\",arg.%s)))\n",
 					param.queryName,
 					param.Name,
 				)
@@ -394,7 +394,7 @@ func (p *Project) genSdkFile() {
 		switch h.group.typ {
 		case pullType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(arg *args.%s, setting ...socket.PacketSetting)(*args.%s,*tp.Status){\n"+
+				"%sfunc %s(arg *args.%s, setting ...tp.MessageSetting)(*args.%s,*tp.Status){\n"+
 					"result := new(args.%s)\n"+"%s"+
 					"status := client.Call(\"%s\", arg, result, setting...).Status()\n"+
 					"return result, status\n}\n",
@@ -413,7 +413,7 @@ func (p *Project) genSdkFile() {
 			)
 		case pushType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(arg *args.%s, setting ...socket.PacketSetting)*tp.Status{\n"+"%s"+
+				"%sfunc %s(arg *args.%s, setting ...tp.MessageSetting)*tp.Status{\n"+"%s"+
 					"return client.Push(\"%s\", arg, setting...)\n}\n",
 				h.doc, name, h.arg,
 				settingString,
