@@ -32,8 +32,8 @@ type Config struct {
 	OuterSocketServer micro.SrvConfig     `yaml:"outer_socket_server"`
 	InnerSocketServer micro.SrvConfig     `yaml:"inner_socket_server"`
 	InnerSocketClient micro.CliConfig     `yaml:"inner_socket_client"`
-	Etcd              etcd.EasyConfig     `yaml:"etcd"`
 	WebSocketServer   micro.SrvConfig     `yaml:"web_socket_server"`
+	Etcd              etcd.EasyConfig     `yaml:"etcd"`
 }
 
 // NewConfig creates a default config.
