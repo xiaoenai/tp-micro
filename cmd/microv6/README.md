@@ -15,7 +15,7 @@ go install
 
 ## Generate project
 
-`micro gen` command help:
+`microv6 gen` command help:
 
 ```
 NAME:
@@ -121,51 +121,65 @@ type Meta struct {
 ├── README.md
 ├── __tp-micro__gen__.lock
 ├── __tp-micro__tpl__.go
+├── api
+│   ├── handler.go
+│   ├── pull_handler.gen.go
+│   ├── push_handler.gen.go
+│   ├── router.gen.go
+│   └── router.go
+├── args
+│   ├── const.gen.go
+│   ├── const.go
+│   ├── type.gen.go
+│   ├── type.go
+│   └── var.go
 ├── config
-│   └── config.yaml
+│   └── config.yaml
 ├── config.go
-├── internal
-│   ├── handler
-│   │   ├── call.tmp.go
-│   │   └── push.tmp.go
-│   └── model
-│       ├── init.go
-│       ├── mongo_meta.gen.go
-│       ├── mysql_device.gen.go
-│       ├── mysql_log.gen.go
-│       └── mysql_user.gen.go
+├── doc
+│   ├── APIDoc.md
+│   ├── README.md
+│   └── databases.md
 ├── log
-│   └── PID
+│   └── PID
+├── logic
+│   ├── model
+│   │   ├── init.go
+│   │   ├── mongo_meta.gen.go
+│   │   ├── mysql_device.gen.go
+│   │   ├── mysql_log.gen.go
+│   │   └── mysql_user.gen.go
+│   └── tmp_code.gen.go
 ├── main.go
-├── router.gen.go
+├── rerrs
+│   └── rerrs.go
 └── sdk
-    ├── rerr.go
     ├── rpc.gen.go
     ├── rpc.gen_test.go
-    ├── type.gen.go
-    └── val.gen.go
+    ├── rpc.go
+    └── rpc_test.go
 ```
 
 **Desc:**
 
-- This `micro gen` command only covers files with the ".gen.go" suffix if the `__tp-micro__gen__.lock` file exists
+- This `microv6 gen` command only covers files with the ".gen.go" suffix if the `__tp-micro__gen__.lock` file exists
 - Add `.gen` suffix to the file name of the automatically generated file
 - `.tmp` is temporary code used to ensure successful compilation!<br>When the project is completed, it should be removed!
 - The type of handler's parameter and result must be struct!
-- You can modify the created template file `__tp-micro__tpl__.go`, and run the `micro gen` command again to update the project
+- You can modify the created template file `__tp-micro__tpl__.go`, and run the `microv6 gen` command again to update the project
 
 [Generated Default Sample](https://github.com/xiaoenai/tp-micro/tree/master/examples/project)
 
 ## Create README.md(only)
 
-`micro newdoc` command help:
+`microv6 newdoc` command help:
 
 ```
 NAME:
-   micro newdoc - Generate a tp-micro project README.md
+   microv6 newdoc - Generate a tp-micro project README.md
 
 USAGE:
-   micro newdoc [command options] [arguments...]
+   microv6 newdoc [command options] [arguments...]
 
 OPTIONS:
    --app_path value, -p value  The path(relative/absolute) of the project
@@ -173,16 +187,16 @@ OPTIONS:
 
 ## Run project
 
-`micro run` command help:
+`microv6 run` command help:
 
 ```
 NAME:
-     micro run - Compile and run gracefully (monitor changes) an any existing go project
+     microv6 run - Compile and run gracefully (monitor changes) an any existing go project
 
 USAGE:
-     micro run [options] [arguments...]
+     microv6 run [options] [arguments...]
  or
-     micro run [options except -app_path] [arguments...] {app_path}
+     microv6 run [options except -app_path] [arguments...] {app_path}
 
 OPTIONS:
      --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
@@ -190,20 +204,20 @@ OPTIONS:
      --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
-example: `micro run -x .yaml -p myapp` or `micro run`
+example: `microv6 run -x .yaml -p myapp` or `microv6 run`
 
 ## Add model
 
 Add mysql model struct code to project template.
 
-`micro tpl` command help:
+`microv6 tpl` command help:
 
  ```
  NAME:
-   micro tpl - Add mysql model struct code to project template
+   microv6 tpl - Add mysql model struct code to project template
 
 USAGE:
-   micro tpl [command options] [arguments...]
+   microv6 tpl [command options] [arguments...]
 
 OPTIONS:
    --app_path value, -p value      The path(relative/absolute) of the project
