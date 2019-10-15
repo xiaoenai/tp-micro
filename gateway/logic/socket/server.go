@@ -19,7 +19,6 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/plugin/auth"
-	"github.com/henrylee2cn/teleport/plugin/binder"
 	"github.com/henrylee2cn/teleport/plugin/proxy"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/clientele"
@@ -47,7 +46,6 @@ func OuterServeConn(conn net.Conn) {
 func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	outerServer = micro.NewServer(
 		outerSrvCfg,
-		binder.NewStructArgsBinder(nil),
 		authChecker,
 		socketConnTabPlugin,
 		proxy.NewPlugin(logic.ProxySelector),
