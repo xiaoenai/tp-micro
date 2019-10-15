@@ -22,6 +22,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	// "github.com/henrylee2cn/teleport/proto/httproto"
 	"github.com/henrylee2cn/teleport/mixer/websocket/jsonSubProto"
+	"github.com/henrylee2cn/teleport/proto/rawproto"
 	"github.com/xiaoenai/tp-micro/clientele"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
@@ -43,9 +44,9 @@ func Run(cfg Config, biz *types.Business, protoFunc, wsProtoFunc tp.ProtoFunc) e
 	}
 
 	// protocol
-	// if protoFunc == nil {
-	// 	protoFunc = httproto.NewHTTProtoFunc(true)
-	// }
+	if protoFunc == nil {
+		protoFunc = rawproto.NewRawProtoFunc()
+	}
 
 	// client
 	clientele.SetProtoFunc(protoFunc)
@@ -56,7 +57,7 @@ func Run(cfg Config, biz *types.Business, protoFunc, wsProtoFunc tp.ProtoFunc) e
 	}
 	logic.SetBusiness(biz)
 
-	// sdk
+	// sdk version
 	sdk.SetApiVersion(logic.ApiVersion())
 
 	var (

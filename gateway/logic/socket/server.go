@@ -97,7 +97,7 @@ var authChecker = auth.NewCheckerPlugin(
 		if !stat.OK() {
 			return
 		}
-		tp.Infof("auth info: %v", authInfo)
+		tp.Tracef("auth info: %v", authInfo)
 		stat = socketConnTabPlugin.authAndLogon(authInfo, sess)
 		if !stat.OK() {
 			return

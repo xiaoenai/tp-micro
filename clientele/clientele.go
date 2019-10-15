@@ -77,22 +77,6 @@ func GetEtcdCfg() etcd.EasyConfig {
 	return etcdCfg
 }
 
-// GetSeq creates a new sequence with some prefix string.
-func GetSeq(prefix ...int32) int32 {
-	mutex.Lock()
-	seq := incr
-	incr++
-	mutex.Unlock()
-	// for _, p := range prefix {
-	// 	p = strings.TrimSpace(p)
-	// 	if p == "" {
-	// 		continue
-	// 	}
-	// 	seq = p + ">" + seq
-	// }
-	return seq
-}
-
 // Ctx handler's context
 type Ctx interface {
 	// Seq returns the input packet sequence.
@@ -109,7 +93,7 @@ type Ctx interface {
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
 func DynamicCall(ctx Ctx, serviceMethod string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
-	return dynamicClient.Call(serviceMethod, arg, result, settingDecorator(ctx, setting)...)
+	return dynamicClient.Call(serviceMethod, arg, result, setting...)
 }
 
 // DynamicPush sends a packet by etcd discovery, but do not receives reply.
@@ -118,7 +102,7 @@ func DynamicCall(ctx Ctx, serviceMethod string, arg interface{}, result interfac
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
 func DynamicPush(ctx Ctx, serviceMethod string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
-	return dynamicClient.Push(serviceMethod, arg, settingDecorator(ctx, setting)...)
+	return dynamicClient.Push(serviceMethod, arg, setting...)
 }
 
 // StaticCall sends a packet and receives reply, by address.
@@ -127,7 +111,7 @@ func DynamicPush(ctx Ctx, serviceMethod string, arg interface{}, setting ...tp.M
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
 func StaticCall(ctx Ctx, addr string, serviceMethod string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
-	return staticClient.GetOrSet(addr).Call(serviceMethod, arg, result, settingDecorator(ctx, setting)...)
+	return staticClient.GetOrSet(addr).Call(serviceMethod, arg, result, setting...)
 }
 
 // StaticPush sends a packet by address, but do not receives reply.
@@ -136,19 +120,7 @@ func StaticCall(ctx Ctx, addr string, serviceMethod string, arg interface{}, res
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
 func StaticPush(ctx Ctx, addr string, serviceMethod string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
-	return staticClient.GetOrSet(addr).Push(serviceMethod, arg, settingDecorator(ctx, setting)...)
-}
-
-func settingDecorator(ctx Ctx, settings []tp.MessageSetting) []tp.MessageSetting {
-	// if ctx == nil {
-	// 	return append([]tp.MessageSetting{
-	// 		tp.Message.SetSeq(GetSeq()),
-	// 	}, settings...)
-	// }
-	return append([]tp.MessageSetting{
-	// tp.Message.SetSeq(GetSeq(ctx.Seq())),
-	// tp.WithRealIP(ctx.RealIp()),
-	}, settings...)
+	return staticClient.GetOrSet(addr).Push(serviceMethod, arg, setting...)
 }
 
 // StaticClients static clients map

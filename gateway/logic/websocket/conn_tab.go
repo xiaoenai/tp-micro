@@ -53,12 +53,9 @@ func (c *webSocketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.
 }
 
 func (c *webSocketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Status {
-	// _appendQuery, _ := ctx.Swap().Load(webSocketConnTabPlugin)
-	// appendQuery, _ := _appendQuery.(string)
-	// ctx.CopyMeta().
-	// u := ctx.UriObject()
-	// u.RawQuery += "&" + appendQuery
-	// u.RawQuery = strings.Trim(u.RawQuery, "&")
+	_appendQuery, _ := ctx.Swap().Load(webSocketConnTabPlugin)
+	appendQuery, _ := _appendQuery.(string)
+	tp.WithAddMeta("", appendQuery)
 	return nil
 }
 

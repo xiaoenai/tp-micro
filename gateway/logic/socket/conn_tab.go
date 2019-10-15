@@ -53,13 +53,9 @@ func (c *socketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.Sta
 }
 
 func (c *socketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Status {
-	tp.Errorf("43672546235465326")
 	_appendQuery, _ := ctx.Swap().Load(socketConnTabPlugin)
 	appendQuery, _ := _appendQuery.(string)
-	tp.Infof("query-> %s", appendQuery)
-	// u := ctx.UriObject()
-	// u.RawQuery += "&" + appendQuery
-	// u.RawQuery = strings.Trim(u.RawQuery, "&")
+	tp.WithAddMeta("", appendQuery)
 	return nil
 }
 
