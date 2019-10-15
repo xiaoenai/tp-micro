@@ -1,19 +1,19 @@
 # TP-Micro [![GitHub release](https://img.shields.io/github/release/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/releases) [![report card](https://goreportcard.com/badge/github.com/xiaoenai/tp-micro?style=flat-square)](http://goreportcard.com/report/xiaoenai/tp-micro) [![github issues](https://img.shields.io/github/issues/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aopen+is%3Aissue) [![github closed issues](https://img.shields.io/github/issues-closed-raw/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aissue+is%3Aclosed) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/xiaoenai/tp-micro) [![view examples](https://img.shields.io/badge/learn%20by-examples-00BCD4.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/tree/v3/examples) [![view teleport](https://img.shields.io/badge/based%20on-teleport-00BCD4.svg?style=flat-square)](https://github.com/henrylee2cn/teleport) [![view Go网络编程群](https://img.shields.io/badge/官方QQ群-Go网络编程(42730308)-27a5ea.svg?style=flat-square)](http://jq.qq.com/?_wv=1027&k=fzi4p1)
 
 
-TP-Micro v3 是一个基于 [Teleport v4](https://github.com/henrylee2cn/teleport/tree/v4) 定制的、简约而强大的微服务框架。
+TP-Micro v6 是一个基于 [Teleport v4](https://github.com/henrylee2cn/teleport/tree/master) 定制的、简约而强大的微服务框架。
 
-![tp-micro flow chart](https://github.com/xiaoenai/tp-micro/raw/v3/doc/tp-micro_flow_chart.png)
+![tp-micro flow chart](https://github.com/xiaoenai/tp-micro/raw/v6/doc/tp-micro_flow_chart.png)
 
 ## 安装
 
 ```
-go version ≥ 1.9
+go version ≥ 1.12
 ```
 
 ```sh
 go get -u -f -d github.com/xiaoenai/tp-micro/...
-cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/micro
+cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/microv6
 go install
 ```
 
@@ -60,7 +60,7 @@ type P struct {
 }
 
 // Divide divide API
-func (p *P) Divide(arg *Arg) (int, *tp.Rerror) {
+func (p *P) Divide(arg *Arg) (int, *tp.Status) {
     return arg.A / arg.B, nil
 }
 
@@ -96,26 +96,26 @@ func main() {
     }
 
     var result int
-    rerr := cli.Call("/p/divide", &Arg{
+    stat := cli.Call("/p/divide", &Arg{
         A: 10,
         B: 2,
-    }, &result).Rerror()
-    if rerr != nil {
-        tp.Fatalf("%v", rerr)
+    }, &result).Status()
+    if stat != nil {
+        tp.Fatalf("%v", stat)
     }
     tp.Infof("10/2=%d", result)
-    rerr = cli.Call("/p/divide", &Arg{
+    stat = cli.Call("/p/divide", &Arg{
         A: 10,
         B: 0,
-    }, &result).Rerror()
-    if rerr == nil {
-        tp.Fatalf("%v", rerr)
+    }, &result).Status()
+    if stat == nil {
+        tp.Fatalf("%v", stat)
     }
-    tp.Infof("test binding error: ok: %v", rerr)
+    tp.Infof("test binding error: ok: %v", stat)
 }
 ```
 
-[更多示例](https://github.com/xiaoenai/tp-micro/tree/v3/examples)
+[更多示例](https://github.com/xiaoenai/tp-micro/tree/v6/examples)
 
 
 ## 学习 `micro` 命令
@@ -125,21 +125,21 @@ func main() {
 
 ### 生成项目
 
-`micro gen` command help:
+`microv6 gen` command help:
 
 ```
 NAME:
-     micro gen - Generate a tp-micro project
+     microv6 gen - Generate a tp-micro project
 
 USAGE:
-     micro gen [command options] [arguments...]
+     microv6 gen [command options] [arguments...]
 
 OPTIONS:
      --template value, -t value    The template for code generation(relative/absolute)
      --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-example: `micro gen -p ./myapp` or default `micro gen myapp`
+example: `microv6 gen -p ./myapp` or default `microv6 gen myapp`
 
 - 初始模版文件 `__tp-micro__tpl__.go`:
 
@@ -231,38 +231,52 @@ type Meta struct {
 ├── README.md
 ├── __tp-micro__gen__.lock
 ├── __tp-micro__tpl__.go
+├── api
+│   ├── handler.go
+│   ├── pull_handler.gen.go
+│   ├── push_handler.gen.go
+│   ├── router.gen.go
+│   └── router.go
+├── args
+│   ├── const.gen.go
+│   ├── const.go
+│   ├── type.gen.go
+│   ├── type.go
+│   └── var.go
 ├── config
-│   └── config.yaml
+│   └── config.yaml
 ├── config.go
-├── internal
-│   ├── handler
-│   │   ├── call.tmp.go
-│   │   └── push.tmp.go
-│   └── model
-│       ├── init.go
-│       ├── mongo_meta.gen.go
-│       ├── mysql_device.gen.go
-│       ├── mysql_log.gen.go
-│       └── mysql_user.gen.go
+├── doc
+│   ├── APIDoc.md
+│   ├── README.md
+│   └── databases.md
 ├── log
-│   └── PID
+│   └── PID
+├── logic
+│   ├── model
+│   │   ├── init.go
+│   │   ├── mongo_meta.gen.go
+│   │   ├── mysql_device.gen.go
+│   │   ├── mysql_log.gen.go
+│   │   └── mysql_user.gen.go
+│   └── tmp_code.gen.go
 ├── main.go
-├── router.gen.go
+├── rerrs
+│   └── rerrs.go
 └── sdk
-    ├── rerr.go
     ├── rpc.gen.go
     ├── rpc.gen_test.go
-    ├── type.gen.go
-    └── val.gen.go
+    ├── rpc.go
+    └── rpc_test.go
 ```
 
 **说明：**
 
-- 如果 `__tp-micro__gen__.lock` 文件存在，`micro gen` 命令只覆盖带有 ".gen.go" 后缀的文件
+- 如果 `__tp-micro__gen__.lock` 文件存在，`microv6 gen` 命令只覆盖带有 ".gen.go" 后缀的文件
 - 在自动生成的文件的文件名中增加 `.gen` 后缀进行标记，不要修改它们！
-- `.tmp` 是为了通过编译而生成的临时文件，在运行`micro gen`时会被覆盖重写！项目完成后应该移除它！
+- `.tmp` 是为了通过编译而生成的临时文件，在运行`microv6 gen`时会被覆盖重写！项目完成后应该移除它！
 - handler的参数和返回值必须是结构体类型
-- 你可以修改默认创建的模板文件 `__tp-micro__tpl __.go`，并再次运行 `micro gen` 命令来更新项目
+- 你可以修改默认创建的模板文件 `__tp-micro__tpl __.go`，并再次运行 `microv6 gen` 命令来更新项目
 
 [生成的默认示例](https://github.com/xiaoenai/tp-micro/tree/v3/examples/project)
 
@@ -272,10 +286,10 @@ type Meta struct {
 
 ```
 NAME:
-   micro newdoc - Generate a tp-micro project README.md
+   microv6 newdoc - Generate a tp-micro project README.md
 
 USAGE:
-   micro newdoc [command options] [arguments...]
+   microv6 newdoc [command options] [arguments...]
 
 OPTIONS:
    --app_path value, -p value  The path(relative/absolute) of the project
@@ -283,16 +297,16 @@ OPTIONS:
 
 ### 热编译运行
 
-`micro run` 命令帮助：
+`microv6 run` 命令帮助：
 
 ```
 NAME:
-     micro run - Compile and run gracefully (monitor changes) an any existing go project
+     microv6 run - Compile and run gracefully (monitor changes) an any existing go project
 
 USAGE:
-     micro run [options] [arguments...]
+     microv6 run [options] [arguments...]
  or
-     micro run [options except -app_path] [arguments...] {app_path}
+     microv6 run [options except -app_path] [arguments...] {app_path}
 
 OPTIONS:
      --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
@@ -300,20 +314,20 @@ OPTIONS:
      --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
-example: `micro run -x .yaml -p myapp` or `micro run`
+example: `microv6 run -x .yaml -p myapp` or `microv6 run`
 
 ### 添加数据模型
 
 从 mysql 数据库表单添加相应结构体到项目模板文件。
 
-`micro tpl` command help:
+`microv6 tpl` command help:
 
  ```
  NAME:
-   micro tpl - Add mysql model struct code to project template
+   microv6 tpl - Add mysql model struct code to project template
 
 USAGE:
-   micro tpl [command options] [arguments...]
+   microv6 tpl [command options] [arguments...]
 
 OPTIONS:
    --app_path value, -p value      The path(relative/absolute) of the project
@@ -329,7 +343,7 @@ OPTIONS:
  ```
 
 
-[更多 Micro 命令](https://github.com/xiaoenai/tp-micro/tree/v3/cmd/micro)
+[更多 Micro 命令](https://github.com/xiaoenai/tp-micro/tree/v6/cmd/micro)
 
 
 ## 用法
@@ -357,7 +371,7 @@ var sess, err = peer2.Dial("127.0.0.1:8080")
 type Aaa struct {
         tp.CallCtx
 }
-func (x *Aaa) XxZz(arg *<T>) (<T>, *tp.Rerror) {
+func (x *Aaa) XxZz(arg *<T>) (<T>, *tp.Status) {
         ...
         return r, nil
 }
@@ -376,7 +390,7 @@ peer.RouteCallFunc((*Aaa).XxZz)
 ### Call-Handler-Function 接口模板
 
 ```go
-func XxZz(ctx tp.CallCtx, arg *<T>) (<T>, *tp.Rerror) {
+func XxZz(ctx tp.CallCtx, arg *<T>) (<T>, *tp.Status) {
         ...
         return r, nil
 }
@@ -395,7 +409,7 @@ peer.RouteCallFunc(XxZz)
 type Bbb struct {
         tp.PushCtx
 }
-func (b *Bbb) YyZz(arg *<T>) *tp.Rerror {
+func (b *Bbb) YyZz(arg *<T>) *tp.Status {
         ...
         return nil
 }
@@ -415,7 +429,7 @@ peer.RoutePushFunc((*Bbb).YyZz)
 
 ```go
 // YyZz register the route: /yy_zz
-func YyZz(ctx tp.PushCtx, arg *<T>) *tp.Rerror {
+func YyZz(ctx tp.PushCtx, arg *<T>) *tp.Status {
         ...
         return nil
 }
@@ -431,7 +445,7 @@ peer.RoutePushFunc(YyZz)
 ### Unknown-Call-Handler-Function 接口模板
 
 ```go
-func XxxUnknownCall (ctx tp.UnknownCallCtx) (interface{}, *tp.Rerror) {
+func XxxUnknownCall (ctx tp.UnknownCallCtx) (interface{}, *tp.Status) {
         ...
         return r, nil
 }
@@ -447,7 +461,7 @@ peer.SetUnknownCall(XxxUnknownCall)
 ### Unknown-Push-Handler-Function 接口模板
 
 ```go
-func XxxUnknownPush(ctx tp.UnknownPushCtx) *tp.Rerror {
+func XxxUnknownPush(ctx tp.UnknownPushCtx) *tp.Status {
         ...
         return nil
 }
@@ -490,13 +504,13 @@ func (i *ignoreCase) Name() string {
         return "ignoreCase"
 }
 
-func (i *ignoreCase) PostReadCallHeader(ctx tp.ReadCtx) *tp.Rerror {
+func (i *ignoreCase) PostReadCallHeader(ctx tp.ReadCtx) *tp.Status {
         // Dynamic transformation path is lowercase
         ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
         return nil
 }
 
-func (i *ignoreCase) PostReadPushHeader(ctx tp.ReadCtx) *tp.Rerror {
+func (i *ignoreCase) PostReadPushHeader(ctx tp.ReadCtx) *tp.Status {
         // Dynamic transformation path is lowercase
         ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
         return nil
@@ -569,25 +583,23 @@ type CircuitBreakerConfig struct {
 
 #### Param-Tags
 
-
 tag   |   key    | required |     value     |   desc
 ------|----------|----------|---------------|----------------------------------
-param |   query    | no |  name (e.g.`param:"<query>"` or `param:"<query:id>"`)   | It indicates that the parameter is from the URI query part. e.g. `/a/b?x={query}`
+param |   meta    | no |  (name e.g.`param:"<meta:id>"`)  | It indicates that the parameter is from the meta.
 param |   swap    | no |   name (e.g.`param:"<swap:id>"`)  | It indicates that the parameter is from the context swap.
 param |   desc   |      no      |     (e.g.`param:"<desc:id>"`)   | Parameter Description
 param |   len    |      no      |   (e.g.`param:"<len:3:6>"`)  | Length range [a,b] of parameter's value
 param |   range  |      no      |   (e.g.`param:"<range:0:10>"`)   | Numerical range [a,b] of parameter's value
 param |  nonzero |      no      |    -    | Not allowed to zero
 param |  regexp  |      no      |   (e.g.`param:"<regexp:^\\w+$>"`)  | Regular expression validation
-param |   rerr   |      no      |(e.g.`param:"<rerr:100002:wrong password format>"`)| Custom error code and message
+param |   stat   |      no      |(e.g.`param:"<stat:100002:wrong password format>"`)| Custom error code and message
 
 NOTES:
 
 * `param:"-"` means ignore
 * Encountered untagged exportable anonymous structure field, automatic recursive resolution
 * Parameter name is the name of the structure field converted to snake format
-* If the parameter is not from `query` or `swap`, it is the default from the body
-* Support for multiple rule combinations, e.g.`param:"<regexp:^\\w+$><len:6:8><rerr:100002:wrong password format>"`
+* If the parameter is not from `meta` or `swap`, it is the default from the body
 
 #### Field-Types
 
@@ -625,10 +637,10 @@ type (
         A int
         B int `param:"<range:1:100>"`
         Query
-        XyZ string `param:"<query><nonzero><rerr: 100002: Parameter cannot be empty>"`
+        XyZ string `param:"<meta><nonzero><rerr: 100002: Parameter cannot be empty>"`
     }
     Query struct {
-        X string `param:"<query>"`
+        X string `param:"<meta>"`
     }
 )
 
@@ -638,7 +650,7 @@ type P struct {
 }
 
 // Divide divide API
-func (p *P) Divide(arg *Arg) (int, *tp.Rerror) {
+func (p *P) Divide(arg *Arg) (int, *tp.Status) {
     tp.Infof("query arg x: %s, xy_z: %s", arg.Query.X, arg.XyZ)
     return arg.A / arg.B, nil
 }
@@ -654,7 +666,7 @@ func main() {
 }
 ```
 
-[示例详情](https://github.com/xiaoenai/tp-micro/tree/v3/examples/binder)
+[示例详情](https://github.com/xiaoenai/tp-micro/tree/v6/examples/binder)
 
 
 ### 通信优化
@@ -701,4 +713,4 @@ func SetSocketWriteBuffer(bytes int)
 
 ## 开源协议
 
-Micro 项目采用商业应用友好的 [Apache2.0](https://github.com/xiaoenai/tp-micro/raw/v3/LICENSE) 协议发布
+Micro 项目采用商业应用友好的 [Apache2.0](https://github.com/xiaoenai/tp-micro/raw/v6/LICENSE) 协议发布
