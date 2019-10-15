@@ -7,7 +7,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/gateway"
-	"github.com/xiaoenai/tp-micro/gateway/helper/agent"
+	sagent "github.com/xiaoenai/tp-micro/gateway/helper/agent/socket"
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/types"
@@ -52,8 +52,8 @@ func main() {
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
-	agent.Init(redisClient, redisClient)
-	biz.SocketHooks = agent.GetSocketHooks()
+	sagent.Init(redisClient, redisClient)
+	biz.SocketHooks = sagent.GetSocketHooks()
 	_, err = gray.SetGray(biz, cfg.GraySocketClient, cfg.GrayEtcd, cfg.Mysql, cfg.Redis, nil)
 	if err != nil {
 		tp.Fatalf("%v", err)

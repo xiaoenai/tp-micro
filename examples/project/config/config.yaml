@@ -1,29 +1,3 @@
-cluster_client:
-  network: tcp
-  local_ip: 0.0.0.0
-  tls_cert_file: ""
-  tls_key_file: ""
-  default_session_age: 0s
-  default_context_age: 0s
-  default_dial_timeout: 0s
-  failover: 0
-  slow_comet_duration: 0s
-  default_body_codec: ""
-  print_detail: false
-  count_time: false
-  heartbeat_second: 0
-  circuit_breaker:
-    enable: false
-    error_percentage: 50
-    break_duration: 5s
-
-etcd:
-  endpoints:
-  - http://127.0.0.1:2379
-  dial_timeout: 15s
-  username: ""
-  password: ""
-
 project:
   srv:
     network: ""
@@ -37,6 +11,12 @@ project:
     print_detail: true
     count_time: true
     enable_heartbeat: true
+  etcd:
+    endpoints:
+    - http://127.0.0.1:2379
+    dial_timeout: 0s
+    username: ""
+    password: ""
   mysql:
     database: ""
     username: ""

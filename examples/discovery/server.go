@@ -39,7 +39,7 @@ type Home struct {
 }
 
 // Test handler
-func (h *Home) Test(args *pb.PbTest) (*pb.PbTest, *tp.Rerror) {
+func (h *Home) Test(args *pb.PbTest) (*pb.PbTest, *tp.Status) {
 	return &pb.PbTest{
 		A: args.A + args.B,
 		B: args.A - args.B,

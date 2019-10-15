@@ -8,27 +8,45 @@ import (
 
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/socket"
-	"github.com/xiaoenai/tp-micro/clientele"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/discovery"
+	"github.com/xiaoenai/tp-micro/model/etcd"
+
+	"github.com/xiaoenai/tp-micro/examples/project/args"
 )
 
 var _ = fmt.Sprintf
+var client *micro.Client
+
+// Init initializes client with configs.
+func Init(cliConfig micro.CliConfig, etcdConfing etcd.EasyConfig) {
+	client = micro.NewClient(
+		cliConfig,
+		discovery.NewLinker(etcdConfing),
+	)
+}
+
+// InitWithClient initializes client with specified object.
+func InitWithClient(cli *micro.Client) {
+	client = cli
+}
 
 // Stat handler
-func Stat(ctx clientele.Ctx, arg *StatArg, setting ...tp.MessageSetting) *tp.Status {
-	setting = append(setting, socket.WithAddMeta("ts", fmt.Sprintf("%v", arg.Ts)))
-	return clientele.DynamicPush(ctx, "/project/stat", arg, setting...)
+func Stat(arg *args.StatArg, setting ...tp.MessageSetting) *tp.Status {
+	setting = append(setting, tp.WithAddMeta("ts", fmt.Sprintf("%v", arg.Ts)))
+	return client.Push("/project/stat", arg, setting...)
 }
 
 // Home handler
-func Home(ctx clientele.Ctx, arg *EmptyStruct, setting ...tp.MessageSetting) (*HomeResult, *tp.Status) {
-	result := new(HomeResult)
-	stat := clientele.DynamicCall(ctx, "/project/home", arg, result, setting...).Status()
-	return result, stat
+func Home(arg *args.EmptyStruct, setting ...tp.MessageSetting) (*args.HomeResult, *tp.Status) {
+	result := new(args.HomeResult)
+	status := client.Call("/project/home", arg, result, setting...).Status()
+	return result, status
 }
 
 // Divide handler
-func Math_Divide(ctx clientele.Ctx, arg *DivideArg, setting ...tp.MessageSetting) (*DivideResult, *tp.Status) {
-	result := new(DivideResult)
-	stat := clientele.DynamicCall(ctx, "/project/math/divide", arg, result, setting...).Status()
-	return result, stat
+func Math_Divide(arg *args.DivideArg, setting ...tp.MessageSetting) (*args.DivideResult, *tp.Status) {
+	result := new(args.DivideResult)
+	status := client.Call("/project/math/divide", arg, result, setting...).Status()
+	return result, status
 }

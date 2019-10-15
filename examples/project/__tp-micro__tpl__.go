@@ -2,8 +2,8 @@
 // The framework reference: https://github.com/xiaoenai/tp-micro
 package __TPL__
 
-// __API_CALL__ register CALL router
-type __API_CALL__ interface {
+// __API_PULL__ register PULL router
+type __API_PULL__ interface {
 	// Home handler
 	Home(*struct{}) *HomeResult
 	// Math controller

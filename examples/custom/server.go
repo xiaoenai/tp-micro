@@ -9,7 +9,7 @@ import (
 	"github.com/henrylee2cn/teleport/codec"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/gateway/helper/agent"
+	sagent "github.com/xiaoenai/tp-micro/gateway/helper/agent/socket"
 	gwSdk "github.com/xiaoenai/tp-micro/gateway/sdk"
 	gwTypes "github.com/xiaoenai/tp-micro/gateway/types"
 	"github.com/xiaoenai/tp-micro/helper"
@@ -88,13 +88,13 @@ func main() {
 	cfgo.MustReg("server", &cfg)
 
 	redisClient, err := redis.NewClient(&cfg.Redis)
-	agent.Init(redisClient, redisClient)
+	sagent.Init(redisClient, redisClient)
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
 
 	tp.Go(func() {
-		agentNewsChan := agent.Subscribe()
+		agentNewsChan := sagent.Subscribe()
 		for news := range agentNewsChan {
 			tp.Infof("agent news: sessionId:%s, event:%s",
 				news.SessionId, news.Event,
@@ -123,7 +123,7 @@ func main() {
 }
 
 func push(uids []string, args *Args) {
-	agts, stat := agent.QueryAgent(uids)
+	agts, stat := sagent.QueryAgent(uids)
 	if stat != nil {
 		tp.Errorf("push fail: %v", stat)
 	}

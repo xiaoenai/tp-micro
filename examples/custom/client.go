@@ -17,7 +17,7 @@ func main() {
 	)
 	// test call
 	var reply int
-	stat := cli.Call("/math/divide?access_token=sdfghj", Msg{A: 10, B: 2}, &reply).Rerror()
+	stat := cli.Call("/math/divide?access_token=sdfghj", Msg{A: 10, B: 2}, &reply).Status()
 	if stat != nil {
 		tp.Fatalf("%v", stat)
 	}
@@ -44,7 +44,7 @@ type Msg struct {
 	B int
 }
 
-func push(ctx tp.PushCtx, arg *Msg) *tp.Rerror {
+func push(ctx tp.PushCtx, arg *Msg) *tp.Status {
 	c <- arg
 	return nil
 }

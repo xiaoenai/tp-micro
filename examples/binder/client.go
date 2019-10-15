@@ -25,8 +25,8 @@ func main() {
 	stat := cli.Call("/static/p/divide?x=testquery_x&xy_z=testquery_xy_z", &Arg{
 		A: 10,
 		B: 2,
-	}, &result).Rerror()
-	if tp.IsConnRerror(stat) {
+	}, &result).Status()
+	if tp.IsConnError(stat) {
 		tp.Fatalf("has conn rerror: %v", stat)
 	}
 	if stat != nil {
@@ -37,8 +37,8 @@ func main() {
 	stat = cli.Call("/static/p/divide?x=testquery_x&xy_z=testquery_xy_z", &Arg{
 		A: 10,
 		B: 0,
-	}, &result).Rerror()
-	if tp.IsConnRerror(stat) {
+	}, &result).Status()
+	if tp.IsConnError(stat) {
 		tp.Fatalf("has conn rerror: %v", stat)
 	}
 	if stat == nil {
@@ -49,7 +49,7 @@ func main() {
 	stat = cli.Call("/static/p/divide", &Arg{
 		A: 10,
 		B: 5,
-	}, &result).Rerror()
+	}, &result).Status()
 	if stat == nil {
 		tp.Fatalf("%v", stat)
 	}

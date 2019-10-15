@@ -8,9 +8,24 @@ import (
 	"fmt"
 
 	tp "github.com/henrylee2cn/teleport"
+	micro "github.com/xiaoenai/tp-micro"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 
+	"github.com/xiaoenai/tp-micro/examples/project/args"
 	"github.com/xiaoenai/tp-micro/examples/project/sdk"
 )
+
+func init() {
+	sdk.Init(
+		micro.CliConfig{
+			Failover:        3,
+			HeartbeatSecond: 4,
+		},
+		etcd.EasyConfig{
+			Endpoints: []string{"http://127.0.0.1:2379"},
+		},
+	)
+}
 
 func toJsonBytes(i interface{}) []byte {
 	b, _ := json.MarshalIndent(i, "", "  ")
@@ -18,18 +33,18 @@ func toJsonBytes(i interface{}) []byte {
 }
 
 func ExampleStat() {
-	stat := sdk.Stat(nil, &sdk.StatArg{})
-	if stat != nil {
-		tp.Errorf("Stat: rerr: %s", toJsonBytes(stat))
+	status := sdk.Stat(&args.StatArg{})
+	if status != nil {
+		tp.Errorf("Stat: status: %s", toJsonBytes(status))
 	}
 	fmt.Printf("")
 	// Output:
 }
 
 func ExampleHome() {
-	result, stat := sdk.Home(nil, &sdk.EmptyStruct{})
-	if stat != nil {
-		tp.Errorf("Home: rerr: %s", toJsonBytes(stat))
+	result, status := sdk.Home(&args.EmptyStruct{})
+	if status != nil {
+		tp.Errorf("Home: status: %s", toJsonBytes(status))
 	} else {
 		tp.Infof("Home: result: %s", toJsonBytes(result))
 	}
@@ -38,9 +53,9 @@ func ExampleHome() {
 }
 
 func ExampleMath_Divide() {
-	result, stat := sdk.Math_Divide(nil, &sdk.DivideArg{})
-	if stat != nil {
-		tp.Errorf("Math_Divide: rerr: %s", toJsonBytes(stat))
+	result, status := sdk.Math_Divide(&args.DivideArg{})
+	if status != nil {
+		tp.Errorf("Math_Divide: status: %s", toJsonBytes(status))
 	} else {
 		tp.Infof("Math_Divide: result: %s", toJsonBytes(result))
 	}

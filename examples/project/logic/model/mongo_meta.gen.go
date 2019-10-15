@@ -11,22 +11,22 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/xiaoenai/tp-micro/model/mongo"
 
-	"github.com/xiaoenai/tp-micro/examples/project/sdk"
+	"github.com/xiaoenai/tp-micro/examples/project/args"
 )
 
 var _ = tp.Errorf
 
 // Meta comment...
-type Meta sdk.Meta
+type Meta args.Meta
 
 // ToMeta converts to *Meta type.
-func ToMeta(_m *sdk.Meta) *Meta {
+func ToMeta(_m *args.Meta) *Meta {
 	return (*Meta)(unsafe.Pointer(_m))
 }
 
-// ToSdkMeta converts to *sdk.Meta type.
-func ToSdkMeta(_m *Meta) *sdk.Meta {
-	return (*sdk.Meta)(unsafe.Pointer(_m))
+// ToArgsMeta converts to *args.Meta type.
+func ToArgsMeta(_m *Meta) *args.Meta {
+	return (*args.Meta)(unsafe.Pointer(_m))
 }
 
 // TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable

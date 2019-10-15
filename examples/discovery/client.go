@@ -36,7 +36,7 @@ func main() {
 		"/group/home/test",
 		&pb.PbTest{A: 10, B: 2},
 		reply,
-	).Rerror()
+	).Status()
 	if stat != nil {
 		tp.Errorf("call error: %v", stat)
 	} else {
