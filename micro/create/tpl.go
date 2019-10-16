@@ -108,7 +108,7 @@ func main() {
 		cfg.Srv,
 		discovery.ServicePlugin(cfg.Srv.InnerIpPort(), cfg.Etcd),
 	)
-	api.Route("/${service_api_prefix}", srv.Router())
+	api.Route("/${PROJ_NAME}", srv.Router())
 	srv.ListenAndServe()
 }
 `,
