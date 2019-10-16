@@ -291,7 +291,7 @@ func baseTypeToJsonValue(t string) (string, bool) {
 }
 
 func (p *Project) genMainFile() {
-	p.replace("main.go", "${service_api_prefix}", goutil.SnakeString(p.Name))
+	p.replace("main.go", "${PROJ_NAME}", p.Name)
 	p.replace("config.go", "${service_api_prefix}", goutil.SnakeString(p.Name))
 }
 
