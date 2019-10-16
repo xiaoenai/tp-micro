@@ -233,12 +233,12 @@ func docApidocMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "doc/APIDoc.md", size: 727, mode: os.FileMode(420), modTime: time.Unix(1571039030, 0)}
+	info := bindataFileInfo{name: "doc/APIDoc.md", size: 727, mode: os.FileMode(420), modTime: time.Unix(1571189603, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
-var _docReadmeMd = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x52\x56\x56\x78\x36\xa7\xf7\x69\xd7\xc2\x17\xeb\xb7\x3c\x9b\xd1\xc7\xc5\x85\x10\x58\xde\xf2\xa2\xa7\x19\x2c\xf0\xb4\x75\xf3\x8b\xc6\x29\x10\x61\x88\x8a\xcd\x2b\x9e\xb5\xf4\x3f\xd9\xd5\xfd\x72\xe1\x4e\x2e\x2e\x40\x00\x00\x00\xff\xff\xed\xdc\x7d\x82\x44\x00\x00\x00")
+var _docReadmeMd = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x01\x00\x00\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00")
 
 func docReadmeMdBytes() ([]byte, error) {
 	return bindataRead(
@@ -253,7 +253,7 @@ func docReadmeMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "doc/README.md", size: 68, mode: os.FileMode(420), modTime: time.Unix(1571039030, 0)}
+	info := bindataFileInfo{name: "doc/README.md", size: 0, mode: os.FileMode(420), modTime: time.Unix(1571189594, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -273,7 +273,7 @@ func docDatabasesMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "doc/databases.md", size: 1129, mode: os.FileMode(420), modTime: time.Unix(1571039030, 0)}
+	info := bindataFileInfo{name: "doc/databases.md", size: 1129, mode: os.FileMode(420), modTime: time.Unix(1571189597, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

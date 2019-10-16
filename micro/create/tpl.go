@@ -353,7 +353,6 @@ import (
 
 	micro "github.com/xiaoenai/tp-micro"
 	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/socket"
     "github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 

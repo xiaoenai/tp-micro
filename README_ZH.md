@@ -13,7 +13,7 @@ go version ≥ 1.12
 
 ```sh
 go get -u -f -d github.com/xiaoenai/tp-micro/...
-cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/microv6
+cd $GOPATH/src/github.com/xiaoenai/tp-micro/cmd/micro
 go install
 ```
 
@@ -125,21 +125,21 @@ func main() {
 
 ### 生成项目
 
-`microv6 gen` command help:
+`micro gen` command help:
 
 ```
 NAME:
-     microv6 gen - Generate a tp-micro project
+     micro gen - Generate a tp-micro project
 
 USAGE:
-     microv6 gen [command options] [arguments...]
+     micro gen [command options] [arguments...]
 
 OPTIONS:
      --template value, -t value    The template for code generation(relative/absolute)
      --app_path value, -p value  The path(relative/absolute) of the project
 ```
 
-example: `microv6 gen -p ./myapp` or default `microv6 gen myapp`
+example: `micro gen -p ./myapp` or default `micro gen myapp`
 
 - 初始模版文件 `__tp-micro__tpl__.go`:
 
@@ -272,11 +272,11 @@ type Meta struct {
 
 **说明：**
 
-- 如果 `__tp-micro__gen__.lock` 文件存在，`microv6 gen` 命令只覆盖带有 ".gen.go" 后缀的文件
+- 如果 `__tp-micro__gen__.lock` 文件存在，`micro gen` 命令只覆盖带有 ".gen.go" 后缀的文件
 - 在自动生成的文件的文件名中增加 `.gen` 后缀进行标记，不要修改它们！
-- `.tmp` 是为了通过编译而生成的临时文件，在运行`microv6 gen`时会被覆盖重写！项目完成后应该移除它！
+- `.tmp` 是为了通过编译而生成的临时文件，在运行`micro gen`时会被覆盖重写！项目完成后应该移除它！
 - handler的参数和返回值必须是结构体类型
-- 你可以修改默认创建的模板文件 `__tp-micro__tpl __.go`，并再次运行 `microv6 gen` 命令来更新项目
+- 你可以修改默认创建的模板文件 `__tp-micro__tpl __.go`，并再次运行 `micro gen` 命令来更新项目
 
 [生成的默认示例](https://github.com/xiaoenai/tp-micro/tree/v3/examples/project)
 
@@ -286,10 +286,10 @@ type Meta struct {
 
 ```
 NAME:
-   microv6 newdoc - Generate a tp-micro project README.md
+   micro newdoc - Generate a tp-micro project README.md
 
 USAGE:
-   microv6 newdoc [command options] [arguments...]
+   micro newdoc [command options] [arguments...]
 
 OPTIONS:
    --app_path value, -p value  The path(relative/absolute) of the project
@@ -297,16 +297,16 @@ OPTIONS:
 
 ### 热编译运行
 
-`microv6 run` 命令帮助：
+`micro run` 命令帮助：
 
 ```
 NAME:
-     microv6 run - Compile and run gracefully (monitor changes) an any existing go project
+     micro run - Compile and run gracefully (monitor changes) an any existing go project
 
 USAGE:
-     microv6 run [options] [arguments...]
+     micro run [options] [arguments...]
  or
-     microv6 run [options except -app_path] [arguments...] {app_path}
+     micro run [options except -app_path] [arguments...] {app_path}
 
 OPTIONS:
      --watch_exts value, -x value  Specified to increase the listening file suffix (default: ".go", ".ini", ".yaml", ".toml", ".xml")
@@ -314,20 +314,20 @@ OPTIONS:
      --app_path value, -p value    The path(relative/absolute) of the project
 ```
 
-example: `microv6 run -x .yaml -p myapp` or `microv6 run`
+example: `micro run -x .yaml -p myapp` or `micro run`
 
 ### 添加数据模型
 
 从 mysql 数据库表单添加相应结构体到项目模板文件。
 
-`microv6 tpl` command help:
+`micro tpl` command help:
 
  ```
  NAME:
-   microv6 tpl - Add mysql model struct code to project template
+   micro tpl - Add mysql model struct code to project template
 
 USAGE:
-   microv6 tpl [command options] [arguments...]
+   micro tpl [command options] [arguments...]
 
 OPTIONS:
    --app_path value, -p value      The path(relative/absolute) of the project
