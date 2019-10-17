@@ -128,7 +128,6 @@ func (r *requestHandler) handle() {
 		label.SessionID = accessToken.SessionId()
 		if info := accessToken.AddedQuery(); info != nil {
 			info.VisitAll(func(key, value []byte) {
-				tp.Warnf("key-> %s", string(key))
 				settings = append(settings, tp.WithAddMeta(string(key), string(value)))
 			})
 		}
