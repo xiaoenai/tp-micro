@@ -5,6 +5,7 @@ import (
 	ws "github.com/henrylee2cn/teleport/mixer/websocket"
 	"github.com/henrylee2cn/teleport/plugin/auth"
 	"github.com/henrylee2cn/teleport/plugin/binder"
+	"github.com/henrylee2cn/teleport/plugin/heartbeat"
 	"github.com/henrylee2cn/teleport/plugin/proxy"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
@@ -18,9 +19,8 @@ var (
 // Serve starts websocket gateway service.
 func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	// new ws server
-	srv := ws.NewServer(
-		"/",
-		outerSrvCfg.PeerConfig(),
+	srv := newWsServer(
+		outerSrvCfg,
 		binder.NewStructArgsBinder(nil),
 		authChecker,
 		webSocketConnTabPlugin,
@@ -32,6 +32,20 @@ func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 	go srv.ListenAndServe(protoFunc)
 
 	select {}
+}
+
+// newWsServer
+func newWsServer(outerSrvCfg micro.SrvConfig, globalLeftPlugin ...tp.Plugin) *ws.Server {
+	// Heartbeat
+	if outerSrvCfg.EnableHeartbeat {
+		globalLeftPlugin = append(globalLeftPlugin, heartbeat.NewPong())
+	}
+	// new ws server
+	return ws.NewServer(
+		"/",
+		outerSrvCfg.PeerConfig(),
+		globalLeftPlugin...,
+	)
 }
 
 // auth plugin
