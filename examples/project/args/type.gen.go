@@ -4,8 +4,8 @@
 package args
 
 import (
-	"github.com/henrylee2cn/teleport/codec"
-	"github.com/xiaoenai/tp-micro/model/mongo"
+	"github.com/henrylee2cn/teleport/v6/codec"
+	"github.com/xiaoenai/tp-micro/v6/model/mongo"
 )
 
 // EmptyStruct alias of type struct {}

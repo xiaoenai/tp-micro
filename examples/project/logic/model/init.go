@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/xiaoenai/tp-micro/model/mongo"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	"github.com/xiaoenai/tp-micro/v6/model/mongo"
+	"github.com/xiaoenai/tp-micro/v6/model/mysql"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 )
 
 // mysqlHandler preset mysql DB handler

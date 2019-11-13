@@ -21,9 +21,9 @@ import (
 	"net"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
-	heartbeat "github.com/henrylee2cn/teleport/plugin/heartbeat"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	tp "github.com/henrylee2cn/teleport/v6"
+	heartbeat "github.com/henrylee2cn/teleport/v6/plugin/heartbeat"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
 
 const (

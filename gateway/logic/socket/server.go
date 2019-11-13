@@ -17,14 +17,14 @@ package socket
 import (
 	"net"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin/auth"
-	"github.com/henrylee2cn/teleport/plugin/proxy"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/clientele"
-	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	websocket "github.com/xiaoenai/tp-micro/gateway/logic/websocket"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/clientele"
+	"github.com/xiaoenai/tp-micro/v6/discovery"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
+	websocket "github.com/xiaoenai/tp-micro/v6/gateway/logic/websocket"
 )
 
 var (

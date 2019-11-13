@@ -21,10 +21,10 @@ import (
 	"net/http"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/henrylee2cn/teleport/v6"
 	"github.com/valyala/fasthttp"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 )
 
 // HttpSrvConfig config of HTTP server

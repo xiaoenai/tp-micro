@@ -20,7 +20,7 @@ import (
 	"sync"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/henrylee2cn/teleport/v6"
 )
 
 // InnerIpPort returns the service's intranet address, such as '192.168.1.120:8080'.

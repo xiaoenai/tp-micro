@@ -3,10 +3,12 @@ package main
 import (
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin/auth"
-	micro "github.com/xiaoenai/tp-micro"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	micro "github.com/xiaoenai/tp-micro/v6"
 )
+
+//go:generate go build $GOFILE
 
 func main() {
 	cli := micro.NewClient(
@@ -15,7 +17,7 @@ func main() {
 			HeartbeatSecond: 4,
 		},
 		micro.NewStaticLinker(":5020"),
-		auth.LaunchAuth(generateAuthInfo),
+		authBearer,
 	)
 
 	var arg = &struct {
@@ -28,8 +30,8 @@ func main() {
 
 	var reply int
 
-	stat := cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
-	if stat != nil {
+	stat := cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Status()
+	if !stat.OK() {
 		tp.Fatalf("%v", stat)
 	}
 	tp.Infof("10/2=%d", reply)
@@ -38,8 +40,8 @@ func main() {
 	time.Sleep(time.Second * 10)
 
 	arg.B = 5
-	stat = cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Rerror()
-	if stat != nil {
+	stat = cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Status()
+	if !stat.OK() {
 		tp.Fatalf("%v", stat)
 	}
 	tp.Infof("10/5=%d", reply)
@@ -48,6 +50,17 @@ func main() {
 	time.Sleep(time.Second * 10)
 }
 
-func generateAuthInfo() string {
-	return "client-auth-info-12345"
-}
+const clientAuthInfo = "client-auth-info-12345"
+
+var authBearer = auth.NewBearerPlugin(
+	func(sess auth.Session, fn auth.SendOnce) (stat *tp.Status) {
+		var ret string
+		stat = fn(clientAuthInfo, &ret)
+		if !stat.OK() {
+			return
+		}
+		tp.Infof("auth info: %s, result: %s", clientAuthInfo, ret)
+		return
+	},
+	tp.WithBodyCodec('s'),
+)

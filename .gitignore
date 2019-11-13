@@ -27,7 +27,7 @@ _testmain.go
 *.sublime-project
 *.sublime-workspace
 *.vscode
-
+go.sum
 examples/*/gateway
 examples/*/browser
 examples/*/server

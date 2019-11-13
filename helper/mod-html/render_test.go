@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	html "github.com/xiaoenai/tp-micro/helper/mod-html"
+	html "github.com/xiaoenai/tp-micro/v6/helper/mod-html"
 )
 
 type meta struct{}

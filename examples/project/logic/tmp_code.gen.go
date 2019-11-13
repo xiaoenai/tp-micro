@@ -5,11 +5,11 @@
 package logic
 
 import (
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/henrylee2cn/teleport/v6"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
-	// "github.com/xiaoenai/tp-micro/examples/project/logic/model"
-	// "github.com/xiaoenai/tp-micro/examples/project/rerrs"
+	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
+	// "github.com/xiaoenai/tp-micro/v6/examples/project/logic/model"
+	// "github.com/xiaoenai/tp-micro/v6/examples/project/rerrs"
 )
 
 // Stat handler

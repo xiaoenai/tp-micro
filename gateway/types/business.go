@@ -15,9 +15,9 @@
 package types
 
 import (
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin/proxy"
-	"github.com/xiaoenai/tp-micro/clientele"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	"github.com/xiaoenai/tp-micro/v6/clientele"
 )
 
 // Business implement your real business logic

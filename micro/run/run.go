@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create"
-	"github.com/xiaoenai/tp-micro/micro/info"
-	"github.com/xiaoenai/tp-micro/micro/run/fsnotify"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/micro/create"
+	"github.com/xiaoenai/tp-micro/v6/micro/info"
+	"github.com/xiaoenai/tp-micro/v6/micro/run/fsnotify"
 )
 
 // RunProject runs project.

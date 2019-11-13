@@ -5,14 +5,14 @@ import (
 
 	"github.com/henrylee2cn/cfgo"
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/model/mongo"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	tp "github.com/henrylee2cn/teleport/v6"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
+	"github.com/xiaoenai/tp-micro/v6/model/mongo"
+	"github.com/xiaoenai/tp-micro/v6/model/mysql"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 
-	"github.com/xiaoenai/tp-micro/examples/project/logic/model"
+	"github.com/xiaoenai/tp-micro/v6/examples/project/logic/model"
 )
 
 type config struct {

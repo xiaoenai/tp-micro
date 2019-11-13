@@ -1,13 +1,13 @@
 package websocket
 
 import (
-	tp "github.com/henrylee2cn/teleport"
-	ws "github.com/henrylee2cn/teleport/mixer/websocket"
-	"github.com/henrylee2cn/teleport/plugin/auth"
-	"github.com/henrylee2cn/teleport/plugin/binder"
-	"github.com/henrylee2cn/teleport/plugin/proxy"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
+	tp "github.com/henrylee2cn/teleport/v6"
+	ws "github.com/henrylee2cn/teleport/v6/mixer/websocket"
+	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/henrylee2cn/teleport/v6/plugin/binder"
+	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 )
 
 var (

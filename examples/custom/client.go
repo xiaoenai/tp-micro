@@ -1,9 +1,9 @@
 package main
 
 import (
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin/auth"
-	micro "github.com/xiaoenai/tp-micro"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	micro "github.com/xiaoenai/tp-micro/v6"
 )
 
 func main() {

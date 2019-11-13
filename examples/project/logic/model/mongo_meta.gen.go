@@ -8,10 +8,10 @@ import (
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/model/mongo"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/model/mongo"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
 )
 
 var _ = tp.Errorf

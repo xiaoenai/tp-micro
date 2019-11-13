@@ -11,8 +11,8 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/micro/info"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/micro/info"
 	"golang.org/x/crypto/ssh"
 )
 

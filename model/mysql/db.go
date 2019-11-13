@@ -12,10 +12,10 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/goutil/errors"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/model/redis"
-	"github.com/xiaoenai/tp-micro/model/sqlx"
-	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
+	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
+	"github.com/xiaoenai/tp-micro/v6/model/sqlx/reflectx"
 )
 
 // DB is a wrapper around sqlx.DB and redis.Client.

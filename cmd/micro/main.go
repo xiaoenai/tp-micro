@@ -20,9 +20,9 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
-	"github.com/xiaoenai/tp-micro/micro/create"
-	"github.com/xiaoenai/tp-micro/micro/info"
-	"github.com/xiaoenai/tp-micro/micro/run"
+	"github.com/xiaoenai/tp-micro/v6/micro/create"
+	"github.com/xiaoenai/tp-micro/v6/micro/info"
+	"github.com/xiaoenai/tp-micro/v6/micro/run"
 )
 
 func main() {

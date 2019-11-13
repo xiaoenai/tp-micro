@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin/proxy"
-	"github.com/henrylee2cn/teleport/utils"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	"github.com/henrylee2cn/teleport/v6/utils"
 )
 
 var (

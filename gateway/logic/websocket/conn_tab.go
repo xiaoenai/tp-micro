@@ -15,9 +15,9 @@
 package websocket
 
 import (
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin/auth"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 )
 
 type webSocketConnTab struct{}

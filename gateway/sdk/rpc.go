@@ -18,9 +18,9 @@ import (
 	"path"
 	"strings"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/clientele"
-	"github.com/xiaoenai/tp-micro/gateway/types"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/clientele"
+	"github.com/xiaoenai/tp-micro/v6/gateway/types"
 )
 
 // Init initializes a common inner ant client.

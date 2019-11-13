@@ -2,10 +2,12 @@ package main
 
 import (
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/gateway"
-	"github.com/xiaoenai/tp-micro/gateway/types"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/gateway"
+	"github.com/xiaoenai/tp-micro/v6/gateway/types"
 )
+
+//go:generate go build $GOFILE
 
 func main() {
 	cfg := gateway.NewConfig()

@@ -12,8 +12,8 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 )
 
 // GO 1.9 alias

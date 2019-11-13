@@ -21,12 +21,12 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/codec"
-	"github.com/henrylee2cn/teleport/plugin/proxy"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/codec"
+	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
 	"github.com/valyala/fasthttp"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic/hosts"
 )
 
 const (

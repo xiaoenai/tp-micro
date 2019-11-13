@@ -1,13 +1,15 @@
 package main
 
 import (
-	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/helper"
-	html "github.com/xiaoenai/tp-micro/helper/mod-html"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	tp "github.com/henrylee2cn/teleport/v6"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/discovery"
+	"github.com/xiaoenai/tp-micro/v6/helper"
+	html "github.com/xiaoenai/tp-micro/v6/helper/mod-html"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
+
+//go:generate go build $GOFILE
 
 func init() {
 	// html.ParseGlob("*.tpl")

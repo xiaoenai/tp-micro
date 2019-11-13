@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/goutil"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
-	"github.com/xiaoenai/tp-micro/model/sqlx"
-	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
+	"github.com/xiaoenai/tp-micro/v6/model/mysql"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
+	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
+	"github.com/xiaoenai/tp-micro/v6/model/sqlx/reflectx"
 )
 
 type testTable struct {

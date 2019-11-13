@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/codec"
-	"github.com/xiaoenai/tp-micro/clientele"
-	"github.com/xiaoenai/tp-micro/gateway/sdk"
-	"github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/codec"
+	"github.com/xiaoenai/tp-micro/v6/clientele"
+	"github.com/xiaoenai/tp-micro/v6/gateway/sdk"
+	"github.com/xiaoenai/tp-micro/v6/gateway/types"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
 
 const (

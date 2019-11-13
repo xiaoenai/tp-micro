@@ -5,17 +5,17 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/codec"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
-	sagent "github.com/xiaoenai/tp-micro/gateway/helper/agent/socket"
-	gwSdk "github.com/xiaoenai/tp-micro/gateway/sdk"
-	gwTypes "github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/helper"
-	html "github.com/xiaoenai/tp-micro/helper/mod-html"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/codec"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/discovery"
+	sagent "github.com/xiaoenai/tp-micro/v6/gateway/helper/agent/socket"
+	gwSdk "github.com/xiaoenai/tp-micro/v6/gateway/sdk"
+	gwTypes "github.com/xiaoenai/tp-micro/v6/gateway/types"
+	"github.com/xiaoenai/tp-micro/v6/helper"
+	html "github.com/xiaoenai/tp-micro/v6/helper/mod-html"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 )
 
 func init() {

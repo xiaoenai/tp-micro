@@ -19,18 +19,18 @@ package gateway
 import (
 	_ "unsafe"
 
-	tp "github.com/henrylee2cn/teleport"
-	// "github.com/henrylee2cn/teleport/proto/httproto"
-	"github.com/henrylee2cn/teleport/mixer/websocket/jsonSubProto"
-	"github.com/henrylee2cn/teleport/proto/rawproto"
-	"github.com/xiaoenai/tp-micro/clientele"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
-	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
-	long "github.com/xiaoenai/tp-micro/gateway/logic/socket"
-	ws "github.com/xiaoenai/tp-micro/gateway/logic/websocket"
-	"github.com/xiaoenai/tp-micro/gateway/sdk"
-	"github.com/xiaoenai/tp-micro/gateway/types"
+	tp "github.com/henrylee2cn/teleport/v6"
+	// "github.com/henrylee2cn/teleport/v6/proto/httproto"
+	"github.com/henrylee2cn/teleport/v6/mixer/websocket/jsonSubProto"
+	"github.com/henrylee2cn/teleport/v6/proto/rawproto"
+	"github.com/xiaoenai/tp-micro/v6/clientele"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic/hosts"
+	short "github.com/xiaoenai/tp-micro/v6/gateway/logic/http"
+	long "github.com/xiaoenai/tp-micro/v6/gateway/logic/socket"
+	ws "github.com/xiaoenai/tp-micro/v6/gateway/logic/websocket"
+	"github.com/xiaoenai/tp-micro/v6/gateway/sdk"
+	"github.com/xiaoenai/tp-micro/v6/gateway/types"
 )
 
 // Run the gateway main program.

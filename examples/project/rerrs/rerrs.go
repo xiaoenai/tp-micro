@@ -1,7 +1,7 @@
 package rerrs
 
 import (
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/henrylee2cn/teleport/v6"
 )
 
 var (

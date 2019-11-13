@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	tp "github.com/henrylee2cn/teleport/v6"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
-	"github.com/xiaoenai/tp-micro/examples/project/sdk"
+	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
+	"github.com/xiaoenai/tp-micro/v6/examples/project/sdk"
 )
 
 func init() {

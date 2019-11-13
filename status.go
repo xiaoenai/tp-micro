@@ -1,6 +1,6 @@
 package micro
 
-import tp "github.com/henrylee2cn/teleport"
+import tp "github.com/henrylee2cn/teleport/v6"
 
 // NOTE: error code range [-1,999]
 var (

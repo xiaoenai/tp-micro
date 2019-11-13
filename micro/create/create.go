@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create/tpl"
-	"github.com/xiaoenai/tp-micro/micro/info"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/micro/create/tpl"
+	"github.com/xiaoenai/tp-micro/v6/micro/info"
 )
 
 // MicroTpl template file name

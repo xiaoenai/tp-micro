@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create/structtag"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/micro/create/structtag"
 )
 
 const (
@@ -194,7 +194,7 @@ func (t *tplInfo) getCodeBlock(i interface{}) string {
 }
 
 func (t *tplInfo) parseImports() {
-	const codec = `"github.com/henrylee2cn/teleport/codec"`
+	const codec = `"github.com/henrylee2cn/teleport/v6/codec"`
 	t.typeImports = append(t.typeImports, codec)
 	for _, imp := range t.astFile.Imports {
 		s := t.getCodeBlock(imp)
@@ -378,7 +378,7 @@ func (t *tplInfo) initModelStructs() {
 			s.initModel()
 		}
 		var hasMongo bool
-		const mongoImp = `"github.com/xiaoenai/tp-micro/model/mongo"`
+		const mongoImp = `"github.com/xiaoenai/tp-micro/v6/model/mongo"`
 		for _, imp := range t.typeImports {
 			if imp == mongoImp {
 				hasMongo = true

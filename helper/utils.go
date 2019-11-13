@@ -3,7 +3,7 @@ package helper
 import (
 	"net/http"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/henrylee2cn/teleport/v6"
 )
 
 // Redirect implements request redirection of HTTP gateway.

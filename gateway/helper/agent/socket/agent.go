@@ -10,16 +10,16 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin/auth"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/clientele"
-	aproto "github.com/xiaoenai/tp-micro/gateway/helper/agent/proto"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
-	"github.com/xiaoenai/tp-micro/gateway/logic/socket"
-	"github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/clientele"
+	aproto "github.com/xiaoenai/tp-micro/v6/gateway/helper/agent/proto"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic/hosts"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic/socket"
+	"github.com/xiaoenai/tp-micro/v6/gateway/types"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 )
 
 var (

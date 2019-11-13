@@ -97,8 +97,8 @@ var tplFiles = map[string]string{
 	"main.go": `package main
 
 import (
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/discovery"
 
 	"${import_prefix}/api"
 )
@@ -119,12 +119,12 @@ import (
 	
 	"github.com/henrylee2cn/cfgo"
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/model/mongo"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	tp "github.com/henrylee2cn/teleport/v6"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
+	"github.com/xiaoenai/tp-micro/v6/model/mongo"
+	"github.com/xiaoenai/tp-micro/v6/model/mysql"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 
 	"${import_prefix}/logic/model"
 )
@@ -198,9 +198,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/xiaoenai/tp-micro/model/mongo"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	"github.com/xiaoenai/tp-micro/v6/model/mongo"
+	"github.com/xiaoenai/tp-micro/v6/model/mysql"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 )
 
 // mysqlHandler preset mysql DB handler
@@ -301,7 +301,7 @@ ${type_define_list}
 
 	"logic/tmp_code.gen.go": `package logic
 import (
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/henrylee2cn/teleport/v6"
 
 	"${import_prefix}/args"
 	// "${import_prefix}/logic/model"
@@ -312,7 +312,7 @@ ${logic_api_define}
 
 	"api/pull_handler.gen.go": `package api
 import (
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/henrylee2cn/teleport/v6"
 
     "${import_prefix}/logic"
     "${import_prefix}/args"
@@ -322,7 +322,7 @@ ${handler_api_define}
 
 	"api/push_handler.gen.go": `package api
 import (
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/henrylee2cn/teleport/v6"
 
     "${import_prefix}/logic"
     "${import_prefix}/args"
@@ -333,7 +333,7 @@ ${handler_api_define}
 	"api/router.gen.go": `
 package api
 import (
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/henrylee2cn/teleport/v6"
 )
 // Route registers handlers to router.
 func Route(_root string, _router *tp.Router) {
@@ -351,10 +351,10 @@ func Route(_root string, _router *tp.Router) {
 import (
 	"fmt"
 
-	micro "github.com/xiaoenai/tp-micro"
-	tp "github.com/henrylee2cn/teleport"
-    "github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	tp "github.com/henrylee2cn/teleport/v6"
+    "github.com/xiaoenai/tp-micro/v6/discovery"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 
 	"${import_prefix}/args"
 )
@@ -380,9 +380,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	micro "github.com/xiaoenai/tp-micro"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 
 	"${import_prefix}/args"
 	"${import_prefix}/sdk"
@@ -415,10 +415,10 @@ import (
 	"database/sql"
 	"unsafe"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/henrylee2cn/teleport/v6"
 	"github.com/henrylee2cn/goutil/coarsetime"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/sqlx"
+	"github.com/xiaoenai/tp-micro/v6/model/mysql"
+	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
 
 	"${import_prefix}/args"
 )
@@ -794,8 +794,8 @@ import (
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
-	"github.com/xiaoenai/tp-micro/model/mongo"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/xiaoenai/tp-micro/v6/model/mongo"
+	tp "github.com/henrylee2cn/teleport/v6"
 
 	"${import_prefix}/args"
 )

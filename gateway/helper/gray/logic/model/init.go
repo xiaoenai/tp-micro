@@ -1,8 +1,8 @@
 package model
 
 import (
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	"github.com/xiaoenai/tp-micro/v6/model/mysql"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 )
 
 // dbHandler preset DB handler

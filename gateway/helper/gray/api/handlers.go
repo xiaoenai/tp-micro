@@ -1,10 +1,10 @@
 package api
 
 import (
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/henrylee2cn/teleport/v6"
 
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic"
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
+	"github.com/xiaoenai/tp-micro/v6/gateway/helper/gray/logic"
+	"github.com/xiaoenai/tp-micro/v6/gateway/helper/gray/types"
 )
 
 // IsGray check whether the service should use grayscale based on the uid.

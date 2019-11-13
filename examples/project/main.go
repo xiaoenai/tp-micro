@@ -1,10 +1,10 @@
 package main
 
 import (
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/discovery"
 
-	"github.com/xiaoenai/tp-micro/examples/project/api"
+	"github.com/xiaoenai/tp-micro/v6/examples/project/api"
 )
 
 func main() {

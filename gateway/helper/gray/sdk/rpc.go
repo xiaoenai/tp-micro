@@ -1,12 +1,12 @@
 package sdk
 
 import (
-	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
-	types "github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
-	gwLogic "github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	tp "github.com/henrylee2cn/teleport/v6"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/discovery"
+	types "github.com/xiaoenai/tp-micro/v6/gateway/helper/gray/types"
+	gwLogic "github.com/xiaoenai/tp-micro/v6/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
 
 var _formalClient *micro.Client

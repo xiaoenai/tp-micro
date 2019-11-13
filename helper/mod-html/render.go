@@ -6,9 +6,9 @@ import (
 	"text/template"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/utils"
-	micro "github.com/xiaoenai/tp-micro"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/teleport/v6/utils"
+	micro "github.com/xiaoenai/tp-micro/v6"
 )
 
 // CtxMeta the metadata method sets of context

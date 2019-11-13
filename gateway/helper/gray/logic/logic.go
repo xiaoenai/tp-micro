@@ -4,11 +4,11 @@ import (
 	"regexp"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/xiaoenai/tp-micro"
+	tp "github.com/henrylee2cn/teleport/v6"
+	micro "github.com/xiaoenai/tp-micro/v6"
 
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic/model"
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
+	"github.com/xiaoenai/tp-micro/v6/gateway/helper/gray/logic/model"
+	"github.com/xiaoenai/tp-micro/v6/gateway/helper/gray/types"
 )
 
 var (

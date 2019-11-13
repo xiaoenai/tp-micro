@@ -4,16 +4,16 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/gateway"
-	sagent "github.com/xiaoenai/tp-micro/gateway/helper/agent/socket"
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	tp "github.com/henrylee2cn/teleport/v6"
+	micro "github.com/xiaoenai/tp-micro/v6"
+	"github.com/xiaoenai/tp-micro/v6/gateway"
+	sagent "github.com/xiaoenai/tp-micro/v6/gateway/helper/agent/socket"
+	"github.com/xiaoenai/tp-micro/v6/gateway/helper/gray"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v6/gateway/types"
+	"github.com/xiaoenai/tp-micro/v6/model/etcd"
+	"github.com/xiaoenai/tp-micro/v6/model/mysql"
+	"github.com/xiaoenai/tp-micro/v6/model/redis"
 )
 
 type config struct {

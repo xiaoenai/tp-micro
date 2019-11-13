@@ -9,7 +9,7 @@ package main
 
 import (
     "github.com/henrylee2cn/cfgo"
-    "github.com/xiaoenai/tp-micro/gateway"
+    "github.com/xiaoenai/tp-micro/v6/gateway"
 )
 
 func main() {

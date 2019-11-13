@@ -5,9 +5,9 @@ import (
 	"sync"
 	_ "unsafe"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/types"
+	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v6/gateway/types"
 )
 
 // Gw long connection controller.

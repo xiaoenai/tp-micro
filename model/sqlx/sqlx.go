@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
+	"github.com/xiaoenai/tp-micro/v6/model/sqlx/reflectx"
 )
 
 // Although the NameMapper is convenient, in practice it should not
