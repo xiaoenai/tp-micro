@@ -88,16 +88,16 @@ func (c *CliConfig) Check() error {
 
 func (c *CliConfig) peerConfig() tp.PeerConfig {
 	return tp.PeerConfig{
-		DefaultSessionAge:  c.DefaultSessionAge,
-		DefaultContextAge:  c.DefaultContextAge,
-		DefaultDialTimeout: c.DefaultDialTimeout,
-		RedialTimes:        1,
-		SlowCometDuration:  c.SlowCometDuration,
-		DefaultBodyCodec:   c.DefaultBodyCodec,
-		PrintDetail:        c.PrintDetail,
-		CountTime:          c.CountTime,
-		Network:            c.Network,
-		LocalIP:            c.LocalIP,
+		DefaultSessionAge: c.DefaultSessionAge,
+		DefaultContextAge: c.DefaultContextAge,
+		DialTimeout:       c.DefaultDialTimeout,
+		RedialTimes:       1,
+		SlowCometDuration: c.SlowCometDuration,
+		DefaultBodyCodec:  c.DefaultBodyCodec,
+		PrintDetail:       c.PrintDetail,
+		CountTime:         c.CountTime,
+		Network:           c.Network,
+		LocalIP:           c.LocalIP,
 	}
 }
 
