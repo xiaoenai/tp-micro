@@ -32,7 +32,7 @@ var (
 	statNotFound  = micro.RerrNotFound.Copy().SetReason("Config is not exist")
 )
 
-func (c *cfg) List(*struct{}) ([]string, *tp.Rerror) {
+func (c *cfg) List(*struct{}) ([]string, *tp.Status) {
 	resp, err := mgr.etcdClient.Get(context.TODO(), KEY_PREFIX, etcd.WithPrefix())
 	if err != nil {
 		return nil, statEtcdError.Copy().SetReason(err.Error())
@@ -44,7 +44,7 @@ func (c *cfg) List(*struct{}) ([]string, *tp.Rerror) {
 	return r, nil
 }
 
-func (c *cfg) Get(*struct{}) (string, *tp.Rerror) {
+func (c *cfg) Get(*struct{}) (string, *tp.Status) {
 	key := c.Query().Get("config-key")
 	resp, err := mgr.etcdClient.Get(context.TODO(), key)
 	if err != nil {
@@ -67,7 +67,7 @@ type ConfigKV struct {
 	Value string
 }
 
-func (c *cfg) Update(cfgKv *ConfigKV) (*struct{}, *tp.Rerror) {
+func (c *cfg) Update(cfgKv *ConfigKV) (*struct{}, *tp.Status) {
 	_, err := mgr.etcdClient.Put(context.TODO(), cfgKv.Key, (&Node{
 		Initialized: true,
 		Config:      cfgKv.Value,

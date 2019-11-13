@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	"github.com/henrylee2cn/cfgo"
 )
 
@@ -141,9 +141,6 @@ type (
 	}
 	Cmdable interface {
 		redis.Cmdable
-		TxPipeline() redis.Pipeliner
-		TxPipelined(fn func(redis.Pipeliner) error) ([]redis.Cmder, error)
-		Publish(channel, message string) *redis.IntCmd
 		Subscribe(channels ...string) *redis.PubSub
 	}
 	// Alias

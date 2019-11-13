@@ -24,7 +24,7 @@ type P struct {
 }
 
 // Divide divide API
-func (p *P) Divide(arg *Arg) (int, *tp.Rerror) {
+func (p *P) Divide(arg *Arg) (int, *tp.Status) {
 	tp.Infof("query arg x: %s, xy_z: %s", arg.Query.X, arg.XyZ)
 	return arg.A / arg.B, nil
 }

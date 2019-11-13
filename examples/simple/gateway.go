@@ -15,7 +15,7 @@ func main() {
 	cfgo.MustReg("gateway", cfg)
 	// Run a gateway instance with default business logic and default socket protocol.
 	biz := types.DefaultBusiness()
-	err := gateway.Run(*cfg, biz, nil)
+	err := gateway.Run(*cfg, biz, nil, nil)
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}

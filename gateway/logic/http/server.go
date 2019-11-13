@@ -74,9 +74,11 @@ func Serve(srvCfg HttpSrvConfig) {
 	}
 	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
 	var tlsConfig *tls.Config
-	var err error
-
-	lis, err := tp.NewInheritedListener("tcp", srvCfg.ListenAddress, tlsConfig)
+	addr, err := tp.NewFakeAddr2("tcp", srvCfg.ListenAddress)
+	if err != nil {
+		tp.Fatalf("%v", err)
+	}
+	lis, err := tp.NewInheritedListener(addr, tlsConfig)
 	if err != nil {
 		tp.Fatalf("%v", err)
 	}
@@ -87,9 +89,8 @@ func Serve(srvCfg HttpSrvConfig) {
 	if tlsConfig != nil {
 		network = "https"
 	}
-	addr := lis.Addr().String()
 	tp.Printf("register HTTP handler: %s", gwHostsUri)
-	tp.Printf("listen ok (network:%s, addr:%s)", network, addr)
+	tp.Printf("listen ok (network:%s, addr:%s)", network, lis.Addr())
 
 	err = (&fasthttp.Server{
 		Name:    fmt.Sprintf("micro-gateway-%s", logic.ApiVersion()),

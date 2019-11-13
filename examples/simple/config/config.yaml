@@ -1,60 +1,86 @@
+cluster_client:
+  network: tcp
+  local_ip: 0.0.0.0
+  tls_cert_file: ""
+  tls_key_file: ""
+  default_session_age: 0s
+  default_context_age: 0s
+  default_dial_timeout: 0s
+  failover: 0
+  slow_comet_duration: 0s
+  default_body_codec: ""
+  print_detail: false
+  count_time: false
+  heartbeat_second: 0
+  circuit_breaker:
+    enable: false
+    error_percentage: 50
+    break_duration: 5s
+
+etcd:
+  endpoints:
+  - http://127.0.0.1:2379
+  dial_timeout: 15s
+  username: ""
+  password: ""
+
 gateway:
   enable_http: true
   enable_socket: true
+  etcd:
+    dial_timeout: 0s
+    endpoints:
+    - http://127.0.0.1:2379
+    password: ""
+    username: ""
+  inner_socket_client:
+    circuit_breaker:
+      break_duration: 0s
+      enable: false
+      error_percentage: 0
+    count_time: false
+    default_body_codec: ""
+    default_context_age: 0s
+    default_dial_timeout: 0s
+    default_session_age: 0s
+    failover: 3
+    heartbeat_second: 60
+    local_ip: ""
+    network: ""
+    print_detail: false
+    redial_times: 0
+    sess_max_idle_duration: 0s
+    sess_max_quota: 0
+    slow_comet_duration: 0s
+    tls_cert_file: ""
+    tls_key_file: ""
+  inner_socket_server:
+    count_time: true
+    default_body_codec: ""
+    default_context_age: 0s
+    default_session_age: 0s
+    enable_heartbeat: true
+    listen_address: 0.0.0.0:5030
+    network: ""
+    print_detail: true
+    slow_comet_duration: 0s
+    tls_cert_file: ""
+    tls_key_file: ""
   outer_http_server:
+    allow_cross: true
     listen_address: 0.0.0.0:5000
     outer_host: 113.116.142.218:5000
     tls_cert_file: ""
     tls_key_file: ""
-    allow_cross: true
   outer_socket_server:
-    network: ""
+    count_time: true
+    default_body_codec: ""
+    default_context_age: 0s
+    default_session_age: 0s
+    enable_heartbeat: true
     listen_address: 0.0.0.0:5020
-    tls_cert_file: ""
-    tls_key_file: ""
-    default_session_age: 0s
-    default_context_age: 0s
-    slow_comet_duration: 0s
-    default_body_codec: ""
-    print_detail: true
-    count_time: true
-    enable_heartbeat: true
-  inner_socket_server:
     network: ""
-    listen_address: 0.0.0.0:5030
-    tls_cert_file: ""
-    tls_key_file: ""
-    default_session_age: 0s
-    default_context_age: 0s
-    slow_comet_duration: 0s
-    default_body_codec: ""
     print_detail: true
-    count_time: true
-    enable_heartbeat: true
-  inner_socket_client:
-    network: ""
-    local_ip: ""
+    slow_comet_duration: 0s
     tls_cert_file: ""
     tls_key_file: ""
-    default_session_age: 0s
-    default_context_age: 0s
-    default_dial_timeout: 0s
-    redial_times: 0
-    failover: 3
-    slow_comet_duration: 0s
-    default_body_codec: ""
-    print_detail: false
-    count_time: false
-    heartbeat_second: 60
-    sess_max_quota: 0
-    sess_max_idle_duration: 0s
-    circuit_breaker:
-      enable: false
-      error_percentage: 0
-      break_duration: 0s
-  etcd:
-    endpoints:
-    - http://127.0.0.1:2379
-    dial_timeout: 0s
-    username: ""
-    password: ""

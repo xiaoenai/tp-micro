@@ -34,12 +34,12 @@ func init() {
 }
 
 // Home HTML home page
-func Home(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Rerror) {
+func Home(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Status) {
 	return html.Render(ctx, "home", "Home Page Test!")
 }
 
 // Home2 HTML home page
-func Home2(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Rerror) {
+func Home2(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Status) {
 	return nil, helper.Redirect(ctx, 302, "http://localhost:5000/home")
 }
 
@@ -55,7 +55,7 @@ type Math struct {
 }
 
 // Divide divide API
-func (m *Math) Divide(args *Args) (int, *tp.Rerror) {
+func (m *Math) Divide(args *Args) (int, *tp.Status) {
 	return args.A / args.B, nil
 }
 

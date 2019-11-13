@@ -194,14 +194,14 @@ func GoTimingRefresh(d time.Duration) {
 }
 
 // Render renders the initialized html template by name.
-func Render(ctxMeta CtxMeta, tmplName string, data interface{}) ([]byte, *tp.Rerror) {
+func Render(ctxMeta CtxMeta, tmplName string, data interface{}) ([]byte, *tp.Status) {
 	ctxMeta.SetMeta("Content-Type", "text/html; charset=utf-8")
 	buf := utils.AcquireByteBuffer()
 	tLocker.RLock()
 	err := t.ExecuteTemplate(buf, tmplName, data)
 	tLocker.RUnlock()
 	if err != nil {
-		return nil, micro.RerrRenderFailed.Copy().SetReason(err.Error())
+		return nil, micro.RerrRenderFailed.Copy(err)
 	}
 	return buf.Bytes(), nil
 }

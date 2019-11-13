@@ -305,7 +305,7 @@ import (
 
 	"${import_prefix}/args"
 	// "${import_prefix}/logic/model"
-	// "${import_prefix}/rerrs"
+	// "${import_prefix}/errs"
 )
 ${logic_api_define}
 `,

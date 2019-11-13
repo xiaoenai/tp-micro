@@ -7,7 +7,7 @@ import (
 )
 
 // Redirect implements request redirection of HTTP gateway.
-func Redirect(ctx tp.CallCtx, code int32, targetUrl string) *tp.Rerror {
+func Redirect(ctx tp.CallCtx, code int32, targetUrl string) *tp.Status {
 	ctx.Output().Meta().Set("Location", targetUrl)
-	return tp.NewRerror(code, http.StatusText(int(code)), "")
+	return tp.NewStatus(code, http.StatusText(int(code)), "")
 }

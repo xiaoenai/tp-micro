@@ -10,7 +10,7 @@
 // doc/APIDoc.md
 // doc/README.md
 // doc/databases.md
-// rerrs/rerrs.go
+// errs/errs.go
 // sdk/rpc.go
 // sdk/rpc_test.go
 // DO NOT EDIT!
@@ -93,7 +93,7 @@ func Gitignore() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: ".gitignore", size: 268, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: ".gitignore", size: 268, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -113,7 +113,7 @@ func __tpMicro__gen__Lock() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "__tp-micro__gen__.lock", size: 95, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: "__tp-micro__gen__.lock", size: 95, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -133,12 +133,12 @@ func apiHandlerGo() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "api/handler.go", size: 12, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: "api/handler.go", size: 12, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
-var _apiRouterGo = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x4c\x8b\x41\x0e\x02\x21\x0c\x45\xd7\xf6\x14\xcd\xac\x66\x5c\x0c\x89\x47\xf1\x06\x88\x15\x88\x40\x9b\x52\x16\xc6\x78\x77\x83\xba\x70\xf9\xdf\x7f\x4f\x7c\xb8\xfb\x48\xe8\x25\x03\xe4\x2a\xac\x86\x2b\x1c\x4c\x70\x89\xd9\xd2\xb8\xec\x81\xab\x4b\xd4\xf4\x51\x88\x4e\xa1\x39\xa3\x42\x53\x5b\x60\x03\x70\x0e\xc3\xe8\xc6\xf5\xcc\xc3\x08\x95\x62\xee\x46\xda\x7f\x14\x93\x6f\xd7\x32\xb7\x31\xea\x54\x74\x87\xdb\x68\xe1\xbf\x5a\xbf\x07\x1e\x4d\xf6\x0f\xd0\x0d\x9f\xf0\x82\x77\x00\x00\x00\xff\xff\xd3\xb5\x7a\x55\x9b\x00\x00\x00")
+var _apiRouterGo = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x4c\x8b\x3b\x0e\x02\x31\x0c\x05\x6b\x7c\x0a\x6b\xab\x5d\x8a\x44\xa2\xe0\x20\xdc\x20\x04\x93\x44\xe4\x63\x39\x0e\x12\x42\xdc\x1d\x05\x28\x28\xdf\xbc\x19\x76\xfe\xe6\x02\xa1\xe3\x04\x90\x0a\x37\x51\x5c\x61\xa7\x8c\x4b\x48\x1a\xc7\xd9\xf8\x56\x6c\xa4\x2a\x8f\x4c\x74\xf0\xd5\x2a\x65\x9a\x9a\xbd\x1f\x17\xd8\x00\xac\x45\x3f\xba\xb6\x72\x6a\x43\x09\x85\x42\xea\x4a\xd2\x7f\x14\xa3\xab\x97\x3c\xb7\x36\x94\xa9\x88\x81\xeb\xa8\xfe\xbf\x5a\xbf\x07\xee\x95\xcd\x07\xc8\x86\x4f\x78\xc1\x3b\x00\x00\xff\xff\xeb\x83\xde\x11\x9e\x00\x00\x00")
 
 func apiRouterGoBytes() ([]byte, error) {
 	return bindataRead(
@@ -153,7 +153,7 @@ func apiRouterGo() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "api/router.go", size: 155, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: "api/router.go", size: 158, mode: os.FileMode(420), modTime: time.Unix(1573632612, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -173,7 +173,7 @@ func argsConstGo() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "args/const.go", size: 23, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: "args/const.go", size: 23, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -193,7 +193,7 @@ func argsTypeGo() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "args/type.go", size: 22, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: "args/type.go", size: 22, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -213,7 +213,7 @@ func argsVarGo() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "args/var.go", size: 21, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: "args/var.go", size: 21, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -233,7 +233,7 @@ func docApidocMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "doc/APIDoc.md", size: 727, mode: os.FileMode(420), modTime: time.Unix(1571189603, 0)}
+	info := bindataFileInfo{name: "doc/APIDoc.md", size: 727, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -253,7 +253,7 @@ func docReadmeMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "doc/README.md", size: 0, mode: os.FileMode(420), modTime: time.Unix(1571189594, 0)}
+	info := bindataFileInfo{name: "doc/README.md", size: 0, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -273,27 +273,27 @@ func docDatabasesMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "doc/databases.md", size: 1129, mode: os.FileMode(420), modTime: time.Unix(1571189597, 0)}
+	info := bindataFileInfo{name: "doc/databases.md", size: 1129, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
-var _rerrsRerrsGo = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x6c\xca\xb1\xce\x82\x30\x10\x00\xe0\x99\x7b\x8a\x4b\x27\x48\x08\x2d\xff\xfe\x4f\x4e\x2e\xc6\xe8\x13\x9c\x78\x81\x46\x28\xf5\x7a\xc5\xf8\xf6\x06\x83\x4e\xce\xdf\x17\xa9\xbb\x51\xcf\x28\x2c\x92\x00\xfc\x14\x67\x51\x2c\xa1\xd0\x88\xa6\xf7\x3a\xe4\x4b\xd3\xcd\x93\x1d\x38\xc8\x73\x64\xfe\xeb\x82\x55\x1e\x79\x6d\x06\x2a\x80\x85\x64\xed\xd6\xe2\x89\x45\xf6\x61\xa1\xd1\x5f\x8f\x24\x34\xb1\xb2\x60\x52\xd2\x9c\xa0\xf8\x89\xff\xa8\xb1\x39\xf0\xe3\xfc\x4e\x65\xeb\x9c\x73\x6d\x8d\x66\x8b\xf8\x9d\xa6\x46\xb3\x9b\x83\x92\x0f\x09\xfd\xa6\xc2\xf7\xcc\x49\x31\x7e\x56\x32\x15\x54\xf0\x0a\x00\x00\xff\xff\x4a\x5d\x97\x61\xd2\x00\x00\x00")
+var _errsErrsGo = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x64\xcb\xb1\xce\x82\x30\x10\xc0\xf1\x99\x7b\x8a\x4b\x27\x48\x08\x2d\xdf\xf0\x6d\x4e\x4e\x2e\xc6\xc4\x27\x38\xf1\x02\x8d\x50\xea\xf5\xa8\xf1\xed\x0d\x06\x5d\x9c\xff\xbf\x7f\xa4\xee\x46\x3d\x23\x8b\x24\x00\x3f\xc5\x59\x14\x4b\x28\x34\xa2\xe9\xbd\x0e\xcb\xa5\xe9\xe6\xc9\x0e\x1c\xe4\x39\x32\xff\x75\xc1\x2a\x8f\xbc\x32\x9b\xff\x0d\x54\x00\x99\x64\x3d\xac\xc5\x43\xc8\x34\xfa\xeb\x89\x84\x26\x56\x16\x4c\x4a\xba\x24\x28\x7e\xc2\x0e\x35\x36\x47\x7e\x9c\xdf\xa0\x6c\x9d\x73\xae\xad\xd1\x6c\x10\xbf\xd2\xd4\x68\xf6\x73\x50\xf2\x21\xa1\xdf\xaa\xf0\x7d\xe1\xa4\x18\x3f\x2a\x99\x0a\x2a\x78\x05\x00\x00\xff\xff\xa6\x02\x37\x93\xcc\x00\x00\x00")
 
-func rerrsRerrsGoBytes() ([]byte, error) {
+func errsErrsGoBytes() ([]byte, error) {
 	return bindataRead(
-		_rerrsRerrsGo,
-		"rerrs/rerrs.go",
+		_errsErrsGo,
+		"errs/errs.go",
 	)
 }
 
-func rerrsRerrsGo() (*asset, error) {
-	bytes, err := rerrsRerrsGoBytes()
+func errsErrsGo() (*asset, error) {
+	bytes, err := errsErrsGoBytes()
 	if err != nil {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "rerrs/rerrs.go", size: 210, mode: os.FileMode(420), modTime: time.Unix(1571045910, 0)}
+	info := bindataFileInfo{name: "errs/errs.go", size: 204, mode: os.FileMode(420), modTime: time.Unix(1573637086, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -313,7 +313,7 @@ func sdkRpcGo() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "sdk/rpc.go", size: 12, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: "sdk/rpc.go", size: 12, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -333,7 +333,7 @@ func sdkRpc_testGo() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "sdk/rpc_test.go", size: 12, mode: os.FileMode(420), modTime: time.Unix(1570532035, 0)}
+	info := bindataFileInfo{name: "sdk/rpc_test.go", size: 12, mode: os.FileMode(420), modTime: time.Unix(1571215291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -400,7 +400,7 @@ var _bindata = map[string]func() (*asset, error){
 	"doc/APIDoc.md":          docApidocMd,
 	"doc/README.md":          docReadmeMd,
 	"doc/databases.md":       docDatabasesMd,
-	"rerrs/rerrs.go":         rerrsRerrsGo,
+	"errs/errs.go":           errsErrsGo,
 	"sdk/rpc.go":             sdkRpcGo,
 	"sdk/rpc_test.go":        sdkRpc_testGo,
 }
@@ -462,8 +462,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"README.md":    &bintree{docReadmeMd, map[string]*bintree{}},
 		"databases.md": &bintree{docDatabasesMd, map[string]*bintree{}},
 	}},
-	"rerrs": &bintree{nil, map[string]*bintree{
-		"rerrs.go": &bintree{rerrsRerrsGo, map[string]*bintree{}},
+	"errs": &bintree{nil, map[string]*bintree{
+		"errs.go": &bintree{errsErrsGo, map[string]*bintree{}},
 	}},
 	"sdk": &bintree{nil, map[string]*bintree{
 		"rpc.go":      &bintree{sdkRpcGo, map[string]*bintree{}},

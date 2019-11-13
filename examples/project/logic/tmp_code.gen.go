@@ -9,7 +9,7 @@ import (
 
 	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
 	// "github.com/xiaoenai/tp-micro/v6/examples/project/logic/model"
-	// "github.com/xiaoenai/tp-micro/v6/examples/project/rerrs"
+	// "github.com/xiaoenai/tp-micro/v6/examples/project/errs"
 )
 
 // Stat handler
