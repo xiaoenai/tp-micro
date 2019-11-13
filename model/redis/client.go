@@ -1,6 +1,4 @@
 // redis (cluster) client package.
-// Based on `github.com/go-redis/redis` v6.5.2
-//  http://godoc.org/gopkg.in/go-redis/redis.v6
 package redis
 
 import (
