@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/socket/example/pb"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/socket/example/pb"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/discovery"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
@@ -12,8 +12,8 @@ import (
 
 func main() {
 	// discovery.SetServiceNamespace("test@")
-	tp.SetSocketNoDelay(false)
-	tp.SetShutdown(time.Second*20, nil, nil)
+	erpc.SetSocketNoDelay(false)
+	erpc.SetShutdown(time.Second*20, nil, nil)
 
 	cli := micro.NewClient(
 		micro.CliConfig{
@@ -38,9 +38,9 @@ func main() {
 		reply,
 	).Status()
 	if stat != nil {
-		tp.Errorf("call error: %v", stat)
+		erpc.Errorf("call error: %v", stat)
 	} else {
-		tp.Infof("call reply: %v", reply)
+		erpc.Infof("call reply: %v", reply)
 	}
 
 	// test heartbeat

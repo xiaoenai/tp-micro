@@ -7,8 +7,8 @@ import (
 	"database/sql"
 	"unsafe"
 
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/mysql"
 	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
 
@@ -142,7 +142,7 @@ func UpsertLog(_l *Log, _updateFields []string, tx ...*sqlx.Tx) (int64, error) {
 	}
 	err = logDB.DeleteCache(_l)
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return _l.Id, nil
 }
@@ -181,7 +181,7 @@ func UpdateLogByPrimary(_l *Log, _updateFields []string, tx ...*sqlx.Tx) error {
 	}
 	err = logDB.DeleteCache(_l)
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -215,7 +215,7 @@ func DeleteLogByPrimary(_id int64, deleteHard bool, tx ...*sqlx.Tx) error {
 		Id: _id,
 	})
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }

@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/heartbeat"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/heartbeat"
 )
 
 type (
@@ -86,8 +86,8 @@ func (c *CliConfig) Check() error {
 	return nil
 }
 
-func (c *CliConfig) peerConfig() tp.PeerConfig {
-	return tp.PeerConfig{
+func (c *CliConfig) peerConfig() erpc.PeerConfig {
+	return erpc.PeerConfig{
 		DefaultSessionAge: c.DefaultSessionAge,
 		DefaultContextAge: c.DefaultContextAge,
 		DialTimeout:       c.DefaultDialTimeout,
@@ -103,9 +103,9 @@ func (c *CliConfig) peerConfig() tp.PeerConfig {
 
 // Client client peer
 type Client struct {
-	peer           tp.Peer
+	peer           erpc.Peer
 	circuitBreaker *circuitBreaker
-	protoFunc      tp.ProtoFunc
+	protoFunc      erpc.ProtoFunc
 	closeCh        chan struct{}
 	closeMu        sync.Mutex
 	maxTry         int
@@ -113,26 +113,26 @@ type Client struct {
 }
 
 // NewClient creates a client peer.
-func NewClient(cfg CliConfig, linker Linker, globalLeftPlugin ...tp.Plugin) *Client {
+func NewClient(cfg CliConfig, linker Linker, globalLeftPlugin ...erpc.Plugin) *Client {
 	doInit()
 	if err := cfg.Check(); err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	var heartbeatPing heartbeat.Ping
 	if cfg.HeartbeatSecond > 0 {
 		heartbeatPing = heartbeat.NewPing(cfg.HeartbeatSecond, false)
 		globalLeftPlugin = append(globalLeftPlugin, heartbeatPing)
 	}
-	peer := tp.NewPeer(cfg.peerConfig(), globalLeftPlugin...)
+	peer := erpc.NewPeer(cfg.peerConfig(), globalLeftPlugin...)
 	if len(cfg.TlsCertFile) > 0 && len(cfg.TlsKeyFile) > 0 {
 		err := peer.SetTLSConfigFromFile(cfg.TlsCertFile, cfg.TlsKeyFile)
 		if err != nil {
-			tp.Fatalf("%v", err)
+			erpc.Fatalf("%v", err)
 		}
 	}
 	cli := &Client{
 		peer:          peer,
-		protoFunc:     tp.DefaultProtoFunc(),
+		protoFunc:     erpc.DefaultProtoFunc(),
 		closeCh:       make(chan struct{}),
 		maxTry:        cfg.Failover + 1,
 		heartbeatPing: heartbeatPing,
@@ -142,28 +142,28 @@ func NewClient(cfg CliConfig, linker Linker, globalLeftPlugin ...tp.Plugin) *Cli
 		cfg.CircuitBreaker.ErrorPercentage,
 		cfg.CircuitBreaker.BreakDuration,
 		linker,
-		func(addr string) (tp.Session, *tp.Status) {
+		func(addr string) (erpc.Session, *erpc.Status) {
 			return cli.peer.Dial(addr, cli.protoFunc)
 		})
 	cli.circuitBreaker.start()
 	return cli
 }
 
-// SetProtoFunc sets tp.ProtoFunc.
-func (c *Client) SetProtoFunc(protoFunc tp.ProtoFunc) {
+// SetProtoFunc sets erpc.ProtoFunc.
+func (c *Client) SetProtoFunc(protoFunc erpc.ProtoFunc) {
 	if protoFunc == nil {
-		protoFunc = tp.DefaultProtoFunc()
+		protoFunc = erpc.DefaultProtoFunc()
 	}
 	c.protoFunc = protoFunc
 }
 
 // Peer returns the peer.
-func (c *Client) Peer() tp.Peer {
+func (c *Client) Peer() erpc.Peer {
 	return c.peer
 }
 
 // PluginContainer returns the global plugin container.
-func (c *Client) PluginContainer() *tp.PluginContainer {
+func (c *Client) PluginContainer() *erpc.PluginContainer {
 	return c.peer.PluginContainer()
 }
 
@@ -178,17 +178,17 @@ func (c *Client) UsePushHeartbeat() {
 }
 
 // SubRoute adds handler group.
-func (c *Client) SubRoute(pathPrefix string, plugin ...tp.Plugin) *tp.SubRouter {
+func (c *Client) SubRoute(pathPrefix string, plugin ...erpc.Plugin) *erpc.SubRouter {
 	return c.peer.SubRoute(pathPrefix, plugin...)
 }
 
 // RoutePush registers PUSH handlers, and returns the paths.
-func (c *Client) RoutePush(ctrlStruct interface{}, plugin ...tp.Plugin) []string {
+func (c *Client) RoutePush(ctrlStruct interface{}, plugin ...erpc.Plugin) []string {
 	return c.peer.RoutePush(ctrlStruct, plugin...)
 }
 
 // RoutePushFunc registers PUSH handler, and returns the path.
-func (c *Client) RoutePushFunc(pushHandleFunc interface{}, plugin ...tp.Plugin) string {
+func (c *Client) RoutePushFunc(pushHandleFunc interface{}, plugin ...erpc.Plugin) string {
 	return c.peer.RoutePushFunc(pushHandleFunc, plugin...)
 }
 
@@ -201,23 +201,23 @@ func (c *Client) AsyncCall(
 	serviceMethod string,
 	arg interface{},
 	result interface{},
-	callCmdChan chan<- tp.CallCmd,
-	setting ...tp.MessageSetting,
-) tp.CallCmd {
+	callCmdChan chan<- erpc.CallCmd,
+	setting ...erpc.MessageSetting,
+) erpc.CallCmd {
 	if callCmdChan == nil {
-		callCmdChan = make(chan tp.CallCmd, 10) // buffered.
+		callCmdChan = make(chan erpc.CallCmd, 10) // buffered.
 	} else {
 		// If caller passes callCmdChan != nil, it must arrange that
 		// callCmdChan has enough buffer for the number of simultaneous
 		// RPCs that will be using that channel. If the channel
 		// is totally unbuffered, it's best not to run at all.
 		if cap(callCmdChan) == 0 {
-			tp.Panicf("*Client.AsyncCall(): callCmdChan channel is unbuffered")
+			erpc.Panicf("*Client.AsyncCall(): callCmdChan channel is unbuffered")
 		}
 	}
 	select {
 	case <-c.closeCh:
-		callCmd := tp.NewFakeCallCmd(serviceMethod, arg, result, RerrClientClosed)
+		callCmd := erpc.NewFakeCallCmd(serviceMethod, arg, result, RerrClientClosed)
 		callCmdChan <- callCmd
 		return callCmd
 	default:
@@ -225,12 +225,12 @@ func (c *Client) AsyncCall(
 
 	cliSess, stat := c.circuitBreaker.selectSession(serviceMethod)
 	if stat != nil {
-		callCmd := tp.NewFakeCallCmd(serviceMethod, arg, result, stat)
+		callCmd := erpc.NewFakeCallCmd(serviceMethod, arg, result, stat)
 		callCmdChan <- callCmd
 		return callCmd
 	}
 	callCmd := cliSess.AsyncCall(serviceMethod, arg, result, callCmdChan, setting...)
-	cliSess.feedback(!tp.IsConnError(callCmd.Status()))
+	cliSess.feedback(!erpc.IsConnError(callCmd.Status()))
 	return callCmd
 }
 
@@ -238,33 +238,33 @@ func (c *Client) AsyncCall(
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func (c *Client) Call(serviceMethod string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
+func (c *Client) Call(serviceMethod string, arg interface{}, result interface{}, setting ...erpc.MessageSetting) erpc.CallCmd {
 	select {
 	case <-c.closeCh:
-		return tp.NewFakeCallCmd(serviceMethod, arg, result, RerrClientClosed)
+		return erpc.NewFakeCallCmd(serviceMethod, arg, result, RerrClientClosed)
 	default:
 	}
 	var (
 		cliSess     *cliSession
-		callCmd     tp.CallCmd
-		stat        *tp.Status
+		callCmd     erpc.CallCmd
+		stat        *erpc.Status
 		healthy     bool
-		callCmdChan = make(chan tp.CallCmd, 1)
+		callCmdChan = make(chan erpc.CallCmd, 1)
 	)
 	for i := 0; i < c.maxTry; i++ {
 		cliSess, stat = c.circuitBreaker.selectSession(serviceMethod)
 		if stat != nil {
-			return tp.NewFakeCallCmd(serviceMethod, arg, result, stat)
+			return erpc.NewFakeCallCmd(serviceMethod, arg, result, stat)
 		}
 		cliSess.AsyncCall(serviceMethod, arg, result, callCmdChan, setting...)
 		callCmd = <-callCmdChan
-		healthy = !tp.IsConnError(callCmd.Status())
+		healthy = !erpc.IsConnError(callCmd.Status())
 		cliSess.feedback(healthy)
 		if healthy {
 			return callCmd
 		}
 		if i > 0 {
-			tp.Debugf("the %dth failover is triggered because: %s", i, callCmd.Status().String())
+			erpc.Debugf("the %dth failover is triggered because: %s", i, callCmd.Status().String())
 		}
 	}
 	return callCmd
@@ -274,7 +274,7 @@ func (c *Client) Call(serviceMethod string, arg interface{}, result interface{},
 // Note:
 //  If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 //  If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func (c *Client) Push(serviceMethod string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
+func (c *Client) Push(serviceMethod string, arg interface{}, setting ...erpc.MessageSetting) *erpc.Status {
 	select {
 	case <-c.closeCh:
 		return RerrClientClosed
@@ -282,7 +282,7 @@ func (c *Client) Push(serviceMethod string, arg interface{}, setting ...tp.Messa
 	}
 	var (
 		cliSess *cliSession
-		stat    *tp.Status
+		stat    *erpc.Status
 		healthy bool
 	)
 	for i := 0; i < c.maxTry; i++ {
@@ -291,13 +291,13 @@ func (c *Client) Push(serviceMethod string, arg interface{}, setting ...tp.Messa
 			return stat
 		}
 		stat = cliSess.Push(serviceMethod, arg, setting...)
-		healthy = !tp.IsConnError(stat)
+		healthy = !erpc.IsConnError(stat)
 		cliSess.feedback(healthy)
 		if healthy {
 			return stat
 		}
 		if i > 0 {
-			tp.Debugf("the %dth failover is triggered because: %s", i, stat.String())
+			erpc.Debugf("the %dth failover is triggered because: %s", i, stat.String())
 		}
 	}
 	return stat

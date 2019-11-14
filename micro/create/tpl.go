@@ -119,7 +119,7 @@ import (
 	
 	"github.com/henrylee2cn/cfgo"
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 	"github.com/xiaoenai/tp-micro/v6/model/mongo"
@@ -151,7 +151,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	if len(c.LogLevel) == 0 {
 		c.LogLevel = "TRACE"
 	}
-	tp.SetLoggerLevel(c.LogLevel)
+	erpc.SetLoggerLevel(c.LogLevel)
 	var (
 		mysqlConfig *mysql.Config
 		mongoConfig *mongo.Config
@@ -165,7 +165,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	}
 	err = model.Init(mysqlConfig, mongoConfig, redisConfig, c.CacheExpire)
 	if err != nil {
-		tp.Errorf("%v", err)
+		erpc.Errorf("%v", err)
 	}
 	return nil
 }
@@ -301,7 +301,7 @@ ${type_define_list}
 
 	"logic/tmp_code.gen.go": `package logic
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 
 	"${import_prefix}/args"
 	// "${import_prefix}/logic/model"
@@ -312,7 +312,7 @@ ${logic_api_define}
 
 	"api/pull_handler.gen.go": `package api
 import (
-    tp "github.com/henrylee2cn/teleport/v6"
+    "github.com/henrylee2cn/erpc/v6"
 
     "${import_prefix}/logic"
     "${import_prefix}/args"
@@ -322,7 +322,7 @@ ${handler_api_define}
 
 	"api/push_handler.gen.go": `package api
 import (
-    tp "github.com/henrylee2cn/teleport/v6"
+    "github.com/henrylee2cn/erpc/v6"
 
     "${import_prefix}/logic"
     "${import_prefix}/args"
@@ -333,10 +333,10 @@ ${handler_api_define}
 	"api/router.gen.go": `
 package api
 import (
-    tp "github.com/henrylee2cn/teleport/v6"
+    "github.com/henrylee2cn/erpc/v6"
 )
 // Route registers handlers to router.
-func Route(_root string, _router *tp.Router) {
+func Route(_root string, _router *erpc.Router) {
     // root router group
     _group := _router.SubRoute(_root)
     
@@ -352,7 +352,7 @@ import (
 	"fmt"
 
 	micro "github.com/xiaoenai/tp-micro/v6"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
     "github.com/xiaoenai/tp-micro/v6/discovery"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 
@@ -381,7 +381,7 @@ import (
 	"fmt"
 
 	micro "github.com/xiaoenai/tp-micro/v6"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 
 	"${import_prefix}/args"
@@ -415,7 +415,7 @@ import (
 	"database/sql"
 	"unsafe"
 
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/henrylee2cn/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/v6/model/mysql"
 	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
@@ -551,7 +551,7 @@ func Upsert{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields []string, 
 	}
 	err = {{.LowerFirstName}}DB.DeleteCache(_{{.LowerFirstLetter}})
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return {{if .IsDefaultPrimary}}_{{.LowerFirstLetter}}{{range .PrimaryFields}}.{{.Name}}{{end}},{{end}}nil
 }
@@ -590,7 +590,7 @@ func Update{{.Name}}ByPrimary(_{{.LowerFirstLetter}} *{{.Name}}, _updateFields [
 	}
 	err = {{.LowerFirstName}}DB.DeleteCache(_{{.LowerFirstLetter}})
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -629,7 +629,7 @@ func Update{{$.Name}}By{{.Name}}(_{{$.LowerFirstLetter}} *{{$.Name}}, _updateFie
 	}
 	err = {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}},"{{.ModelName}}")
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -664,7 +664,7 @@ func Delete{{.Name}}ByPrimary({{range .PrimaryFields}}_{{.ModelName}} {{.Typ}}, 
 		{{range .PrimaryFields}}{{.Name}}:_{{.ModelName}},
 		{{end}} })
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -698,7 +698,7 @@ func Delete{{$.Name}}By{{.Name}}(_{{.ModelName}} {{.Typ}}, deleteHard bool, tx .
 		{{.Name}}:_{{.ModelName}},
 		},"{{.ModelName}}")
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -795,12 +795,12 @@ import (
 
 	"github.com/henrylee2cn/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/v6/model/mongo"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 
 	"${import_prefix}/args"
 )
 
-var _ = tp.Errorf
+var _ = erpc.Errorf
 
 {{.Doc}}type {{.Name}} args.{{.Name}}
 
@@ -849,7 +849,7 @@ func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error
 		// Del cache
 		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
 		if err2 != nil {
-			tp.Errorf("DeleteCache -> err:%s", err2)
+			erpc.Errorf("DeleteCache -> err:%s", err2)
 		}
 	}
 

@@ -15,8 +15,8 @@
 package logic
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/proxy"
 	"github.com/xiaoenai/tp-micro/v6/gateway/types"
 )
 
@@ -71,6 +71,6 @@ func ProxySelector(label *proxy.Label) proxy.Forwarder {
 }
 
 // InnerServerPlugins returns inner server plugins.
-func InnerServerPlugins() []tp.Plugin {
+func InnerServerPlugins() []erpc.Plugin {
 	return globalBusiness.InnerServerPlugins
 }

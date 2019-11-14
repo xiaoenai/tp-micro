@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/mysql"
 	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
 )
@@ -98,7 +98,7 @@ func GetGrayMatchByUri(uri string) (*GrayMatch, bool, error) {
 	case sql.ErrNoRows:
 		err2 := grayMatchDB.PutCache(_g)
 		if err2 != nil {
-			tp.Errorf("%s", err2.Error())
+			erpc.Errorf("%s", err2.Error())
 		}
 		return nil, false, nil
 	default:

@@ -21,9 +21,9 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/codec"
-	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/codec"
+	"github.com/henrylee2cn/erpc/v6/plugin/proxy"
 	"github.com/valyala/fasthttp"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic/hosts"
@@ -48,7 +48,7 @@ type requestHandler struct {
 	errMsg []byte
 }
 
-var statInternalServerError = tp.NewStatus(tp.CodeInternalServerError, tp.CodeText(tp.CodeInternalServerError), "")
+var statInternalServerError = erpc.NewStatus(erpc.CodeInternalServerError, erpc.CodeText(erpc.CodeInternalServerError), "")
 
 func (r *requestHandler) handle() {
 	var (
@@ -110,15 +110,15 @@ func (r *requestHandler) handle() {
 
 	// set header
 	h.VisitAll(func(key, value []byte) {
-		settings = append(settings, tp.WithAddMeta(string(key), string(value)))
+		settings = append(settings, erpc.WithAddMeta(string(key), string(value)))
 	})
 
 	// set body codec
-	settings = append(settings, tp.WithBodyCodec(bodyCodec))
+	settings = append(settings, erpc.WithBodyCodec(bodyCodec))
 
 	// set accept body codec
 	if acceptBodyCodec != bodyCodec {
-		settings = append(settings, tp.WithAcceptBodyCodec(acceptBodyCodec))
+		settings = append(settings, erpc.WithAcceptBodyCodec(acceptBodyCodec))
 	}
 
 	// set session id
@@ -128,18 +128,18 @@ func (r *requestHandler) handle() {
 		label.SessionID = accessToken.SessionId()
 		if info := accessToken.AddedQuery(); info != nil {
 			info.VisitAll(func(key, value []byte) {
-				tp.Warnf("key-> %s", string(key))
-				settings = append(settings, tp.WithAddMeta(string(key), string(value)))
+				erpc.Warnf("key-> %s", string(key))
+				settings = append(settings, erpc.WithAddMeta(string(key), string(value)))
 			})
 		}
 	}
 
-	settings = append(settings, tp.WithAddMeta(tp.MetaRealIP, label.RealIP))
+	settings = append(settings, erpc.WithAddMeta(erpc.MetaRealIP, label.RealIP))
 
 	// set query
 	if query.Len() > 0 {
 		query.VisitAll(func(key, value []byte) {
-			settings = append(settings, tp.WithAddMeta(string(key), string(value)))
+			settings = append(settings, erpc.WithAddMeta(string(key), string(value)))
 		})
 	}
 	callcmd := logic.
@@ -196,7 +196,7 @@ func (r *requestHandler) crossDomainFilter() bool {
 	return true
 }
 
-func (r *requestHandler) replyError(stat *tp.Status) {
+func (r *requestHandler) replyError(stat *erpc.Status) {
 	var statusCode int
 	if stat.Code() < 200 {
 		// Internal communication error

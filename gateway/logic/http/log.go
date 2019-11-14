@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
-	"github.com/henrylee2cn/teleport/v6/utils"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/proxy"
+	"github.com/henrylee2cn/erpc/v6/utils"
 )
 
 var (
@@ -25,14 +25,14 @@ func (r *requestHandler) runlog(startTime time.Time, label *proxy.Label, seq str
 	}
 	var (
 		costTimeStr string
-		printFunc   = tp.Infof
+		printFunc   = erpc.Infof
 	)
 	if countTime {
 		costTime := time.Since(startTime)
 		costTimeStr = costTime.String()
 		if costTime >= slowCometDuration {
 			costTimeStr += "(slow)"
-			printFunc = tp.Warnf
+			printFunc = erpc.Warnf
 		}
 	} else {
 		costTimeStr = "-"

@@ -5,7 +5,7 @@ import (
 	"sync"
 	_ "unsafe"
 
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic/hosts"
 	"github.com/xiaoenai/tp-micro/v6/gateway/types"
@@ -13,11 +13,11 @@ import (
 
 // gw long connection controller.
 type gw struct {
-	tp.CallCtx
+	erpc.CallCtx
 }
 
 // Hosts returns the gateway seriver hosts.
-func (g *gw) Hosts(*struct{}) (*types.GwHosts, *tp.Status) {
+func (g *gw) Hosts(*struct{}) (*types.GwHosts, *erpc.Status) {
 	return hosts.GwHosts(), nil
 }
 
@@ -32,23 +32,23 @@ func totalConn() int32 {
 }
 
 // SocketTotal returns the long connections total.
-func (g *gw) SocketTotal(*types.SocketTotalArgs) (*types.SocketTotalReply, *tp.Status) {
+func (g *gw) SocketTotal(*types.SocketTotalArgs) (*types.SocketTotalReply, *erpc.Status) {
 	return &types.SocketTotalReply{ConnTotal: totalConn()}, nil
 }
 
 // innerPush pushes the message to the specified user.
-func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *tp.Status {
+func innerPush(uid string, uri string, args interface{}, bodyCodec byte) *erpc.Status {
 	sess, stat := logic.SocketHooks().GetSession(outerPeer, uid)
 	if stat != nil {
 		return stat
 	}
-	return sess.Push(uri, args, tp.WithBodyCodec(bodyCodec))
+	return sess.Push(uri, args, erpc.WithBodyCodec(bodyCodec))
 }
 
 var socketPushReply = new(types.SocketPushReply)
 
 // SocketPush pushes message to the specified user.
-func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp.Status) {
+func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *erpc.Status) {
 	stat := innerPush(args.SessionId, args.Uri, args.Body, byte(args.BodyCodec))
 	if stat != nil {
 		return nil, stat
@@ -57,7 +57,7 @@ func (g *gw) SocketPush(args *types.SocketPushArgs) (*types.SocketPushReply, *tp
 }
 
 // SocketMpush multi-push messages to the specified users.
-func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, *tp.Status) {
+func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, *erpc.Status) {
 	var (
 		wg                sync.WaitGroup
 		sep               = "?"
@@ -78,14 +78,14 @@ func (g *gw) SocketMpush(args *types.SocketMpushArgs) (*types.SocketMpushReply, 
 			uri = args.Uri
 		}
 		sessId := t.SessionId
-		tp.TryGo(func() {
+		erpc.TryGo(func() {
 			defer wg.Done()
 			stat := innerPush(sessId, uri, body, bodyCodec)
 			if stat != nil {
 				lock.Lock()
 				failureSessionIds = append(failureSessionIds, sessId)
 				lock.Unlock()
-				tp.Tracef("SocketMpush: %s", stat.String())
+				erpc.Tracef("SocketMpush: %s", stat.String())
 			}
 		})
 	}
@@ -105,7 +105,7 @@ func Kick(uid string) (existed bool, err error) {
 }
 
 // SocketKick kicks the uid offline.
-func (g *gw) SocketKick(args *types.SocketKickArgs) (*types.SocketKickReply, *tp.Status) {
+func (g *gw) SocketKick(args *types.SocketKickArgs) (*types.SocketKickReply, *erpc.Status) {
 	existed, _ := Kick(args.SessionId)
 	return &types.SocketKickReply{
 		Existed: existed,

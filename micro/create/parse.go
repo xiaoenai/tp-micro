@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/micro/create/structtag"
 )
 
@@ -102,7 +102,7 @@ func newTplInfo(tplBytes []byte) *tplInfo {
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "", tplBytes, parser.ParseComments)
 	if err != nil {
-		tp.Fatalf("[micro] %v", err)
+		erpc.Fatalf("[micro] %v", err)
 	}
 	return &tplInfo{
 		src:               tplBytes,
@@ -120,7 +120,7 @@ func (t *tplInfo) Parse() *tplInfo {
 	t.parseImports()
 	ok := t.hasType(emptyStructType.name)
 	if ok {
-		tp.Fatalf("[micro] Keep structure name cannot be used: %s", emptyStructType.name)
+		erpc.Fatalf("[micro] Keep structure name cannot be used: %s", emptyStructType.name)
 	}
 	t.aliasTypes = append(t.aliasTypes, emptyStructType)
 	t.collectStructs()
@@ -188,13 +188,13 @@ func (t *tplInfo) getCodeBlock(i interface{}) string {
 	var dst bytes.Buffer
 	err := format.Node(&dst, t.fileSet, i)
 	if err != nil {
-		tp.Fatalf("[micro] %v", err)
+		erpc.Fatalf("[micro] %v", err)
 	}
 	return dst.String()
 }
 
 func (t *tplInfo) parseImports() {
-	const codec = `"github.com/henrylee2cn/teleport/v6/codec"`
+	const codec = `"github.com/henrylee2cn/erpc/v6/codec"`
 	t.typeImports = append(t.typeImports, codec)
 	for _, imp := range t.astFile.Imports {
 		s := t.getCodeBlock(imp)
@@ -527,14 +527,14 @@ func (s *structType) isInvildName() bool {
 
 func (s structType) init(t *tplInfo) *structType {
 	if !s.isInvildName() {
-		tp.Fatalf("[micro] Unexported struct name: %s", s.name)
+		erpc.Fatalf("[micro] Unexported struct name: %s", s.name)
 	}
 	for _, v := range s.node.Fields.List {
 		f := new(field)
 		if len(v.Names) > 0 {
 			f.Name = v.Names[0].Name
 			if !goutil.IsExportedName(f.Name) {
-				tp.Fatalf("[micro] Unexported field name: %s.%s", s.name, f.Name)
+				erpc.Fatalf("[micro] Unexported field name: %s.%s", s.name, f.Name)
 			}
 		}
 		f.Typ = t.getCodeBlock(v.Type)
@@ -547,7 +547,7 @@ func (s structType) init(t *tplInfo) *structType {
 			f.anonymous = true
 			f.Name = strings.TrimPrefix(f.Typ, "*")
 			if !goutil.IsExportedName(f.Name) {
-				tp.Fatalf("[micro] Unexported anonymous field: %s.%s", s.name, f.Typ)
+				erpc.Fatalf("[micro] Unexported anonymous field: %s.%s", s.name, f.Typ)
 			}
 		}
 		f.doc = addSlash(v.Doc.Text())
@@ -592,7 +592,7 @@ func (s *structType) rangeTags(fns ...func(tags *structtag.Tags, f *field, anony
 			}
 			tags, err := structtag.Parse(strings.TrimSpace(strings.Trim(v.tag, "`")))
 			if err != nil {
-				tp.Fatalf("[micro] %s.%s: %s", s.name, logName, err.Error())
+				erpc.Fatalf("[micro] %s.%s: %s", s.name, logName, err.Error())
 			}
 			if !fn(tags, v, len(v.Name) == 0) {
 				break
@@ -651,7 +651,7 @@ func (t *tplInfo) sortStructs() {
 			v := t.realStructTypes[i]
 			if v.name == name {
 				if len(v.modelStyle) > 0 {
-					tp.Fatalf("[micro] %s: multiple specified model style", v.name)
+					erpc.Fatalf("[micro] %s: multiple specified model style", v.name)
 				}
 				t.models.mysql = append(t.models.mysql, v)
 				v.modelStyle = "mysql"
@@ -664,7 +664,7 @@ func (t *tplInfo) sortStructs() {
 			v := t.realStructTypes[i]
 			if v.name == name {
 				if len(v.modelStyle) > 0 {
-					tp.Fatalf("[micro] %s: multiple specified model style", v.name)
+					erpc.Fatalf("[micro] %s: multiple specified model style", v.name)
 				}
 				t.models.mongo = append(t.models.mongo, v)
 				v.modelStyle = "mongo"
@@ -739,11 +739,11 @@ func (t *tplInfo) collectApis(r *router, i *ast.InterfaceType) bool {
 			if len(f.Names) > 0 {
 				funcName = f.Names[0].Name
 			} else {
-				tp.Fatalf("[micro] no name of the function: %s", t.getCodeBlock(i))
+				erpc.Fatalf("[micro] no name of the function: %s", t.getCodeBlock(i))
 			}
 			h, err := t.getHandler(r.typ, n)
 			if err != nil {
-				tp.Fatalf("[micro] %s.%s: %s", r.name, funcName, err.Error())
+				erpc.Fatalf("[micro] %s.%s: %s", r.name, funcName, err.Error())
 			}
 			h.name = funcName
 			h.group = r
@@ -844,9 +844,9 @@ func (r *router) handlerString(ctnFn func(*handler) string) string {
 	var ctxField string
 	switch r.typ {
 	case pullType:
-		ctxField = "tp.CallCtx"
+		ctxField = "erpc.CallCtx"
 	case pushType:
-		ctxField = "tp.PushCtx"
+		ctxField = "erpc.PushCtx"
 	}
 	var text string
 	if len(r.handlers) > 0 {
@@ -858,7 +858,7 @@ func (r *router) handlerString(ctnFn func(*handler) string) string {
 		var secondParam, resultParam string
 		for _, h := range r.handlers {
 			secondParam = fmt.Sprintf("arg *args.%s", h.arg)
-			resultParam = "*tp.Status"
+			resultParam = "*erpc.Status"
 			if len(h.result) > 0 {
 				resultParam = fmt.Sprintf("(*args.%s,%s)", h.result, resultParam)
 			}

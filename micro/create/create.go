@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/micro/create/tpl"
 	"github.com/xiaoenai/tp-micro/v6/micro/info"
 )
@@ -19,12 +19,12 @@ const MicroGenLock = "__tp-micro__gen__.lock"
 
 // CreateProject creates a project.
 func CreateProject(force, newdoc bool) {
-	tp.Infof("Generating project: %s", info.ProjPath())
+	erpc.Infof("Generating project: %s", info.ProjPath())
 
 	os.MkdirAll(info.AbsPath(), os.FileMode(0755))
 	err := os.Chdir(info.AbsPath())
 	if err != nil {
-		tp.Fatalf("[micro] Jump working directory failed: %v", err)
+		erpc.Fatalf("[micro] Jump working directory failed: %v", err)
 	}
 
 	force = force || !goutil.FileExists(MicroGenLock)
@@ -47,24 +47,24 @@ func CreateProject(force, newdoc bool) {
 	// write template file
 	f, err := os.OpenFile(MicroTpl, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		tp.Fatalf("[micro] Create files error: %v", err)
+		erpc.Fatalf("[micro] Create files error: %v", err)
 	}
 	defer f.Close()
 	f.Write(formatSource(b))
 
 	tpl.RestoreAsset("./", MicroGenLock)
 
-	tp.Infof("Completed code generation!")
+	erpc.Infof("Completed code generation!")
 }
 
 // CreateDoc creates a project doc.
 func CreateDoc() {
-	tp.Infof("Generating README.md: %s", info.ProjPath())
+	erpc.Infof("Generating README.md: %s", info.ProjPath())
 
 	os.MkdirAll(info.AbsPath(), os.FileMode(0755))
 	err := os.Chdir(info.AbsPath())
 	if err != nil {
-		tp.Fatalf("[micro] Jump working directory failed: %v", err)
+		erpc.Fatalf("[micro] Jump working directory failed: %v", err)
 	}
 
 	// read temptale file
@@ -81,10 +81,10 @@ func CreateDoc() {
 	// write template file
 	f, err := os.OpenFile(MicroTpl, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		tp.Fatalf("[micro] Create files error: %v", err)
+		erpc.Fatalf("[micro] Create files error: %v", err)
 	}
 	defer f.Close()
 	f.Write(formatSource(b))
 
-	tp.Infof("Completed README.md generation!")
+	erpc.Infof("Completed README.md generation!")
 }

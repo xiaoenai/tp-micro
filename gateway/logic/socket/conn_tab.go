@@ -15,8 +15,8 @@
 package socket
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/auth"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 )
 
@@ -27,16 +27,16 @@ var (
 )
 
 var (
-	_ tp.PostReadCallBodyPlugin = socketConnTabPlugin
-	_ tp.PostReadPushBodyPlugin = socketConnTabPlugin
-	_ tp.PostDisconnectPlugin   = socketConnTabPlugin
+	_ erpc.PostReadCallBodyPlugin = socketConnTabPlugin
+	_ erpc.PostReadPushBodyPlugin = socketConnTabPlugin
+	_ erpc.PostDisconnectPlugin   = socketConnTabPlugin
 )
 
 func (c *socketConnTab) Name() string {
 	return "SocketConnTab"
 }
 
-func (c *socketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.Status {
+func (c *socketConnTab) authAndLogon(authInfo string, sess auth.Session) *erpc.Status {
 	token, stat := logic.AuthFunc()(authInfo)
 	if stat != nil {
 		return stat
@@ -47,23 +47,23 @@ func (c *socketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.Sta
 	}
 	stat = logic.SocketHooks().OnLogon(sess, token)
 	if stat == nil {
-		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).ID())
+		erpc.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(erpc.BaseSession).ID())
 	}
 	return stat
 }
 
-func (c *socketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Status {
+func (c *socketConnTab) PostReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
 	_appendQuery, _ := ctx.Swap().Load(socketConnTabPlugin)
 	appendQuery, _ := _appendQuery.(string)
-	tp.WithAddMeta("", appendQuery)
+	erpc.WithAddMeta("", appendQuery)
 	return nil
 }
 
-func (c *socketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Status {
+func (c *socketConnTab) PostReadPushBody(ctx erpc.ReadCtx) *erpc.Status {
 	return c.PostReadCallBody(ctx)
 }
 
-func (c *socketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Status {
-	tp.Tracef("[-SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.ID())
+func (c *socketConnTab) PostDisconnect(sess erpc.BaseSession) *erpc.Status {
+	erpc.Tracef("[-SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.ID())
 	return logic.SocketHooks().OnLogoff(sess)
 }

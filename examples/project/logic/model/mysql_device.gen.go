@@ -7,8 +7,8 @@ import (
 	"database/sql"
 	"unsafe"
 
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/mysql"
 	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
 
@@ -132,7 +132,7 @@ func UpsertDevice(_d *Device, _updateFields []string, tx ...*sqlx.Tx) error {
 	}
 	err = deviceDB.DeleteCache(_d)
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -171,7 +171,7 @@ func UpdateDeviceByPrimary(_d *Device, _updateFields []string, tx ...*sqlx.Tx) e
 	}
 	err = deviceDB.DeleteCache(_d)
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -205,7 +205,7 @@ func DeleteDeviceByPrimary(_uuid string, deleteHard bool, tx ...*sqlx.Tx) error 
 		UUID: _uuid,
 	})
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }

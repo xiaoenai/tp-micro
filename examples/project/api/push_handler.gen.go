@@ -4,13 +4,13 @@
 package api
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 
 	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
 	"github.com/xiaoenai/tp-micro/v6/examples/project/logic"
 )
 
 // Stat handler
-func Stat(ctx tp.PushCtx, arg *args.StatArg) *tp.Status {
+func Stat(ctx erpc.PushCtx, arg *args.StatArg) *erpc.Status {
 	return logic.Stat(ctx, arg)
 }

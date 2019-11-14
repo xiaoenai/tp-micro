@@ -1,8 +1,8 @@
 package main
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/auth"
 	micro "github.com/xiaoenai/tp-micro/v6"
 )
 
@@ -19,15 +19,15 @@ func main() {
 	var reply int
 	stat := cli.Call("/math/divide?access_token=sdfghj", Msg{A: 10, B: 2}, &reply).Status()
 	if stat != nil {
-		tp.Fatalf("%v", stat)
+		erpc.Fatalf("%v", stat)
 	}
-	tp.Infof("10/2=%d", reply)
+	erpc.Infof("10/2=%d", reply)
 
 	// test push
 	cli.RoutePushFunc(push)
 	for msg := range c {
 		// your business
-		tp.Infof("received: %v", msg)
+		erpc.Infof("received: %v", msg)
 	}
 }
 
@@ -44,7 +44,7 @@ type Msg struct {
 	B int
 }
 
-func push(ctx tp.PushCtx, arg *Msg) *tp.Status {
+func push(ctx erpc.PushCtx, arg *Msg) *erpc.Status {
 	c <- arg
 	return nil
 }

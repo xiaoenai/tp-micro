@@ -21,9 +21,9 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/binder"
-	"github.com/henrylee2cn/teleport/v6/plugin/heartbeat"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/binder"
+	"github.com/henrylee2cn/erpc/v6/plugin/heartbeat"
 )
 
 // SrvConfig server config
@@ -60,7 +60,7 @@ func (s *SrvConfig) Reload(bind cfgo.BindFunc) error {
 func (s *SrvConfig) ListenPort() string {
 	_, port, err := net.SplitHostPort(s.ListenAddress)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	return port
 }
@@ -69,7 +69,7 @@ func (s *SrvConfig) ListenPort() string {
 func (s *SrvConfig) InnerIpPort() string {
 	hostPort, err := InnerIpPort(s.ListenPort())
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	return hostPort
 }
@@ -78,18 +78,18 @@ func (s *SrvConfig) InnerIpPort() string {
 func (s *SrvConfig) OuterIpPort() string {
 	hostPort, err := OuterIpPort(s.ListenPort())
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	return hostPort
 }
 
-func (s *SrvConfig) PeerConfig() tp.PeerConfig {
+func (s *SrvConfig) PeerConfig() erpc.PeerConfig {
 	host, port, err := net.SplitHostPort(s.ListenAddress)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	listenPort, _ := strconv.Atoi(port)
-	return tp.PeerConfig{
+	return erpc.PeerConfig{
 		DefaultSessionAge: s.DefaultSessionAge,
 		DefaultContextAge: s.DefaultContextAge,
 		SlowCometDuration: s.SlowCometDuration,
@@ -104,23 +104,23 @@ func (s *SrvConfig) PeerConfig() tp.PeerConfig {
 
 // Server server peer
 type Server struct {
-	peer   tp.Peer
+	peer   erpc.Peer
 	binder *binder.StructArgsBinder
 }
 
 // NewServer creates a server peer.
-func NewServer(cfg SrvConfig, globalLeftPlugin ...tp.Plugin) *Server {
+func NewServer(cfg SrvConfig, globalLeftPlugin ...erpc.Plugin) *Server {
 	doInit()
 	if cfg.EnableHeartbeat {
 		globalLeftPlugin = append(globalLeftPlugin, heartbeat.NewPong())
 	}
-	peer := tp.NewPeer(cfg.PeerConfig(), globalLeftPlugin...)
+	peer := erpc.NewPeer(cfg.PeerConfig(), globalLeftPlugin...)
 	binder := binder.NewStructArgsBinder(nil)
 	peer.PluginContainer().AppendRight(binder)
 	if len(cfg.TlsCertFile) > 0 && len(cfg.TlsKeyFile) > 0 {
 		err := peer.SetTLSConfigFromFile(cfg.TlsCertFile, cfg.TlsKeyFile)
 		if err != nil {
-			tp.Fatalf("%v", err)
+			erpc.Fatalf("%v", err)
 		}
 	}
 	s := &Server{
@@ -132,12 +132,12 @@ func NewServer(cfg SrvConfig, globalLeftPlugin ...tp.Plugin) *Server {
 }
 
 // Peer returns the peer
-func (s *Server) Peer() tp.Peer {
+func (s *Server) Peer() erpc.Peer {
 	return s.peer
 }
 
 // PluginContainer returns the global plugin container.
-func (s *Server) PluginContainer() *tp.PluginContainer {
+func (s *Server) PluginContainer() *erpc.PluginContainer {
 	return s.peer.PluginContainer()
 }
 
@@ -148,50 +148,50 @@ func (s *Server) SetBindErrorFunc(fn binder.ErrorFunc) {
 		s.binder.SetErrorFunc(fn)
 		return
 	}
-	s.binder.SetErrorFunc(func(handlerName, paramName, reason string) *tp.Status {
+	s.binder.SetErrorFunc(func(handlerName, paramName, reason string) *erpc.Status {
 		return RerrInvalidParameter.SetCause(fmt.Sprintf(`{"handler": %q, "param": %q, "reason": %q}`, handlerName, paramName, reason))
 	})
 }
 
 // Router returns the root router of call or push handlers.
-func (s *Server) Router() *tp.Router {
+func (s *Server) Router() *erpc.Router {
 	return s.peer.Router()
 }
 
 // SubRoute adds handler group.
-func (s *Server) SubRoute(pathPrefix string, plugin ...tp.Plugin) *tp.SubRouter {
+func (s *Server) SubRoute(pathPrefix string, plugin ...erpc.Plugin) *erpc.SubRouter {
 	return s.peer.SubRoute(pathPrefix, plugin...)
 }
 
 // RouteCall registers CALL handlers, and returns the paths.
-func (s *Server) RouteCall(ctrlStruct interface{}, plugin ...tp.Plugin) []string {
+func (s *Server) RouteCall(ctrlStruct interface{}, plugin ...erpc.Plugin) []string {
 	return s.peer.RouteCall(ctrlStruct, plugin...)
 }
 
 // RouteCallFunc registers CALL handler, and returns the path.
-func (s *Server) RouteCallFunc(callHandleFunc interface{}, plugin ...tp.Plugin) string {
+func (s *Server) RouteCallFunc(callHandleFunc interface{}, plugin ...erpc.Plugin) string {
 	return s.peer.RouteCallFunc(callHandleFunc, plugin...)
 }
 
 // RoutePush registers PUSH handlers, and returns the paths.
-func (s *Server) RoutePush(ctrlStruct interface{}, plugin ...tp.Plugin) []string {
+func (s *Server) RoutePush(ctrlStruct interface{}, plugin ...erpc.Plugin) []string {
 	return s.peer.RoutePush(ctrlStruct, plugin...)
 }
 
 // RoutePushFunc registers PUSH handler, and returns the path.
-func (s *Server) RoutePushFunc(pushHandleFunc interface{}, plugin ...tp.Plugin) string {
+func (s *Server) RoutePushFunc(pushHandleFunc interface{}, plugin ...erpc.Plugin) string {
 	return s.peer.RoutePushFunc(pushHandleFunc, plugin...)
 }
 
 // SetUnknownCall sets the default handler,
 // which is called when no handler for CALL is found.
-func (s *Server) SetUnknownCall(fn func(tp.UnknownCallCtx) (interface{}, *tp.Status), plugin ...tp.Plugin) {
+func (s *Server) SetUnknownCall(fn func(erpc.UnknownCallCtx) (interface{}, *erpc.Status), plugin ...erpc.Plugin) {
 	s.peer.SetUnknownCall(fn, plugin...)
 }
 
 // SetUnknownPush sets the default handler,
 // which is called when no handler for PUSH is found.
-func (s *Server) SetUnknownPush(fn func(tp.UnknownPushCtx) *tp.Status, plugin ...tp.Plugin) {
+func (s *Server) SetUnknownPush(fn func(erpc.UnknownPushCtx) *erpc.Status, plugin ...erpc.Plugin) {
 	s.peer.SetUnknownPush(fn, plugin...)
 }
 
@@ -206,21 +206,21 @@ func (s *Server) CountSession() int {
 }
 
 // GetSession gets the session by id.
-func (s *Server) GetSession(sessionId string) (tp.Session, bool) {
+func (s *Server) GetSession(sessionId string) (erpc.Session, bool) {
 	return s.peer.GetSession(sessionId)
 }
 
 // ListenAndServe turns on the listening service.
-func (s *Server) ListenAndServe(protoFunc ...tp.ProtoFunc) error {
+func (s *Server) ListenAndServe(protoFunc ...erpc.ProtoFunc) error {
 	return s.peer.ListenAndServe(protoFunc...)
 }
 
 // RangeSession ranges all sessions. If fn returns false, stop traversing.
-func (s *Server) RangeSession(fn func(sess tp.Session) bool) {
+func (s *Server) RangeSession(fn func(sess erpc.Session) bool) {
 	s.peer.RangeSession(fn)
 }
 
 // ServeConn serves the connection and returns a session.
-func (s *Server) ServeConn(conn net.Conn, protoFunc ...tp.ProtoFunc) (tp.Session, *tp.Status) {
+func (s *Server) ServeConn(conn net.Conn, protoFunc ...erpc.ProtoFunc) (erpc.Session, *erpc.Status) {
 	return s.peer.ServeConn(conn, protoFunc...)
 }

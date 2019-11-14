@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/socket/example/pb"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/socket/example/pb"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/discovery"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
@@ -12,8 +12,8 @@ import (
 
 func main() {
 	// discovery.SetServiceNamespace("test@")
-	tp.SetSocketNoDelay(false)
-	tp.SetShutdown(time.Second*20, nil, nil)
+	erpc.SetSocketNoDelay(false)
+	erpc.SetShutdown(time.Second*20, nil, nil)
 
 	cfg := micro.SrvConfig{
 		DefaultBodyCodec: "protobuf",
@@ -35,11 +35,11 @@ func main() {
 
 // Home controller
 type Home struct {
-	tp.CallCtx
+	erpc.CallCtx
 }
 
 // Test handler
-func (h *Home) Test(args *pb.PbTest) (*pb.PbTest, *tp.Status) {
+func (h *Home) Test(args *pb.PbTest) (*pb.PbTest, *erpc.Status) {
 	return &pb.PbTest{
 		A: args.A + args.B,
 		B: args.A - args.B,

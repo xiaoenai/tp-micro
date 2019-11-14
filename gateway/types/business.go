@@ -15,15 +15,15 @@
 package types
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/proxy"
 	"github.com/xiaoenai/tp-micro/v6/clientele"
 )
 
 // Business implement your real business logic
 type Business struct {
 	// AuthFunc Verifies access token
-	AuthFunc func(accessToken string) (AccessToken, *tp.Status)
+	AuthFunc func(accessToken string) (AccessToken, *erpc.Status)
 	// SocketHooks TCP socket connecting event hooks
 	SocketHooks
 	// HttpHooks HTTP connecting event hooks
@@ -33,7 +33,7 @@ type Business struct {
 	// ProxySelector returns proxy caller by label.
 	ProxySelector func(*proxy.Label) proxy.Forwarder
 	// InnerServerPlugins inner server plugins
-	InnerServerPlugins []tp.Plugin
+	InnerServerPlugins []erpc.Plugin
 }
 
 // DefaultBusiness creates a new default Business object.

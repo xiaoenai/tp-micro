@@ -15,8 +15,8 @@
 package websocket
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/auth"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 )
 
@@ -27,16 +27,16 @@ var (
 )
 
 var (
-	_ tp.PostReadCallBodyPlugin = webSocketConnTabPlugin
-	_ tp.PostReadPushBodyPlugin = webSocketConnTabPlugin
-	_ tp.PostDisconnectPlugin   = webSocketConnTabPlugin
+	_ erpc.PostReadCallBodyPlugin = webSocketConnTabPlugin
+	_ erpc.PostReadPushBodyPlugin = webSocketConnTabPlugin
+	_ erpc.PostDisconnectPlugin   = webSocketConnTabPlugin
 )
 
 func (c *webSocketConnTab) Name() string {
 	return "WebSocketConnTab"
 }
 
-func (c *webSocketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.Status {
+func (c *webSocketConnTab) authAndLogon(authInfo string, sess auth.Session) *erpc.Status {
 	token, stat := logic.AuthFunc()(authInfo)
 	if stat != nil {
 		return stat
@@ -47,23 +47,23 @@ func (c *webSocketConnTab) authAndLogon(authInfo string, sess auth.Session) *tp.
 	}
 	stat = logic.WebSocketHooks().OnLogon(sess, token)
 	if stat == nil {
-		tp.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(tp.BaseSession).ID())
+		erpc.Tracef("[+SOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.(erpc.BaseSession).ID())
 	}
 	return stat
 }
 
-func (c *webSocketConnTab) PostReadCallBody(ctx tp.ReadCtx) *tp.Status {
+func (c *webSocketConnTab) PostReadCallBody(ctx erpc.ReadCtx) *erpc.Status {
 	_appendQuery, _ := ctx.Swap().Load(webSocketConnTabPlugin)
 	appendQuery, _ := _appendQuery.(string)
-	tp.WithAddMeta("", appendQuery)
+	erpc.WithAddMeta("", appendQuery)
 	return nil
 }
 
-func (c *webSocketConnTab) PostReadPushBody(ctx tp.ReadCtx) *tp.Status {
+func (c *webSocketConnTab) PostReadPushBody(ctx erpc.ReadCtx) *erpc.Status {
 	return c.PostReadCallBody(ctx)
 }
 
-func (c *webSocketConnTab) PostDisconnect(sess tp.BaseSession) *tp.Status {
-	tp.Tracef("[-WEBSOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.ID())
+func (c *webSocketConnTab) PostDisconnect(sess erpc.BaseSession) *erpc.Status {
+	erpc.Tracef("[-WEBSOCKET_CONN] addr: %s, id: %s", sess.RemoteAddr().String(), sess.ID())
 	return logic.WebSocketHooks().OnLogoff(sess)
 }

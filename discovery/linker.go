@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
@@ -52,7 +52,7 @@ type linker struct {
 func NewLinker(etcdConfig etcd.EasyConfig) micro.Linker {
 	etcdClient, err := etcd.EasyNew(etcdConfig)
 	if err != nil {
-		tp.Fatalf("%s: %v", linkerName, err)
+		erpc.Fatalf("%s: %v", linkerName, err)
 		return nil
 	}
 	return NewLinkerFromEtcd(etcdClient)
@@ -62,7 +62,7 @@ func NewLinker(etcdConfig etcd.EasyConfig) micro.Linker {
 func NewLinkerFromEtcd(etcdClient *etcd.Client) micro.Linker {
 	innerIp, err := goutil.IntranetIP()
 	if err != nil {
-		tp.Fatalf("%s: %v", linkerName, err)
+		erpc.Fatalf("%s: %v", linkerName, err)
 	}
 	l := &linker{
 		client:      etcdClient,
@@ -72,7 +72,7 @@ func NewLinkerFromEtcd(etcdClient *etcd.Client) micro.Linker {
 		innerIp:     innerIp,
 	}
 	if err := l.initNodes(); err != nil {
-		tp.Fatalf("%s: %v", linkerName, err)
+		erpc.Fatalf("%s: %v", linkerName, err)
 	}
 	go l.watchNodes()
 	return l
@@ -148,7 +148,7 @@ func (l *linker) initNodes() error {
 	}
 	for _, kv := range resp.Kvs {
 		l.addNode(string(kv.Key), getServiceInfo(kv.Value))
-		tp.Infof("%s: INIT %q : %q\n", linkerName, kv.Key, kv.Value)
+		erpc.Infof("%s: INIT %q : %q\n", linkerName, kv.Key, kv.Value)
 	}
 	return nil
 }
@@ -160,10 +160,10 @@ func (l *linker) watchNodes() {
 			switch ev.Type {
 			case etcd.EventTypePut:
 				l.addNode(string(ev.Kv.Key), getServiceInfo(ev.Kv.Value))
-				tp.Infof("%s: %s %q : %q\n", linkerName, ev.Type, ev.Kv.Key, ev.Kv.Value)
+				erpc.Infof("%s: %s %q : %q\n", linkerName, ev.Type, ev.Kv.Key, ev.Kv.Value)
 			case etcd.EventTypeDelete:
 				l.delNode(string(ev.Kv.Key))
-				tp.Infof("%s: %s %q\n", linkerName, ev.Type, ev.Kv.Key)
+				erpc.Infof("%s: %s %q\n", linkerName, ev.Type, ev.Kv.Key)
 			}
 		}
 	}
@@ -173,13 +173,13 @@ func getServiceInfo(value []byte) *ServiceInfo {
 	info := &ServiceInfo{}
 	err := json.Unmarshal(value, info)
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return info
 }
 
 // Select selects a service address by URI path.
-func (l *linker) Select(uriPath string, exclude map[string]struct{}) (string, *tp.Status) {
+func (l *linker) Select(uriPath string, exclude map[string]struct{}) (string, *erpc.Status) {
 	iface, exist := l.uriPaths.Load(uriPath)
 	if !exist {
 		return "", micro.RerrNotFound

@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/auth"
 	micro "github.com/xiaoenai/tp-micro/v6"
 )
 
@@ -32,35 +32,35 @@ func main() {
 
 	stat := cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Status()
 	if !stat.OK() {
-		tp.Fatalf("%v", stat)
+		erpc.Fatalf("%v", stat)
 	}
-	tp.Infof("10/2=%d", reply)
+	erpc.Infof("10/2=%d", reply)
 
-	tp.Debugf("waiting for 10s...")
+	erpc.Debugf("waiting for 10s...")
 	time.Sleep(time.Second * 10)
 
 	arg.B = 5
 	stat = cli.Call("/math/divide?access_token=sdfghj", arg, &reply).Status()
 	if !stat.OK() {
-		tp.Fatalf("%v", stat)
+		erpc.Fatalf("%v", stat)
 	}
-	tp.Infof("10/5=%d", reply)
+	erpc.Infof("10/5=%d", reply)
 
-	tp.Debugf("waiting for 10s...")
+	erpc.Debugf("waiting for 10s...")
 	time.Sleep(time.Second * 10)
 }
 
 const clientAuthInfo = "client-auth-info-12345"
 
 var authBearer = auth.NewBearerPlugin(
-	func(sess auth.Session, fn auth.SendOnce) (stat *tp.Status) {
+	func(sess auth.Session, fn auth.SendOnce) (stat *erpc.Status) {
 		var ret string
 		stat = fn(clientAuthInfo, &ret)
 		if !stat.OK() {
 			return
 		}
-		tp.Infof("auth info: %s, result: %s", clientAuthInfo, ret)
+		erpc.Infof("auth info: %s, result: %s", clientAuthInfo, ret)
 		return
 	},
-	tp.WithBodyCodec('s'),
+	erpc.WithBodyCodec('s'),
 )

@@ -15,13 +15,13 @@
 package micro
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 )
 
 // Linker linker for client.
 type Linker interface {
 	// Select selects a service address by URI path.
-	Select(uriPath string, exclude map[string]struct{}) (addr string, stat *tp.Status)
+	Select(uriPath string, exclude map[string]struct{}) (addr string, stat *erpc.Status)
 	// Len returns the number of nodes corresponding to the URI.
 	Len(uriPath string) int
 	// WatchOffline pushs service node offline notification.
@@ -46,7 +46,7 @@ type staticLinker struct {
 }
 
 // Select selects a service address by URI path.
-func (d *staticLinker) Select(uriPath string, exclude map[string]struct{}) (string, *tp.Status) {
+func (d *staticLinker) Select(uriPath string, exclude map[string]struct{}) (string, *erpc.Status) {
 	return d.srvAddr, nil
 }
 

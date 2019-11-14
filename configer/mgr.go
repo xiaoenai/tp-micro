@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
@@ -24,7 +24,7 @@ func CallCtrl() interface{} {
 }
 
 type cfg struct {
-	tp.CallCtx
+	erpc.CallCtx
 }
 
 var (
@@ -32,7 +32,7 @@ var (
 	statNotFound  = micro.RerrNotFound.Copy().SetReason("Config is not exist")
 )
 
-func (c *cfg) List(*struct{}) ([]string, *tp.Status) {
+func (c *cfg) List(*struct{}) ([]string, *erpc.Status) {
 	resp, err := mgr.etcdClient.Get(context.TODO(), KEY_PREFIX, etcd.WithPrefix())
 	if err != nil {
 		return nil, statEtcdError.Copy().SetReason(err.Error())
@@ -44,7 +44,7 @@ func (c *cfg) List(*struct{}) ([]string, *tp.Status) {
 	return r, nil
 }
 
-func (c *cfg) Get(*struct{}) (string, *tp.Status) {
+func (c *cfg) Get(*struct{}) (string, *erpc.Status) {
 	key := c.Query().Get("config-key")
 	resp, err := mgr.etcdClient.Get(context.TODO(), key)
 	if err != nil {
@@ -67,7 +67,7 @@ type ConfigKV struct {
 	Value string
 }
 
-func (c *cfg) Update(cfgKv *ConfigKV) (*struct{}, *tp.Status) {
+func (c *cfg) Update(cfgKv *ConfigKV) (*struct{}, *erpc.Status) {
 	_, err := mgr.etcdClient.Put(context.TODO(), cfgKv.Key, (&Node{
 		Initialized: true,
 		Config:      cfgKv.Value,

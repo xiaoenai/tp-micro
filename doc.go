@@ -1,4 +1,4 @@
-// Package tp-micro is a simple, powerful micro service framework based on Teleport.
+// Package tp-micro is a simple, powerful micro service framework based on eRPC.
 //
 // Copyright 2018 HenryLee and xiaoenai. All Rights Reserved.
 //

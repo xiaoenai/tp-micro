@@ -14,7 +14,7 @@ import (
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/micro/info"
 )
 
@@ -82,7 +82,7 @@ func (p *Project) fillFile(k string) {
 func mustMkdirAll(dir string) {
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
-		tp.Fatalf("[micro] %v", err)
+		erpc.Fatalf("[micro] %v", err)
 	}
 }
 
@@ -112,7 +112,7 @@ func (p *Project) Generator(force, newdoc bool) {
 		realName := info.ProjPath() + "/" + k
 		f, err := os.OpenFile(k, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 		if err != nil {
-			tp.Fatalf("[micro] create %s error: %v", realName, err)
+			erpc.Fatalf("[micro] create %s error: %v", realName, err)
 		}
 		b := formatSource(goutil.StringToBytes(v))
 		f.Write(b)
@@ -141,7 +141,7 @@ func (p *Project) gen() {
 func (p *Project) genAndWriteReadmeFile() {
 	f, err := os.OpenFile("./README.md", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		tp.Fatalf("[micro] create README.md error: %v", err)
+		erpc.Fatalf("[micro] create README.md error: %v", err)
 	}
 	f.WriteString(p.genReadme())
 	f.Close()
@@ -358,12 +358,12 @@ func (p *Project) genLogicFile() {
 		switch h.group.typ {
 		case pullType:
 			s += fmt.Sprintf(
-				"%sfunc %s(ctx tp.CallCtx,arg *args.%s)(*args.%s,*tp.Status){\nreturn new(args.%s),nil\n}\n\n",
+				"%sfunc %s(ctx erpc.CallCtx,arg *args.%s)(*args.%s,*erpc.Status){\nreturn new(args.%s),nil\n}\n\n",
 				h.doc, name, h.arg, h.result, h.result,
 			)
 		case pushType:
 			s += fmt.Sprintf(
-				"%sfunc %s(ctx tp.PushCtx,arg *args.%s)*tp.Status{\nreturn nil\n}\n\n",
+				"%sfunc %s(ctx erpc.PushCtx,arg *args.%s)*erpc.Status{\nreturn nil\n}\n\n",
 				h.doc, name, h.arg,
 			)
 		}
@@ -381,10 +381,10 @@ func (p *Project) genSdkFile() {
 			if strings.HasPrefix(param.Typ, "[") {
 				settingString += fmt.Sprintf("for _,v:=range arg.%s{\n%s}\n",
 					param.Name,
-					fmt.Sprintf("setting=append(setting,tp.WithAddMeta(\"%s\",fmt.Sprintf(\"%%v\",v)))\n", param.queryName),
+					fmt.Sprintf("setting=append(setting,erpc.WithAddMeta(\"%s\",fmt.Sprintf(\"%%v\",v)))\n", param.queryName),
 				)
 			} else {
-				settingString += fmt.Sprintf("setting=append(setting,tp.WithAddMeta(\"%s\",fmt.Sprintf(\"%%v\",arg.%s)))\n",
+				settingString += fmt.Sprintf("setting=append(setting,erpc.WithAddMeta(\"%s\",fmt.Sprintf(\"%%v\",arg.%s)))\n",
 					param.queryName,
 					param.Name,
 				)
@@ -394,7 +394,7 @@ func (p *Project) genSdkFile() {
 		switch h.group.typ {
 		case pullType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(arg *args.%s, setting ...tp.MessageSetting)(*args.%s,*tp.Status){\n"+
+				"%sfunc %s(arg *args.%s, setting ...erpc.MessageSetting)(*args.%s,*erpc.Status){\n"+
 					"result := new(args.%s)\n"+"%s"+
 					"status := client.Call(\"%s\", arg, result, setting...).Status()\n"+
 					"return result, status\n}\n",
@@ -406,14 +406,14 @@ func (p *Project) genSdkFile() {
 			s2 += fmt.Sprintf(
 				"func Example%s(){\n"+
 					"result, status :=sdk.%[1]s(&args.%s{})\n"+
-					"if status != nil {\ntp.Errorf(\"%s: status: %%s\", toJsonBytes(status))\n} else {\ntp.Infof(\"%s: result: %%s\", toJsonBytes(result))\n}\n"+
+					"if status != nil {\nerpc.Errorf(\"%s: status: %%s\", toJsonBytes(status))\n} else {\nerpc.Infof(\"%s: result: %%s\", toJsonBytes(result))\n}\n"+
 					"fmt.Printf(\"\")\n// Output:\n"+
 					"}\n\n",
 				name, h.arg, name, name,
 			)
 		case pushType:
 			s1 += fmt.Sprintf(
-				"%sfunc %s(arg *args.%s, setting ...tp.MessageSetting)*tp.Status{\n"+"%s"+
+				"%sfunc %s(arg *args.%s, setting ...erpc.MessageSetting)*erpc.Status{\n"+"%s"+
 					"return client.Push(\"%s\", arg, setting...)\n}\n",
 				h.doc, name, h.arg,
 				settingString,
@@ -422,7 +422,7 @@ func (p *Project) genSdkFile() {
 			s2 += fmt.Sprintf(
 				"func Example%s(){\n"+
 					"status :=sdk.%[1]s(&args.%s{})\n"+
-					"if status != nil {\ntp.Errorf(\"%s: status: %%s\", toJsonBytes(status))\n}\n"+
+					"if status != nil {\nerpc.Errorf(\"%s: status: %%s\", toJsonBytes(status))\n}\n"+
 					"fmt.Printf(\"\")\n// Output:\n"+
 					"}\n\n",
 				name, h.arg, name,
@@ -506,12 +506,12 @@ func (mod *Model) mongoString() string {
 
 	m, err := template.New("").Parse(mongoModelTpl)
 	if err != nil {
-		tp.Fatalf("[micro] model string: %v", err)
+		erpc.Fatalf("[micro] model string: %v", err)
 	}
 	buf := bytes.NewBuffer(nil)
 	err = m.Execute(buf, mod)
 	if err != nil {
-		tp.Fatalf("[micro] model string: %v", err)
+		erpc.Fatalf("[micro] model string: %v", err)
 	}
 	s := strings.Replace(buf.String(), "&lt;", "<", -1)
 	return strings.Replace(s, "&gt;", ">", -1)
@@ -554,12 +554,12 @@ func (mod *Model) mysqlString() string {
 
 	m, err := template.New("").Parse(mysqlModelTpl)
 	if err != nil {
-		tp.Fatalf("[micro] model string: %v", err)
+		erpc.Fatalf("[micro] model string: %v", err)
 	}
 	buf := bytes.NewBuffer(nil)
 	err = m.Execute(buf, mod)
 	if err != nil {
-		tp.Fatalf("[micro] model string: %v", err)
+		erpc.Fatalf("[micro] model string: %v", err)
 	}
 	s := strings.Replace(buf.String(), "&lt;", "<", -1)
 	return strings.Replace(s, "&gt;", ">", -1)
@@ -578,7 +578,7 @@ func (p *Project) replaceWithLine(key, placeholder, value string) string {
 func formatSource(src []byte) []byte {
 	b, err := format.Source(src)
 	if err != nil {
-		tp.Fatalf("[micro] format error: %v\ncode:\n%s", err, src)
+		erpc.Fatalf("[micro] format error: %v\ncode:\n%s", err, src)
 	}
 	return b
 }

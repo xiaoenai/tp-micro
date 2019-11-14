@@ -4,11 +4,11 @@
 package api
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 )
 
 // Route registers handlers to router.
-func Route(root string, router *tp.Router) {
+func Route(root string, router *erpc.Router) {
 	// root router group
 	group := router.SubRoute(root)
 

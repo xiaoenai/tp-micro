@@ -18,13 +18,13 @@ import (
 	"path"
 	"strings"
 
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/clientele"
 	"github.com/xiaoenai/tp-micro/v6/gateway/types"
 )
 
 // Init initializes a common inner ant client.
-func Init(apiVersion string, protoFunc tp.ProtoFunc) {
+func Init(apiVersion string, protoFunc erpc.ProtoFunc) {
 	clientele.SetProtoFunc(protoFunc)
 	SetApiVersion(apiVersion)
 }
@@ -37,7 +37,7 @@ func SetApiVersion(apiVersion string) {
 }
 
 // GwHosts returns the gateway host list.
-func GwHosts(setting ...tp.MessageSetting) (*types.GwHosts, *tp.Status) {
+func GwHosts(setting ...erpc.MessageSetting) (*types.GwHosts, *erpc.Status) {
 	var reply = new(types.GwHosts)
 	stat := clientele.DynamicCall(nil, "/gw"+_apiVersion+"/hosts", nil, reply, setting...).Status()
 	if stat != nil {
@@ -47,7 +47,7 @@ func GwHosts(setting ...tp.MessageSetting) (*types.GwHosts, *tp.Status) {
 }
 
 // SocketTotal returns the long connections total of the remote server.
-func SocketTotal(srvAddr string, setting ...tp.MessageSetting) (*types.SocketTotalReply, *tp.Status) {
+func SocketTotal(srvAddr string, setting ...erpc.MessageSetting) (*types.SocketTotalReply, *erpc.Status) {
 	var reply = new(types.SocketTotalReply)
 	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_total", nil, reply, setting...).Status()
 	if stat != nil {
@@ -57,7 +57,7 @@ func SocketTotal(srvAddr string, setting ...tp.MessageSetting) (*types.SocketTot
 }
 
 // SocketPush pushes message to the specified user.
-func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSetting) (*types.SocketPushReply, *tp.Status) {
+func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...erpc.MessageSetting) (*types.SocketPushReply, *erpc.Status) {
 	var reply = new(types.SocketPushReply)
 	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_push", args, reply, setting...).Status()
 	if stat != nil {
@@ -67,7 +67,7 @@ func SocketPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.Messag
 }
 
 // SocketMpush multi-push messages to the specified users.
-func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...tp.MessageSetting) (*types.SocketMpushReply, *tp.Status) {
+func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...erpc.MessageSetting) (*types.SocketMpushReply, *erpc.Status) {
 	var reply = new(types.SocketMpushReply)
 	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/socket_mpush", args, reply, setting...).Status()
 	if stat != nil {
@@ -77,7 +77,7 @@ func SocketMpush(srvAddr string, args *types.SocketMpushArgs, setting ...tp.Mess
 }
 
 // WsTotal returns the long connections total of the remote server.
-func WsTotal(srvAddr string, setting ...tp.MessageSetting) (*types.WsTotalReply, *tp.Status) {
+func WsTotal(srvAddr string, setting ...erpc.MessageSetting) (*types.WsTotalReply, *erpc.Status) {
 	var reply = new(types.WsTotalReply)
 	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_total", nil, reply, setting...).Status()
 	if stat != nil {
@@ -87,7 +87,7 @@ func WsTotal(srvAddr string, setting ...tp.MessageSetting) (*types.WsTotalReply,
 }
 
 // WsPush pushes message to the specified user.
-func WsPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSetting) (*types.WsPushReply, *tp.Status) {
+func WsPush(srvAddr string, args *types.SocketPushArgs, setting ...erpc.MessageSetting) (*types.WsPushReply, *erpc.Status) {
 	var reply = new(types.WsPushReply)
 	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_push", args, reply, setting...).Status()
 	if stat != nil {
@@ -97,7 +97,7 @@ func WsPush(srvAddr string, args *types.SocketPushArgs, setting ...tp.MessageSet
 }
 
 // WsMpush multi-push messages to the specified users.
-func WsMpush(srvAddr string, args *types.WsMpushArgs, setting ...tp.MessageSetting) (*types.WsMpushReply, *tp.Status) {
+func WsMpush(srvAddr string, args *types.WsMpushArgs, setting ...erpc.MessageSetting) (*types.WsMpushReply, *erpc.Status) {
 	var reply = new(types.WsMpushReply)
 	stat := clientele.StaticCall(nil, srvAddr, "/gw"+_apiVersion+"/ws_mpush", args, reply, setting...).Status()
 	if stat != nil {

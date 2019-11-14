@@ -21,8 +21,8 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.12.1 // indirect
 	github.com/henrylee2cn/cfgo v0.0.0-20180417024816-e6c3cc325b21
+	github.com/henrylee2cn/erpc/v6 v6.3.1
 	github.com/henrylee2cn/goutil v0.0.0-20191029125303-21920e347847
-	github.com/henrylee2cn/teleport/v6 v6.2.5
 	github.com/howeyc/fsnotify v0.9.0
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/json-iterator/go v1.1.8 // indirect

@@ -7,7 +7,7 @@ import (
 	"os"
 	"sync"
 
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
 
@@ -20,7 +20,7 @@ func InitNode(etcdClient *etcd.Client) {
 	var err error
 	globalNodes.etcdSession, err = etcd.NewSession(etcdClient)
 	if err != nil {
-		tp.Fatalf("Initialization of the global node failed: %s", err.Error())
+		erpc.Fatalf("Initialization of the global node failed: %s", err.Error())
 	}
 }
 
@@ -91,7 +91,7 @@ func (n *Nodes) add(service, version string, cfg Config) (err error) {
 		}
 	}
 
-	tp.Warnf("Wait for the configuration in the ETCD to be set: %s", key)
+	erpc.Warnf("Wait for the configuration in the ETCD to be set: %s", key)
 	go node.watch(n.etcdSession.Client())
 	return node.waitInit()
 }
@@ -113,7 +113,7 @@ func (n *Nodes) archive() {
 	os.Mkdir("./config", 0755)
 	r, err := os.OpenFile("./config/archive", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
-		tp.Warnf("Archive config error: %v", err)
+		erpc.Warnf("Archive config error: %v", err)
 		return
 	}
 	b, _ := json.Marshal(n.nodeMap)
@@ -167,7 +167,7 @@ func (n *Node) watch(etcdClient *etcd.Client) {
 			}
 			err := n.bind(event.Kv.Value)
 			if err != nil {
-				tp.Errorf("Binding configuration from etcd failed: %s", err)
+				erpc.Errorf("Binding configuration from etcd failed: %s", err)
 			}
 		}
 	}

@@ -15,13 +15,13 @@
 package types
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/utils"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/utils"
 )
 
 type (
 	// AuthFunc Verifies access token
-	AuthFunc func(authInfo string) (AccessToken, *tp.Status)
+	AuthFunc func(authInfo string) (AccessToken, *erpc.Status)
 	// AccessToken access token info
 	AccessToken interface {
 		// String returns the access token string.
@@ -42,7 +42,7 @@ func DefaultAuthFunc() AuthFunc {
 	return defAuthFunc
 }
 
-func defAuthFunc(authInfo string) (AccessToken, *tp.Status) {
+func defAuthFunc(authInfo string) (AccessToken, *erpc.Status) {
 	return defAccessToken(authInfo), nil
 }
 
@@ -68,7 +68,7 @@ func (d defAccessToken) DeviceId() string {
 	return string(d)
 }
 
-type ctx struct{ tp.UnknownPushCtx }
+type ctx struct{ erpc.UnknownPushCtx }
 
 // AddedQuery the user information will be appended to the URI query part.
 func (d defAccessToken) AddedQuery() *utils.Args {

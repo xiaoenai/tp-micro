@@ -1,7 +1,7 @@
 package main
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 )
 
@@ -20,12 +20,12 @@ type (
 
 // P handler
 type P struct {
-	tp.CallCtx
+	erpc.CallCtx
 }
 
 // Divide divide API
-func (p *P) Divide(arg *Arg) (int, *tp.Status) {
-	tp.Infof("query arg x: %s, xy_z: %s", arg.Query.X, arg.XyZ)
+func (p *P) Divide(arg *Arg) (int, *erpc.Status) {
+	erpc.Infof("query arg x: %s, xy_z: %s", arg.Query.X, arg.XyZ)
 	return arg.A / arg.B, nil
 }
 

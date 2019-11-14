@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
 
@@ -28,7 +28,7 @@ func NewKey(service string, version string) string {
 
 func must(err error) {
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 }
 

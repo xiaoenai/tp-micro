@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 )
 
 const (
@@ -40,7 +40,7 @@ const (
 type (
 	circuitBreaker struct {
 		linker          Linker
-		newSessionFunc  func(addr string) (*cliSession, *tp.Status)
+		newSessionFunc  func(addr string) (*cliSession, *erpc.Status)
 		sessLib         goutil.Map
 		closeCh         chan struct{}
 		enableBreak     bool
@@ -57,7 +57,7 @@ type (
 		halfOpenTesing bool
 		rwmu           sync.RWMutex
 		circuitBreaker *circuitBreaker
-		tp.Session
+		erpc.Session
 	}
 )
 
@@ -66,7 +66,7 @@ func newCircuitBreaker(
 	errorPercentage int,
 	breakDuration time.Duration,
 	linker Linker,
-	newFn func(string) (tp.Session, *tp.Status),
+	newFn func(string) (erpc.Session, *erpc.Status),
 ) *circuitBreaker {
 	c := &circuitBreaker{
 		linker:          linker,
@@ -76,7 +76,7 @@ func newCircuitBreaker(
 		breakDuration:   breakDuration,
 		closeCh:         make(chan struct{}),
 	}
-	c.newSessionFunc = func(addr string) (*cliSession, *tp.Status) {
+	c.newSessionFunc = func(addr string) (*cliSession, *erpc.Status) {
 		sess, stat := newFn(addr)
 		if stat != nil {
 			return nil, stat
@@ -100,7 +100,7 @@ func (c *circuitBreaker) start() {
 
 var notFoundService = RerrNotFound.Copy("not found service")
 
-func (c *circuitBreaker) selectSession(serviceMethod string) (*cliSession, *tp.Status) {
+func (c *circuitBreaker) selectSession(serviceMethod string) (*cliSession, *erpc.Status) {
 	var (
 		uriPath = getUriPath(serviceMethod)
 		addr    string
@@ -208,7 +208,7 @@ func (c *circuitBreaker) watchOffline() {
 		if c.enableBreak && s.halfOpenTimer != nil {
 			s.halfOpenTimer.Stop()
 		}
-		tp.Go(func() { s.Close() })
+		erpc.Go(func() { s.Close() })
 	}
 }
 

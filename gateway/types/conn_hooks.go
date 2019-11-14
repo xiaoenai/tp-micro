@@ -15,8 +15,8 @@
 package types
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/auth"
 	"github.com/valyala/fasthttp"
 	micro "github.com/xiaoenai/tp-micro/v6"
 )
@@ -24,20 +24,20 @@ import (
 // SocketHooks TCP socket connecting event hooks
 type SocketHooks interface {
 	// OnLogon is called when the client goes online.
-	OnLogon(auth.Session, AccessToken) *tp.Status
+	OnLogon(auth.Session, AccessToken) *erpc.Status
 	// OnLogoff is called when the client goes offline.
-	OnLogoff(tp.BaseSession) *tp.Status
+	OnLogoff(erpc.BaseSession) *erpc.Status
 	// GetSession returns session from peer by uid.
-	GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Status)
+	GetSession(peer erpc.Peer, uid string) (erpc.Session, *erpc.Status)
 	//PreWritePush is executed before writing PUSH packet.
-	PreWritePush(tp.WriteCtx) *tp.Status
+	PreWritePush(erpc.WriteCtx) *erpc.Status
 }
 
 type (
 	// HttpHooks HTTP connecting event hooks
 	HttpHooks interface {
 		// OnRequest is called when the client requests.
-		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Status)
+		OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []erpc.MessageSetting, *erpc.Status)
 	}
 	// RequestArgs http query parameters
 	RequestArgs interface {
@@ -51,13 +51,13 @@ type (
 // WebSocketHooks WEB socket connecting event hooks
 type WebSocketHooks interface {
 	// OnLogon is called when the client goes online.
-	OnLogon(auth.Session, AccessToken) *tp.Status
+	OnLogon(auth.Session, AccessToken) *erpc.Status
 	// OnLogoff is called when the client goes offline.
-	OnLogoff(tp.BaseSession) *tp.Status
+	OnLogoff(erpc.BaseSession) *erpc.Status
 	// GetSession returns session from peer by uid.
-	GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Status)
+	GetSession(peer erpc.Peer, uid string) (erpc.Session, *erpc.Status)
 	//PreWritePush is executed before writing PUSH packet.
-	PreWritePush(tp.WriteCtx) *tp.Status
+	PreWritePush(erpc.WriteCtx) *erpc.Status
 }
 
 // DefaultSocketHooks creates a new default SocketHooks object.
@@ -72,16 +72,16 @@ func DefaultWebSocketHooks() WebSocketHooks {
 
 type defSocketHooks struct{}
 
-func (d *defSocketHooks) OnLogon(sess auth.Session, accessToken AccessToken) *tp.Status {
+func (d *defSocketHooks) OnLogon(sess auth.Session, accessToken AccessToken) *erpc.Status {
 	sess.SetID(accessToken.SessionId())
 	return nil
 }
 
-func (d *defSocketHooks) OnLogoff(tp.BaseSession) *tp.Status {
+func (d *defSocketHooks) OnLogoff(erpc.BaseSession) *erpc.Status {
 	return nil
 }
 
-func (d *defSocketHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.Status) {
+func (d *defSocketHooks) GetSession(peer erpc.Peer, uid string) (erpc.Session, *erpc.Status) {
 	sess, ok := peer.GetSession(uid)
 	if !ok {
 		return nil, micro.RerrNotOnline
@@ -89,7 +89,7 @@ func (d *defSocketHooks) GetSession(peer tp.Peer, uid string) (tp.Session, *tp.S
 	return sess, nil
 }
 
-func (d *defSocketHooks) PreWritePush(tp.WriteCtx) *tp.Status {
+func (d *defSocketHooks) PreWritePush(erpc.WriteCtx) *erpc.Status {
 	return nil
 }
 
@@ -100,7 +100,7 @@ func DefaultHttpHooks() HttpHooks {
 
 type defHttpHooks struct{}
 
-func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []tp.MessageSetting, *tp.Status) {
+func (d *defHttpHooks) OnRequest(params RequestArgs, body []byte, authFunc AuthFunc) (AccessToken, []erpc.MessageSetting, *erpc.Status) {
 	accessToken, stat := authFunc(string(params.QueryArgs().Peek("access_token")))
 	return accessToken, nil, stat
 }

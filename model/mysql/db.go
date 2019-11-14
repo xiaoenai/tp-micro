@@ -12,7 +12,7 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/goutil/errors"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/redis"
 	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
 	"github.com/xiaoenai/tp-micro/v6/model/sqlx/reflectx"
@@ -137,7 +137,7 @@ func (d *DB) RegCacheableDB(ormStructPtr Cacheable, cacheExpiration time.Duratio
 			}
 		}
 	}
-	// tp.Debugf("fields:%#v", fieldsIndexMap)
+	// erpc.Debugf("fields:%#v", fieldsIndexMap)
 
 	var priFieldsIndex = make([]int, len(priCols))
 	for i, col := range priCols {
@@ -364,7 +364,7 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 		}
 		key, err = c.createPrikey(structElemValue)
 		if err != nil {
-			tp.Errorf("CacheGet(): createPrikey: %s", err.Error())
+			erpc.Errorf("CacheGet(): createPrikey: %s", err.Error())
 			err = nil
 			return
 		}
@@ -376,7 +376,7 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 			err = c.Cache.Set(cacheKey.Key, key, c.cacheExpiration).Err()
 		}
 		if err != nil {
-			tp.Errorf("CacheGet(): %s", err.Error())
+			erpc.Errorf("CacheGet(): %s", err.Error())
 			err = nil
 		}
 	})
@@ -492,7 +492,7 @@ func (c *CacheableDB) CacheGetByWhere(destStructPtr Cacheable, whereNamedCond st
 		}
 		key, err = c.createPrikey(structElemValue)
 		if err != nil {
-			tp.Errorf("CacheGetByWhere(): createPrikey: %s", err.Error())
+			erpc.Errorf("CacheGetByWhere(): createPrikey: %s", err.Error())
 			err = nil
 			return
 		}
@@ -504,7 +504,7 @@ func (c *CacheableDB) CacheGetByWhere(destStructPtr Cacheable, whereNamedCond st
 			err = c.Cache.Set(cacheKey.Key, key, c.cacheExpiration).Err()
 		}
 		if err != nil {
-			tp.Errorf("CacheGetByWhere(): %s", err.Error())
+			erpc.Errorf("CacheGetByWhere(): %s", err.Error())
 			err = nil
 		}
 	})
@@ -546,7 +546,7 @@ func (c *CacheableDB) getFirstCache(key string, destStructPtr Cacheable) (bool, 
 		if err == nil {
 			return true, nil
 		}
-		tp.Errorf("CacheGet(): %s", err.Error())
+		erpc.Errorf("CacheGet(): %s", err.Error())
 
 	} else if !redis.IsRedisNil(err) {
 		return false, err

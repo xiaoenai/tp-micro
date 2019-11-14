@@ -21,8 +21,8 @@ import (
 	"net"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	heartbeat "github.com/henrylee2cn/teleport/v6/plugin/heartbeat"
+	"github.com/henrylee2cn/erpc/v6"
+	heartbeat "github.com/henrylee2cn/erpc/v6/plugin/heartbeat"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 )
 
@@ -43,11 +43,11 @@ type Service struct {
 }
 
 var (
-	_ tp.PostRegPlugin    = new(Service)
-	_ tp.PostListenPlugin = new(Service)
+	_ erpc.PostRegPlugin    = new(Service)
+	_ erpc.PostListenPlugin = new(Service)
 )
 
-// ServicePlugin creates a teleport plugin which automatically registered api info to etcd.
+// ServicePlugin creates a erpc plugin which automatically registered api info to etcd.
 // Note:
 // excludeApis must not be registered to etcd.
 // If etcdConfig.DialTimeout<0, it means unlimit;
@@ -57,13 +57,13 @@ func ServicePlugin(hostport string, etcdConfig etcd.EasyConfig, excludeApis ...s
 	var err error
 	s.client, err = etcd.EasyNew(etcdConfig)
 	if err != nil {
-		tp.Fatalf("%v: %v", err, s.Name())
+		erpc.Fatalf("%v: %v", err, s.Name())
 		return s
 	}
 	return s
 }
 
-// ServicePluginFromEtcd creates a teleport plugin which automatically registered api info to etcd.
+// ServicePluginFromEtcd creates a erpc plugin which automatically registered api info to etcd.
 // Note:
 // excludeApis must not be registered to etcd.
 func ServicePluginFromEtcd(hostport string, etcdClient *etcd.Client, excludeApis ...string) *Service {
@@ -98,7 +98,7 @@ func (s *Service) Name() string {
 }
 
 // PostReg registers URI path.
-func (s *Service) PostReg(handler *tp.Handler) error {
+func (s *Service) PostReg(handler *erpc.Handler) error {
 	s.allApis = append(s.allApis, handler.Name())
 	return nil
 }
@@ -131,17 +131,17 @@ L:
 		for {
 			select {
 			case <-s.client.Ctx().Done():
-				tp.Warnf("%s: etcd server closed", name)
+				erpc.Warnf("%s: etcd server closed", name)
 				s.revoke()
-				tp.Warnf("%s: stop\n", name)
+				erpc.Warnf("%s: stop\n", name)
 				return
 			case ka, ok := <-ch:
 				if !ok {
-					tp.Debugf("%s: etcd keep alive channel closed, and restart it", name)
+					erpc.Debugf("%s: etcd keep alive channel closed, and restart it", name)
 					s.revoke()
 					ch = s.anywayKeepAlive()
 				} else {
-					tp.Tracef("%s: recv etcd ttl:%d", name, ka.TTL)
+					erpc.Tracef("%s: recv etcd ttl:%d", name, ka.TTL)
 				}
 			}
 		}
@@ -180,7 +180,7 @@ func (s *Service) keepAlive() (<-chan *etcd.LeaseKeepAliveResponse, error) {
 
 	ch, err := s.client.KeepAlive(context.TODO(), resp.ID)
 	if err == nil {
-		tp.Infof("%s: PUT %q : %q", s.Name(), s.serviceKey, info)
+		erpc.Infof("%s: PUT %q : %q", s.Name(), s.serviceKey, info)
 	}
 	return ch, err
 }
@@ -188,7 +188,7 @@ func (s *Service) keepAlive() (<-chan *etcd.LeaseKeepAliveResponse, error) {
 func (s *Service) revoke() {
 	_, err := s.client.Revoke(context.TODO(), s.leaseid)
 	if err != nil {
-		tp.Errorf("%s: revoke service error: %s", s.Name(), err.Error())
+		erpc.Errorf("%s: revoke service error: %s", s.Name(), err.Error())
 		return
 	}
 }

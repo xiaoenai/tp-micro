@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/gateway"
 	agent "github.com/xiaoenai/tp-micro/v6/gateway/helper/agent/socket"
@@ -50,25 +50,25 @@ func main() {
 	biz := types.DefaultBusiness()
 	redisClient, err := redis.NewClient(&cfg.Redis)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	agent.Init(redisClient, redisClient)
 	biz.SocketHooks = agent.GetSocketHooks()
 	_, err = gray.SetGray(biz, cfg.GraySocketClient, cfg.GrayEtcd, cfg.Mysql, cfg.Redis, nil)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 
 	go func() {
 		t := time.NewTicker(time.Second)
 		for {
 			<-t.C
-			tp.Infof("total conn: %d", gateway.TotalConn())
+			erpc.Infof("total conn: %d", gateway.TotalConn())
 		}
 	}()
 
 	err = gateway.Run(cfg.Gw, biz, nil)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 }

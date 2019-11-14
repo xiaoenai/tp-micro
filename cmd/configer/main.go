@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/configer"
 	"github.com/xiaoenai/tp-micro/v6/discovery"
@@ -31,7 +31,7 @@ func main() {
 
 	etcdClient, err := etcd.EasyNew(cfg.Etcd)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 
 	configer.InitMgr(etcdClient)

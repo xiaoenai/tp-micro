@@ -19,10 +19,10 @@ package gateway
 import (
 	_ "unsafe"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	// "github.com/henrylee2cn/teleport/v6/proto/httproto"
-	"github.com/henrylee2cn/teleport/v6/mixer/websocket/jsonSubProto"
-	"github.com/henrylee2cn/teleport/v6/proto/rawproto"
+	"github.com/henrylee2cn/erpc/v6"
+	// "github.com/henrylee2cn/erpc/v6/proto/httproto"
+	"github.com/henrylee2cn/erpc/v6/mixer/websocket/jsonSubProto"
+	"github.com/henrylee2cn/erpc/v6/proto/rawproto"
 	"github.com/xiaoenai/tp-micro/v6/clientele"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic/hosts"
@@ -36,7 +36,7 @@ import (
 // Run the gateway main program.
 // If protoFunc=nil, rawproto.NewRawProtoFunc is used by default.
 // If biz=nil, types.DefaultBusiness() is used by default.
-func Run(cfg Config, biz *types.Business, protoFunc, wsProtoFunc tp.ProtoFunc) error {
+func Run(cfg Config, biz *types.Business, protoFunc, wsProtoFunc erpc.ProtoFunc) error {
 	// config
 	err := cfg.check()
 	if err != nil {

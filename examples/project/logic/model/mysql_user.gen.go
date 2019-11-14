@@ -7,8 +7,8 @@ import (
 	"database/sql"
 	"unsafe"
 
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/mysql"
 	"github.com/xiaoenai/tp-micro/v6/model/sqlx"
 
@@ -142,7 +142,7 @@ func UpsertUser(_u *User, _updateFields []string, tx ...*sqlx.Tx) (int64, error)
 	}
 	err = userDB.DeleteCache(_u)
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return _u.Id, nil
 }
@@ -181,7 +181,7 @@ func UpdateUserByPrimary(_u *User, _updateFields []string, tx ...*sqlx.Tx) error
 	}
 	err = userDB.DeleteCache(_u)
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -219,7 +219,7 @@ func UpdateUserByName(_u *User, _updateFields []string, tx ...*sqlx.Tx) error {
 	}
 	err = userDB.DeleteCache(_u, "name")
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -253,7 +253,7 @@ func DeleteUserByPrimary(_id int64, deleteHard bool, tx ...*sqlx.Tx) error {
 		Id: _id,
 	})
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }
@@ -286,7 +286,7 @@ func DeleteUserByName(_name string, deleteHard bool, tx ...*sqlx.Tx) error {
 		Name: _name,
 	}, "name")
 	if err != nil {
-		tp.Errorf("%s", err.Error())
+		erpc.Errorf("%s", err.Error())
 	}
 	return nil
 }

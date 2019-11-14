@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/discovery"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
@@ -15,7 +15,7 @@ import (
 
 var dynamicClient *micro.Client
 var staticClient *StaticClients
-var protoFunc tp.ProtoFunc
+var protoFunc erpc.ProtoFunc
 var cliCfg micro.CliConfig
 var etcdCfg etcd.EasyConfig
 var etcdClient *etcd.Client
@@ -28,11 +28,11 @@ func init() {
 	cfgo.MustReg("cluster_client", &cliCfg)
 	cfgo.MustReg("etcd", &etcdCfg)
 	peerName = filepath.Base(os.Args[0])
-	protoFunc = tp.DefaultProtoFunc()
+	protoFunc = erpc.DefaultProtoFunc()
 	var err error
 	etcdClient, err = etcd.EasyNew(etcdCfg)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	dynamicClient = micro.NewClient(
 		cliCfg,
@@ -61,12 +61,12 @@ func GetStaticClients() *StaticClients {
 }
 
 // GetProtoFunc sets the socket communication protocol.
-func GetProtoFunc() tp.ProtoFunc {
+func GetProtoFunc() erpc.ProtoFunc {
 	return protoFunc
 }
 
 // SetProtoFunc sets the socket communication protocol.
-func SetProtoFunc(_protoFunc tp.ProtoFunc) {
+func SetProtoFunc(_protoFunc erpc.ProtoFunc) {
 	protoFunc = _protoFunc
 	dynamicClient.SetProtoFunc(protoFunc)
 	staticClient.protoFunc = protoFunc
@@ -92,7 +92,7 @@ type Ctx interface {
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func DynamicCall(ctx Ctx, serviceMethod string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
+func DynamicCall(ctx Ctx, serviceMethod string, arg interface{}, result interface{}, setting ...erpc.MessageSetting) erpc.CallCmd {
 	return dynamicClient.Call(serviceMethod, arg, result, setting...)
 }
 
@@ -101,7 +101,7 @@ func DynamicCall(ctx Ctx, serviceMethod string, arg interface{}, result interfac
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func DynamicPush(ctx Ctx, serviceMethod string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
+func DynamicPush(ctx Ctx, serviceMethod string, arg interface{}, setting ...erpc.MessageSetting) *erpc.Status {
 	return dynamicClient.Push(serviceMethod, arg, setting...)
 }
 
@@ -110,7 +110,7 @@ func DynamicPush(ctx Ctx, serviceMethod string, arg interface{}, setting ...tp.M
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func StaticCall(ctx Ctx, addr string, serviceMethod string, arg interface{}, result interface{}, setting ...tp.MessageSetting) tp.CallCmd {
+func StaticCall(ctx Ctx, addr string, serviceMethod string, arg interface{}, result interface{}, setting ...erpc.MessageSetting) erpc.CallCmd {
 	return staticClient.GetOrSet(addr).Call(serviceMethod, arg, result, setting...)
 }
 
@@ -119,7 +119,7 @@ func StaticCall(ctx Ctx, addr string, serviceMethod string, arg interface{}, res
 // The ctx can be nil;
 // If the arg is []byte or *[]byte type, it can automatically fill in the body codec name;
 // If the session is a client role and PeerConfig.RedialTimes>0, it is automatically re-called once after a failure.
-func StaticPush(ctx Ctx, addr string, serviceMethod string, arg interface{}, setting ...tp.MessageSetting) *tp.Status {
+func StaticPush(ctx Ctx, addr string, serviceMethod string, arg interface{}, setting ...erpc.MessageSetting) *erpc.Status {
 	return staticClient.GetOrSet(addr).Push(serviceMethod, arg, setting...)
 }
 
@@ -127,7 +127,7 @@ func StaticPush(ctx Ctx, addr string, serviceMethod string, arg interface{}, set
 type StaticClients struct {
 	clients   map[string]*micro.Client
 	cfg       micro.CliConfig
-	protoFunc tp.ProtoFunc
+	protoFunc erpc.ProtoFunc
 	mu        sync.RWMutex
 }
 

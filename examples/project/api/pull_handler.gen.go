@@ -4,23 +4,23 @@
 package api
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 
 	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
 	"github.com/xiaoenai/tp-micro/v6/examples/project/logic"
 )
 
 // Home handler
-func Home(ctx tp.CallCtx, arg *args.EmptyStruct) (*args.HomeResult, *tp.Status) {
+func Home(ctx erpc.CallCtx, arg *args.EmptyStruct) (*args.HomeResult, *erpc.Status) {
 	return logic.Home(ctx, arg)
 }
 
 // Math controller
 type Math struct {
-	tp.CallCtx
+	erpc.CallCtx
 }
 
 // Divide handler
-func (m *Math) Divide(arg *args.DivideArg) (*args.DivideResult, *tp.Status) {
+func (m *Math) Divide(arg *args.DivideArg) (*args.DivideResult, *erpc.Status) {
 	return logic.Math_Divide(m.CallCtx, arg)
 }

@@ -4,7 +4,7 @@ import (
 	"regexp"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 
 	"github.com/xiaoenai/tp-micro/v6/gateway/helper/gray/logic/model"
@@ -20,7 +20,7 @@ var (
 )
 
 // IsGray check whether the service should use grayscale based on the uid.
-func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Status) {
+func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *erpc.Status) {
 	g, exist, err := model.GetGrayMatchByUri(args.Uri)
 	if err != nil {
 		return nil, micro.RerrInternalServerError.SetCause(err.Error())
@@ -46,7 +46,7 @@ func IsGray(args *types.IsGrayArgs) (*types.IsGrayResult, *tp.Status) {
 }
 
 // Get get the rule of gray.
-func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Status) {
+func Get(args *types.GetArgs) (*types.GrayMatch, *erpc.Status) {
 	g, exist, err := model.GetGrayMatchByUri(args.Uri)
 	if err != nil {
 		return nil, micro.RerrInternalServerError.SetCause(err.Error())
@@ -58,7 +58,7 @@ func Get(args *types.GetArgs) (*types.GrayMatch, *tp.Status) {
 }
 
 // Delete delete the rule of gray.
-func Delete(args *types.DeleteArgs) (*struct{}, *tp.Status) {
+func Delete(args *types.DeleteArgs) (*struct{}, *erpc.Status) {
 	err := model.DeleteGrayMatchByUri(args.Uri)
 	if err != nil {
 		return nil, micro.RerrInternalServerError.SetCause(err.Error())
@@ -67,7 +67,7 @@ func Delete(args *types.DeleteArgs) (*struct{}, *tp.Status) {
 }
 
 // Set insert or update the regular expression for matching the URI.
-func Set(args *types.SetArgs) (*struct{}, *tp.Status) {
+func Set(args *types.SetArgs) (*struct{}, *erpc.Status) {
 	_, ok := regexpCache.Load(args.Regexp)
 	if !ok {
 		re, err := regexp.Compile(args.Regexp)

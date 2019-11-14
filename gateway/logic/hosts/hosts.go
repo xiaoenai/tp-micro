@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/codec"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/codec"
 	"github.com/xiaoenai/tp-micro/v6/clientele"
 	"github.com/xiaoenai/tp-micro/v6/gateway/sdk"
 	"github.com/xiaoenai/tp-micro/v6/gateway/types"
@@ -90,12 +90,12 @@ func (h *Hosts) start() error {
 		for {
 			select {
 			case <-clientele.GetEtcdClient().Ctx().Done():
-				tp.Warnf("[GW_HOSTS] stop!")
+				erpc.Warnf("[GW_HOSTS] stop!")
 				h.revoke()
 				return
 			case _, ok := <-ch:
 				if !ok {
-					tp.Debugf("[GW_HOSTS] etcd keep alive channel closed, and restart it")
+					erpc.Debugf("[GW_HOSTS] etcd keep alive channel closed, and restart it")
 					h.revoke()
 					ch = h.anywayKeepAlive()
 				}
@@ -141,7 +141,7 @@ func (h *Hosts) keepAlive() (<-chan *etcd.LeaseKeepAliveResponse, error) {
 func (h *Hosts) revoke() {
 	_, err := clientele.GetEtcdClient().Revoke(context.TODO(), h.leaseid)
 	if err != nil {
-		tp.Errorf("[GW_HOSTS] revoke host error: %s", err.Error())
+		erpc.Errorf("[GW_HOSTS] revoke host error: %s", err.Error())
 		return
 	}
 }
@@ -203,13 +203,13 @@ func (h *Hosts) watchEtcd() {
 						innerSocketAddr: innerSocketAddr,
 						webSocketAddr:   webSocketAddr,
 					}
-					tp.Infof("[GW_HOSTS] add host: %s", key)
+					erpc.Infof("[GW_HOSTS] add host: %s", key)
 				}
 
 			case etcd.EventTypeDelete:
 				if ok {
 					delete(h.weightIps, key)
-					tp.Infof("[GW_HOSTS] delete host: %s", key)
+					erpc.Infof("[GW_HOSTS] delete host: %s", key)
 					select {
 					case updateCh <- struct{}{}:
 					default:
@@ -244,7 +244,7 @@ func (h *Hosts) resetGatewayIps(goSort bool) {
 	for _, n := range resp.Kvs {
 		httpAddr, outerSocketAddr, innerSocketAddr, webSocketAddr, ok = splitHostsKey(n.Key)
 		if !ok {
-			tp.Warnf("[GW_HOSTS] invalid host key: %s", n.Key)
+			erpc.Warnf("[GW_HOSTS] invalid host key: %s", n.Key)
 			continue
 		}
 		m[string(n.Key)] = &WeightIp{
@@ -279,17 +279,17 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 		reply   *types.SocketTotalReply
 		t       time.Time
 		sortIps = make(SortWeightIps, 0, cnt)
-		stat    *tp.Status
+		stat    *erpc.Status
 	)
 	for _, w := range h.weightIps {
 		if len(w.innerSocketAddr) > 0 {
 			t = time.Now()
 			reply, stat = sdk.SocketTotal(
 				w.innerSocketAddr,
-				tp.WithBodyCodec(codec.ID_PROTOBUF),
+				erpc.WithBodyCodec(codec.ID_PROTOBUF),
 			)
 			if stat != nil {
-				tp.Warnf("[GW_HOSTS] not available host: innerSocketAddr: %s, error: %s", w.innerSocketAddr, stat)
+				erpc.Warnf("[GW_HOSTS] not available host: innerSocketAddr: %s, error: %s", w.innerSocketAddr, stat)
 				continue
 			}
 			w.weight = -int64(reply.ConnTotal) - int64(time.Since(t)/time.Millisecond)
@@ -332,7 +332,7 @@ func (h *Hosts) sortAndStoreIpsLocked() {
 	h.ips.Store(ips)
 	h.ipsLock.Unlock()
 	b, _ := json.MarshalIndent(ips, "", "  ")
-	tp.Tracef("[GW_HOSTS] update hosts: %s", b)
+	erpc.Tracef("[GW_HOSTS] update hosts: %s", b)
 }
 
 type (

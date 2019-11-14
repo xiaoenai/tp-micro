@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/gateway"
 	"github.com/xiaoenai/tp-micro/v6/gateway/types"
 )
@@ -17,6 +17,6 @@ func main() {
 	biz := types.DefaultBusiness()
 	err := gateway.Run(*cfg, biz, nil, nil)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 }

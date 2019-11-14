@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 
@@ -35,7 +35,7 @@ func toJsonBytes(i interface{}) []byte {
 func ExampleStat() {
 	status := sdk.Stat(&args.StatArg{})
 	if status != nil {
-		tp.Errorf("Stat: status: %s", toJsonBytes(status))
+		erpc.Errorf("Stat: status: %s", toJsonBytes(status))
 	}
 	fmt.Printf("")
 	// Output:
@@ -44,9 +44,9 @@ func ExampleStat() {
 func ExampleHome() {
 	result, status := sdk.Home(&args.EmptyStruct{})
 	if status != nil {
-		tp.Errorf("Home: status: %s", toJsonBytes(status))
+		erpc.Errorf("Home: status: %s", toJsonBytes(status))
 	} else {
-		tp.Infof("Home: result: %s", toJsonBytes(result))
+		erpc.Infof("Home: result: %s", toJsonBytes(result))
 	}
 	fmt.Printf("")
 	// Output:
@@ -55,9 +55,9 @@ func ExampleHome() {
 func ExampleMath_Divide() {
 	result, status := sdk.Math_Divide(&args.DivideArg{})
 	if status != nil {
-		tp.Errorf("Math_Divide: status: %s", toJsonBytes(status))
+		erpc.Errorf("Math_Divide: status: %s", toJsonBytes(status))
 	} else {
-		tp.Infof("Math_Divide: result: %s", toJsonBytes(result))
+		erpc.Infof("Math_Divide: result: %s", toJsonBytes(result))
 	}
 	fmt.Printf("")
 	// Output:

@@ -1,22 +1,22 @@
 package websocket
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
-	ws "github.com/henrylee2cn/teleport/v6/mixer/websocket"
-	"github.com/henrylee2cn/teleport/v6/plugin/auth"
-	"github.com/henrylee2cn/teleport/v6/plugin/binder"
-	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	"github.com/henrylee2cn/erpc/v6"
+	ws "github.com/henrylee2cn/erpc/v6/mixer/websocket"
+	"github.com/henrylee2cn/erpc/v6/plugin/auth"
+	"github.com/henrylee2cn/erpc/v6/plugin/binder"
+	"github.com/henrylee2cn/erpc/v6/plugin/proxy"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
 )
 
 var (
-	outerPeer      tp.Peer
+	outerPeer      erpc.Peer
 	clientAuthInfo string
 )
 
 // Serve starts websocket gateway service.
-func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
+func Serve(outerSrvCfg micro.SrvConfig, protoFunc erpc.ProtoFunc) {
 	// new ws server
 	srv := ws.NewServer(
 		"/",
@@ -36,29 +36,29 @@ func Serve(outerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 
 // auth plugin
 var authChecker = auth.NewCheckerPlugin(
-	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *tp.Status) {
+	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *erpc.Status) {
 		var authInfo string
 		stat = fn(&authInfo)
 		if !stat.OK() {
 			return
 		}
-		tp.Tracef("auth info: %v", authInfo)
+		erpc.Tracef("auth info: %v", authInfo)
 		stat = webSocketConnTabPlugin.authAndLogon(authInfo, sess)
 		if !stat.OK() {
 			return
 		}
 		return "", nil
 	},
-	tp.WithBodyCodec('s'),
+	erpc.WithBodyCodec('s'),
 )
 
 // preWritePushPlugin returns PreWritePushPlugin.
-func preWritePushPlugin() tp.Plugin {
+func preWritePushPlugin() erpc.Plugin {
 	return &perPusher{fn: logic.WebSocketHooks().PreWritePush}
 }
 
 type perPusher struct {
-	fn func(tp.WriteCtx) *tp.Status
+	fn func(erpc.WriteCtx) *erpc.Status
 }
 
 func (p *perPusher) Name() string {
@@ -66,9 +66,9 @@ func (p *perPusher) Name() string {
 }
 
 var (
-	_ tp.PreWritePushPlugin = (*perPusher)(nil)
+	_ erpc.PreWritePushPlugin = (*perPusher)(nil)
 )
 
-func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Status {
+func (p *perPusher) PreWritePush(ctx erpc.WriteCtx) *erpc.Status {
 	return p.fn(ctx)
 }

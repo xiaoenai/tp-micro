@@ -17,9 +17,9 @@ package socket
 import (
 	"net"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/auth"
-	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/auth"
+	"github.com/henrylee2cn/erpc/v6/plugin/proxy"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/clientele"
 	"github.com/xiaoenai/tp-micro/v6/discovery"
@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	outerPeer      tp.Peer
+	outerPeer      erpc.Peer
 	outerServer    *micro.Server
 	clientAuthInfo string
 )
@@ -37,13 +37,13 @@ var (
 func OuterServeConn(conn net.Conn) {
 	sess, err := outerServer.ServeConn(conn)
 	if err != nil {
-		tp.Errorf("Serve net.Conn error: %v", err)
+		erpc.Errorf("Serve net.Conn error: %v", err)
 	}
 	<-sess.CloseNotify()
 }
 
 // Serve starts TCP gateway service.
-func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
+func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc erpc.ProtoFunc) {
 	outerServer = micro.NewServer(
 		outerSrvCfg,
 		authChecker,
@@ -91,29 +91,29 @@ func Serve(outerSrvCfg, innerSrvCfg micro.SrvConfig, protoFunc tp.ProtoFunc) {
 
 // auth plugin
 var authChecker = auth.NewCheckerPlugin(
-	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *tp.Status) {
+	func(sess auth.Session, fn auth.RecvOnce) (ret interface{}, stat *erpc.Status) {
 		var authInfo string
 		stat = fn(&authInfo)
 		if !stat.OK() {
 			return
 		}
-		tp.Tracef("auth info: %v", authInfo)
+		erpc.Tracef("auth info: %v", authInfo)
 		stat = socketConnTabPlugin.authAndLogon(authInfo, sess)
 		if !stat.OK() {
 			return
 		}
 		return "", nil
 	},
-	tp.WithBodyCodec('s'),
+	erpc.WithBodyCodec('s'),
 )
 
 // preWritePushPlugin returns PreWritePushPlugin.
-func preWritePushPlugin() tp.Plugin {
+func preWritePushPlugin() erpc.Plugin {
 	return &perPusher{fn: logic.SocketHooks().PreWritePush}
 }
 
 type perPusher struct {
-	fn func(tp.WriteCtx) *tp.Status
+	fn func(erpc.WriteCtx) *erpc.Status
 }
 
 func (p *perPusher) Name() string {
@@ -121,9 +121,9 @@ func (p *perPusher) Name() string {
 }
 
 var (
-	_ tp.PreWritePushPlugin = (*perPusher)(nil)
+	_ erpc.PreWritePushPlugin = (*perPusher)(nil)
 )
 
-func (p *perPusher) PreWritePush(ctx tp.WriteCtx) *tp.Status {
+func (p *perPusher) PreWritePush(ctx erpc.WriteCtx) *erpc.Status {
 	return p.fn(ctx)
 }

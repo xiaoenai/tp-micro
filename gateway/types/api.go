@@ -15,7 +15,7 @@
 package types
 
 import (
-	"github.com/henrylee2cn/teleport/v6/codec"
+	"github.com/henrylee2cn/erpc/v6/codec"
 )
 
 type (

@@ -5,7 +5,7 @@
 package logic
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 
 	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
 	// "github.com/xiaoenai/tp-micro/v6/examples/project/logic/model"
@@ -13,16 +13,16 @@ import (
 )
 
 // Stat handler
-func Stat(ctx tp.PushCtx, arg *args.StatArg) *tp.Status {
+func Stat(ctx erpc.PushCtx, arg *args.StatArg) *erpc.Status {
 	return nil
 }
 
 // Home handler
-func Home(ctx tp.CallCtx, arg *args.EmptyStruct) (*args.HomeResult, *tp.Status) {
+func Home(ctx erpc.CallCtx, arg *args.EmptyStruct) (*args.HomeResult, *erpc.Status) {
 	return new(args.HomeResult), nil
 }
 
 // Divide handler
-func Math_Divide(ctx tp.CallCtx, arg *args.DivideArg) (*args.DivideResult, *tp.Status) {
+func Math_Divide(ctx erpc.CallCtx, arg *args.DivideArg) (*args.DivideResult, *erpc.Status) {
 	return new(args.DivideResult), nil
 }

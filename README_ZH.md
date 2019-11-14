@@ -1,7 +1,7 @@
-# TP-Micro [![GitHub release](https://img.shields.io/github/release/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/releases) [![report card](https://goreportcard.com/badge/github.com/xiaoenai/tp-micro?style=flat-square)](http://goreportcard.com/report/xiaoenai/tp-micro) [![github issues](https://img.shields.io/github/issues/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aopen+is%3Aissue) [![github closed issues](https://img.shields.io/github/issues-closed-raw/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aissue+is%3Aclosed) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/xiaoenai/tp-micro) [![view examples](https://img.shields.io/badge/learn%20by-examples-00BCD4.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/tree/v3/examples) [![view teleport](https://img.shields.io/badge/based%20on-teleport-00BCD4.svg?style=flat-square)](https://github.com/henrylee2cn/teleport/v6) [![view Go网络编程群](https://img.shields.io/badge/官方QQ群-Go网络编程(42730308)-27a5ea.svg?style=flat-square)](http://jq.qq.com/?_wv=1027&k=fzi4p1)
+# TP-Micro [![GitHub release](https://img.shields.io/github/release/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/releases) [![report card](https://goreportcard.com/badge/github.com/xiaoenai/tp-micro?style=flat-square)](http://goreportcard.com/report/xiaoenai/tp-micro) [![github issues](https://img.shields.io/github/issues/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aopen+is%3Aissue) [![github closed issues](https://img.shields.io/github/issues-closed-raw/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aissue+is%3Aclosed) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/xiaoenai/tp-micro) [![view examples](https://img.shields.io/badge/learn%20by-examples-00BCD4.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/tree/v3/examples) [![view erpc](https://img.shields.io/badge/based%20on-erpc-00BCD4.svg?style=flat-square)](https://github.com/henrylee2cn/erpc) [![view Go网络编程群](https://img.shields.io/badge/官方QQ群-Go网络编程(42730308)-27a5ea.svg?style=flat-square)](http://jq.qq.com/?_wv=1027&k=fzi4p1)
 
 
-TP-Micro master(v6) 是一个基于 [Teleport v6](https://github.com/henrylee2cn/teleport/v6/tree/master) 定制的、简约而强大的微服务框架。
+TP-Micro master(v6) 是一个基于 [eRPC v6](https://github.com/henrylee2cn/erpc/tree/master) 定制的、简约而强大的微服务框架。
 
 ![tp-micro flow chart](https://github.com/xiaoenai/tp-micro/raw/master/doc/tp-micro_flow_chart.png)
 
@@ -45,7 +45,7 @@ package main
 
 import (
     micro "github.com/xiaoenai/tp-micro/v6"
-    tp "github.com/henrylee2cn/teleport/v6"
+    "github.com/henrylee2cn/erpc/v6"
 )
 
 // Arg arg
@@ -56,11 +56,11 @@ type Arg struct {
 
 // P handler
 type P struct {
-    tp.CallCtx
+    erpc.CallCtx
 }
 
 // Divide divide API
-func (p *P) Divide(arg *Arg) (int, *tp.Status) {
+func (p *P) Divide(arg *Arg) (int, *erpc.Status) {
     return arg.A / arg.B, nil
 }
 
@@ -80,7 +80,7 @@ package main
 
 import (
     micro "github.com/xiaoenai/tp-micro/v6"
-    tp "github.com/henrylee2cn/teleport/v6"
+    "github.com/henrylee2cn/erpc/v6"
 )
 
 func main() {
@@ -101,17 +101,17 @@ func main() {
         B: 2,
     }, &result).Status()
     if stat != nil {
-        tp.Fatalf("%v", stat)
+        erpc.Fatalf("%v", stat)
     }
-    tp.Infof("10/2=%d", result)
+    erpc.Infof("10/2=%d", result)
     stat = cli.Call("/p/divide", &Arg{
         A: 10,
         B: 0,
     }, &result).Status()
     if stat == nil {
-        tp.Fatalf("%v", stat)
+        erpc.Fatalf("%v", stat)
     }
-    tp.Infof("test binding error: ok: %v", stat)
+    erpc.Infof("test binding error: ok: %v", stat)
 }
 ```
 
@@ -352,7 +352,7 @@ OPTIONS:
 
 ```go
 // Start a server
-var peer1 = tp.NewPeer(tp.PeerConfig{
+var peer1 = erpc.NewPeer(erpc.PeerConfig{
         ListenAddress: "0.0.0.0:9090", // for server role
 })
 peer1.Listen()
@@ -360,7 +360,7 @@ peer1.Listen()
 ...
 
 // Start a client
-var peer2 = tp.NewPeer(tp.PeerConfig{})
+var peer2 = erpc.NewPeer(erpc.PeerConfig{})
 var sess, err = peer2.Dial("127.0.0.1:8080")
 ```
 
@@ -369,9 +369,9 @@ var sess, err = peer2.Dial("127.0.0.1:8080")
 
 ```go
 type Aaa struct {
-        tp.CallCtx
+        erpc.CallCtx
 }
-func (x *Aaa) XxZz(arg *<T>) (<T>, *tp.Status) {
+func (x *Aaa) XxZz(arg *<T>) (<T>, *erpc.Status) {
         ...
         return r, nil
 }
@@ -390,7 +390,7 @@ peer.RouteCallFunc((*Aaa).XxZz)
 ### Call-Handler-Function 接口模板
 
 ```go
-func XxZz(ctx tp.CallCtx, arg *<T>) (<T>, *tp.Status) {
+func XxZz(ctx erpc.CallCtx, arg *<T>) (<T>, *erpc.Status) {
         ...
         return r, nil
 }
@@ -407,9 +407,9 @@ peer.RouteCallFunc(XxZz)
 
 ```go
 type Bbb struct {
-        tp.PushCtx
+        erpc.PushCtx
 }
-func (b *Bbb) YyZz(arg *<T>) *tp.Status {
+func (b *Bbb) YyZz(arg *<T>) *erpc.Status {
         ...
         return nil
 }
@@ -429,7 +429,7 @@ peer.RoutePushFunc((*Bbb).YyZz)
 
 ```go
 // YyZz register the route: /yy_zz
-func YyZz(ctx tp.PushCtx, arg *<T>) *tp.Status {
+func YyZz(ctx erpc.PushCtx, arg *<T>) *erpc.Status {
         ...
         return nil
 }
@@ -445,7 +445,7 @@ peer.RoutePushFunc(YyZz)
 ### Unknown-Call-Handler-Function 接口模板
 
 ```go
-func XxxUnknownCall (ctx tp.UnknownCallCtx) (interface{}, *tp.Status) {
+func XxxUnknownCall (ctx erpc.UnknownCallCtx) (interface{}, *erpc.Status) {
         ...
         return r, nil
 }
@@ -461,7 +461,7 @@ peer.SetUnknownCall(XxxUnknownCall)
 ### Unknown-Push-Handler-Function 接口模板
 
 ```go
-func XxxUnknownPush(ctx tp.UnknownPushCtx) *tp.Status {
+func XxxUnknownPush(ctx erpc.UnknownPushCtx) *erpc.Status {
         ...
         return nil
 }
@@ -496,21 +496,21 @@ func NewIgnoreCase() *ignoreCase {
 type ignoreCase struct{}
 
 var (
-        _ tp.PostReadCallHeaderPlugin = new(ignoreCase)
-        _ tp.PostReadPushHeaderPlugin = new(ignoreCase)
+        _ erpc.PostReadCallHeaderPlugin = new(ignoreCase)
+        _ erpc.PostReadPushHeaderPlugin = new(ignoreCase)
 )
 
 func (i *ignoreCase) Name() string {
         return "ignoreCase"
 }
 
-func (i *ignoreCase) PostReadCallHeader(ctx tp.ReadCtx) *tp.Status {
+func (i *ignoreCase) PostReadCallHeader(ctx erpc.ReadCtx) *erpc.Status {
         // Dynamic transformation path is lowercase
         ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
         return nil
 }
 
-func (i *ignoreCase) PostReadPushHeader(ctx tp.ReadCtx) *tp.Status {
+func (i *ignoreCase) PostReadPushHeader(ctx erpc.ReadCtx) *erpc.Status {
         // Dynamic transformation path is lowercase
         ctx.UriObject().Path = strings.ToLower(ctx.UriObject().Path)
         return nil
@@ -627,7 +627,7 @@ float64 |  []float64 |
 package main
 
 import (
-    tp "github.com/henrylee2cn/teleport/v6"
+    "github.com/henrylee2cn/erpc/v6"
     micro "github.com/xiaoenai/tp-micro/v6"
 )
 
@@ -646,12 +646,12 @@ type (
 
 // P handler
 type P struct {
-    tp.CallCtx
+    erpc.CallCtx
 }
 
 // Divide divide API
-func (p *P) Divide(arg *Arg) (int, *tp.Status) {
-    tp.Infof("query arg x: %s, xy_z: %s", arg.Query.X, arg.XyZ)
+func (p *P) Divide(arg *Arg) (int, *erpc.Status) {
+    erpc.Infof("query arg x: %s, xy_z: %s", arg.Query.X, arg.XyZ)
     return arg.A / arg.B, nil
 }
 
@@ -708,7 +708,7 @@ func SetSocketReadBuffer(bytes int)
 func SetSocketWriteBuffer(bytes int)
 ```
 
-[More Usage](https://github.com/henrylee2cn/teleport/v6)
+[More Usage](https://github.com/henrylee2cn/erpc)
 
 
 ## 开源协议

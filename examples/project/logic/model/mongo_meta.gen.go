@@ -7,14 +7,14 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/mongo"
 
 	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
 )
 
-var _ = tp.Errorf
+var _ = erpc.Errorf
 
 // Meta comment...
 type Meta args.Meta

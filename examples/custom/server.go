@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/codec"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/codec"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/discovery"
 	sagent "github.com/xiaoenai/tp-micro/v6/gateway/helper/agent/socket"
@@ -34,12 +34,12 @@ func init() {
 }
 
 // Home HTML home page
-func Home(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Status) {
+func Home(ctx erpc.CallCtx, args *struct{}) ([]byte, *erpc.Status) {
 	return html.Render(ctx, "home", "Home Page Test!")
 }
 
 // Home2 HTML home page
-func Home2(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Status) {
+func Home2(ctx erpc.CallCtx, args *struct{}) ([]byte, *erpc.Status) {
 	return nil, helper.Redirect(ctx, 302, "http://localhost:5000/home")
 }
 
@@ -51,11 +51,11 @@ type Args struct {
 
 // Math handler
 type Math struct {
-	tp.CallCtx
+	erpc.CallCtx
 }
 
 // Divide divide API
-func (m *Math) Divide(args *Args) (int, *tp.Status) {
+func (m *Math) Divide(args *Args) (int, *erpc.Status) {
 	return args.A / args.B, nil
 }
 
@@ -90,13 +90,13 @@ func main() {
 	redisClient, err := redis.NewClient(&cfg.Redis)
 	sagent.Init(redisClient, redisClient)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 
-	tp.Go(func() {
+	erpc.Go(func() {
 		agentNewsChan := sagent.Subscribe()
 		for news := range agentNewsChan {
-			tp.Infof("agent news: sessionId:%s, event:%s",
+			erpc.Infof("agent news: sessionId:%s, event:%s",
 				news.SessionId, news.Event,
 			)
 		}
@@ -115,7 +115,7 @@ func main() {
 	// test pushing, when the client progress is existed.
 	gwSdk.Init("v1", nil)
 	for i := 0; ; i++ {
-		tp.Infof("test pushing msg after 10s")
+		erpc.Infof("test pushing msg after 10s")
 		time.Sleep(time.Second * 10)
 		push([]string{"client-auth-info-12345"}, &Args{A: i, B: i})
 	}
@@ -125,7 +125,7 @@ func main() {
 func push(uids []string, args *Args) {
 	agts, stat := sagent.QueryAgent(uids)
 	if stat != nil {
-		tp.Errorf("push fail: %v", stat)
+		erpc.Errorf("push fail: %v", stat)
 	}
 	for _, agt := range agts.Agents {
 		if agt.IsOffline {
@@ -148,12 +148,12 @@ func push(uids []string, args *Args) {
 				Body:      msgBytes,
 				BodyCodec: codec.ID_JSON,
 			},
-			tp.WithBodyCodec(codec.ID_JSON),
+			erpc.WithBodyCodec(codec.ID_JSON),
 		)
 		if stat != nil {
-			tp.Errorf("push fail: %v", stat)
+			erpc.Errorf("push fail: %v", stat)
 		} else {
-			tp.Infof("push ok")
+			erpc.Infof("push ok")
 		}
 	}
 }

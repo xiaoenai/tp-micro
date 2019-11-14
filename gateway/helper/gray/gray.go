@@ -3,8 +3,8 @@ package gray
 import (
 	"strings"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/proxy"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/proxy"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/clientele"
 	"github.com/xiaoenai/tp-micro/v6/discovery"
@@ -27,7 +27,7 @@ func SetGray(
 	grayEtcdConfig etcd.EasyConfig,
 	mysqlConfig mysql.Config,
 	redisConfig redis.Config,
-	protoFunc tp.ProtoFunc,
+	protoFunc erpc.ProtoFunc,
 ) (grayClient *micro.Client, err error) {
 	err = mod.Init(mysqlConfig, redisConfig)
 	if err != nil {
@@ -60,7 +60,7 @@ func SetGray(
 			Uid: label.SessionID,
 		})
 		if stat != nil {
-			tp.Errorf("%s", stat.String())
+			erpc.Errorf("%s", stat.String())
 			return clientele.GetDynamicClient()
 		}
 		if !r.Gray {
@@ -77,9 +77,9 @@ func (*innerServerPlugin) Name() string {
 	return "route_gray"
 }
 
-var _ tp.PostNewPeerPlugin = (*innerServerPlugin)(nil)
+var _ erpc.PostNewPeerPlugin = (*innerServerPlugin)(nil)
 
-func (*innerServerPlugin) PostNewPeer(peer tp.EarlyPeer) error {
+func (*innerServerPlugin) PostNewPeer(peer erpc.EarlyPeer) error {
 	api.Route("/gw/"+gwLogic.ApiVersion()+"/gray", peer.Router())
 	return nil
 }

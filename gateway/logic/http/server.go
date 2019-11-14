@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/valyala/fasthttp"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
@@ -43,7 +43,7 @@ type HttpSrvConfig struct {
 func (h *HttpSrvConfig) ListenPort() string {
 	_, port, err := net.SplitHostPort(h.ListenAddress)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	return port
 }
@@ -52,7 +52,7 @@ func (h *HttpSrvConfig) ListenPort() string {
 func (h *HttpSrvConfig) InnerIpPort() string {
 	hostPort, err := micro.InnerIpPort(h.ListenPort())
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 	return hostPort
 }
@@ -74,13 +74,13 @@ func Serve(srvCfg HttpSrvConfig) {
 	}
 	gwHostsUri = "/gw/" + logic.ApiVersion() + "/hosts"
 	var tlsConfig *tls.Config
-	addr, err := tp.NewFakeAddr2("tcp", srvCfg.ListenAddress)
+	addr, err := erpc.NewFakeAddr2("tcp", srvCfg.ListenAddress)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
-	lis, err := tp.NewInheritedListener(addr, tlsConfig)
+	lis, err := erpc.NewInheritedListener(addr, tlsConfig)
 	if err != nil {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 
 	allowCross = srvCfg.AllowCross
@@ -89,8 +89,8 @@ func Serve(srvCfg HttpSrvConfig) {
 	if tlsConfig != nil {
 		network = "https"
 	}
-	tp.Printf("register HTTP handler: %s", gwHostsUri)
-	tp.Printf("listen ok (network:%s, addr:%s)", network, lis.Addr())
+	erpc.Printf("register HTTP handler: %s", gwHostsUri)
+	erpc.Printf("listen ok (network:%s, addr:%s)", network, lis.Addr())
 
 	err = (&fasthttp.Server{
 		Name:    fmt.Sprintf("micro-gateway-%s", logic.ApiVersion()),
@@ -98,6 +98,6 @@ func Serve(srvCfg HttpSrvConfig) {
 	}).Serve(lis)
 
 	if err != nil && err != http.ErrServerClosed {
-		tp.Fatalf("%v", err)
+		erpc.Fatalf("%v", err)
 	}
 }

@@ -10,8 +10,8 @@ import (
 
 	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/plugin/auth"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/plugin/auth"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/clientele"
 	aproto "github.com/xiaoenai/tp-micro/v6/gateway/helper/agent/proto"
@@ -56,7 +56,7 @@ func GetSocketHooks() types.SocketHooks {
 }
 
 type agentHandler struct {
-	peer                 tp.Peer
+	peer                 erpc.Peer
 	module               *redis.Module
 	redisWithLargeMemory *redis.Client
 	redisWithPublishCmd  *redis.Client
@@ -79,11 +79,11 @@ func getSalt(m goutil.Map) (uint64, bool) {
 
 var statServerError = micro.RerrInternalServerError.SetCause("Agent Error")
 
-func newServerRerror(detail string) *tp.Status {
+func newServerRerror(detail string) *erpc.Status {
 	return statServerError.SetCause(detail)
 }
 
-func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp.Status) {
+func (*agentHandler) GetSession(peer erpc.Peer, sessionId string) (erpc.Session, *erpc.Status) {
 	sess, ok := peer.GetSession(sessionId)
 	if ok {
 		return sess, nil
@@ -92,11 +92,11 @@ func (*agentHandler) GetSession(peer tp.Peer, sessionId string) (tp.Session, *tp
 	return nil, micro.RerrNotOnline
 }
 
-func (*agentHandler) PreWritePush(tp.WriteCtx) *tp.Status {
+func (*agentHandler) PreWritePush(erpc.WriteCtx) *erpc.Status {
 	return nil
 }
 
-func (h *agentHandler) OnLogon(sess auth.Session, accessToken types.AccessToken) *tp.Status {
+func (h *agentHandler) OnLogon(sess auth.Session, accessToken types.AccessToken) *erpc.Status {
 	sessionId := accessToken.SessionId()
 	// check or remove old session
 	_, stat := kickOffline(sessionId, true)
@@ -132,7 +132,7 @@ func (h *agentHandler) OnLogon(sess auth.Session, accessToken types.AccessToken)
 	return nil
 }
 
-func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Status {
+func (h *agentHandler) OnLogoff(sess erpc.BaseSession) *erpc.Status {
 	salt, ok := getSalt(sess.Swap())
 	if !ok {
 		return nil
@@ -174,12 +174,12 @@ func (h *agentHandler) OnLogoff(sess tp.BaseSession) *tp.Status {
 }
 
 // EnforceKickOffline enforches kick the user offline.
-func EnforceKickOffline(sessionId string) *tp.Status {
+func EnforceKickOffline(sessionId string) *erpc.Status {
 	return enforceKickOffline(sessionId, false)
 }
 
 // enforceKickOffline enforches kick the user offline.
-func enforceKickOffline(sessionId string, checkLocal bool) *tp.Status {
+func enforceKickOffline(sessionId string, checkLocal bool) *erpc.Status {
 	succ, stat := kickOffline(sessionId, checkLocal)
 	if succ || stat != nil {
 		return stat
@@ -220,7 +220,7 @@ func enforceKickOffline(sessionId string, checkLocal bool) *tp.Status {
 }
 
 // kickOffline kicks the user offline.
-func kickOffline(sessionId string, checkLocal bool) (succ bool, stat *tp.Status) {
+func kickOffline(sessionId string, checkLocal bool) (succ bool, stat *erpc.Status) {
 	if checkLocal {
 		// Try to delete the session from the local gateway.
 		existed, _ := socket.Kick(sessionId)
@@ -246,7 +246,7 @@ func kickOffline(sessionId string, checkLocal bool) (succ bool, stat *tp.Status)
 }
 
 // GetAgent returns agent information.
-func GetAgent(sessionId string) (*aproto.Agent, *tp.Status) {
+func GetAgent(sessionId string) (*aproto.Agent, *erpc.Status) {
 	key := globalHandler.module.Key(sessionId)
 	data, err := globalHandler.redisWithLargeMemory.Get(key).Bytes()
 	switch {
@@ -272,7 +272,7 @@ func GetAgent(sessionId string) (*aproto.Agent, *tp.Status) {
 var nilAgents = &aproto.Agents{Agents: []*aproto.Agent{}}
 
 // QueryAgent queries agent information in batches.
-func QueryAgent(sessionIds []string) (*aproto.Agents, *tp.Status) {
+func QueryAgent(sessionIds []string) (*aproto.Agents, *erpc.Status) {
 	if len(sessionIds) == 0 {
 		return nilAgents, nil
 	}
@@ -350,7 +350,7 @@ func Subscribe() <-chan *AgentNews {
 			for msg := range pubSub.Channel() {
 				news, err := parseAgentNews(msg.Payload)
 				if err != nil {
-					tp.Errorf("%s", err.Error())
+					erpc.Errorf("%s", err.Error())
 					continue
 				}
 				subscribeChannel <- news

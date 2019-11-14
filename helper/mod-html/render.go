@@ -6,8 +6,8 @@ import (
 	"text/template"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport/v6"
-	"github.com/henrylee2cn/teleport/v6/utils"
+	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/erpc/v6/utils"
 	micro "github.com/xiaoenai/tp-micro/v6"
 )
 
@@ -114,7 +114,7 @@ func ParseFiles(filenames ...string) (err error) {
 		for _, f := range filenames {
 			parseFuncs[f] = func(nt *template.Template) {
 				if _, err := nt.ParseFiles(f); err != nil {
-					tp.Errorf("ParseFiles: filename: %s, error: %s", f, err.Error())
+					erpc.Errorf("ParseFiles: filename: %s, error: %s", f, err.Error())
 				}
 			}
 		}
@@ -167,7 +167,7 @@ func ParseGlob(pattern string) (err error) {
 		defer parseFuncsLocker.Unlock()
 		parseFuncs[pattern] = func(nt *template.Template) {
 			if _, err := nt.ParseGlob(pattern); err != nil {
-				tp.Errorf("ParseGlob: pattern: %s, error: %s", pattern, err.Error())
+				erpc.Errorf("ParseGlob: pattern: %s, error: %s", pattern, err.Error())
 			}
 		}
 	}()
@@ -194,7 +194,7 @@ func GoTimingRefresh(d time.Duration) {
 }
 
 // Render renders the initialized html template by name.
-func Render(ctxMeta CtxMeta, tmplName string, data interface{}) ([]byte, *tp.Status) {
+func Render(ctxMeta CtxMeta, tmplName string, data interface{}) ([]byte, *erpc.Status) {
 	ctxMeta.SetMeta("Content-Type", "text/html; charset=utf-8")
 	buf := utils.AcquireByteBuffer()
 	tLocker.RLock()

@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/henrylee2cn/cfgo"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 	"github.com/xiaoenai/tp-micro/v6/model/mongo"
@@ -37,7 +37,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	if len(c.LogLevel) == 0 {
 		c.LogLevel = "TRACE"
 	}
-	tp.SetLoggerLevel(c.LogLevel)
+	erpc.SetLoggerLevel(c.LogLevel)
 	var (
 		mysqlConfig *mysql.Config
 		mongoConfig *mongo.Config
@@ -51,7 +51,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	}
 	err = model.Init(mysqlConfig, mongoConfig, redisConfig, c.CacheExpire)
 	if err != nil {
-		tp.Errorf("%v", err)
+		erpc.Errorf("%v", err)
 	}
 	return nil
 }

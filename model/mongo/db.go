@@ -12,7 +12,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/redis"
 )
 
@@ -247,7 +247,7 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 
 		key, err = c.createPrikey(destStructPtr)
 		if err != nil {
-			tp.Errorf("CacheGet(): createPrikey: %s", err.Error())
+			erpc.Errorf("CacheGet(): createPrikey: %s", err.Error())
 			err = nil
 			return
 		}
@@ -259,7 +259,7 @@ func (c *CacheableDB) CacheGet(destStructPtr Cacheable, fields ...string) error 
 			err = c.Cache.Set(cacheKey.Key, key, c.cacheExpiration).Err()
 		}
 		if err != nil {
-			tp.Errorf("CacheGet(): %s", err.Error())
+			erpc.Errorf("CacheGet(): %s", err.Error())
 			err = nil
 		}
 	})
@@ -289,7 +289,7 @@ func (c *CacheableDB) getFirstCache(key string, destStructPtr Cacheable) (bool, 
 		if err == nil {
 			return true, nil
 		}
-		tp.Errorf("CacheGet(): %s", err.Error())
+		erpc.Errorf("CacheGet(): %s", err.Error())
 
 	} else if !redis.IsRedisNil(err) {
 		return false, err
@@ -390,7 +390,7 @@ func (c *CacheableDB) WitchCollection(s func(*Collection) error) error {
 	defer func() {
 		session.Close()
 		if err := recover(); err != nil {
-			tp.Errorf("Mongodb close session err:%s", err)
+			erpc.Errorf("Mongodb close session err:%s", err)
 		}
 	}()
 	collection := c.DB.DB(c.DB.dbConfig.Database).C(c.tableName)

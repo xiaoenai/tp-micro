@@ -1,12 +1,12 @@
 package main
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 )
 
 func main() {
-	tp.SetLoggerLevel("ERROR")
+	erpc.SetLoggerLevel("ERROR")
 	cli := micro.NewClient(
 		micro.CliConfig{
 			Failover:        3,
@@ -26,32 +26,32 @@ func main() {
 		A: 10,
 		B: 2,
 	}, &result).Status()
-	if tp.IsConnError(stat) {
-		tp.Fatalf("has conn rerror: %v", stat)
+	if erpc.IsConnError(stat) {
+		erpc.Fatalf("has conn rerror: %v", stat)
 	}
 	if stat != nil {
-		tp.Fatalf("%v", stat)
+		erpc.Fatalf("%v", stat)
 	}
-	tp.Printf("test 10/2=%d", result)
+	erpc.Printf("test 10/2=%d", result)
 
 	stat = cli.Call("/static/p/divide?x=testquery_x&xy_z=testquery_xy_z", &Arg{
 		A: 10,
 		B: 0,
 	}, &result).Status()
-	if tp.IsConnError(stat) {
-		tp.Fatalf("has conn rerror: %v", stat)
+	if erpc.IsConnError(stat) {
+		erpc.Fatalf("has conn rerror: %v", stat)
 	}
 	if stat == nil {
-		tp.Fatalf("%v", stat)
+		erpc.Fatalf("%v", stat)
 	}
-	tp.Printf("test 10/0:%v", stat)
+	erpc.Printf("test 10/0:%v", stat)
 
 	stat = cli.Call("/static/p/divide", &Arg{
 		A: 10,
 		B: 5,
 	}, &result).Status()
 	if stat == nil {
-		tp.Fatalf("%v", stat)
+		erpc.Fatalf("%v", stat)
 	}
-	tp.Printf("test 10/5:%v", stat)
+	erpc.Printf("test 10/5:%v", stat)
 }

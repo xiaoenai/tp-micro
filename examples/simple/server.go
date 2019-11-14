@@ -1,7 +1,7 @@
 package main
 
 import (
-	tp "github.com/henrylee2cn/teleport/v6"
+	"github.com/henrylee2cn/erpc/v6"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/discovery"
 	"github.com/xiaoenai/tp-micro/v6/helper"
@@ -27,12 +27,12 @@ func init() {
 }
 
 // Home HTML home page
-func Home(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Status) {
+func Home(ctx erpc.CallCtx, args *struct{}) ([]byte, *erpc.Status) {
 	return html.Render(ctx, "home", "Home Page Test!")
 }
 
 // Home2 HTML home page
-func Home2(ctx tp.CallCtx, args *struct{}) ([]byte, *tp.Status) {
+func Home2(ctx erpc.CallCtx, args *struct{}) ([]byte, *erpc.Status) {
 	return nil, helper.Redirect(ctx, 302, "http://localhost:5000/home")
 }
 
@@ -44,11 +44,11 @@ type Args struct {
 
 // Math handler
 type Math struct {
-	tp.CallCtx
+	erpc.CallCtx
 }
 
 // Divide divide API
-func (m *Math) Divide(args *Args) (int, *tp.Status) {
+func (m *Math) Divide(args *Args) (int, *erpc.Status) {
 	return args.A / args.B, nil
 }
 

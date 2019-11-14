@@ -4,7 +4,7 @@
 package args
 
 import (
-	"github.com/henrylee2cn/teleport/v6/codec"
+	"github.com/henrylee2cn/erpc/v6/codec"
 	"github.com/xiaoenai/tp-micro/v6/model/mongo"
 )
 
