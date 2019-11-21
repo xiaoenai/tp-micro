@@ -13,6 +13,7 @@ import (
 	tp "github.com/henrylee2cn/teleport"
 	"github.com/henrylee2cn/teleport/codec"
 	"github.com/xiaoenai/tp-micro/clientele"
+	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/sdk"
 	"github.com/xiaoenai/tp-micro/gateway/types"
 	"github.com/xiaoenai/tp-micro/model/etcd"
@@ -25,7 +26,7 @@ const (
 )
 
 var (
-	hostsPrefix = "MICRO-GW_HOSTS"
+	hostsPrefix = "MICRO-GW_HOSTS-" + logic.ApiVersion()
 )
 
 // HostsNamespace returns the gateway hosts prefix of ETCD key.
