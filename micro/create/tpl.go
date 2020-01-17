@@ -848,7 +848,7 @@ func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error
 	err := Upsert{{$.Name}}(selector, updater)
 	if err == nil {
 		// Del cache
-		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
+		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}","deleted_ts")
 		if err2 != nil {
 			erpc.Errorf("DeleteCache -> err:%s", err2)
 		}
@@ -963,7 +963,7 @@ func Delete{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, deleteHard bool) error
 	}
 	if err == nil {
 		// Del cache
-		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
+		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}","deleted_ts")
 		if err2 != nil {
 			erpc.Errorf("DeleteCache -> err:%s", err2)
 		}
