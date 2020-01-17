@@ -28,7 +28,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "Micro project aids"
-	app.Version = "6.0.0"
+	app.Version = "6.1.1"
 	app.Author = "xiaoenai"
 	app.Usage = "a deployment tools of tp-micro frameware"
 
