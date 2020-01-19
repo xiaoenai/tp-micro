@@ -880,9 +880,8 @@ func Upsert{{.Name}}(selector, updater mongo.M) error {
 func Get{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error) {
 	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
 		{{.Name}}: {{.ModelName}},
-		DeletedTs: 0,
 	}
-	exists, err := Get{{$.Name}}ByFields(_{{$.LowerFirstLetter}}, "{{.ModelName}}", "deleted_ts")
+	exists, err := Get{{$.Name}}ByFields(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
 	if err != nil {
 		return nil, false, err
 	}
