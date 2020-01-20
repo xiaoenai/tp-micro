@@ -1244,12 +1244,13 @@ func Get{{.Name}}DB() *mongo.CacheableDB {
 func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error {
 	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
 		{{.Name}}: {{.ModelName}},
+		DeletedTs: 0,
 	}
-	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}}
+	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}, "deleted_ts": 0}
 	err := Upsert{{$.Name}}(selector, updater)
 	if err == nil {
 		// Del cache
-		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
+		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}", "deleted_ts")
 		if err2 != nil {
 			tp.Errorf("DeleteCache -> err:%s", err2)
 		}
@@ -1265,6 +1266,7 @@ func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error
 //  Insert data if the primary key is specified;
 //  Update data based on _updateFields if no primary key is specified;
 func Upsert{{.Name}}(selector, updater mongo.M) error {
+	selector["deleted_ts"] = 0
 	updater["updated_at"] = coarsetime.FloorTimeNow().Unix()
 	return {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
 		_, err := col.Upsert(selector, mongo.M{"$set": updater})
@@ -1298,6 +1300,8 @@ func Get{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error
 //  With cache layer;
 //  If @return error!=nil, means the database error.
 func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) (bool, error) {
+	_{{.LowerFirstLetter}}.DeletedTs = 0
+	_fields = append(_fields,"deleted_ts")
 	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}}, _fields...)
 	switch err {
 	case nil:
@@ -1314,6 +1318,7 @@ func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) 
 //  Without cache layer;
 //  If @return error!=nil, means the database error.
 func Get{{.Name}}ByWhere(query mongo.M) (*{{.Name}}, bool, error) {
+	query["deleted_ts"] = 0
 	_{{.LowerFirstLetter}} := &{{.Name}}{}
 	err := {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
 		return col.Find(query).One(_{{.LowerFirstLetter}})
@@ -1326,7 +1331,45 @@ func Get{{.Name}}ByWhere(query mongo.M) (*{{.Name}}, bool, error) {
 	default:
 		return nil, false, err
 	}
-}`
+}
+// Delete{{.Name}} insert or update the {{.Name}} data by selector and updater.
+// NOTE:
+//  Remove data from the hard disk.
+func Delete{{.Name}}(selector mongo.M) error {
+	return {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
+		return col.Remove(selector)
+	})
+}
+{{range .UniqueFields}}
+// Delete{{$.Name}}By{{.Name}} delete a {{$.Name}} data in database by '{{.ModelName}}' condition.
+// NOTE:
+//  With cache layer.
+//  If @return error!=nil, means the database error.
+func Delete{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, deleteHard bool) error {
+	var err error
+	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}, "deleted_ts": 0}
+	if deleteHard {
+		// Immediately delete from the hard disk.
+		err = Delete{{$.Name}}(selector)
+	}else {
+		// Delay delete from the hard disk.
+		updater := mongo.M{"updated_at": coarsetime.FloorTimeNow().Unix(), "deleted_ts": coarsetime.FloorTimeNow().Unix()}
+		err = Upsert{{$.Name}}(selector, updater)
+	}
+	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
+		{{.Name}}: {{.ModelName}},
+		DeletedTs: 0,
+	}
+	if err == nil {
+		// Del cache
+		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}","deleted_ts")
+		if err2 != nil {
+			tp.Errorf("DeleteCache -> err:%s", err2)
+		}
+	}
+	return err
+}
+{{end}}`
 
 const mongoModelTplTm = `package model
 
@@ -1383,12 +1426,13 @@ func Get{{.Name}}DB() *mongo.CacheableDB {
 func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error {
 	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
 		{{.Name}}: {{.ModelName}},
+		Deleted: 0,
 	}
-	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}}
+	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}, "deleted": 0}
 	err := Upsert{{$.Name}}(selector, updater)
 	if err == nil {
 		// Del cache
-		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}")
+		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}","deleted")
 		if err2 != nil {
 			tp.Errorf("DeleteCache -> err:%s", err2)
 		}
@@ -1404,6 +1448,8 @@ func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error
 //  Insert data if the primary key is specified;
 //  Update data based on _updateFields if no primary key is specified;
 func Upsert{{.Name}}(selector, updater mongo.M) error {
+	selector["deleted"] = 0
+	updater["deleted"] = 0
 	updater["updated_at"] = coarsetime.FloorTimeNow()
 	return {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
 		_, err := col.Upsert(selector, mongo.M{"$set": updater})
@@ -1437,6 +1483,8 @@ func Get{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error
 //  With cache layer;
 //  If @return error!=nil, means the database error.
 func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) (bool, error) {
+	_{{.LowerFirstLetter}}.Deleted = 0
+	_fields = append(_fields,"deleted")
 	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}}, _fields...)
 	switch err {
 	case nil:
@@ -1453,6 +1501,7 @@ func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) 
 //  Without cache layer;
 //  If @return error!=nil, means the database error.
 func Get{{.Name}}ByWhere(query mongo.M) (*{{.Name}}, bool, error) {
+	query["deleted"] = 0
 	_{{.LowerFirstLetter}} := &{{.Name}}{}
 	err := {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
 		return col.Find(query).One(_{{.LowerFirstLetter}})
@@ -1465,4 +1514,44 @@ func Get{{.Name}}ByWhere(query mongo.M) (*{{.Name}}, bool, error) {
 	default:
 		return nil, false, err
 	}
-}`
+}
+
+// Delete{{.Name}} insert or update the {{.Name}} data by selector and updater.
+// NOTE:
+//  Remove data from the hard disk.
+func Delete{{.Name}}(selector mongo.M) error {
+	return {{.LowerFirstName}}DB.WitchCollection(func(col *mongo.Collection) error {
+		return col.Remove(selector)
+	})
+}
+
+{{range .UniqueFields}}
+// Delete{{$.Name}}By{{.Name}} delete a {{$.Name}} data in database by '{{.ModelName}}' condition.
+// NOTE:
+//  With cache layer.
+//  If @return error!=nil, means the database error.
+func Delete{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, deleteHard bool) error {
+	var err error
+	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}, "deleted": 0}
+	if deleteHard {
+		// Immediately delete from the hard disk.
+		err = Delete{{$.Name}}(selector)
+	}else {
+		// Delay delete from the hard disk.
+		updater := mongo.M{"updated_at": coarsetime.FloorTimeNow().Unix(), "deleted_ts": coarsetime.FloorTimeNow().Unix()}
+		err = Upsert{{$.Name}}(selector, updater)
+	}
+	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
+		{{.Name}}: {{.ModelName}},
+		Deleted: 0,
+	}
+	if err == nil {
+		// Del cache
+		err2 := {{$.LowerFirstName}}DB.DeleteCache(_{{$.LowerFirstLetter}}, "{{.ModelName}}","deleted")
+		if err2 != nil {
+			tp.Errorf("DeleteCache -> err:%s", err2)
+		}
+	}
+	return err
+}
+{{end}}`
