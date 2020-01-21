@@ -1426,7 +1426,7 @@ func Get{{.Name}}DB() *mongo.CacheableDB {
 func Upsert{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, updater mongo.M) error {
 	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
 		{{.Name}}: {{.ModelName}},
-		Deleted: 0,
+		Deleted: false,
 	}
 	selector := mongo.M{"{{.ModelName}}": {{.ModelName}}, "deleted": 0}
 	err := Upsert{{$.Name}}(selector, updater)
@@ -1483,7 +1483,7 @@ func Get{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}) (*{{$.Name}}, bool, error
 //  With cache layer;
 //  If @return error!=nil, means the database error.
 func Get{{.Name}}ByFields(_{{.LowerFirstLetter}} *{{.Name}}, _fields ...string) (bool, error) {
-	_{{.LowerFirstLetter}}.Deleted = 0
+	_{{.LowerFirstLetter}}.Deleted = false
 	_fields = append(_fields,"deleted")
 	err := {{.LowerFirstName}}DB.CacheGet(_{{.LowerFirstLetter}}, _fields...)
 	switch err {
@@ -1543,7 +1543,7 @@ func Delete{{$.Name}}By{{.Name}}({{.ModelName}} {{.Typ}}, deleteHard bool) error
 	}
 	var _{{$.LowerFirstLetter}} = &{{$.Name}}{
 		{{.Name}}: {{.ModelName}},
-		Deleted: 0,
+		Deleted: false,
 	}
 	if err == nil {
 		// Del cache
