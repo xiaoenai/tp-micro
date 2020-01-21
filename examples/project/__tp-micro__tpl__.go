@@ -2,6 +2,8 @@
 // The framework reference: https://github.com/xiaoenai/tp-micro
 package __TPL__
 
+import "github.com/xiaoenai/tp-micro/model/mongo"
+
 // __API_PULL__ register PULL router
 type __API_PULL__ interface {
 	// Home handler
@@ -75,6 +77,8 @@ type Device struct {
 }
 
 type Meta struct {
+	Id    mongo.ObjectId `key:"pri" bson:"_id"`
+	Uid   int64          `key:"uni" bson:"uid"`
 	Hobby []string
 	Tags  []string
 }
