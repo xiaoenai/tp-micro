@@ -64,7 +64,8 @@ type Device struct {
 
 // Meta comment...
 type Meta struct {
-	Id        mongo.ObjectId `json:"_id" bson:"_id" key:"pri"`
+	Id        mongo.ObjectId `key:"pri" json:"_id" bson:"_id"`
+	Name      string         `key:"uni" json:"name" bson:"name"`
 	Hobby     []string       `json:"hobby" bson:"hobby"`
 	Tags      []string       `json:"tags" bson:"tags"`
 	UpdatedAt int64          `json:"updated_at" bson:"updated_at"`
