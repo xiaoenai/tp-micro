@@ -11,7 +11,7 @@ import (
 	"github.com/henrylee2cn/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/v6/model/mongo"
 
-	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
+	"github.com/xiaoenai/tp-micro/examples/project/args"
 )
 
 var _ = erpc.Errorf
@@ -49,12 +49,35 @@ func GetMetaDB() *mongo.CacheableDB {
 	return metaDB
 }
 
+// UpsertMetaByName update the Meta data in database by 'name' unique key.
+// NOTE:
+//  With cache layer;
+//  _updateFields' members must be db field style (snake format);
+func UpsertMetaByName(name string, updater mongo.M) error {
+	var _m = &Meta{
+		Name:      name,
+		DeletedTs: 0,
+	}
+	selector := mongo.M{"name": name, "deleted_ts": 0}
+	err := UpsertMeta(selector, updater)
+	if err == nil {
+		// Del cache
+		err2 := metaDB.DeleteCache(_m, "name", "deleted_ts")
+		if err2 != nil {
+			erpc.Errorf("DeleteCache -> err:%s", err2)
+		}
+	}
+
+	return err
+}
+
 // UpsertMeta insert or update the Meta data by selector and updater.
 // NOTE:
 //  With cache layer;
 //  Insert data if the primary key is specified;
 //  Update data based on _updateFields if no primary key is specified;
 func UpsertMeta(selector, updater mongo.M) error {
+	selector["deleted_ts"] = 0
 	updater["updated_at"] = coarsetime.FloorTimeNow().Unix()
 	return metaDB.WitchCollection(func(col *mongo.Collection) error {
 		_, err := col.Upsert(selector, mongo.M{"$set": updater})
@@ -62,11 +85,32 @@ func UpsertMeta(selector, updater mongo.M) error {
 	})
 }
 
+// GetMetaByName query a Meta data from database by 'name' condition.
+// NOTE:
+//  With cache layer;
+//  If @return error!=nil, means the database error.
+func GetMetaByName(name string) (*Meta, bool, error) {
+	var _m = &Meta{
+		Name: name,
+	}
+	exists, err := GetMetaByFields(_m, "name")
+	if err != nil {
+		return nil, false, err
+	}
+	if !exists {
+		return nil, false, nil
+	}
+
+	return _m, true, nil
+}
+
 // GetMetaByFields query a Meta data from database by WHERE field.
 // NOTE:
 //  With cache layer;
 //  If @return error!=nil, means the database error.
 func GetMetaByFields(_m *Meta, _fields ...string) (bool, error) {
+	_m.DeletedTs = 0
+	_fields = append(_fields, "deleted_ts")
 	err := metaDB.CacheGet(_m, _fields...)
 	switch err {
 	case nil:
@@ -83,6 +127,7 @@ func GetMetaByFields(_m *Meta, _fields ...string) (bool, error) {
 //  Without cache layer;
 //  If @return error!=nil, means the database error.
 func GetMetaByWhere(query mongo.M) (*Meta, bool, error) {
+	query["deleted_ts"] = 0
 	_m := &Meta{}
 	err := metaDB.WitchCollection(func(col *mongo.Collection) error {
 		return col.Find(query).One(_m)
@@ -95,4 +140,42 @@ func GetMetaByWhere(query mongo.M) (*Meta, bool, error) {
 	default:
 		return nil, false, err
 	}
+}
+
+// DeleteMeta insert or update the Meta data by selector and updater.
+// NOTE:
+//  Remove data from the hard disk.
+func DeleteMeta(selector mongo.M) error {
+	return metaDB.WitchCollection(func(col *mongo.Collection) error {
+		return col.Remove(selector)
+	})
+}
+
+// DeleteMetaByName delete a Meta data in database by 'name' condition.
+// NOTE:
+//  With cache layer.
+//  If @return error!=nil, means the database error.
+func DeleteMetaByName(name string, deleteHard bool) error {
+	var err error
+	selector := mongo.M{"name": name, "deleted_ts": 0}
+	if deleteHard {
+		// Immediately delete from the hard disk.
+		err = DeleteMeta(selector)
+	} else {
+		// Delay delete from the hard disk.
+		updater := mongo.M{"updated_at": coarsetime.FloorTimeNow().Unix(), "deleted_ts": coarsetime.FloorTimeNow().Unix()}
+		err = UpsertMeta(selector, updater)
+	}
+	var _m = &Meta{
+		Name:      name,
+		DeletedTs: 0,
+	}
+	if err == nil {
+		// Del cache
+		err2 := metaDB.DeleteCache(_m, "name", "deleted_ts")
+		if err2 != nil {
+			erpc.Errorf("DeleteCache -> err:%s", err2)
+		}
+	}
+	return err
 }

@@ -6,8 +6,8 @@ package api
 import (
 	"github.com/henrylee2cn/erpc/v6"
 
-	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
-	"github.com/xiaoenai/tp-micro/v6/examples/project/logic"
+	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/examples/project/logic"
 )
 
 // Stat handler

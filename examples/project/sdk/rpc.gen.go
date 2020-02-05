@@ -11,7 +11,7 @@ import (
 	"github.com/xiaoenai/tp-micro/v6/discovery"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 
-	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
+	"github.com/xiaoenai/tp-micro/examples/project/args"
 )
 
 var _ = fmt.Sprintf

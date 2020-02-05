@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/goutil"
 	"github.com/xiaoenai/tp-micro/v6/micro/create/tpl"
 	"github.com/xiaoenai/tp-micro/v6/micro/info"
 )

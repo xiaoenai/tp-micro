@@ -13,8 +13,8 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/henrylee2cn/goutil"
 	"github.com/henrylee2cn/erpc/v6"
+	"github.com/henrylee2cn/goutil"
 	"github.com/xiaoenai/tp-micro/v6/micro/info"
 )
 
@@ -123,6 +123,7 @@ func (p *Project) Generator(force, newdoc bool) {
 	// gen and write README.md
 	if newdoc {
 		p.genAndWriteReadmeFile()
+		p.genAndWriteGoModFile()
 	}
 }
 
@@ -146,6 +147,16 @@ func (p *Project) genAndWriteReadmeFile() {
 	f.WriteString(p.genReadme())
 	f.Close()
 	fmt.Printf("generate %s\n", info.ProjPath()+"/README.md")
+}
+
+func (p *Project) genAndWriteGoModFile() {
+	f, err := os.OpenFile("./go.mod", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		erpc.Fatalf("[micro] create go.mod error: %v", err)
+	}
+	f.WriteString(p.genGoMod())
+	f.Close()
+	fmt.Printf("generate %s\n", info.ProjPath()+"/go.mod")
 }
 
 func commentToHtml(txt string) string {
@@ -581,4 +592,9 @@ func formatSource(src []byte) []byte {
 		erpc.Fatalf("[micro] format error: %v\ncode:\n%s", err, src)
 	}
 	return b
+}
+
+func (p *Project) genGoMod() string {
+	r := strings.Replace(__gomod__, "${import_prefix}", p.ImprotPrefix, -1)
+	return r
 }

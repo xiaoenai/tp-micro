@@ -11,8 +11,8 @@ import (
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/model/etcd"
 
-	"github.com/xiaoenai/tp-micro/v6/examples/project/args"
-	"github.com/xiaoenai/tp-micro/v6/examples/project/sdk"
+	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/examples/project/sdk"
 )
 
 func init() {
