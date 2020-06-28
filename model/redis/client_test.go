@@ -37,4 +37,30 @@ func TestClient(t *testing.T) {
 		t.Fatalf("[after 2s] c.Get().Result() result: %s", s)
 	}
 	t.Logf("[after 2s] c.Get().Result() is null ?: %v", err == redis.Nil)
+
+	key := "tpredis"
+	if err := c.Watch(func(tx *redis.Tx) error {
+		n, err := tx.Get(key).Int64()
+		if err != nil && err == redis.Nil {
+			t.Errorf("err1-> %v", err)
+			return err
+		} else if err != nil && err != redis.Nil {
+			t.Errorf("err2-> %v", err)
+			return err
+		}
+		t.Logf("n-> %d", n)
+
+		t.Logf("Start sleep.")
+		time.Sleep(time.Duration(5) * time.Second)
+		// 在redis客户端修改值，下面语句报错 redis: transaction failed
+
+		_, err = tx.Pipelined(func(pipe redis.Pipeliner) error {
+			// pipe handles the error case
+			pipe.DecrBy(key, 2)
+			return nil
+		})
+		return err
+	}, key); err != nil {
+		t.Errorf("err4-> %v", err)
+	}
 }
