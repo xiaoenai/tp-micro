@@ -145,6 +145,7 @@ type (
 		TxPipelined(fn func(redis.Pipeliner) error) ([]redis.Cmder, error)
 		Publish(channel, message string) *redis.IntCmd
 		Subscribe(channels ...string) *redis.PubSub
+		Watch(fn func(*redis.Tx) error, keys ...string) error
 	}
 	// Alias
 	PubSub             = redis.PubSub
