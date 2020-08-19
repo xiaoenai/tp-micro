@@ -308,6 +308,8 @@ func (p *Project) genMainFile() {
 
 func (p *Project) genConstFile() {
 	var text string
+	text = "import \"time\"\n"
+	text += fmt.Sprintf("// SQL CacheExpire \n const CacheExpire = time.Duration(24*time.Hour)\n")
 	for _, s := range p.tplInfo.models.mysql {
 		name := s.name + "Sql"
 		text += fmt.Sprintf(

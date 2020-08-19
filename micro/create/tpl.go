@@ -136,7 +136,6 @@ type config struct {
 	Mysql    mysql.Config    ` + "`yaml:\"mysql\"`" + `
 	Mongo    mongo.Config    ` + "`yaml:\"mongo\"`" + `
 	Redis    redis.Config    ` + "`yaml:\"redis\"`" + `
-	CacheExpire time.Duration` + "`yaml:\"cache_expire\"`" + `
 	LogLevel string          ` + "`yaml:\"log_level\"`" + `
 }
 
@@ -144,9 +143,6 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	err := bind()
 	if err != nil {
 		return err
-	}
-	if c.CacheExpire == 0 {
-		c.CacheExpire = time.Hour*24
 	}
 	if len(c.LogLevel) == 0 {
 		c.LogLevel = "TRACE"
@@ -163,7 +159,7 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 	if len(c.Mongo.Addrs)>0{
 		mongoConfig=&c.Mongo
 	}
-	err = model.Init(mysqlConfig, mongoConfig, redisConfig, c.CacheExpire)
+	err = model.Init(mysqlConfig, mongoConfig, redisConfig)
 	if err != nil {
 		erpc.Errorf("%v", err)
 	}
@@ -216,8 +212,7 @@ var (
 
 
 // Init initializes the model packet.
-func Init(mysqlConfig *mysql.Config, mongoConfig *mongo.Config, redisConfig *redis.Config, _cacheExpire time.Duration) error {
-	cacheExpire=_cacheExpire
+func Init(mysqlConfig *mysql.Config, mongoConfig *mongo.Config, redisConfig *redis.Config) error {
 	var err error
 	if redisConfig != nil {
 		redisClient, err = redis.NewClient(redisConfig)
@@ -458,7 +453,7 @@ func (_{{.LowerFirstLetter}} *{{.Name}}) isZeroPrimaryKey() bool {
 	{{end}}return true
 }
 
-var {{.LowerFirstName}}DB, _ = mysqlHandler.RegCacheableDB(new({{.Name}}), cacheExpire, ` + "args.{{.Name}}Sql" + `)
+var {{.LowerFirstName}}DB, _ = mysqlHandler.RegCacheableDB(new({{.Name}}), args.CacheExpire, ` + "args.{{.Name}}Sql" + `)
 
 // Get{{.Name}}DB returns the {{.Name}} DB handler.
 func Get{{.Name}}DB() *mysql.CacheableDB {
@@ -790,7 +785,6 @@ func Count{{.Name}}ByWhere(whereCond string, arg ...interface{}) (int64, error) 
 const mongoModelTpl = `package model
 
 import (
-	"time"
 	"unsafe"
 
 	"github.com/henrylee2cn/goutil/coarsetime"
@@ -827,7 +821,7 @@ func (_{{.LowerFirstLetter}} *{{.Name}}) isZeroPrimaryKey() bool {
 	{{end}}return true
 }
 
-var {{.LowerFirstName}}DB, _ = mongoHandler.RegCacheableDB(new({{.Name}}), time.Hour*24)
+var {{.LowerFirstName}}DB, _ = mongoHandler.RegCacheableDB(new({{.Name}}), args.CacheExpire)
 
 // Get{{.Name}}DB returns the {{.Name}} DB handler.
 func Get{{.Name}}DB() *mongo.CacheableDB {

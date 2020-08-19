@@ -33,3 +33,4 @@ examples/*/browser
 examples/*/server
 examples/*/client
 examples/project/project
+.idea
