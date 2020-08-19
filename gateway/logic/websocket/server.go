@@ -5,6 +5,7 @@ import (
 	ws "github.com/henrylee2cn/erpc/v6/mixer/websocket"
 	"github.com/henrylee2cn/erpc/v6/plugin/auth"
 	"github.com/henrylee2cn/erpc/v6/plugin/binder"
+	"github.com/henrylee2cn/erpc/v6/plugin/heartbeat"
 	"github.com/henrylee2cn/erpc/v6/plugin/proxy"
 	micro "github.com/xiaoenai/tp-micro/v6"
 	"github.com/xiaoenai/tp-micro/v6/gateway/logic"
@@ -17,15 +18,22 @@ var (
 
 // Serve starts websocket gateway service.
 func Serve(outerSrvCfg micro.SrvConfig, protoFunc erpc.ProtoFunc) {
-	// new ws server
-	srv := ws.NewServer(
-		"/",
-		outerSrvCfg.PeerConfig(),
+	// plugins
+	globalLeftPlugin := []erpc.Plugin{
 		binder.NewStructArgsBinder(nil),
 		authChecker,
 		webSocketConnTabPlugin,
 		proxy.NewPlugin(logic.ProxySelector),
 		preWritePushPlugin(),
+	}
+	if outerSrvCfg.EnableHeartbeat{
+		globalLeftPlugin = append(globalLeftPlugin,heartbeat.NewPong())
+	}
+	// new ws server
+	srv := ws.NewServer(
+		"/",
+		outerSrvCfg.PeerConfig(),
+		globalLeftPlugin...,
 	)
 	// ws outer peer
 	outerPeer = srv.Peer
