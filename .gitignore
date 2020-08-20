@@ -27,6 +27,7 @@ _testmain.go
 *.sublime-project
 *.sublime-workspace
 *.vscode
+*.idea
 
 examples/*/gateway
 examples/*/browser
