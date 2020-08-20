@@ -178,7 +178,6 @@ var cfg = &config{
 		Endpoints: []string{"http://127.0.0.1:2379"},
 	},
 	Redis:    *redis.NewConfig(),
-	CacheExpire: time.Hour*24,
 	LogLevel: "TRACE",
 }
 
@@ -192,7 +191,6 @@ func init() {
 
 import (
 	"strings"
-	"time"
 
 	"github.com/xiaoenai/tp-micro/v6/model/mongo"
 	"github.com/xiaoenai/tp-micro/v6/model/mysql"
@@ -207,7 +205,6 @@ var mongoHandler = mongo.NewPreDB()
 
 var (
 	redisClient *redis.Client
-	cacheExpire time.Duration
 )
 
 
