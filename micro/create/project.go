@@ -173,6 +173,25 @@ func (p *Project) handlerDesc(h *handler) string {
 
 	text += fmt.Sprintf("- URI: `%s`\n", uri)
 
+	var method = func(name string, txt string) {
+		fields, _ := p.tplInfo.lookupTypeFields(name)
+		if len(fields) == 0 {
+			// query
+			text += fmt.Sprintf("- %s: `GET`\n", txt)
+		} else {
+			jsonStr := p.fieldsJson(fields)
+			if len(jsonStr) <= 2 || jsonStr == "{}" {
+				// query
+				text += fmt.Sprintf("- %s: `GET`\n", txt)
+			} else {
+				// body
+				text += fmt.Sprintf("- %s: `POST`\n", txt)
+			}
+		}
+	}
+
+	method(h.arg, "METHOD")
+
 	queryParam := "- REQ-QUERY:\n"
 	for _, param := range h.queryParams {
 		doc := param.doc
