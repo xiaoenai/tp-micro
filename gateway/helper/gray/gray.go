@@ -8,7 +8,6 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/gateway/client"
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray/api"
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic"
@@ -16,6 +15,7 @@ import (
 	types "github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
 	gwLogic "github.com/xiaoenai/tp-micro/gateway/logic"
 	gwTypes "github.com/xiaoenai/tp-micro/gateway/types"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/redis"
 )

@@ -6,79 +6,19 @@ package __TPL__
 
 // __API_PULL__ register PULL router
 type __API_PULL__ interface {
-	// Home handler
-	Home(*struct{}) *HomeResult
-	// Math controller
-	Math
 }
 
 // __API_PUSH__ register PUSH router:
 //  /stat
 type __API_PUSH__ interface {
-	Stat(*StatArg)
 }
 
 // __MYSQL_MODEL__ create mysql model
 type __MYSQL_MODEL__ struct {
-	User
-	Log
-	Device
 }
 
 // __MONGO_MODEL__ create mongodb model
 type __MONGO_MODEL__ struct {
-	Meta
-}
-
-// Math controller
-type Math interface {
-	// Divide handler
-	Divide(*DivideArg) *DivideResult
-}
-
-// HomeResult home result
-type HomeResult struct {
-	Content string // text
-}
-
-type (
-	// DivideArg divide api arg
-	DivideArg struct {
-		// dividend
-		A float64
-		// divisor
-		B float64 ` + "`param:\"<range: 0.01:100000>\"`" + `
-	}
-	// DivideResult divide api result
-	DivideResult struct {
-		// quotient
-		C float64
-	}
-)
-
-// StatArg stat handler arg
-type StatArg struct {
-	Ts int64 ` + "`param:\"<query:ts>\"`" + ` // timestamps
-}
-
-// User user info
-type User struct {
-	Id   int64  ` + "`key:\"pri\"`" + `
-	Name string ` + "`key:\"uni\"`" + `
-	Age  int32
-}
-
-type Log struct {
-	Text string
-}
-
-type Device struct {
-	UUID string ` + "`key:\"pri\"`" + `
-}
-
-type Meta struct {
-	Hobby []string
-	Tags  []string
 }
 `
 
@@ -127,6 +67,7 @@ import (
 	"github.com/xiaoenai/tp-micro/model/redis"
 
 	"${import_prefix}/logic/model"
+	"${import_prefix}/logic/tools"
 )
 
 type config struct {
@@ -135,6 +76,7 @@ type config struct {
 	Mysql    mysql.Config    ` + "`yaml:\"mysql\"`" + `
 	Mongo    mongo.Config    ` + "`yaml:\"mongo\"`" + `
 	Redis    redis.Config    ` + "`yaml:\"redis\"`" + `
+	BaseConfig	tools.BaseConfig    ` + "`yaml:\"base_config\"`" + `
 	LogLevel string          ` + "`yaml:\"log_level\"`" + `
 }
 
@@ -147,6 +89,10 @@ func (c *config) Reload(bind cfgo.BindFunc) error {
 		c.LogLevel = "TRACE"
 	}
 	tp.SetLoggerLevel(c.LogLevel)
+
+	// init base config
+	tools.InitBaseConfig(&c.BaseConfig)
+	
 	var (
 		mysqlConfig *mysql.Config
 		mongoConfig *mongo.Config
@@ -183,6 +129,22 @@ var cfg = &config{
 func init() {
 	goutil.WritePidFile()
 	cfgo.MustReg("${service_api_prefix}", cfg)
+}
+`, "logic/tools/base_config.go": `package tools
+var (
+	baseConf *BaseConfig
+)
+
+// InitBaseConfig
+func InitBaseConfig(cfg *BaseConfig) {
+}
+
+// GetBaseConfig
+func GetBaseConfig() *BaseConfig {
+	return baseConf
+}
+
+type BaseConfig struct {
 }
 `,
 
@@ -316,9 +278,9 @@ ${type_define_list}
 
 	"logic/tmp_code.gen.go": `package logic
 import (
-	tp "github.com/henrylee2cn/teleport"
+	// tp "github.com/henrylee2cn/teleport"
 
-	"${import_prefix}/args"
+	// "${import_prefix}/args"
 	// "${import_prefix}/logic/model"
 	// "${import_prefix}/rerrs"
 )

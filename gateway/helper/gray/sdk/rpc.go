@@ -5,9 +5,9 @@ import (
 	"github.com/henrylee2cn/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	types "github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
 	gwLogic "github.com/xiaoenai/tp-micro/gateway/logic"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 
 var _formalClient *micro.Client

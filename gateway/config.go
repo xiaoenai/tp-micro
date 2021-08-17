@@ -19,8 +19,8 @@ import (
 
 	"github.com/henrylee2cn/cfgo"
 	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
 	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
+	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 
 // Config app config
