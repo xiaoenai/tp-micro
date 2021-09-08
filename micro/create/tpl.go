@@ -137,6 +137,7 @@ var (
 
 // InitBaseConfig
 func InitBaseConfig(cfg *BaseConfig) {
+	baseConf = cfg
 }
 
 // GetBaseConfig
