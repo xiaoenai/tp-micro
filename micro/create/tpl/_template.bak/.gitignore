@@ -25,7 +25,7 @@ _testmain.go
 *.log
 *nohup.out
 *.vscode
+*.idea
 *.sublime-project
 *.sublime-workspace
-.idea
 {{PROJ_NAME}}
