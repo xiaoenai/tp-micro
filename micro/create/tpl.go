@@ -6,7 +6,7 @@ package __TPL__
 
 // __API_PULL__ register PULL router
 type __API_PULL__ interface {
-	Ping(*PingArgsV1) *PingResultV1
+	Ping(*PingArgs) *PingResult
 }
 
 // __API_PUSH__ register PUSH router:
@@ -15,8 +15,8 @@ type __API_PUSH__ interface {
 }
 
 type (
-	PingArgsV1 = struct{}
-	PingResultV1 = struct{}
+	PingArgs = struct{}
+	PingResult = struct{}
 )
 
 // __MYSQL_MODEL__ create mysql model
