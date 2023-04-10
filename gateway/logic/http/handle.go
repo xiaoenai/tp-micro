@@ -98,7 +98,7 @@ func (r *requestHandler) handle() {
 	}
 
 	// verify access token
-	accessToken, settings, rerr := logic.HttpHooks().OnRequest(r, bodyBytes, logic.AuthFunc())
+	accessToken, settings, rerr := logic.HttpHooks().OnRequest(label.Uri, r, bodyBytes, logic.AuthFunc())
 	if rerr != nil {
 		r.replyError(rerr)
 		return
