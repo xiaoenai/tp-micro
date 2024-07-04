@@ -169,7 +169,7 @@ func (r *requestHandler) handle() {
 		}
 	})
 	if !hasRespContentType {
-		ctx.Response.Header.Add(
+		ctx.Response.Header.Set(
 			"Content-Type",
 			GetContentType(pullcmd.InputBodyCodec(), contentType),
 		)
