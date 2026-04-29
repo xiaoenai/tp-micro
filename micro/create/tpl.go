@@ -136,7 +136,19 @@ func init() {
 	goutil.WritePidFile()
 	cfgo.MustReg("${service_api_prefix}", cfg)
 }
-`, "logic/tools/base_config.go": `package tools
+`,
+	"go.mod": `module ${import_prefix}
+
+go 1.23.0
+
+require (
+        github.com/swxctx/teleport v1.0.0 // indirect
+        github.com/xiaoenai/tp-micro v2.2.0 // indirect
+        golang.org/x/sys v0.35.0 // indirect
+        gopkg.in/yaml.v2 v2.4.0 // indirect
+)
+`,
+	"logic/tools/base_config.go": `package tools
 var (
 	baseConf *BaseConfig
 )

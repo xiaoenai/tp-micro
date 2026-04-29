@@ -17,7 +17,7 @@ require (
 	github.com/howeyc/fsnotify v0.9.0
 	github.com/lib/pq v1.12.3
 	github.com/mattn/go-sqlite3 v1.14.42
-	github.com/swxctx/teleport v0.0.0-20260429061818-c4d302297752
+	github.com/swxctx/teleport v1.0.0
 	github.com/urfave/cli v1.22.17
 	github.com/valyala/fasthttp v1.59.0
 	go.etcd.io/etcd/client/v3 v3.5.17
