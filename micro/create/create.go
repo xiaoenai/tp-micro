@@ -9,8 +9,8 @@ import (
 
 	"github.com/swxctx/teleport/lib/goutil"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create/tpl"
-	"github.com/xiaoenai/tp-micro/micro/info"
+	"github.com/xiaoenai/tp-micro/v2/micro/create/tpl"
+	"github.com/xiaoenai/tp-micro/v2/micro/info"
 )
 
 // MicroTpl template file name

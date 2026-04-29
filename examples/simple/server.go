@@ -2,11 +2,11 @@ package main
 
 import (
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/helper"
-	html "github.com/xiaoenai/tp-micro/helper/mod-html"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/discovery"
+	"github.com/xiaoenai/tp-micro/v2/helper"
+	html "github.com/xiaoenai/tp-micro/v2/helper/mod-html"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 func init() {

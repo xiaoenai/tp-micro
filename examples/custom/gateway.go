@@ -5,15 +5,15 @@ import (
 
 	"github.com/swxctx/teleport/lib/cfgo"
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/gateway"
-	"github.com/xiaoenai/tp-micro/gateway/helper/agent"
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/gateway"
+	"github.com/xiaoenai/tp-micro/v2/gateway/helper/agent"
+	"github.com/xiaoenai/tp-micro/v2/gateway/helper/gray"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v2/gateway/types"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/model/mysql"
+	"github.com/xiaoenai/tp-micro/v2/model/redis"
 )
 
 type config struct {

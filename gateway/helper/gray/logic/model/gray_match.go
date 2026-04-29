@@ -6,8 +6,8 @@ import (
 
 	"github.com/swxctx/teleport/lib/goutil/coarsetime"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/sqlx"
+	"github.com/xiaoenai/tp-micro/v2/model/mysql"
+	"github.com/xiaoenai/tp-micro/v2/model/sqlx"
 )
 
 // GrayMatch
@@ -18,7 +18,7 @@ type GrayMatch struct {
 	UpdatedAt int64  `protobuf:"varint,4,opt,name=UpdatedAt,proto3" json:"updated_at"`
 }
 
-// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+// TableName implements 'github.com/xiaoenai/tp-micro/v2/model'.Cacheable
 func (*GrayMatch) TableName() string {
 	return "gray_match"
 }

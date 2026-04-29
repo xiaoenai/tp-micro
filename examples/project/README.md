@@ -69,4 +69,4 @@ Divide handler
 
 *This is a project created by `micro gen` command.*
 
-*[About Micro Command](https://github.com/xiaoenai/tp-micro/tree/v2/cmd/micro)*
+*[About Micro Command](https://github.com/xiaoenai/tp-micro/v2/tree/v2/cmd/micro)*

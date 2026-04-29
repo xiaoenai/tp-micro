@@ -6,8 +6,8 @@ package api
 import (
 	tp "github.com/swxctx/teleport"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
-	"github.com/xiaoenai/tp-micro/examples/project/logic"
+	"github.com/xiaoenai/tp-micro/v2/examples/project/args"
+	"github.com/xiaoenai/tp-micro/v2/examples/project/logic"
 )
 
 // Home handler

@@ -5,7 +5,7 @@ import (
 
 	"github.com/swxctx/teleport/lib/cfgo"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 // Config config interface

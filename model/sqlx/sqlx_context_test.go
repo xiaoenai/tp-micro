@@ -25,7 +25,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
+	"github.com/xiaoenai/tp-micro/v2/model/sqlx/reflectx"
 )
 
 func MultiExecContext(ctx context.Context, e ExecerContext, query string) {

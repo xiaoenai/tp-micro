@@ -19,7 +19,7 @@ import (
 
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/plugin"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic"
 )
 
 type socketConnTab struct{}

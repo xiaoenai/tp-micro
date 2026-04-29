@@ -2,7 +2,7 @@
 // The framework reference: https://github.com/xiaoenai/tp-micro
 package __TPL__
 
-import "github.com/xiaoenai/tp-micro/model/mongo"
+import "github.com/xiaoenai/tp-micro/v2/model/mongo"
 
 // __API_PULL__ register PULL router
 type __API_PULL__ interface {

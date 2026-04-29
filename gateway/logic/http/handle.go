@@ -25,8 +25,8 @@ import (
 	"github.com/swxctx/teleport/codec"
 	"github.com/swxctx/teleport/plugin"
 	"github.com/valyala/fasthttp"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic/hosts"
 )
 
 const (

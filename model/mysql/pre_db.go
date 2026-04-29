@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/swxctx/teleport/lib/goutil"
-	"github.com/xiaoenai/tp-micro/model/redis"
-	"github.com/xiaoenai/tp-micro/model/sqlx"
-	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"
+	"github.com/xiaoenai/tp-micro/v2/model/redis"
+	"github.com/xiaoenai/tp-micro/v2/model/sqlx"
+	"github.com/xiaoenai/tp-micro/v2/model/sqlx/reflectx"
 )
 
 // PreDB preset *DB

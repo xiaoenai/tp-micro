@@ -18,7 +18,7 @@ import (
 	"sync"
 
 	"github.com/swxctx/teleport/socket"
-	micro "github.com/xiaoenai/tp-micro"
+	micro "github.com/xiaoenai/tp-micro/v2"
 )
 
 // StaticClients static clients map

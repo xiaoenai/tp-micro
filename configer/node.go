@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 // InitNode initializes the config node.

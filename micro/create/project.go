@@ -15,7 +15,7 @@ import (
 
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/lib/goutil"
-	"github.com/xiaoenai/tp-micro/micro/info"
+	"github.com/xiaoenai/tp-micro/v2/micro/info"
 )
 
 type (

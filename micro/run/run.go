@@ -11,9 +11,9 @@ import (
 	"time"
 
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create"
-	"github.com/xiaoenai/tp-micro/micro/info"
-	"github.com/xiaoenai/tp-micro/micro/run/fsnotify"
+	"github.com/xiaoenai/tp-micro/v2/micro/create"
+	"github.com/xiaoenai/tp-micro/v2/micro/info"
+	"github.com/xiaoenai/tp-micro/v2/micro/run/fsnotify"
 )
 
 // RunProject runs project.

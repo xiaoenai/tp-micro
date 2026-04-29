@@ -8,11 +8,11 @@ import (
 	"fmt"
 
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
-	"github.com/xiaoenai/tp-micro/examples/project/sdk"
+	"github.com/xiaoenai/tp-micro/v2/examples/project/args"
+	"github.com/xiaoenai/tp-micro/v2/examples/project/sdk"
 )
 
 func init() {

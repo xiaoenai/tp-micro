@@ -5,7 +5,7 @@ import (
 
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/plugin"
-	micro "github.com/xiaoenai/tp-micro"
+	micro "github.com/xiaoenai/tp-micro/v2"
 )
 
 func main() {

@@ -12,7 +12,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/swxctx/teleport/lib/goutil"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/micro/info"
+	"github.com/xiaoenai/tp-micro/v2/micro/info"
 	"golang.org/x/crypto/ssh"
 )
 

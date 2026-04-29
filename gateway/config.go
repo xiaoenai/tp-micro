@@ -18,9 +18,9 @@ import (
 	"time"
 
 	"github.com/swxctx/teleport/lib/cfgo"
-	micro "github.com/xiaoenai/tp-micro"
-	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	short "github.com/xiaoenai/tp-micro/v2/gateway/logic/http"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 // Config app config

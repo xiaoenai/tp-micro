@@ -14,7 +14,7 @@ import (
 
 	"github.com/swxctx/teleport/lib/goutil"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/micro/create/structtag"
+	"github.com/xiaoenai/tp-micro/v2/micro/create/structtag"
 )
 
 const (
@@ -378,7 +378,7 @@ func (t *tplInfo) initModelStructs() {
 			s.initModel()
 		}
 		var hasMongo bool
-		const mongoImp = `"github.com/xiaoenai/tp-micro/model/mongo"`
+		const mongoImp = `"github.com/xiaoenai/tp-micro/v2/model/mongo"`
 		for _, imp := range t.typeImports {
 			if imp == mongoImp {
 				hasMongo = true

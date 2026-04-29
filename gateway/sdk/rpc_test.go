@@ -2,8 +2,8 @@ package sdk
 
 import (
 	"testing"
-	// micro "github.com/xiaoenai/tp-micro"
-	// "github.com/xiaoenai/tp-micro/gateway/types"
+	// micro "github.com/xiaoenai/tp-micro/v2"
+	// "github.com/xiaoenai/tp-micro/v2/gateway/types"
 )
 
 // TestSdk test SDK.

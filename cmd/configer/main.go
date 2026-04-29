@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/swxctx/teleport/lib/cfgo"
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/configer"
-	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/configer"
+	"github.com/xiaoenai/tp-micro/v2/discovery"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 type config struct {

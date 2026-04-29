@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/xiaoenai/tp-micro/micro/info"
+	"github.com/xiaoenai/tp-micro/v2/micro/info"
 )
 
 // RestoreAsset restores an asset under the given directory

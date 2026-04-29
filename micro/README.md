@@ -1,6 +1,6 @@
 # Command micro
 
-A deployment tools for [TP-Micro](https://github.com/xiaoenai/tp-micro/tree/v2) micro service framework.
+A deployment tools for [TP-Micro](https://github.com/xiaoenai/tp-micro/v2/tree/v2) micro service framework.
 
 ## Feature
 

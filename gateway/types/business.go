@@ -17,7 +17,7 @@ package types
 import (
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/plugin"
-	"github.com/xiaoenai/tp-micro/gateway/client"
+	"github.com/xiaoenai/tp-micro/v2/gateway/client"
 )
 
 // Business implement your real business logic

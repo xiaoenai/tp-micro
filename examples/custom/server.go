@@ -3,13 +3,13 @@ package main
 import (
 	"github.com/swxctx/teleport/lib/cfgo"
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/gateway/helper/agent"
-	"github.com/xiaoenai/tp-micro/helper"
-	html "github.com/xiaoenai/tp-micro/helper/mod-html"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/discovery"
+	"github.com/xiaoenai/tp-micro/v2/gateway/helper/agent"
+	"github.com/xiaoenai/tp-micro/v2/helper"
+	html "github.com/xiaoenai/tp-micro/v2/helper/mod-html"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/model/redis"
 )
 
 func init() {

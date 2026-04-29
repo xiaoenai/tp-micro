@@ -5,10 +5,10 @@ import (
 
 	"github.com/swxctx/teleport/lib/goutil"
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
+	micro "github.com/xiaoenai/tp-micro/v2"
 
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic/model"
-	"github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
+	"github.com/xiaoenai/tp-micro/v2/gateway/helper/gray/logic/model"
+	"github.com/xiaoenai/tp-micro/v2/gateway/helper/gray/types"
 )
 
 var (

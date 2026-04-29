@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/swxctx/teleport/lib/cfgo"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/gateway"
-	"github.com/xiaoenai/tp-micro/gateway/types"
+	"github.com/xiaoenai/tp-micro/v2/gateway"
+	"github.com/xiaoenai/tp-micro/v2/gateway/types"
 )
 
 func main() {

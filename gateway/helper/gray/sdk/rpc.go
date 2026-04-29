@@ -3,11 +3,11 @@ package sdk
 import (
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/socket"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
-	types "github.com/xiaoenai/tp-micro/gateway/helper/gray/types"
-	gwLogic "github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/discovery"
+	types "github.com/xiaoenai/tp-micro/v2/gateway/helper/gray/types"
+	gwLogic "github.com/xiaoenai/tp-micro/v2/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 var _formalClient *micro.Client

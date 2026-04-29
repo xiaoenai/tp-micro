@@ -2,7 +2,7 @@ package main
 
 import (
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
+	micro "github.com/xiaoenai/tp-micro/v2"
 )
 
 func main() {

@@ -12,10 +12,10 @@ import (
 	"github.com/swxctx/teleport/lib/goutil"
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/codec"
-	"github.com/xiaoenai/tp-micro/gateway/client"
-	"github.com/xiaoenai/tp-micro/gateway/sdk"
-	"github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/gateway/client"
+	"github.com/xiaoenai/tp-micro/v2/gateway/sdk"
+	"github.com/xiaoenai/tp-micro/v2/gateway/types"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 const (

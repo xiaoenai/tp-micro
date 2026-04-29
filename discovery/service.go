@@ -23,7 +23,7 @@ import (
 
 	tp "github.com/swxctx/teleport"
 	heartbeat "github.com/swxctx/teleport/lib/tp-ext/plugin-heartbeat"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 const (

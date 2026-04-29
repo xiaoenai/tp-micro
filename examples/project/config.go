@@ -6,13 +6,13 @@ import (
 	"github.com/swxctx/teleport/lib/cfgo"
 	"github.com/swxctx/teleport/lib/goutil"
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/model/mongo"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/model/mongo"
+	"github.com/xiaoenai/tp-micro/v2/model/mysql"
+	"github.com/xiaoenai/tp-micro/v2/model/redis"
 
-	"github.com/xiaoenai/tp-micro/examples/project/logic/model"
+	"github.com/xiaoenai/tp-micro/v2/examples/project/logic/model"
 )
 
 type config struct {

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 var mgr = struct {

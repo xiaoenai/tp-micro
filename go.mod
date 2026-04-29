@@ -1,4 +1,4 @@
-module github.com/xiaoenai/tp-micro
+module github.com/xiaoenai/tp-micro/v2
 
 go 1.23.0
 

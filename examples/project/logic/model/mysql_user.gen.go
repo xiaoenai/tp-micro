@@ -9,10 +9,10 @@ import (
 
 	"github.com/swxctx/teleport/lib/goutil/coarsetime"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/sqlx"
+	"github.com/xiaoenai/tp-micro/v2/model/mysql"
+	"github.com/xiaoenai/tp-micro/v2/model/sqlx"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/v2/examples/project/args"
 )
 
 // User user info
@@ -38,7 +38,7 @@ func ToArgsUserSlice(a []*User) []*args.User {
 	return *(*[]*args.User)(unsafe.Pointer(&a))
 }
 
-// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+// TableName implements 'github.com/xiaoenai/tp-micro/v2/model'.Cacheable
 func (*User) TableName() string {
 	return "user"
 }

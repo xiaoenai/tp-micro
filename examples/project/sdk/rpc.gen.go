@@ -8,11 +8,11 @@ import (
 
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/socket"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/discovery"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/v2/examples/project/args"
 )
 
 var _ = fmt.Sprintf

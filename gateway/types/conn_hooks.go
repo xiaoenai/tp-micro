@@ -19,7 +19,7 @@ import (
 	"github.com/swxctx/teleport/plugin"
 	"github.com/swxctx/teleport/socket"
 	"github.com/valyala/fasthttp"
-	micro "github.com/xiaoenai/tp-micro"
+	micro "github.com/xiaoenai/tp-micro/v2"
 )
 
 // SocketHooks TCP socket connecting event hooks

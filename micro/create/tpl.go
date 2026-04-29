@@ -36,15 +36,15 @@ ${readme}
 
 *This is a project created by ` + "`micro gen`" + ` command.*
 
-*[About Micro Command](https://github.com/xiaoenai/tp-micro/tree/v2/cmd/micro)*
+*[About Micro Command](https://github.com/xiaoenai/tp-micro/v2/tree/v2/cmd/micro)*
 `
 
 var tplFiles = map[string]string{
 	"main.go": `package main
 
 import (
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/discovery"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/discovery"
 
 	"${import_prefix}/api"
 )
@@ -66,11 +66,11 @@ import (
 	"github.com/swxctx/teleport/lib/cfgo"
 	"github.com/swxctx/teleport/lib/goutil"
 	tp "github.com/swxctx/teleport"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/model/etcd"
-	"github.com/xiaoenai/tp-micro/model/mongo"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/model/mongo"
+	"github.com/xiaoenai/tp-micro/v2/model/mysql"
+	"github.com/xiaoenai/tp-micro/v2/model/redis"
 
 	"${import_prefix}/logic/model"
 	"${import_prefix}/logic/tools"
@@ -143,7 +143,7 @@ go 1.23.0
 
 require (
         github.com/swxctx/teleport v1.0.0 // indirect
-        github.com/xiaoenai/tp-micro v2.2.0 // indirect
+        github.com/xiaoenai/tp-micro/v2 v2.2.0 // indirect
         golang.org/x/sys v0.35.0 // indirect
         gopkg.in/yaml.v2 v2.4.0 // indirect
 )
@@ -172,9 +172,9 @@ type BaseConfig struct {
 import (
 	"strings"
 
-	"github.com/xiaoenai/tp-micro/model/mongo"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	"github.com/xiaoenai/tp-micro/v2/model/mongo"
+	"github.com/xiaoenai/tp-micro/v2/model/mysql"
+	"github.com/xiaoenai/tp-micro/v2/model/redis"
 )
 
 // mysqlHandler preset mysql DB handler
@@ -347,11 +347,11 @@ func Route(_root string, _router *tp.Router) {
 import (
 	"fmt"
 
-	micro "github.com/xiaoenai/tp-micro"
+	micro "github.com/xiaoenai/tp-micro/v2"
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/socket"
-    "github.com/xiaoenai/tp-micro/discovery"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+    "github.com/xiaoenai/tp-micro/v2/discovery"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 
 	"${import_prefix}/args"
 )
@@ -377,9 +377,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	micro "github.com/xiaoenai/tp-micro"
+	micro "github.com/xiaoenai/tp-micro/v2"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 
 	"${import_prefix}/args"
 	"${import_prefix}/sdk"
@@ -414,8 +414,8 @@ import (
 
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/lib/goutil/coarsetime"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/sqlx"
+	"github.com/xiaoenai/tp-micro/v2/model/mysql"
+	"github.com/xiaoenai/tp-micro/v2/model/sqlx"
 
 	"${import_prefix}/args"
 )
@@ -442,7 +442,7 @@ func ToArgs{{.Name}}Slice(a []*{{.Name}}) []*args.{{.Name}} {
 	return *(*[]*args.{{.Name}})(unsafe.Pointer(&a))
 }
 
-// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+// TableName implements 'github.com/xiaoenai/tp-micro/v2/model'.Cacheable
 func (*{{.Name}}) TableName() string {
 	return "{{.SnakeName}}"
 }
@@ -792,8 +792,8 @@ import (
 
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/lib/goutil/coarsetime"
-	"github.com/xiaoenai/tp-micro/model/mysql"
-	"github.com/xiaoenai/tp-micro/model/sqlx"
+	"github.com/xiaoenai/tp-micro/v2/model/mysql"
+	"github.com/xiaoenai/tp-micro/v2/model/sqlx"
 
 	"${import_prefix}/args"
 )
@@ -820,7 +820,7 @@ func ToArgs{{.Name}}Slice(a []*{{.Name}}) []*args.{{.Name}} {
 	return *(*[]*args.{{.Name}})(unsafe.Pointer(&a))
 }
 
-// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+// TableName implements 'github.com/xiaoenai/tp-micro/v2/model'.Cacheable
 func (*{{.Name}}) TableName() string {
 	return "{{.SnakeName}}"
 }
@@ -1168,7 +1168,7 @@ import (
 	"unsafe"
 
 	"github.com/swxctx/teleport/lib/goutil/coarsetime"
-	"github.com/xiaoenai/tp-micro/model/mongo"
+	"github.com/xiaoenai/tp-micro/v2/model/mongo"
 	tp "github.com/swxctx/teleport"
 
 	"${import_prefix}/args"
@@ -1188,7 +1188,7 @@ func ToArgs{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *args.{{.Name}} {
 	return (*args.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
 }
 
-// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+// TableName implements 'github.com/xiaoenai/tp-micro/v2/model'.Cacheable
 func (*{{.Name}}) TableName() string {
 	return "{{.SnakeName}}"
 }
@@ -1349,7 +1349,7 @@ import (
 	"unsafe"
 
 	"github.com/swxctx/teleport/lib/goutil/coarsetime"
-	"github.com/xiaoenai/tp-micro/model/mongo"
+	"github.com/xiaoenai/tp-micro/v2/model/mongo"
 	tp "github.com/swxctx/teleport"
 
 	"${import_prefix}/args"
@@ -1369,7 +1369,7 @@ func ToArgs{{.Name}}(_{{.LowerFirstLetter}} *{{.Name}}) *args.{{.Name}} {
 	return (*args.{{.Name}})(unsafe.Pointer(_{{.LowerFirstLetter}}))
 }
 
-// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+// TableName implements 'github.com/xiaoenai/tp-micro/v2/model'.Cacheable
 func (*{{.Name}}) TableName() string {
 	return "{{.SnakeName}}"
 }

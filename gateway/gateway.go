@@ -20,14 +20,14 @@ import (
 	_ "unsafe"
 
 	"github.com/swxctx/teleport/socket"
-	"github.com/xiaoenai/tp-micro/gateway/client"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
-	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
-	long "github.com/xiaoenai/tp-micro/gateway/logic/socket"
-	"github.com/xiaoenai/tp-micro/gateway/sdk"
-	"github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/model/etcd"
+	"github.com/xiaoenai/tp-micro/v2/gateway/client"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic/hosts"
+	short "github.com/xiaoenai/tp-micro/v2/gateway/logic/http"
+	long "github.com/xiaoenai/tp-micro/v2/gateway/logic/socket"
+	"github.com/xiaoenai/tp-micro/v2/gateway/sdk"
+	"github.com/xiaoenai/tp-micro/v2/gateway/types"
+	"github.com/xiaoenai/tp-micro/v2/model/etcd"
 )
 
 // Run the gateway main program.

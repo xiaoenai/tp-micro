@@ -9,9 +9,9 @@ import (
 
 	"github.com/swxctx/teleport/lib/goutil/coarsetime"
 	tp "github.com/swxctx/teleport"
-	"github.com/xiaoenai/tp-micro/model/mongo"
+	"github.com/xiaoenai/tp-micro/v2/model/mongo"
 
-	"github.com/xiaoenai/tp-micro/examples/project/args"
+	"github.com/xiaoenai/tp-micro/v2/examples/project/args"
 )
 
 var _ = tp.Errorf
@@ -29,7 +29,7 @@ func ToArgsMeta(_m *Meta) *args.Meta {
 	return (*args.Meta)(unsafe.Pointer(_m))
 }
 
-// TableName implements 'github.com/xiaoenai/tp-micro/model'.Cacheable
+// TableName implements 'github.com/xiaoenai/tp-micro/v2/model'.Cacheable
 func (*Meta) TableName() string {
 	return "meta"
 }

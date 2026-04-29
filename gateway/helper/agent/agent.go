@@ -12,13 +12,13 @@ import (
 	"github.com/swxctx/teleport/lib/goutil/coarsetime"
 	tp "github.com/swxctx/teleport"
 	"github.com/swxctx/teleport/plugin"
-	micro "github.com/xiaoenai/tp-micro"
-	"github.com/xiaoenai/tp-micro/gateway/client"
-	"github.com/xiaoenai/tp-micro/gateway/logic"
-	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
-	"github.com/xiaoenai/tp-micro/gateway/logic/socket"
-	"github.com/xiaoenai/tp-micro/gateway/types"
-	"github.com/xiaoenai/tp-micro/model/redis"
+	micro "github.com/xiaoenai/tp-micro/v2"
+	"github.com/xiaoenai/tp-micro/v2/gateway/client"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic/hosts"
+	"github.com/xiaoenai/tp-micro/v2/gateway/logic/socket"
+	"github.com/xiaoenai/tp-micro/v2/gateway/types"
+	"github.com/xiaoenai/tp-micro/v2/model/redis"
 )
 
 var (

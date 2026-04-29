@@ -9,7 +9,7 @@ package main
 
 import (
     "github.com/swxctx/teleport/lib/cfgo"
-    "github.com/xiaoenai/tp-micro/gateway"
+    "github.com/xiaoenai/tp-micro/v2/gateway"
 )
 
 func main() {
