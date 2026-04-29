@@ -6,14 +6,13 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 package main
 
 import (
@@ -27,9 +26,9 @@ import (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "Micro project aids"
-	app.Version = "2.0.0"
-	app.Author = "henrylee2cn"
+	app.Name = "TpMicro project aids"
+	app.Version = "2.2.0"
+	app.Author = "swxctx"
 	app.Usage = "a deployment tools of tp-micro frameware"
 
 	// new a project
