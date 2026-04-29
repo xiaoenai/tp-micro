@@ -7,7 +7,7 @@ import (
 	"os"
 	"sync"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 

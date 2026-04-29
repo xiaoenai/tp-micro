@@ -1,7 +1,7 @@
 package main
 
 import (
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/helper"

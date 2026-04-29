@@ -13,8 +13,8 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/goutil"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/micro/info"
 )
 

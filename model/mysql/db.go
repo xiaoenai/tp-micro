@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/henrylee2cn/goutil"
-	"github.com/henrylee2cn/goutil/errors"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/goutil"
+	"github.com/swxctx/teleport/lib/goutil/errors"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/model/redis"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"

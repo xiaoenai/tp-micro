@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 )

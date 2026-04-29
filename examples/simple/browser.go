@@ -11,7 +11,7 @@ import (
 
 func main() {
 	go http.ListenAndServe(":8080", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(html))
+		w.Write([]byte(htmlV))
 	}))
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
@@ -32,7 +32,7 @@ func main() {
 	select {}
 }
 
-const html = `<!DOCTYPE html>
+const htmlV = `<!DOCTYPE html>
 <html>
 <head>
     <title>/math/divide</title>

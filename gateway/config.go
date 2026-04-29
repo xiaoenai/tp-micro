@@ -17,7 +17,7 @@ package gateway
 import (
 	"time"
 
-	"github.com/henrylee2cn/cfgo"
+	"github.com/swxctx/teleport/lib/cfgo"
 	micro "github.com/xiaoenai/tp-micro"
 	short "github.com/xiaoenai/tp-micro/gateway/logic/http"
 	"github.com/xiaoenai/tp-micro/model/etcd"

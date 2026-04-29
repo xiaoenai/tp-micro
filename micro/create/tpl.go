@@ -63,9 +63,9 @@ func main() {
 import (
 	"time"
 	
-	"github.com/henrylee2cn/cfgo"
-	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/cfgo"
+	"github.com/swxctx/teleport/lib/goutil"
+	tp "github.com/swxctx/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 	"github.com/xiaoenai/tp-micro/model/mongo"
@@ -285,7 +285,7 @@ ${type_define_list}
 
 	"logic/tmp_code.gen.go": `package logic
 import (
-	// tp "github.com/henrylee2cn/teleport"
+	// tp "github.com/swxctx/teleport"
 
 	// "${import_prefix}/args"
 	// "${import_prefix}/logic/model"
@@ -296,7 +296,7 @@ ${logic_api_define}
 
 	"api/pull_handler.gen.go": `package api
 import (
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/swxctx/teleport"
 
     "${import_prefix}/logic"
     "${import_prefix}/args"
@@ -306,7 +306,7 @@ ${handler_api_define}
 
 	"api/push_handler.gen.go": `package api
 import (
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/swxctx/teleport"
 
     "${import_prefix}/logic"
     "${import_prefix}/args"
@@ -317,7 +317,7 @@ ${handler_api_define}
 	"api/router.gen.go": `
 package api
 import (
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/swxctx/teleport"
 )
 // Route registers handlers to router.
 func Route(_root string, _router *tp.Router) {
@@ -336,8 +336,8 @@ import (
 	"fmt"
 
 	micro "github.com/xiaoenai/tp-micro"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/socket"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/socket"
     "github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 
@@ -366,7 +366,7 @@ import (
 	"fmt"
 
 	micro "github.com/xiaoenai/tp-micro"
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 
 	"${import_prefix}/args"
@@ -400,8 +400,8 @@ import (
 	"database/sql"
 	"unsafe"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/goutil/coarsetime"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/lib/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 
@@ -778,8 +778,8 @@ import (
 	"database/sql"
 	"unsafe"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/goutil/coarsetime"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/lib/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 
@@ -1155,9 +1155,9 @@ const mongoModelTpl = `package model
 import (
 	"unsafe"
 
-	"github.com/henrylee2cn/goutil/coarsetime"
+	"github.com/swxctx/teleport/lib/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/model/mongo"
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 
 	"${import_prefix}/args"
 )
@@ -1336,9 +1336,9 @@ const mongoModelTplTm = `package model
 import (
 	"unsafe"
 
-	"github.com/henrylee2cn/goutil/coarsetime"
+	"github.com/swxctx/teleport/lib/goutil/coarsetime"
 	"github.com/xiaoenai/tp-micro/model/mongo"
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 
 	"${import_prefix}/args"
 )

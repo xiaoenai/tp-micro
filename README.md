@@ -1,7 +1,7 @@
-# TP-Micro [![GitHub release](https://img.shields.io/github/release/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/releases) [![report card](https://goreportcard.com/badge/github.com/xiaoenai/tp-micro?style=flat-square)](http://goreportcard.com/report/xiaoenai/tp-micro) [![github issues](https://img.shields.io/github/issues/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aopen+is%3Aissue) [![github closed issues](https://img.shields.io/github/issues-closed-raw/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aissue+is%3Aclosed) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/xiaoenai/tp-micro) [![view examples](https://img.shields.io/badge/learn%20by-examples-00BCD4.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/tree/v2/examples) [![view teleport](https://img.shields.io/badge/based%20on-teleport-00BCD4.svg?style=flat-square)](https://github.com/henrylee2cn/teleport) [![view Go网络编程群](https://img.shields.io/badge/官方QQ群-Go网络编程(42730308)-27a5ea.svg?style=flat-square)](http://jq.qq.com/?_wv=1027&k=fzi4p1)
+# TP-Micro [![GitHub release](https://img.shields.io/github/release/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/releases) [![report card](https://goreportcard.com/badge/github.com/xiaoenai/tp-micro?style=flat-square)](http://goreportcard.com/report/xiaoenai/tp-micro) [![github issues](https://img.shields.io/github/issues/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aopen+is%3Aissue) [![github closed issues](https://img.shields.io/github/issues-closed-raw/xiaoenai/tp-micro.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/issues?q=is%3Aissue+is%3Aclosed) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/xiaoenai/tp-micro) [![view examples](https://img.shields.io/badge/learn%20by-examples-00BCD4.svg?style=flat-square)](https://github.com/xiaoenai/tp-micro/tree/v2/examples) [![view teleport](https://img.shields.io/badge/based%20on-teleport-00BCD4.svg?style=flat-square)](https://github.com/swxctx/teleport) [![view Go网络编程群](https://img.shields.io/badge/官方QQ群-Go网络编程(42730308)-27a5ea.svg?style=flat-square)](http://jq.qq.com/?_wv=1027&k=fzi4p1)
 
 
-TP-Micro v2 is a simple, powerful micro service framework based on [Teleport v3](https://github.com/henrylee2cn/teleport/tree/v3).
+TP-Micro v2 is a simple, powerful micro service framework based on [Teleport v3](https://github.com/swxctx/teleport/tree/v3).
 
 [简体中文](https://github.com/xiaoenai/tp-micro/blob/v2/README_ZH.md)
 
@@ -46,7 +46,7 @@ package main
 
 import (
     micro "github.com/xiaoenai/tp-micro"
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/swxctx/teleport"
 )
 
 // Arg arg
@@ -81,7 +81,7 @@ package main
 
 import (
     micro "github.com/xiaoenai/tp-micro"
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/swxctx/teleport"
 )
 
 func main() {
@@ -622,7 +622,7 @@ float64 |  []float64 |
 package main
 
 import (
-    tp "github.com/henrylee2cn/teleport"
+    tp "github.com/swxctx/teleport"
     micro "github.com/xiaoenai/tp-micro"
 )
 
@@ -708,7 +708,7 @@ func SetSocketReadBuffer(bytes int)
 func SetSocketWriteBuffer(bytes int)
 ```
 
-[More Usage](https://github.com/henrylee2cn/teleport/tree/v3)
+[More Usage](https://github.com/swxctx/teleport/tree/v3)
 
 ## License
 

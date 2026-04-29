@@ -1,6 +1,7 @@
 // redis (cluster) client package.
 // Based on `github.com/go-redis/redis` v6.5.2
-//  http://godoc.org/gopkg.in/go-redis/redis.v6
+//
+//	http://godoc.org/gopkg.in/go-redis/redis.v6
 package redis
 
 import (
@@ -8,7 +9,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/henrylee2cn/cfgo"
+	"github.com/swxctx/teleport/lib/cfgo"
 )
 
 type (
@@ -143,7 +144,7 @@ type (
 		redis.Cmdable
 		TxPipeline() redis.Pipeliner
 		TxPipelined(fn func(redis.Pipeliner) error) ([]redis.Cmder, error)
-		Publish(channel, message string) *redis.IntCmd
+		Publish(channel string, message interface{}) *IntCmd
 		Subscribe(channels ...string) *redis.PubSub
 		Watch(fn func(*redis.Tx) error, keys ...string) error
 	}

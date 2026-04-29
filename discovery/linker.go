@@ -20,8 +20,8 @@ import (
 	"net"
 	"sync"
 
-	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/goutil"
+	tp "github.com/swxctx/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 )

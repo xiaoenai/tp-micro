@@ -9,9 +9,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/codec"
+	"github.com/swxctx/teleport/lib/goutil"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/codec"
 	"github.com/xiaoenai/tp-micro/gateway/client"
 	"github.com/xiaoenai/tp-micro/gateway/sdk"
 	"github.com/xiaoenai/tp-micro/gateway/types"

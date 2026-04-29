@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/goutil"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/micro/create/tpl"
 	"github.com/xiaoenai/tp-micro/micro/info"
 )

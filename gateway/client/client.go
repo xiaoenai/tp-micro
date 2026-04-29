@@ -15,7 +15,7 @@
 package client
 
 import (
-	"github.com/henrylee2cn/teleport/socket"
+	"github.com/swxctx/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/model/etcd"

@@ -19,7 +19,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/henrylee2cn/goutil"
+	"github.com/swxctx/teleport/lib/goutil"
 )
 
 var (

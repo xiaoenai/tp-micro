@@ -18,16 +18,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/socket"
-	heartbeat "github.com/henrylee2cn/tp-ext/plugin-heartbeat"
+	"github.com/swxctx/teleport/lib/cfgo"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/socket"
+	heartbeat "github.com/swxctx/teleport/lib/tp-ext/plugin-heartbeat"
 )
 
 type (
 	// CliConfig client config
 	// Note:
-	//  yaml tag is used for github.com/henrylee2cn/cfgo
+	//  yaml tag is used for github.com/swxctx/teleport/lib/cfgo
 	//  ini tag is used for github.com/henrylee2cn/ini
 	CliConfig struct {
 		Network            string               `yaml:"network"                ini:"network"                comment:"Network; tcp, tcp4, tcp6, unix or unixpacket"`

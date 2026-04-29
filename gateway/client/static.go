@@ -17,7 +17,7 @@ package client
 import (
 	"sync"
 
-	"github.com/henrylee2cn/teleport/socket"
+	"github.com/swxctx/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
 )
 

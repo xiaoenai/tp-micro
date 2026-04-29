@@ -6,8 +6,8 @@ package sdk
 import (
 	"fmt"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/socket"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/socket"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/model/etcd"

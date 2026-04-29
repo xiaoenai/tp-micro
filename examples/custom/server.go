@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/cfgo"
+	tp "github.com/swxctx/teleport"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/discovery"
 	"github.com/xiaoenai/tp-micro/gateway/helper/agent"

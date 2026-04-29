@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 	"github.com/valyala/fasthttp"
 	micro "github.com/xiaoenai/tp-micro"
 	"github.com/xiaoenai/tp-micro/gateway/logic"

@@ -10,6 +10,7 @@ gateway:
   outer_socket_server:
     network: ""
     listen_address: 0.0.0.0:5020
+    outer_host: ""
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s
@@ -22,6 +23,7 @@ gateway:
   inner_socket_server:
     network: ""
     listen_address: 0.0.0.0:5030
+    outer_host: ""
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s
@@ -39,15 +41,12 @@ gateway:
     default_session_age: 0s
     default_context_age: 0s
     default_dial_timeout: 0s
-    redial_times: 0
     failover: 3
     slow_comet_duration: 0s
     default_body_codec: ""
     print_detail: false
     count_time: false
     heartbeat_second: 60
-    sess_max_quota: 0
-    sess_max_idle_duration: 0s
     circuit_breaker:
       enable: false
       error_percentage: 0

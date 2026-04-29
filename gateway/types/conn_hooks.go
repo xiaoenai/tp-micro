@@ -15,9 +15,9 @@
 package types
 
 import (
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
-	"github.com/henrylee2cn/teleport/socket"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/plugin"
+	"github.com/swxctx/teleport/socket"
 	"github.com/valyala/fasthttp"
 	micro "github.com/xiaoenai/tp-micro"
 )

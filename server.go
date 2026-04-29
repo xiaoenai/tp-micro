@@ -20,16 +20,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/henrylee2cn/cfgo"
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/socket"
-	binder "github.com/henrylee2cn/tp-ext/plugin-binder"
-	heartbeat "github.com/henrylee2cn/tp-ext/plugin-heartbeat"
+	"github.com/swxctx/teleport/lib/cfgo"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/socket"
+	binder "github.com/swxctx/teleport/lib/tp-ext/plugin-binder"
+	heartbeat "github.com/swxctx/teleport/lib/tp-ext/plugin-heartbeat"
 )
 
 // SrvConfig server config
 // Note:
-//  yaml tag is used for github.com/henrylee2cn/cfgo
+//  yaml tag is used for github.com/swxctx/teleport/lib/cfgo
 //  ini tag is used for github.com/henrylee2cn/ini
 type SrvConfig struct {
 	Network           string        `yaml:"network"              ini:"network"              comment:"Network; tcp, tcp4, tcp6, unix or unixpacket"`

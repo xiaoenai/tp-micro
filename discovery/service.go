@@ -21,8 +21,8 @@ import (
 	"net"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
-	heartbeat "github.com/henrylee2cn/tp-ext/plugin-heartbeat"
+	tp "github.com/swxctx/teleport"
+	heartbeat "github.com/swxctx/teleport/lib/tp-ext/plugin-heartbeat"
 	"github.com/xiaoenai/tp-micro/model/etcd"
 )
 

@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/plugin"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/plugin"
 	micro "github.com/xiaoenai/tp-micro"
 )
 

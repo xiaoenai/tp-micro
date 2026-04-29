@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/goutil"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/micro/info"
 	"golang.org/x/crypto/ssh"
 )

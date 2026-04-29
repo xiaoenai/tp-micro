@@ -6,8 +6,8 @@ import (
 	"text/template"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
-	"github.com/henrylee2cn/teleport/utils"
+	tp "github.com/swxctx/teleport"
+	"github.com/swxctx/teleport/utils"
 	micro "github.com/xiaoenai/tp-micro"
 )
 

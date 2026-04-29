@@ -12,8 +12,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/goutil"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/micro/create/structtag"
 )
 
@@ -194,7 +194,7 @@ func (t *tplInfo) getCodeBlock(i interface{}) string {
 }
 
 func (t *tplInfo) parseImports() {
-	const codec = `"github.com/henrylee2cn/teleport/codec"`
+	const codec = `"github.com/swxctx/teleport/codec"`
 	t.typeImports = append(t.typeImports, codec)
 	for _, imp := range t.astFile.Imports {
 		s := t.getCodeBlock(imp)

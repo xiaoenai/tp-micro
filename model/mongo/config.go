@@ -3,7 +3,7 @@ package mongo
 import (
 	"time"
 
-	"github.com/henrylee2cn/cfgo"
+	"github.com/swxctx/teleport/lib/cfgo"
 	"gopkg.in/mgo.v2"
 )
 

@@ -19,8 +19,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/henrylee2cn/goutil"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/goutil"
+	tp "github.com/swxctx/teleport"
 )
 
 // InnerIpPort returns the service's intranet address, such as '192.168.1.120:8080'.

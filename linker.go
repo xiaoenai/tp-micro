@@ -15,7 +15,7 @@
 package micro
 
 import (
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 )
 
 // Linker linker for client.

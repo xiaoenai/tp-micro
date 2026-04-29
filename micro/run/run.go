@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/micro/create"
 	"github.com/xiaoenai/tp-micro/micro/info"
 	"github.com/xiaoenai/tp-micro/micro/run/fsnotify"

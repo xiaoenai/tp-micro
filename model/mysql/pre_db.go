@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/henrylee2cn/goutil"
+	"github.com/swxctx/teleport/lib/goutil"
 	"github.com/xiaoenai/tp-micro/model/redis"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 	"github.com/xiaoenai/tp-micro/model/sqlx/reflectx"

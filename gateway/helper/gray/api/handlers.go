@@ -1,7 +1,7 @@
 package api
 
 import (
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray/logic"
 	"github.com/xiaoenai/tp-micro/gateway/helper/gray/types"

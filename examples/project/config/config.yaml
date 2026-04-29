@@ -2,6 +2,7 @@ project:
   srv:
     network: ""
     listen_address: :0
+    outer_host: ""
     tls_cert_file: ""
     tls_key_file: ""
     default_session_age: 0s

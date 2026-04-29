@@ -8,7 +8,7 @@ Package gateway is the main program for TCP and HTTP services.
 package main
 
 import (
-    "github.com/henrylee2cn/cfgo"
+    "github.com/swxctx/teleport/lib/cfgo"
     "github.com/xiaoenai/tp-micro/gateway"
 )
 

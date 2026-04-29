@@ -4,7 +4,7 @@
 package api
 
 import (
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 
 	"github.com/xiaoenai/tp-micro/examples/project/args"
 	"github.com/xiaoenai/tp-micro/examples/project/logic"

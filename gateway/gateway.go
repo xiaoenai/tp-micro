@@ -19,7 +19,7 @@ package gateway
 import (
 	_ "unsafe"
 
-	"github.com/henrylee2cn/teleport/socket"
+	"github.com/swxctx/teleport/socket"
 	"github.com/xiaoenai/tp-micro/gateway/client"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"

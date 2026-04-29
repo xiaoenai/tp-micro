@@ -7,8 +7,8 @@ import (
 	"database/sql"
 	"unsafe"
 
-	"github.com/henrylee2cn/goutil/coarsetime"
-	tp "github.com/henrylee2cn/teleport"
+	"github.com/swxctx/teleport/lib/goutil/coarsetime"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/model/mysql"
 	"github.com/xiaoenai/tp-micro/model/sqlx"
 

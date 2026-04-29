@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/henrylee2cn/goutil"
-	"github.com/henrylee2cn/goutil/errors"
+	"github.com/swxctx/teleport/lib/goutil"
+	"github.com/swxctx/teleport/lib/goutil/errors"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/model/redis"
 )
 

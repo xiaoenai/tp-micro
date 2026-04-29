@@ -5,7 +5,7 @@ import (
 	"sync"
 	_ "unsafe"
 
-	tp "github.com/henrylee2cn/teleport"
+	tp "github.com/swxctx/teleport"
 	"github.com/xiaoenai/tp-micro/gateway/logic"
 	"github.com/xiaoenai/tp-micro/gateway/logic/hosts"
 	"github.com/xiaoenai/tp-micro/gateway/types"
