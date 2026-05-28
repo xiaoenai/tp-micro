@@ -21,6 +21,10 @@ type Config struct {
 	PoolLimit int `yaml:"pool_limit"`
 	// NoCache whether to disable cache
 	NoCache bool `yaml:"no_cache"`
+	// Direct informs whether to establish connections only with the
+	// specified seed servers, or to obtain information for the whole
+	// cluster and establish connections with further servers too.
+	Direct bool `yaml:"direct"`
 
 	init bool
 }
@@ -77,6 +81,7 @@ func (mgoConfig *Config) Source() *mgo.DialInfo {
 		Database:  mgoConfig.Database,
 		Timeout:   mgoConfig.Timeout,
 		PoolLimit: mgoConfig.PoolLimit,
+		Direct:    mgoConfig.Direct,
 	}
 
 	return dialInfo
